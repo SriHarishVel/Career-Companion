@@ -1,26 +1,23 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import GoalCard from "../components/GoalCard";
+import initialSkills from "../data/skills";
 
 function Skills() {
     const [newSkill, setNewSkill] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
-    const [skills, setSkills] = useState([
-        {
-            id: 1,
-            name: "React",
-            progress: 20
-        },
-        {
-            id: 2,
-            name: "Node",
-            progress: 40
-        },
-        {
-            id: 3,
-            name: "Gen AI",
-            progress: 10
+    const [skills, setSkills] = useState(() => {
+        const savedSkills = localStorage.getItem("skills");
+
+        if (savedSkills) {
+            return JSON.parse(savedSkills);
         }
-    ]);
+
+        return initialSkills;
+    });
+
+    useEffect(() =>{
+        localStorage.setItem("skills",JSON.stringify(skills));
+    }, [skills]);
 
     function handleProgress(skillId) {
         setSkills(prevSkills => prevSkills.map(skill => {

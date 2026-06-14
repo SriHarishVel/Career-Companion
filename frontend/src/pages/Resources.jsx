@@ -1,22 +1,24 @@
-import { useState } from "react";
+import { useState, useEffect} from "react";
+import initialResources from "../data/resources";
 
 function Resources() {
     const [newTitle, setNewTitle] = useState("");
     const [newUrl, setNewUrl] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
 
-    const [resources, setResources] = useState([
-        {
-            id: 1,
-            title: "React Docs",
-            url: "https://react.dev"
-        },
-        {
-            id: 2,
-            title: "MDN JavaScript",
-            url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript"
+    const [resources, setResources] = useState(() => {
+        const savedResources = localStorage.getItem("resources");
+
+        if (savedResources) {
+            return JSON.parse(savedResources);
         }
-    ]);
+
+        return initialResources;
+    });
+
+    useEffect(() => {
+        localStorage.setItem("resources", JSON.stringify(resources));
+    }, [resources]);
 
     function addResource() {
         if (newTitle.trim() === "" || newUrl.trim() === "") {

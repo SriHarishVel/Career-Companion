@@ -1,26 +1,23 @@
-import {useState} from "react";
+import {useState, useEffect} from "react";
 import GoalCard from "../components/GoalCard";
+import initialGoals from "../data/goals";
 
 function Goals() {
     const [newGoal, setNewGoal] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
-    const [goals, setGoals] = useState([
-        {
-            id: 1,
-            title: "Learn React",
-            progress: 20
-        },
-        {
-            id: 2,
-            title: "Practice DSA",
-            progress: 40
-        },
-        {
-            id: 3,
-            title: "Build Portfolio",
-            progress: 10
+    const [goals, setGoals] = useState(() => {
+        const savedGoals = localStorage.getItem("goals");
+
+        if (savedGoals) {
+            return JSON.parse(savedGoals);
         }
-    ]);
+
+        return initialGoals;
+    });
+
+    useEffect(() => {
+        localStorage.setItem("goals", JSON.stringify(goals));
+    }, [goals]);
 
     function handleProgress(goalId) {
         setGoals(prevGoals => prevGoals.map(goal => {
