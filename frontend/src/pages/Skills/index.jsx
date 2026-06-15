@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
-import GoalCard from "../components/GoalCard";
-import initialSkills from "../data/skills";
+import GoalCard from "../../components/GoalCard";
+import initialSkills from "../../data/skills";
+import "./index.css"
 
 function Skills() {
     const [newSkill, setNewSkill] = useState("");
@@ -46,7 +47,7 @@ function Skills() {
         setNewSkill("");
     }
     return (
-        <>
+        <div className="container">
         <input type="text" placeholder="Add Skill" value={newSkill} onChange={(e) => { setNewSkill(e.target.value); setErrorMsg(""); }} />
         {errorMsg && <p>{errorMsg}</p>}
         <button onClick={addSkill}>Add Skill</button>
@@ -60,7 +61,7 @@ function Skills() {
                     onDelete={deleteSkill}
                 />
             ))}
-        </>
+        </div>
     );   
 
 }

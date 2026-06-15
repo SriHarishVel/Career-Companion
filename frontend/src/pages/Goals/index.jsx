@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
-import GoalCard from "../components/GoalCard";
-import initialGoals from "../data/goals";
+import GoalCard from "../../components/GoalCard";
+import initialGoals from "../../data/goals";
+import "./index.css"
 
 function Goals() {
     const [newGoal, setNewGoal] = useState("");
@@ -46,7 +47,7 @@ function Goals() {
         setNewGoal("");
     }
     return (
-        <>
+        <div className="container">
         <input type="text" placeholder="Add Goal" value={newGoal} onChange={(e) => { setNewGoal(e.target.value); setErrorMsg(""); }} />
         {errorMsg && <p>{errorMsg}</p>}
         <button onClick={addGoal}>Add Goal</button>
@@ -60,7 +61,7 @@ function Goals() {
                     onDelete={deleteGoal}
                 />
             ))}
-        </>
+        </div>
     );   
 
 }

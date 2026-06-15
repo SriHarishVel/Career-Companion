@@ -1,5 +1,6 @@
 import { useState, useEffect} from "react";
-import initialResources from "../data/resources";
+import initialResources from "../../data/resources";
+import "./index.css"
 
 function Resources() {
     const [newTitle, setNewTitle] = useState("");
@@ -50,9 +51,8 @@ function Resources() {
             )
         );
     }
-
     return (
-        <>
+        <div className="container">
             <h1>Resources</h1>
 
             <input
@@ -65,8 +65,6 @@ function Resources() {
                 }}
             />
 
-            <br /><br />
-
             <input
                 type="url"
                 placeholder="Resource URL"
@@ -77,18 +75,17 @@ function Resources() {
                 }}
             />
 
-            <br /><br />
-
-            {errorMsg && <p>{errorMsg}</p>}
+            {errorMsg && <p className="error">{errorMsg}</p>}
 
             <button onClick={addResource}>
                 Add Resource
             </button>
 
-            <hr />
-
             {resources.map(resource => (
-                <div key={resource.id}>
+                <div
+                    className="resource-card"
+                    key={resource.id}
+                >
                     <h3>{resource.title}</h3>
 
                     <a
@@ -99,7 +96,7 @@ function Resources() {
                         Open Resource
                     </a>
 
-                    <br /><br />
+                    <br />
 
                     <button
                         onClick={() =>
@@ -108,11 +105,9 @@ function Resources() {
                     >
                         Delete
                     </button>
-
-                    <hr />
                 </div>
             ))}
-        </>
+        </div>
     );
 }
 

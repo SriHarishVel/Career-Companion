@@ -1,0 +1,38 @@
+.container {
+    max-width: 900px;
+    margin: 30px auto;
+    padding: 30px;
+    background-color: white;
+    border-radius: 10px;
+}
+
+.container h1 {
+    margin-bottom: 10px;
+}
+
+.welcome {
+    font-size: 18px;
+    color: #555;
+    margin-bottom: 20px;
+}
+
+.container hr {
+    margin: 20px 0;
+}
+
+.container h2 {
+    margin-bottom: 15px;
+}
+
+.overview {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.overview li {
+    background-color: #f8fafc;
+    padding: 15px;
+    border-radius: 8px;
+    border-left: 4px solid #2563eb;
+}
