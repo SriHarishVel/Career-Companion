@@ -23,7 +23,11 @@ function Goals() {
     function handleProgress(goalId) {
         setGoals(prevGoals => prevGoals.map(goal => {
             if (goal.id === goalId) {
-                return {...goal, progress: Math.min(goal.progress + 10, 100)};
+                return {
+                ...goal,
+                progress: Math.min(goal.progress + 10, 100),
+                lastUpdated: Date.now()
+            };
             }
             return goal;
         }));
@@ -39,11 +43,15 @@ function Goals() {
             return;
         }
         setErrorMsg("");
-        setGoals(prevGoals => [...prevGoals, {
-            id: Date.now(),
-            title: newGoal.trim(),
-            progress: 0
-        }]);
+        setGoals(prevGoals => [
+            ...prevGoals,
+            {
+                id: Date.now(),
+                title: newGoal.trim(),
+                progress: 0,
+                lastUpdated: Date.now()
+            }
+        ]);
         setNewGoal("");
     }
     return (

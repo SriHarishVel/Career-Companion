@@ -35,8 +35,9 @@ function Resources() {
                 id: Date.now(),
                 title: newTitle.trim(),
                 url: formattedUrl.startsWith("http")
-                ? formattedUrl
-                : `https://${formattedUrl}`
+                    ? formattedUrl
+                    : `https://${formattedUrl}`,
+                lastUpdated: Date.now()
             }
         ]);
 

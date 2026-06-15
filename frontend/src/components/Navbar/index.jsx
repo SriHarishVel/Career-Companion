@@ -1,4 +1,4 @@
-import { Link } from "react-router-dom";
+import { NavLink } from "react-router-dom";
 import "./index.css";
 
 function Navbar() {
@@ -6,13 +6,53 @@ function Navbar() {
         <nav>
             <h2>Career Companion</h2>
 
-            <Link to="/">Home</Link>
-            <Link to="/goals">Goals</Link>
-            <Link to="/skills">Skills</Link>
-            <Link to="/resources">Resources</Link>
-            <Link to="/dashboard">Dashboard</Link>
+            <NavLink
+                to="/"
+                end
+                className={({ isActive }) =>
+                    isActive ? "active" : ""
+                }
+            >
+                Home
+            </NavLink>
+
+            <NavLink
+                to="/goals"
+                className={({ isActive }) =>
+                    isActive ? "active" : ""
+                }
+            >
+                Goals
+            </NavLink>
+
+            <NavLink
+                to="/skills"
+                className={({ isActive }) =>
+                    isActive ? "active" : ""
+                }
+            >
+                Skills
+            </NavLink>
+
+            <NavLink
+                to="/resources"
+                className={({ isActive }) =>
+                    isActive ? "active" : ""
+                }
+            >
+                Resources
+            </NavLink>
+
+            <NavLink
+                to="/dashboard"
+                className={({ isActive }) =>
+                    isActive ? "active" : ""
+                }
+            >
+                Dashboard
+            </NavLink>
         </nav>
     );
-}   
+}
+
 export default Navbar;
-    

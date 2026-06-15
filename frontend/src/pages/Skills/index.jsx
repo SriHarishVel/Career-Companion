@@ -23,7 +23,11 @@ function Skills() {
     function handleProgress(skillId) {
         setSkills(prevSkills => prevSkills.map(skill => {
             if (skill.id === skillId) {
-                return {...skill, progress: Math.min(skill.progress + 10, 100)};
+                return {
+                    ...skill,
+                    progress: Math.min(skill.progress + 10, 100),
+                    lastUpdated: Date.now()
+                };
             }
             return skill;
         }));
@@ -39,11 +43,15 @@ function Skills() {
             return;
         }
         setErrorMsg("");
-        setSkills(prevSkills => [...prevSkills, {
-            id: Date.now(),
-            name: newSkill.trim(),
-            progress: 0
-        }]);
+        setSkills(prevSkills => [
+            ...prevSkills,
+            {
+                id: Date.now(),
+                name: newSkill.trim(),
+                progress: 0,
+                lastUpdated: Date.now()
+            }
+        ]);
         setNewSkill("");
     }
     return (
