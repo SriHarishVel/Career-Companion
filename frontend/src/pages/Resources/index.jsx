@@ -6,7 +6,8 @@ function Resources() {
     const [newTitle, setNewTitle] = useState("");
     const [newUrl, setNewUrl] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
-
+    const [searchResource, setSearchResource] = useState("");
+    const [sortOption, setSortOption] = useState("default");
     const [resources, setResources] = useState(() => {
         const savedResources = localStorage.getItem("resources");
 
@@ -52,9 +53,73 @@ function Resources() {
             )
         );
     }
+    
+    const filteredResources = [...resources]
+        .filter(resource =>
+            resource.title
+                .toLowerCase()
+                .includes(
+                    searchResource.toLowerCase()
+                )
+        )
+        .sort((a, b) => {
+            if (sortOption === "az") {
+                return a.title.localeCompare(
+                    b.title
+                );
+            }
+
+            if (sortOption === "za") {
+                return b.title.localeCompare(
+                    a.title
+                );
+            }
+            if (sortOption === "recent") {
+                return (
+                    b.lastUpdated -
+                    a.lastUpdated
+                );
+            }
+
+            return 0;
+        });
+
+
     return (
         <div className="container">
             <h1>Resources</h1>
+            <input 
+                type = "search" 
+                placeholder="Search resources" 
+                value={searchResource}
+                onChange={(e)=>
+                    setSearchResource(e.target.value)
+                }
+            />
+            <select
+                value={sortOption}
+                onChange={(e) =>
+                    setSortOption(
+                        e.target.value
+                    )
+                }
+            >
+                <option value="default">
+                    Default
+                </option>
+
+                <option value="az">
+                    A-Z
+                </option>
+
+                <option value="za">
+                    Z-A
+                </option>
+
+                <option value="recent">
+                    Recently Updated
+                </option>
+            </select>
 
             <input
                 type="text"
@@ -82,7 +147,7 @@ function Resources() {
                 Add Resource
             </button>
 
-            {resources.map(resource => (
+            {filteredResources.map(resource => (
                 <div
                     className="resource-card"
                     key={resource.id}
