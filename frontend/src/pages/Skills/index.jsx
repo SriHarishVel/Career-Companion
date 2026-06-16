@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import GoalCard from "../../components/GoalCard";
+import Card from "../../components/Card";
 import initialSkills from "../../data/skills";
 import "./index.css";
 
@@ -67,7 +67,7 @@ function Skills() {
             ...prevSkills,
             {
                 id: Date.now(),
-                name: newSkill.trim(),
+                title: newSkill.trim(),
                 progress: 0,
                 lastUpdated: Date.now()
             }
@@ -76,9 +76,29 @@ function Skills() {
         setNewSkill("");
     }
 
+    function editSkill(skillId, updatedTitle) {
+        if (updatedTitle.trim() === "") {
+            return;
+        }
+
+        setSkills(prevSkills =>
+            prevSkills.map(skill => {
+                if (skill.id === skillId) {
+                    return {
+                        ...skill,
+                        title: updatedTitle.trim(),
+                        lastUpdated: Date.now()
+                    };
+                }
+
+                return skill;
+            })
+        );
+    }
+
     const filteredSkills = [...skills]
         .filter(skill =>
-            skill.name
+            skill.title
                 .toLowerCase()
                 .includes(
                     searchSkill.toLowerCase()
@@ -86,14 +106,14 @@ function Skills() {
         )
         .sort((a, b) => {
             if (sortOption === "az") {
-                return a.name.localeCompare(
-                    b.name
+                return a.title.localeCompare(
+                    b.title
                 );
             }
 
             if (sortOption === "za") {
-                return b.name.localeCompare(
-                    a.name
+                return b.title.localeCompare(
+                    a.title
                 );
             }
 
@@ -120,7 +140,7 @@ function Skills() {
         });
 
     return (
-        <div className="container">
+        <div classtitle="container">
             <input
                 type="text"
                 placeholder="Search Skills"
@@ -186,10 +206,10 @@ function Skills() {
             </button>
 
             {filteredSkills.map(skill => (
-                <GoalCard
+                <Card
                     key={skill.id}
                     id={skill.id}
-                    title={skill.name}
+                    title={skill.title}
                     progress={
                         skill.progress
                     }
@@ -198,6 +218,9 @@ function Skills() {
                     }
                     onDelete={
                         deleteSkill
+                    }
+                    onEdit={ 
+                        editSkill
                     }
                 />
             ))}

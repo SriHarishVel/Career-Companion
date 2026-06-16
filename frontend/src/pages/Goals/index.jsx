@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import GoalCard from "../../components/GoalCard";
+import Card from "../../components/Card";
 import initialGoals from "../../data/goals";
 import "./index.css"
 
@@ -39,6 +39,7 @@ function Goals() {
         setGoals(prevGoals => prevGoals.filter(goal => goal.id !== goalId));
     }
 
+
     function addGoal() {
         if (newGoal.trim() === "") {
             setErrorMsg("Goal cannot be empty.");
@@ -57,6 +58,25 @@ function Goals() {
         setNewGoal("");
     }
 
+    function editGoal(goalId, updatedTitle) {
+        if (updatedTitle.trim() === "") {
+            return;
+        }
+
+        setGoals(prevGoals  =>
+            prevGoals.map(goal => {
+                if (goal.id === goalId) {
+                    return {
+                        ...goal,
+                        title: updatedTitle.trim(),
+                        lastUpdated: Date.now()
+                    };
+                }
+
+                return goal;
+            })
+        );
+    }
     const filteredGoals = [...goals]
         .filter(goal =>
             goal.title
@@ -157,13 +177,14 @@ function Goals() {
         <button onClick={addGoal}>Add Goal</button>
         
             {filteredGoals.map((goal) => (
-                <GoalCard
+                <Card
                     key={goal.id}
                     id={goal.id}
                     title={goal.title}
                     progress={goal.progress}
                     onProgress={handleProgress}
                     onDelete={deleteGoal}
+                    onEdit={editGoal}
                 />
             ))}
 

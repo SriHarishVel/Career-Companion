@@ -1,19 +1,19 @@
 const initialSkills = [
     {
         id: 1,
-        name: "React",
+        title: "React",
         progress: 20,
         lastUpdated: Date.now()
     },
     {
         id: 2,
-        name: "Node",
+        title: "Node",
         progress: 40,
         lastUpdated: Date.now()
     },
     {
         id: 3,
-        name: "Gen AI",
+        title: "Gen AI",
         progress: 10,
         lastUpdated: Date.now()
     }
