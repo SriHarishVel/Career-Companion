@@ -10,6 +10,24 @@ function Dashboard() {
     const resources =
         JSON.parse(localStorage.getItem("resources")) || [];
 
+    const topGoal =
+        goals.length > 0
+            ? goals.reduce((best, goal) =>
+                  goal.progress > best.progress
+                      ? goal
+                      : best
+              )
+            : null;
+
+    const topSkill =
+        skills.length > 0
+            ? skills.reduce((best, skill) =>
+                  skill.progress > best.progress
+                      ? skill
+                      : best
+              )
+            : null;
+
     const averageGoalProgress =
         goals.length > 0
             ? Math.round(
@@ -35,90 +53,151 @@ function Dashboard() {
     const recentGoal =
         goals.length > 0
             ? [...goals].sort(
-                (a, b) => b.lastUpdated - a.lastUpdated
-            )[0]
+                  (a, b) =>
+                      b.lastUpdated -
+                      a.lastUpdated
+              )[0]
             : null;
 
     const recentSkill =
         skills.length > 0
             ? [...skills].sort(
-                (a, b) => b.lastUpdated - a.lastUpdated
-            )[0]
+                  (a, b) =>
+                      b.lastUpdated -
+                      a.lastUpdated
+              )[0]
             : null;
 
     const recentResource =
         resources.length > 0
             ? [...resources].sort(
-                (a, b) => b.lastUpdated - a.lastUpdated
-            )[0]
+                  (a, b) =>
+                      b.lastUpdated -
+                      a.lastUpdated
+              )[0]
             : null;
 
     return (
         <div className="container">
             <h1>Dashboard</h1>
 
-            <div className="dashboard-section">
-                <h2>Overall Progress</h2>
+            <div className="dashboard-grid">
 
-                <h3>Goal Progress</h3>
+                <div className="dashboard-section progress-section">
+                    <h2>Overall Progress</h2>
 
-                <div className="progress-bar">
-                    <div
-                        className="progress-fill"
-                        style={{
-                            width: `${averageGoalProgress}%`
-                        }}
-                    ></div>
+                    <h3>Goal Progress</h3>
+
+                    <div className="progress-bar">
+                        <div
+                            className="progress-fill"
+                            style={{
+                                width: `${averageGoalProgress}%`
+                            }}
+                        ></div>
+                    </div>
+
+                    <p>{averageGoalProgress}%</p>
+
+                    <h3>Skill Progress</h3>
+
+                    <div className="progress-bar">
+                        <div
+                            className="progress-fill"
+                            style={{
+                                width: `${averageSkillProgress}%`
+                            }}
+                        ></div>
+                    </div>
+
+                    <p>{averageSkillProgress}%</p>
                 </div>
 
-                <p>{averageGoalProgress}%</p>
+                <div className="dashboard-section">
+                    <h2>Statistics</h2>
 
-                <h3>Skill Progress</h3>
+                    <p>
+                        <strong>Total Goals:</strong>{" "}
+                        {goals.length}
+                    </p>
 
-                <div className="progress-bar">
-                    <div
-                        className="progress-fill"
-                        style={{
-                            width: `${averageSkillProgress}%`
-                        }}
-                    ></div>
+                    <p>
+                        <strong>Total Skills:</strong>{" "}
+                        {skills.length}
+                    </p>
+
+                    <p>
+                        <strong>Total Resources:</strong>{" "}
+                        {resources.length}
+                    </p>
                 </div>
 
-                <p>{averageSkillProgress}%</p>
-            </div>
+                <div className="dashboard-section">
+                    <h2>Top Progress</h2>
 
-            <div className="dashboard-section">
-                <h2>Recently Worked On</h2>
+                    {topGoal ? (
+                        <p>
+                            <strong>Goal:</strong>{" "}
+                            {topGoal.title}
+                            {" "}
+                            ({topGoal.progress}%)
+                        </p>
+                    ) : (
+                        <p>No goals added.</p>
+                    )}
 
-                {recentGoal ? (
-                    <p>
-                        {recentGoal.title}
-                        {" "}
-                        ({recentGoal.progress}%)
-                    </p>
-                ) : (
-                    <p>No goals added.</p>
-                )}
+                    {topSkill ? (
+                        <p>
+                            <strong>Skill:</strong>{" "}
+                            {topSkill.title}
+                            {" "}
+                            ({topSkill.progress}%)
+                        </p>
+                    ) : (
+                        <p>No skills added.</p>
+                    )}
+                </div>
 
-                {recentSkill ? (
-                    <p>
-                        {recentSkill.name}
-                        {" "}
-                        ({recentSkill.progress}%)
-                    </p>
-                ) : (
-                    <p>No skills added.</p>
-                )}
-            </div>
+                <div className="dashboard-section">
+                    <h2>Recent Goal</h2>
 
-            <div className="dashboard-section">
-                <h2>Recently Saved Resource</h2>
+                    {recentGoal ? (
+                        <p>
+                            {recentGoal.title}
+                            {" "}
+                            ({recentGoal.progress}%)
+                        </p>
+                    ) : (
+                        <p>No goals added.</p>
+                    )}
+                </div>
 
-                {recentResource ? (
-                    <p>{recentResource.title}</p>
-                ) : (
-                    <p>No resources added.</p>
-                )}
+                <div className="dashboard-section">
+                    <h2>Recent Skill</h2>
+
+                    {recentSkill ? (
+                        <p>
+                            {recentSkill.title}
+                            {" "}
+                            ({recentSkill.progress}%)
+                        </p>
+                    ) : (
+                        <p>No skills added.</p>
+                    )}
+                </div>
+
+                <div className="dashboard-section">
+                    <h2>Recent Resource</h2>
+
+                    {recentResource ? (
+                        <p>
+                            {recentResource.title}
+                        </p>
+                    ) : (
+                        <p>No resources added.</p>
+                    )}
+                </div>
+
             </div>
         </div>
     );
