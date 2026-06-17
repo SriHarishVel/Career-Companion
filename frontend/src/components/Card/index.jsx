@@ -5,6 +5,7 @@ function Card({
     id,
     title,
     progress,
+    category,
     onProgress,
     onDelete,
     onEdit,
@@ -43,6 +44,13 @@ function Card({
                 />
             ) : (
                 <h2>{title}</h2>
+                )
+            }
+            {
+                category && (
+                    <p>
+                        Category: {category}
+                    </p>
                 )
             }
             {

@@ -10,6 +10,8 @@ function Goals() {
     const [searchGoal, setSearchGoal] = useState("");
     const [sortOption, setSortOption] = useState("default");
     const [newDeadline, setNewDeadline] = useState("");
+    const [newCategory, setNewCategory] = useState("Learning");
+    const [categoryFilter, setCategoryFilter] = useState("All");
     const [goals, setGoals] = useState(() => {
         const savedGoals = localStorage.getItem("goals");
 
@@ -53,6 +55,7 @@ function Goals() {
             {
                 id: Date.now(),
                 title: newGoal.trim(),
+                category: newCategory,
                 progress: 0,
                 deadline: newDeadline,
                 lastUpdated: Date.now()
@@ -60,6 +63,7 @@ function Goals() {
         ]);
         setNewGoal("");
         setNewDeadline("");
+        setNewCategory("Learning");
     }
 
     function editGoal(goalId, updatedTitle) {
@@ -88,6 +92,12 @@ function Goals() {
                 .includes(
                     searchGoal.toLowerCase()
                 )
+        )
+        .filter(goal =>
+        categoryFilter === "All"
+            ? true
+            : goal.category ===
+              categoryFilter
         )
         .sort((a, b) => {
             if (sortOption === "az") {
@@ -135,7 +145,7 @@ function Goals() {
                 onSortChange={
                     setSortOption
                 }
-                searchPlaceholder="Search Skills"
+                searchPlaceholder="Search Goals"
             >
                 <option value="default">
                     Default
@@ -160,7 +170,35 @@ function Goals() {
                 <option value="recent">
                     Recently Updated
                 </option>
-            </SearchSortBar>
+        </SearchSortBar>
+        <select
+            value={categoryFilter}
+            onChange={(e) =>
+                setCategoryFilter(
+                    e.target.value
+                )
+            }
+        >
+            <option value="All">
+                All Categories
+            </option>
+
+            <option value="Learning">
+                Learning
+            </option>
+
+            <option value="Career">
+                Career
+            </option>
+
+            <option value="Personal">
+                Personal
+            </option>
+
+            <option value="Health">
+                Health
+            </option>
+        </select>
         <input 
             type="text" 
             placeholder="Add Goal" 
@@ -169,6 +207,30 @@ function Goals() {
                 setNewGoal(e.target.value); setErrorMsg(""); 
             }} 
         />
+        <select
+            value={newCategory}
+            onChange={(e) =>
+                setNewCategory(
+                    e.target.value
+                )
+            }
+        >
+            <option value="Learning">
+                Learning
+            </option>
+
+            <option value="Career">
+                Career
+            </option>
+
+            <option value="Personal">
+                Personal
+            </option>
+
+            <option value="Health">
+                Health
+            </option>
+        </select>
         <input
             type="date"
             value={newDeadline}
@@ -189,6 +251,7 @@ function Goals() {
                     id={goal.id}
                     title={goal.title}
                     progress={goal.progress}
+                    category={goal.category}
                     onProgress={handleProgress}
                     onDelete={deleteGoal}
                     onEdit={editGoal}

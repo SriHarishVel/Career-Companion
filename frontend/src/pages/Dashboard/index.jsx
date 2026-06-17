@@ -85,6 +85,32 @@ function Dashboard() {
                       a.lastUpdated
               )[0]
             : null;
+    
+    const categoryCounts = {
+            Learning: goals.filter(
+                goal =>
+                    goal.category ===
+                    "Learning"
+            ).length,
+    
+            Career: goals.filter(
+                goal =>
+                    goal.category ===
+                    "Career"
+            ).length,
+    
+            Personal: goals.filter(
+                goal =>
+                    goal.category ===
+                    "Personal"
+            ).length,
+    
+            Health: goals.filter(
+                goal =>
+                    goal.category ===
+                    "Health"
+            ).length
+        };
 
     return (
         <div className="container">
@@ -139,6 +165,18 @@ function Dashboard() {
                         <strong>Total Resources:</strong>{" "}
                         {resources.length}
                     </p>
+                </div>
+                
+                <div className="dashboard-section">
+                    <h2>Goals by Category</h2>
+
+                    <p>Learning: {categoryCounts.Learning}</p>
+
+                    <p>Career: {categoryCounts.Career}</p>
+
+                    <p>Personal: {categoryCounts.Personal}</p>
+
+                    <p>Health: {categoryCounts.Health}</p>
                 </div>
 
                 <div className="dashboard-section">
