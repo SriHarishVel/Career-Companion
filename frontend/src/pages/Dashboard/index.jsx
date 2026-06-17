@@ -58,6 +58,15 @@ function Dashboard() {
                       a.lastUpdated
               )[0]
             : null;
+    
+    const upcomingGoals = [...goals]
+        .filter(goal => goal.deadline)
+        .sort(
+        (a, b) =>
+            new Date(a.deadline) -
+            new Date(b.deadline)
+        )
+        .slice(0, 3);
 
     const recentSkill =
         skills.length > 0
@@ -155,6 +164,22 @@ function Dashboard() {
                         </p>
                     ) : (
                         <p>No skills added.</p>
+                    )}
+                </div>
+
+                <div className="dashboard-section">
+                    <h2>Upcoming Deadlines</h2>
+
+                    {upcomingGoals.length > 0 ? (
+                        upcomingGoals.map(goal => (
+                            <p key={goal.id}>
+                                {goal.title}
+                                {" - "}
+                                {goal.deadline}
+                            </p>
+                        ))
+                    ) : (
+                        <p>No deadlines set.</p>
                     )}
                 </div>
 

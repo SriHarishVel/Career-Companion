@@ -9,6 +9,7 @@ function Goals() {
     const [errorMsg, setErrorMsg] = useState("");
     const [searchGoal, setSearchGoal] = useState("");
     const [sortOption, setSortOption] = useState("default");
+    const [newDeadline, setNewDeadline] = useState("");
     const [goals, setGoals] = useState(() => {
         const savedGoals = localStorage.getItem("goals");
 
@@ -53,10 +54,12 @@ function Goals() {
                 id: Date.now(),
                 title: newGoal.trim(),
                 progress: 0,
+                deadline: newDeadline,
                 lastUpdated: Date.now()
             }
         ]);
         setNewGoal("");
+        setNewDeadline("");
     }
 
     function editGoal(goalId, updatedTitle) {
@@ -166,6 +169,15 @@ function Goals() {
                 setNewGoal(e.target.value); setErrorMsg(""); 
             }} 
         />
+        <input
+            type="date"
+            value={newDeadline}
+            onChange={(e) =>
+                setNewDeadline(
+                    e.target.value
+                )
+            }
+        />
 
         {errorMsg && <p>{errorMsg}</p>}
 
@@ -180,6 +192,7 @@ function Goals() {
                     onProgress={handleProgress}
                     onDelete={deleteGoal}
                     onEdit={editGoal}
+                    deadline={goal.deadline}
                 />
             ))}
 
