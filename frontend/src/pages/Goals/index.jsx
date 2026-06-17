@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import Card from "../../components/Card";
 import initialGoals from "../../data/goals";
+import SearchSortBar from "../../components/SearchSortBar";
 import "./index.css"
 
 function Goals() {
@@ -122,21 +123,16 @@ function Goals() {
 
     return (
         <div className="container">
-        <input 
-            type="Search"
-            placeholder="Search Goals"
-            value={searchGoal}
-            onChange={(e)=>
-                setSearchGoal(e.target.value)
-            }
-        />
-        <select
-                value={sortOption}
-                onChange={(e) =>
-                    setSortOption(
-                        e.target.value
-                    )
+        <SearchSortBar
+                searchValue={searchGoal}
+                onSearchChange={
+                    setSearchGoal
                 }
+                sortValue={sortOption}
+                onSortChange={
+                    setSortOption
+                }
+                searchPlaceholder="Search Skills"
             >
                 <option value="default">
                     Default
@@ -161,8 +157,7 @@ function Goals() {
                 <option value="recent">
                     Recently Updated
                 </option>
-            </select>
-
+            </SearchSortBar>
         <input 
             type="text" 
             placeholder="Add Goal" 

@@ -1,5 +1,6 @@
 import { useState, useEffect} from "react";
 import initialResources from "../../data/resources";
+import SearchSortBar from "../../components/SearchSortBar";
 import "./index.css"
 
 function Resources() {
@@ -119,21 +120,16 @@ function Resources() {
     return (
         <div className="container">
             <h1>Resources</h1>
-            <input 
-                type = "search" 
-                placeholder="Search resources" 
-                value={searchResource}
-                onChange={(e)=>
-                    setSearchResource(e.target.value)
+            <SearchSortBar
+                searchValue={searchResource}
+                onSearchChange={
+                    setSearchResource
                 }
-            />
-            <select
-                value={sortOption}
-                onChange={(e) =>
-                    setSortOption(
-                        e.target.value
-                    )
+                sortValue={sortOption}
+                onSortChange={
+                    setSortOption
                 }
+                searchPlaceholder="Search Skills"
             >
                 <option value="default">
                     Default
@@ -146,11 +142,11 @@ function Resources() {
                 <option value="za">
                     Z-A
                 </option>
-
+                
                 <option value="recent">
                     Recently Updated
                 </option>
-            </select>
+            </SearchSortBar>
 
             <input
                 type="text"

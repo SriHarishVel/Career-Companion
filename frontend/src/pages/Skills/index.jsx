@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import Card from "../../components/Card";
 import initialSkills from "../../data/skills";
+import SearchSortBar from "../../components/SearchSortBar";
 import "./index.css";
 
 function Skills() {
@@ -141,24 +142,16 @@ function Skills() {
 
     return (
         <div classtitle="container">
-            <input
-                type="text"
-                placeholder="Search Skills"
-                value={searchSkill}
-                onChange={(e) =>
-                    setSearchSkill(
-                        e.target.value
-                    )
+            <SearchSortBar
+                searchValue={searchSkill}
+                onSearchChange={
+                    setSearchSkill
                 }
-            />
-
-            <select
-                value={sortOption}
-                onChange={(e) =>
-                    setSortOption(
-                        e.target.value
-                    )
+                sortValue={sortOption}
+                onSortChange={
+                    setSortOption
                 }
+                searchPlaceholder="Search Skills"
             >
                 <option value="default">
                     Default
@@ -183,8 +176,7 @@ function Skills() {
                 <option value="recent">
                     Recently Updated
                 </option>
-            </select>
-
+            </SearchSortBar>
             <input
                 type="text"
                 placeholder="Add Skill"
