@@ -13,6 +13,7 @@ function Resources() {
     const [editedTitle, setEditedTitle] = useState("");
     const [editedUrl, setEditedUrl] = useState("");
     const [resources, setResources] = useState(() => {
+        // Start from saved resources if the user has already added any.
         const savedResources = localStorage.getItem("resources");
 
         if (savedResources) {
@@ -23,6 +24,7 @@ function Resources() {
     });
 
     useEffect(() => {
+        // Store every resource update in the browser.
         localStorage.setItem("resources", JSON.stringify(resources));
     }, [resources]);
 
@@ -33,6 +35,7 @@ function Resources() {
         }
 
         setErrorMsg("");
+        // Add https:// when the user enters a URL without a protocol.
         const formattedUrl = newUrl.trim();
         setResources(prevResources => [
             ...prevResources,
@@ -86,6 +89,7 @@ function Resources() {
         );
     }
 
+    // Filter and sort the resource cards based on the toolbar controls.
     const filteredResources = [...resources]
         .filter(resource =>
             resource.title
@@ -119,7 +123,10 @@ function Resources() {
 
     return (
         <div className="container">
+            {/* Page title */}
             <h1>Resources</h1>
+
+            {/* Search and sort controls */}
             <SearchSortBar
                 searchValue={searchResource}
                 onSearchChange={
@@ -148,6 +155,7 @@ function Resources() {
                 </option>
             </SearchSortBar>
 
+            {/* New resource form */}
             <input
                 type="text"
                 placeholder="Resource Title"
@@ -174,11 +182,13 @@ function Resources() {
                 Add Resource
             </button>
 
+            {/* Resource cards */}
             {filteredResources.map(resource => (
                 <div
                     className="resource-card"
                     key={resource.id}
                 >
+                    {/* Edit inputs or saved resource details */}
                     {editingId === resource.id ? (
                 <>
                     <input
@@ -212,6 +222,7 @@ function Resources() {
                 )}
                     <br />
 
+                {/* Edit mode buttons */}
                 {editingId === resource.id ? (
                     <>
                         <button
@@ -254,6 +265,7 @@ function Resources() {
                     </button>
                 )}
 
+                {/* Remove one resource */}
                 <button
                     onClick={() =>
                         deleteResource(resource.id)

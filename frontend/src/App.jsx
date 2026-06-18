@@ -11,7 +11,10 @@ import Footer from "./components/Footer";
 function App() {
   return (
     <>
+      {/* Navigation shown on every page */}
       <Navbar />
+
+      {/* Page routes */}
       <Routes>
         <Route path="/" element={<Home />} />
         <Route path="/dashboard" element={<Dashboard />} />
@@ -19,6 +22,8 @@ function App() {
         <Route path="/skills" element={<Skills />} />
         <Route path="/resources" element={<Resources />} />
       </Routes>
+
+      {/* Footer shown on every page */}
       <Footer />
     </>
   );

@@ -1,6 +1,7 @@
 import "./index.css";
 
 function Dashboard() {
+    // Dashboard reads the saved page data and calculates quick summaries from it.
     const goals =
         JSON.parse(localStorage.getItem("goals")) || [];
 
@@ -49,16 +50,8 @@ function Dashboard() {
                   ) / skills.length
               )
             : 0;
-
-    const recentGoal =
-        goals.length > 0
-            ? [...goals].sort(
-                  (a, b) =>
-                      b.lastUpdated -
-                      a.lastUpdated
-              )[0]
-            : null;
     
+    // Show the nearest goal deadlines first.
     const upcomingGoals = [...goals]
         .filter(goal => goal.deadline)
         .sort(
@@ -67,6 +60,16 @@ function Dashboard() {
             new Date(b.deadline)
         )
         .slice(0, 3);
+
+    
+    const recentGoal =
+        goals.length > 0
+            ? [...goals].sort(
+                  (a, b) =>
+                      b.lastUpdated -
+                      a.lastUpdated
+              )[0]
+            : null;
 
     const recentSkill =
         skills.length > 0
@@ -86,6 +89,7 @@ function Dashboard() {
               )[0]
             : null;
     
+    // Count goals in each category for the dashboard summary.
     const categoryCounts = {
             Learning: goals.filter(
                 goal =>
@@ -111,13 +115,24 @@ function Dashboard() {
                     "Health"
             ).length
         };
+    
+    const highPriorityGoals = goals
+    .filter(
+        goal =>
+            goal.priority ===
+            "High"
+    )
+    .slice(0, 5);
 
     return (
         <div className="container">
+            {/* Page title */}
             <h1>Dashboard</h1>
 
+            {/* Dashboard cards grid */}
             <div className="dashboard-grid">
 
+                {/* Overall progress bars */}
                 <div className="dashboard-section progress-section">
                     <h2>Overall Progress</h2>
 
@@ -148,6 +163,7 @@ function Dashboard() {
                     <p>{averageSkillProgress}%</p>
                 </div>
 
+                {/* Total item counts */}
                 <div className="dashboard-section">
                     <h2>Statistics</h2>
 
@@ -167,6 +183,7 @@ function Dashboard() {
                     </p>
                 </div>
                 
+                {/* Goal category counts */}
                 <div className="dashboard-section">
                     <h2>Goals by Category</h2>
 
@@ -179,6 +196,7 @@ function Dashboard() {
                     <p>Health: {categoryCounts.Health}</p>
                 </div>
 
+                {/* Best goal and skill progress */}
                 <div className="dashboard-section">
                     <h2>Top Progress</h2>
 
@@ -204,7 +222,28 @@ function Dashboard() {
                         <p>No skills added.</p>
                     )}
                 </div>
+                
+                {/* Displaying goals based on priority*/}
 
+                <div className="dashboard-section">
+                    <h2>High Priority Goals</h2>
+
+                    {highPriorityGoals.length > 0 ? (
+                        highPriorityGoals.map(goal => (
+                            <p key={goal.id}>
+                                {goal.title}
+                                {" "}
+                                ({goal.progress}%)
+                            </p>
+                        ))
+                    ) : (
+                        <p>
+                            No high priority goals.
+                        </p>
+                    )}
+                </div>
+
+                {/* Goals with the nearest deadlines */}
                 <div className="dashboard-section">
                     <h2>Upcoming Deadlines</h2>
 
@@ -221,6 +260,7 @@ function Dashboard() {
                     )}
                 </div>
 
+                {/* Most recently updated goal */}
                 <div className="dashboard-section">
                     <h2>Recent Goal</h2>
 
@@ -235,6 +275,7 @@ function Dashboard() {
                     )}
                 </div>
 
+                {/* Most recently updated skill */}
                 <div className="dashboard-section">
                     <h2>Recent Skill</h2>
 
@@ -249,6 +290,7 @@ function Dashboard() {
                     )}
                 </div>
 
+                {/* Most recently updated resource */}
                 <div className="dashboard-section">
                     <h2>Recent Resource</h2>
 

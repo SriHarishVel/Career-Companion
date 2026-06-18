@@ -12,7 +12,10 @@ function Goals() {
     const [newDeadline, setNewDeadline] = useState("");
     const [newCategory, setNewCategory] = useState("Learning");
     const [categoryFilter, setCategoryFilter] = useState("All");
+    const [priorityFilter, setPriorityFilter] = useState("All");
+    const [newPriority, setNewPriority] = useState("Medium");
     const [goals, setGoals] = useState(() => {
+        // Load saved goals first so user changes stay after refresh.
         const savedGoals = localStorage.getItem("goals");
 
         if (savedGoals) {
@@ -23,6 +26,7 @@ function Goals() {
     });
 
     useEffect(() => {
+        // Keep localStorage in sync whenever the goals list changes.
         localStorage.setItem("goals", JSON.stringify(goals));
     }, [goals]);
 
@@ -56,6 +60,7 @@ function Goals() {
                 id: Date.now(),
                 title: newGoal.trim(),
                 category: newCategory,
+                priority: newPriority,
                 progress: 0,
                 deadline: newDeadline,
                 lastUpdated: Date.now()
@@ -64,6 +69,7 @@ function Goals() {
         setNewGoal("");
         setNewDeadline("");
         setNewCategory("Learning");
+        setNewPriority("Medium");
     }
 
     function editGoal(goalId, updatedTitle) {
@@ -85,6 +91,8 @@ function Goals() {
             })
         );
     }
+
+    // Build the visible list from the current search, category, and sort choices.
     const filteredGoals = [...goals]
         .filter(goal =>
             goal.title
@@ -98,6 +106,12 @@ function Goals() {
             ? true
             : goal.category ===
               categoryFilter
+        )
+        .filter(goal =>
+            priorityFilter === "All"
+                ? true
+                : goal.priority ===
+                priorityFilter
         )
         .sort((a, b) => {
             if (sortOption === "az") {
@@ -130,12 +144,40 @@ function Goals() {
                     a.lastUpdated
                 );
             }
+            const priorityOrder = {
+                High: 3,
+                Medium: 2,
+                Low: 1
+            };
+
+            if (
+                sortOption === "priorityHigh"
+            ) {
+                return (
+                    priorityOrder[ b.priority ] - priorityOrder[ a.priority ]
+                );
+            }
+
+            if (
+                sortOption ===
+                "priorityLow"
+            ) {
+                return (
+                    priorityOrder[
+                        a.priority
+                    ] -
+                    priorityOrder[
+                        b.priority
+                    ]
+                );
+            }
 
             return 0;
         });
 
     return (
         <div className="container">
+        {/* Search and sort controls */}
         <SearchSortBar
                 searchValue={searchGoal}
                 onSearchChange={
@@ -159,6 +201,14 @@ function Goals() {
                     Z-A
                 </option>
 
+                <option value="priorityHigh">
+                    Priority High-Low
+                </option>
+
+                <option value="priorityLow">
+                    Priority Low-High
+                </option>
+                
                 <option value="high">
                     Highest Progress
                 </option>
@@ -171,6 +221,8 @@ function Goals() {
                     Recently Updated
                 </option>
         </SearchSortBar>
+
+        {/* Filter goals by category */}
         <select
             value={categoryFilter}
             onChange={(e) =>
@@ -199,6 +251,32 @@ function Goals() {
                 Health
             </option>
         </select>
+        {/* Filter goals by priority */}
+        <select
+            value={priorityFilter}
+            onChange={(e) =>
+                setPriorityFilter(
+                    e.target.value
+                )
+            }
+        >
+            <option value="All">
+                All Priorities
+            </option>
+
+            <option value="High">
+                High
+            </option>
+
+            <option value="Medium">
+                Medium
+            </option>
+
+            <option value="Low">
+                Low
+            </option>
+        </select>
+        {/* New goal title */}
         <input 
             type="text" 
             placeholder="Add Goal" 
@@ -207,6 +285,8 @@ function Goals() {
                 setNewGoal(e.target.value); setErrorMsg(""); 
             }} 
         />
+
+        {/* New goal category */}
         <select
             value={newCategory}
             onChange={(e) =>
@@ -231,6 +311,30 @@ function Goals() {
                 Health
             </option>
         </select>
+
+        {/* New goal priority */}
+        <select
+            value={newPriority}
+            onChange={(e) =>
+                setNewPriority(
+                    e.target.value
+                )
+            }
+        >
+            <option value="High">
+                High
+            </option>
+
+            <option value="Medium">
+                Medium
+            </option>
+
+            <option value="Low">
+                Low
+            </option>
+        </select>
+
+        {/* Optional deadline for the new goal */}
         <input
             type="date"
             value={newDeadline}
@@ -245,6 +349,7 @@ function Goals() {
 
         <button onClick={addGoal}>Add Goal</button>
         
+            {/* Goal cards */}
             {filteredGoals.map((goal) => (
                 <Card
                     key={goal.id}
@@ -253,6 +358,7 @@ function Goals() {
                     progress={goal.progress}
                     category={goal.category}
                     onProgress={handleProgress}
+                    priority={goal.priority}
                     onDelete={deleteGoal}
                     onEdit={editGoal}
                     deadline={goal.deadline}

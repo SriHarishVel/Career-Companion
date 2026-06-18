@@ -11,6 +11,7 @@ function Skills() {
     const [sortOption, setSortOption] = useState("default");
 
     const [skills, setSkills] = useState(() => {
+        // Use saved skills when available, otherwise start with sample skills.
         const savedSkills = localStorage.getItem("skills");
 
         if (savedSkills) {
@@ -21,6 +22,7 @@ function Skills() {
     });
 
     useEffect(() => {
+        // Save skill changes so progress is not lost on refresh.
         localStorage.setItem(
             "skills",
             JSON.stringify(skills)
@@ -97,6 +99,7 @@ function Skills() {
         );
     }
 
+    // Apply search and sorting before rendering the skill cards.
     const filteredSkills = [...skills]
         .filter(skill =>
             skill.title
@@ -142,6 +145,7 @@ function Skills() {
 
     return (
         <div classtitle="container">
+            {/* Search and sort controls */}
             <SearchSortBar
                 searchValue={searchSkill}
                 onSearchChange={
@@ -177,6 +181,8 @@ function Skills() {
                     Recently Updated
                 </option>
             </SearchSortBar>
+
+            {/* New skill form */}
             <input
                 type="text"
                 placeholder="Add Skill"
@@ -197,6 +203,7 @@ function Skills() {
                 Add Skill
             </button>
 
+            {/* Skill cards */}
             {filteredSkills.map(skill => (
                 <Card
                     key={skill.id}

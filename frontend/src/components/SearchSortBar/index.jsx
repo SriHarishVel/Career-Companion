@@ -6,8 +6,10 @@ function SearchSortBar({
     searchPlaceholder,
     children
 }) {
+    // Reusable search input plus sort dropdown used by list pages.
     return (
         <>
+            {/* Search box */}
             <input
                 type="search"
                 placeholder={searchPlaceholder}
@@ -19,6 +21,7 @@ function SearchSortBar({
                 }
             />
 
+            {/* Sort dropdown */}
             <select
                 value={sortValue}
                 onChange={(e) =>

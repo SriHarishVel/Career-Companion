@@ -7,6 +7,7 @@ function Card({
     progress,
     category,
     onProgress,
+    priority,
     onDelete,
     onEdit,
     deadline
@@ -18,6 +19,7 @@ function Card({
     let daysLeft = null;
 
     if (deadline) {
+        // Convert the deadline into a simple days-left message.
         const today = new Date();
 
         const deadlineDate =
@@ -34,6 +36,7 @@ function Card({
 
     return (
         <div className="card">
+            {/* Title input while editing, otherwise show the title */}
             {isEditing ? (
                 <input
                     type="text"
@@ -46,6 +49,8 @@ function Card({
                 <h2>{title}</h2>
                 )
             }
+
+            {/* Goal category */}
             {
                 category && (
                     <p>
@@ -53,6 +58,17 @@ function Card({
                     </p>
                 )
             }
+
+            {/* Goal priority */}
+            {
+                priority && (
+                    <p>
+                        Priority: {priority}
+                    </p>
+                )
+            }
+
+            {/* Goal deadline and status */}
             {
                 deadline && (
                     <>
@@ -70,6 +86,8 @@ function Card({
                     </>
                 )
             }
+
+            {/* Progress text and bar */}
             <p>Progress: {progress}%</p>
 
             <div className="progress-bar">
@@ -84,6 +102,8 @@ function Card({
             >
                 Update Progress
             </button>
+
+            {/* Edit or save the card title */}
             {isEditing ? (
                 <>
                     <button
@@ -113,6 +133,8 @@ function Card({
                     Edit
                 </button>
             )}
+
+            {/* Delete this card */}
             <button
                 onClick={() => onDelete(id)}
             >

@@ -5,14 +5,17 @@ function Home() {
 
     return (
         <div className="container">
+            {/* App name */}
             <h1>Career Companion</h1>
 
+            {/* Welcome message */}
             <p className="welcome">
                 Welcome back, Harish!
             </p>
 
             <hr />
 
+            {/* Quick summary numbers */}
             <h2>Quick Overview</h2>
 
             <ul className="overview">

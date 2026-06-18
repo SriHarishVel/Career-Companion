@@ -4,8 +4,10 @@ import "./index.css";
 function Navbar() {
     return (
         <nav>
+            {/* Brand name */}
             <h2>Career Companion</h2>
 
+            {/* Main navigation links */}
             <NavLink
                 to="/"
                 end
