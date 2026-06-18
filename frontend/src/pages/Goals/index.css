@@ -1,3 +1,4 @@
+/* Page layout */
 .goals-container {
     width: 100%;
     max-width: none;
@@ -14,6 +15,7 @@
     margin-bottom: 25px;
 }
 
+/* Filter and add-goal panels */
 .filters-card,
 .add-goal-card {
     width: 100%;
@@ -36,6 +38,7 @@
     margin-bottom: 20px;
 }
 
+/* Filter controls */
 .filters-toolbar {
     display: grid;
 
@@ -63,6 +66,7 @@
     color: #555;
 }
 
+/* Shared form controls */
 .container input,
 .container select {
     width: 100%;
@@ -74,6 +78,7 @@
     border-radius: 10px;
 }
 
+/* New goal options */
 .goal-options {
     display: grid;
 
@@ -85,6 +90,19 @@
     margin: 20px 0;
 }
 
+/* Goal list */
+.goals-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(350px, 1fr)
+        );
+
+    gap: 20px;
+}
+
+/* Helper text */
 .goal-counter {
     margin: 20px 0;
 
@@ -98,6 +116,7 @@
     margin-top: 10px;
 }
 
+/* Responsive layout */
 @media (max-width: 1000px) {
     .filters-toolbar {
         grid-template-columns:
@@ -115,14 +134,4 @@
         grid-template-columns:
             1fr;
     }
-}
-.goals-grid {
-    display: grid;
-    grid-template-columns:
-        repeat(
-            auto-fit,
-            minmax(350px, 1fr)
-        );
-
-    gap: 20px;
 }

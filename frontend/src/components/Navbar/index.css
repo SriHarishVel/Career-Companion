@@ -1,3 +1,4 @@
+/* Navigation bar */
 nav {
     background-color: #1f2937;
     padding: 15px 30px;
@@ -11,6 +12,7 @@ nav h2 {
     color: white;
 }
 
+/* Navigation links */
 nav div {
     display: flex;
     gap: 20px;

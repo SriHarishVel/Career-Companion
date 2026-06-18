@@ -1,20 +1,33 @@
-import { useState, useEffect} from "react";
+import { useState, useEffect } from "react";
 import initialResources from "../../data/resources";
 import SearchSortBar from "../../components/SearchSortBar";
-import "./index.css"
+import "./index.css";
 
 function Resources() {
     const [newTitle, setNewTitle] = useState("");
     const [newUrl, setNewUrl] = useState("");
+    const [newType, setNewType] = useState("Documentation");
+
     const [errorMsg, setErrorMsg] = useState("");
-    const [searchResource, setSearchResource] = useState("");
-    const [sortOption, setSortOption] = useState("default");
-    const [editingId, setEditingId] = useState(null);
-    const [editedTitle, setEditedTitle] = useState("");
-    const [editedUrl, setEditedUrl] = useState("");
+
+    const [searchResource, setSearchResource] =
+        useState("");
+
+    const [sortOption, setSortOption] =
+        useState("default");
+
+    const [editingId, setEditingId] =
+        useState(null);
+
+    const [editedTitle, setEditedTitle] =
+        useState("");
+
+    const [editedUrl, setEditedUrl] =
+        useState("");
+
     const [resources, setResources] = useState(() => {
-        // Start from saved resources if the user has already added any.
-        const savedResources = localStorage.getItem("resources");
+        const savedResources =
+            localStorage.getItem("resources");
 
         if (savedResources) {
             return JSON.parse(savedResources);
@@ -24,43 +37,67 @@ function Resources() {
     });
 
     useEffect(() => {
-        // Store every resource update in the browser.
-        localStorage.setItem("resources", JSON.stringify(resources));
+        localStorage.setItem(
+            "resources",
+            JSON.stringify(resources)
+        );
     }, [resources]);
 
     function addResource() {
-        if (newTitle.trim() === "" || newUrl.trim() === "") {
-            setErrorMsg("Title and URL cannot be empty.");
+        if (
+            newTitle.trim() === "" ||
+            newUrl.trim() === ""
+        ) {
+            setErrorMsg(
+                "Title and URL cannot be empty."
+            );
             return;
         }
 
         setErrorMsg("");
-        // Add https:// when the user enters a URL without a protocol.
-        const formattedUrl = newUrl.trim();
+
+        const formattedUrl =
+            newUrl.trim();
+
         setResources(prevResources => [
             ...prevResources,
             {
                 id: Date.now(),
-                title: newTitle.trim(),
-                url: formattedUrl.startsWith("http")
-                    ? formattedUrl
-                    : `https://${formattedUrl}`,
-                lastUpdated: Date.now()
+
+                title:
+                    newTitle.trim(),
+
+                url:
+                    formattedUrl.startsWith(
+                        "http"
+                    )
+                        ? formattedUrl
+                        : `https://${formattedUrl}`,
+
+                type: newType,
+
+                favorite: false,
+
+                lastUpdated:
+                    Date.now()
             }
         ]);
 
         setNewTitle("");
         setNewUrl("");
+        setNewType("Documentation");
     }
 
     function deleteResource(resourceId) {
         setResources(prevResources =>
             prevResources.filter(
-                resource => resource.id !== resourceId
+                resource =>
+                    resource.id !==
+                    resourceId
             )
         );
     }
-    
+
     function editResource(
         resourceId,
         updatedTitle,
@@ -74,23 +111,35 @@ function Resources() {
         }
 
         setResources(prevResources =>
-            prevResources.map(resource => {
-                if (resource.id === resourceId) {
-                    return {
-                        ...resource,
-                        title: updatedTitle.trim(),
-                        url: updatedUrl.trim(),
-                        lastUpdated: Date.now()
-                    };
-                }
+            prevResources.map(
+                resource => {
+                    if (
+                        resource.id ===
+                        resourceId
+                    ) {
+                        return {
+                            ...resource,
 
-                return resource;
-            })
+                            title:
+                                updatedTitle.trim(),
+
+                            url:
+                                updatedUrl.trim(),
+
+                            lastUpdated:
+                                Date.now()
+                        };
+                    }
+
+                    return resource;
+                }
+            )
         );
     }
 
-    // Filter and sort the resource cards based on the toolbar controls.
-    const filteredResources = [...resources]
+    const filteredResources = [
+        ...resources
+    ]
         .filter(resource =>
             resource.title
                 .toLowerCase()
@@ -110,7 +159,10 @@ function Resources() {
                     a.title
                 );
             }
-            if (sortOption === "recent") {
+
+            if (
+                sortOption === "recent"
+            ) {
                 return (
                     b.lastUpdated -
                     a.lastUpdated
@@ -120,23 +172,27 @@ function Resources() {
             return 0;
         });
 
-
     return (
-        <div className="container">
-            {/* Page title */}
+        <div className="resources-container">
+
+            {/* Page Title */}
             <h1>Resources</h1>
 
-            {/* Search and sort controls */}
+            {/* Search + Sort */}
             <SearchSortBar
-                searchValue={searchResource}
+                searchValue={
+                    searchResource
+                }
                 onSearchChange={
                     setSearchResource
                 }
-                sortValue={sortOption}
+                sortValue={
+                    sortOption
+                }
                 onSortChange={
                     setSortOption
                 }
-                searchPlaceholder="Search Skills"
+                searchPlaceholder="Search Resources"
             >
                 <option value="default">
                     Default
@@ -149,132 +205,240 @@ function Resources() {
                 <option value="za">
                     Z-A
                 </option>
-                
+
                 <option value="recent">
                     Recently Updated
                 </option>
             </SearchSortBar>
 
-            {/* New resource form */}
-            <input
-                type="text"
-                placeholder="Resource Title"
-                value={newTitle}
-                onChange={(e) => {
-                    setNewTitle(e.target.value);
-                    setErrorMsg("");
-                }}
-            />
+            {/* Resource Counter */}
+            <p className="resource-counter">
+                Showing{" "}
+                {
+                    filteredResources.length
+                }{" "}
+                of{" "}
+                {resources.length}{" "}
+                resources
+            </p>
 
-            <input
-                type="url"
-                placeholder="Resource URL"
-                value={newUrl}
-                onChange={(e) => {
-                    setNewUrl(e.target.value);
-                    setErrorMsg("");
-                }}
-            />
+            {/* Add Resource Form */}
+            <div className="add-resource-card">
 
-            {errorMsg && <p className="error">{errorMsg}</p>}
+                <h3>Add Resource</h3>
 
-            <button onClick={addResource}>
-                Add Resource
-            </button>
-
-            {/* Resource cards */}
-            {filteredResources.map(resource => (
-                <div
-                    className="resource-card"
-                    key={resource.id}
-                >
-                    {/* Edit inputs or saved resource details */}
-                    {editingId === resource.id ? (
-                <>
-                    <input
-                        type="text"
-                        value={editedTitle}
-                        onChange={(e) =>
-                            setEditedTitle(e.target.value)
-                        }
-                    />
-
-                    <input
-                        type="url"
-                        value={editedUrl}
-                        onChange={(e) =>
-                            setEditedUrl(e.target.value)
-                        }
-                    />
-                </>
-                ) : (
-                    <>
-                        <h3>{resource.title}</h3>
-
-                        <a
-                            href={resource.url}
-                            target="_blank"
-                            rel="noopener noreferrer"
-                        >
-                            Open Resource
-                        </a>
-                    </>
-                )}
-                    <br />
-
-                {/* Edit mode buttons */}
-                {editingId === resource.id ? (
-                    <>
-                        <button
-                            onClick={() => {
-                                editResource(
-                                    resource.id,
-                                    editedTitle,
-                                    editedUrl
-                                );
-
-                                setEditingId(null);
-                            }}
-                        >
-                            Save
-                        </button>
-
-                        <button
-                            onClick={() =>
-                                setEditingId(null)
-                            }
-                        >
-                            Cancel
-                        </button>
-                    </>
-                ) : (
-                    <button
-                        onClick={() => {
-                            setEditingId(resource.id);
-
-                            setEditedTitle(
-                                resource.title
-                            );
-
-                            setEditedUrl(
-                                resource.url
-                            );
-                        }}
-                    >
-                        Edit
-                    </button>
-                )}
-
-                {/* Remove one resource */}
-                <button
-                    onClick={() =>
-                        deleteResource(resource.id)
+                <select
+                    value={newType}
+                    onChange={(e) =>
+                        setNewType(
+                            e.target.value
+                        )
                     }
                 >
-                    Delete
+                    <option value="Documentation">
+                        Documentation
+                    </option>
+
+                    <option value="Course">
+                        Course
+                    </option>
+
+                    <option value="Video">
+                        Video
+                    </option>
+
+                    <option value="Article">
+                        Article
+                    </option>
+                </select>
+
+                <input
+                    type="text"
+                    placeholder="Resource Title"
+                    value={newTitle}
+                    onChange={(e) => {
+                        setNewTitle(
+                            e.target.value
+                        );
+
+                        setErrorMsg("");
+                    }}
+                />
+
+                <input
+                    type="url"
+                    placeholder="Resource URL"
+                    value={newUrl}
+                    onChange={(e) => {
+                        setNewUrl(
+                            e.target.value
+                        );
+
+                        setErrorMsg("");
+                    }}
+                />
+
+                {errorMsg && (
+                    <p className="error">
+                        {errorMsg}
+                    </p>
+                )}
+
+                <button
+                    onClick={
+                        addResource
+                    }
+                >
+                    Add Resource
                 </button>
-                </div>
-            ))}
+
+            </div>
+
+            {/* Resource Cards */}
+            <div className="resources-grid">
+
+                {filteredResources.map(
+                    resource => (
+                        <div
+                            className="resource-card"
+                            key={
+                                resource.id
+                            }
+                        >
+                            {editingId ===
+                            resource.id ? (
+                                <>
+                                    <input
+                                        type="text"
+                                        value={
+                                            editedTitle
+                                        }
+                                        onChange={(e) =>
+                                            setEditedTitle(
+                                                e
+                                                    .target
+                                                    .value
+                                            )
+                                        }
+                                    />
+
+                                    <input
+                                        type="url"
+                                        value={
+                                            editedUrl
+                                        }
+                                        onChange={(e) =>
+                                            setEditedUrl(
+                                                e
+                                                    .target
+                                                    .value
+                                            )
+                                        }
+                                    />
+
+                                    <div className="resource-actions">
+
+                                        <button
+                                            onClick={() => {
+                                                editResource(
+                                                    resource.id,
+                                                    editedTitle,
+                                                    editedUrl
+                                                );
+
+                                                setEditingId(
+                                                    null
+                                                );
+                                            }}
+                                        >
+                                            Save
+                                        </button>
+
+                                        <button
+                                            onClick={() =>
+                                                setEditingId(
+                                                    null
+                                                )
+                                            }
+                                        >
+                                            Cancel
+                                        </button>
+
+                                        <button
+                                            onClick={() =>
+                                                deleteResource(
+                                                    resource.id
+                                                )
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </div>
+                                </>
+                            ) : (
+                                <>
+                                    <span className="resource-type">
+                                        {
+                                            resource.type
+                                        }
+                                    </span>
+
+                                    <h3>
+                                        {
+                                            resource.title
+                                        }
+                                    </h3>
+
+                                    <div className="resource-actions">
+
+                                        <a
+                                            href={
+                                                resource.url
+                                            }
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                        >
+                                            Open Resource
+                                        </a>
+
+                                        <button
+                                            onClick={() => {
+                                                setEditingId(
+                                                    resource.id
+                                                );
+
+                                                setEditedTitle(
+                                                    resource.title
+                                                );
+
+                                                setEditedUrl(
+                                                    resource.url
+                                                );
+                                            }}
+                                        >
+                                            Edit
+                                        </button>
+
+                                        <button
+                                            onClick={() =>
+                                                deleteResource(
+                                                    resource.id
+                                                )
+                                            }
+                                        >
+                                            Delete
+                                        </button>
+
+                                    </div>
+                                </>
+                            )}
+                        </div>
+                    )
+                )}
+
+            </div>
+
         </div>
     );
 }
