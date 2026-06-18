@@ -124,6 +124,11 @@ function Dashboard() {
     )
     .slice(0, 5);
 
+    const completedGoals =
+        goals.filter(
+            goal => goal.completed
+        ).length;
+        
     return (
         <div className="container">
             {/* Page title */}
@@ -180,6 +185,11 @@ function Dashboard() {
                     <p>
                         <strong>Total Resources:</strong>{" "}
                         {resources.length}
+                    </p>
+
+                    <p>
+                        <strong>Completed Goals:</strong>{" "}
+                        {completedGoals}
                     </p>
                 </div>
                 

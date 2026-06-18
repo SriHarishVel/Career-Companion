@@ -10,16 +10,15 @@ function Card({
     priority,
     onDelete,
     onEdit,
-    deadline
+    deadline,
+    completed
 }){
     const [isEditing, setIsEditing] = useState(false);
-
     const [editedTitle, setEditedTitle] = useState(title);
 
     let daysLeft = null;
 
     if (deadline) {
-        // Convert the deadline into a simple days-left message.
         const today = new Date();
 
         const deadlineDate =
@@ -33,10 +32,9 @@ function Card({
             (1000 * 60 * 60 * 24)
         );
     }
-
     return (
+        
         <div className="card">
-            {/* Title input while editing, otherwise show the title */}
             {isEditing ? (
                 <input
                     type="text"
@@ -46,11 +44,12 @@ function Card({
                     }
                 />
             ) : (
-                <h2>{title}</h2>
+                <>
+                    <h2>{title}</h2>
+                </>
                 )
+                
             }
-
-            {/* Goal category */}
             {
                 category && (
                     <p>
@@ -59,16 +58,12 @@ function Card({
                 )
             }
 
-            {/* Goal priority */}
             {
                 priority && (
-                    <p>
-                        Priority: {priority}
-                    </p>
+                    <p>Priority: {priority}</p>
                 )
             }
 
-            {/* Goal deadline and status */}
             {
                 deadline && (
                     <>
@@ -87,7 +82,14 @@ function Card({
                 )
             }
 
-            {/* Progress text and bar */}
+            {
+                completed && (
+                    <p>
+                        Completed
+                    </p>
+                )
+            }
+
             <p>Progress: {progress}%</p>
 
             <div className="progress-bar">
@@ -102,8 +104,6 @@ function Card({
             >
                 Update Progress
             </button>
-
-            {/* Edit or save the card title */}
             {isEditing ? (
                 <>
                     <button
@@ -133,8 +133,6 @@ function Card({
                     Edit
                 </button>
             )}
-
-            {/* Delete this card */}
             <button
                 onClick={() => onDelete(id)}
             >

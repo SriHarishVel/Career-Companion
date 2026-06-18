@@ -33,11 +33,19 @@ function Goals() {
     function handleProgress(goalId) {
         setGoals(prevGoals => prevGoals.map(goal => {
             if (goal.id === goalId) {
+                const newProgress =
+                    Math.min(
+                        goal.progress + 10,
+                        100
+                    );
+
                 return {
-                ...goal,
-                progress: Math.min(goal.progress + 10, 100),
-                lastUpdated: Date.now()
-            };
+                    ...goal,
+                    progress: newProgress,
+                    completed:
+                        newProgress === 100,
+                    lastUpdated: Date.now()
+                };
             }
             return goal;
         }));
@@ -62,6 +70,7 @@ function Goals() {
                 category: newCategory,
                 priority: newPriority,
                 progress: 0,
+                completed: false,
                 deadline: newDeadline,
                 lastUpdated: Date.now()
             }
@@ -362,6 +371,7 @@ function Goals() {
                     onDelete={deleteGoal}
                     onEdit={editGoal}
                     deadline={goal.deadline}
+                    completed={goal.completed}
                 />
             ))}
 
