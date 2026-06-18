@@ -1,7 +1,6 @@
 import {useState, useEffect} from "react";
 import Card from "../../components/Card";
 import initialGoals from "../../data/goals";
-import SearchSortBar from "../../components/SearchSortBar";
 import "./index.css"
 
 function Goals() {
@@ -11,9 +10,10 @@ function Goals() {
     const [sortOption, setSortOption] = useState("default");
     const [newDeadline, setNewDeadline] = useState("");
     const [newCategory, setNewCategory] = useState("Learning");
+    const [newPriority, setNewPriority] = useState("Medium");
     const [categoryFilter, setCategoryFilter] = useState("All");
     const [priorityFilter, setPriorityFilter] = useState("All");
-    const [newPriority, setNewPriority] = useState("Medium");
+    const [statusFilter, setStatusFilter] = useState("All");
     const [goals, setGoals] = useState(() => {
         // Load saved goals first so user changes stay after refresh.
         const savedGoals = localStorage.getItem("goals");
@@ -122,6 +122,22 @@ function Goals() {
                 : goal.priority ===
                 priorityFilter
         )
+        .filter(goal => {
+            if (
+                statusFilter === "Active"
+            ) {
+                return !goal.completed;
+            }
+
+            if (
+                statusFilter ===
+                "Completed"
+            ) {
+                return goal.completed;
+            }
+
+            return true;
+        })
         .sort((a, b) => {
             if (sortOption === "az") {
                 return a.title.localeCompare(
@@ -185,196 +201,282 @@ function Goals() {
         });
 
     return (
-        <div className="container">
-        {/* Search and sort controls */}
-        <SearchSortBar
-                searchValue={searchGoal}
-                onSearchChange={
-                    setSearchGoal
-                }
-                sortValue={sortOption}
-                onSortChange={
-                    setSortOption
-                }
-                searchPlaceholder="Search Goals"
-            >
-                <option value="default">
-                    Default
-                </option>
+        <div className="goals-container">
+            <div className="filters-card">
+                <h3>Filters</h3>
 
-                <option value="az">
-                    A-Z
-                </option>
+                <div className="filters-toolbar">
 
-                <option value="za">
-                    Z-A
-                </option>
+                    <div className="filter-group">
+                        <label>Search</label>
 
-                <option value="priorityHigh">
-                    Priority High-Low
-                </option>
+                        <input
+                            type="search"
+                            placeholder="Search Goals"
+                            value={searchGoal}
+                            onChange={(e) =>
+                                setSearchGoal(
+                                    e.target.value
+                                )
+                            }
+                        />
+                    </div>
 
-                <option value="priorityLow">
-                    Priority Low-High
-                </option>
-                
-                <option value="high">
-                    Highest Progress
-                </option>
+                    <div className="filter-group">
+                        <label>Sort By</label>
 
-                <option value="low">
-                    Lowest Progress
-                </option>
+                        <select
+                            value={sortOption}
+                            onChange={(e) =>
+                                setSortOption(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="default">
+                                Default
+                            </option>
 
-                <option value="recent">
-                    Recently Updated
-                </option>
-        </SearchSortBar>
+                            <option value="az">
+                                A-Z
+                            </option>
 
-        {/* Filter goals by category */}
-        <select
-            value={categoryFilter}
-            onChange={(e) =>
-                setCategoryFilter(
-                    e.target.value
-                )
-            }
-        >
-            <option value="All">
-                All Categories
-            </option>
+                            <option value="za">
+                                Z-A
+                            </option>
 
-            <option value="Learning">
-                Learning
-            </option>
+                            <option value="priorityHigh">
+                                Priority High-Low
+                            </option>
 
-            <option value="Career">
-                Career
-            </option>
+                            <option value="priorityLow">
+                                Priority Low-High
+                            </option>
 
-            <option value="Personal">
-                Personal
-            </option>
+                            <option value="high">
+                                Highest Progress
+                            </option>
 
-            <option value="Health">
-                Health
-            </option>
-        </select>
-        {/* Filter goals by priority */}
-        <select
-            value={priorityFilter}
-            onChange={(e) =>
-                setPriorityFilter(
-                    e.target.value
-                )
-            }
-        >
-            <option value="All">
-                All Priorities
-            </option>
+                            <option value="low">
+                                Lowest Progress
+                            </option>
 
-            <option value="High">
-                High
-            </option>
+                            <option value="recent">
+                                Recently Updated
+                            </option>
+                        </select>
+                    </div>
 
-            <option value="Medium">
-                Medium
-            </option>
+                    <div className="filter-group">
+                        <label>Category</label>
 
-            <option value="Low">
-                Low
-            </option>
-        </select>
-        {/* New goal title */}
-        <input 
-            type="text" 
-            placeholder="Add Goal" 
-            value={newGoal} 
-            onChange={(e) => { 
-                setNewGoal(e.target.value); setErrorMsg(""); 
-            }} 
-        />
+                        <select
+                            value={categoryFilter}
+                            onChange={(e) =>
+                                setCategoryFilter(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="All">
+                                All Categories
+                            </option>
 
-        {/* New goal category */}
-        <select
-            value={newCategory}
-            onChange={(e) =>
-                setNewCategory(
-                    e.target.value
-                )
-            }
-        >
-            <option value="Learning">
-                Learning
-            </option>
+                            <option value="Learning">
+                                Learning
+                            </option>
 
-            <option value="Career">
-                Career
-            </option>
+                            <option value="Career">
+                                Career
+                            </option>
 
-            <option value="Personal">
-                Personal
-            </option>
+                            <option value="Personal">
+                                Personal
+                            </option>
 
-            <option value="Health">
-                Health
-            </option>
-        </select>
+                            <option value="Health">
+                                Health
+                            </option>
+                        </select>
+                    </div>
 
-        {/* New goal priority */}
-        <select
-            value={newPriority}
-            onChange={(e) =>
-                setNewPriority(
-                    e.target.value
-                )
-            }
-        >
-            <option value="High">
-                High
-            </option>
+                    <div className="filter-group">
+                        <label>Priority</label>
 
-            <option value="Medium">
-                Medium
-            </option>
+                        <select
+                            value={priorityFilter}
+                            onChange={(e) =>
+                                setPriorityFilter(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="All">
+                                All Priorities
+                            </option>
 
-            <option value="Low">
-                Low
-            </option>
-        </select>
+                            <option value="High">
+                                High
+                            </option>
 
-        {/* Optional deadline for the new goal */}
-        <input
-            type="date"
-            value={newDeadline}
-            onChange={(e) =>
-                setNewDeadline(
-                    e.target.value
-                )
-            }
-        />
+                            <option value="Medium">
+                                Medium
+                            </option>
 
-        {errorMsg && <p>{errorMsg}</p>}
+                            <option value="Low">
+                                Low
+                            </option>
+                        </select>
+                    </div>
 
-        <button onClick={addGoal}>Add Goal</button>
-        
-            {/* Goal cards */}
-            {filteredGoals.map((goal) => (
-                <Card
-                    key={goal.id}
-                    id={goal.id}
-                    title={goal.title}
-                    progress={goal.progress}
-                    category={goal.category}
-                    onProgress={handleProgress}
-                    priority={goal.priority}
-                    onDelete={deleteGoal}
-                    onEdit={editGoal}
-                    deadline={goal.deadline}
-                    completed={goal.completed}
+                    <div className="filter-group">
+                        <label>Status</label>
+
+                        <select
+                            value={statusFilter}
+                            onChange={(e) =>
+                                setStatusFilter(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="All">
+                                All Goals
+                            </option>
+
+                            <option value="Active">
+                                Active Goals
+                            </option>
+
+                            <option value="Completed">
+                                Completed Goals
+                            </option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+            
+            <div className="add-goal-card">
+                <h3>Add Goal</h3>
+
+                <input
+                    type="text"
+                    placeholder="Goal Title"
+                    value={newGoal}
+                    onChange={(e) => {
+                        setNewGoal(e.target.value);
+                        setErrorMsg("");
+                    }}
                 />
-            ))}
 
+                <div className="goal-options">
+
+                    <div className="filter-group">
+                        <label>Category</label>
+
+                        <select
+                            value={newCategory}
+                            onChange={(e) =>
+                                setNewCategory(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="Learning">
+                                Learning
+                            </option>
+
+                            <option value="Career">
+                                Career
+                            </option>
+
+                            <option value="Personal">
+                                Personal
+                            </option>
+
+                            <option value="Health">
+                                Health
+                            </option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Priority</label>
+
+                        <select
+                            value={newPriority}
+                            onChange={(e) =>
+                                setNewPriority(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="High">
+                                High
+                            </option>
+
+                            <option value="Medium">
+                                Medium
+                            </option>
+
+                            <option value="Low">
+                                Low
+                            </option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Deadline</label>
+
+                        <input
+                            type="date"
+                            value={newDeadline}
+                            onChange={(e) =>
+                                setNewDeadline(
+                                    e.target.value
+                                )
+                            }
+                        />
+                    </div>
+
+                </div>
+
+                {errorMsg && (
+                    <p className="error">
+                        {errorMsg}
+                    </p>
+                )}
+
+                <button onClick={addGoal}>
+                    Add Goal
+                </button>
+
+                <p className="goal-counter">
+                    Showing {filteredGoals.length}
+                    {" "}of{" "}
+                    {goals.length} goals
+                </p>
+            </div>
+            
+            <div className="goals-grid">
+                {/* Goal cards */}
+                {filteredGoals.map((goal) => (
+                    <Card
+                        key={goal.id}
+                        id={goal.id}
+                        title={goal.title}
+                        progress={goal.progress}
+                        category={goal.category}
+                        onProgress={handleProgress}
+                        priority={goal.priority}
+                        onDelete={deleteGoal}
+                        onEdit={editGoal}
+                        deadline={goal.deadline}
+                        completed={goal.completed}
+                    />
+                ))}
+            </div>
         </div>
     );   
 

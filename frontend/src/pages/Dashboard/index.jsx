@@ -128,6 +128,15 @@ function Dashboard() {
         goals.filter(
             goal => goal.completed
         ).length;
+
+    const completionRate =
+        goals.length > 0
+            ? Math.round(
+                (completedGoals /
+                    goals.length) *
+                    100
+            )
+            : 0;
         
     return (
         <div className="container">
@@ -190,6 +199,11 @@ function Dashboard() {
                     <p>
                         <strong>Completed Goals:</strong>{" "}
                         {completedGoals}
+                    </p>
+
+                    <p>
+                        <strong>Completion Rate:</strong>{" "}
+                        {completionRate}%
                     </p>
                 </div>
                 

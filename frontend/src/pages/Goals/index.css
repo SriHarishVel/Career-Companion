@@ -1,28 +1,128 @@
-.container {
-    max-width: 900px;
-    margin: 30px auto;
+.goals-container {
+    width: 100%;
+    max-width: none;
+
+    margin: 0;
     padding: 30px;
-    background-color: white;
-    border-radius: 10px;
+
+    background: transparent;
+    box-shadow: none;
+    border-radius: 0;
 }
 
 .container h1 {
+    margin-bottom: 25px;
+}
+
+.filters-card,
+.add-goal-card {
+    width: 100%;
+
+    background: white;
+
+    padding: 24px;
+
+    margin-bottom: 24px;
+
+    border-radius: 16px;
+
+    box-shadow:
+        0 4px 12px
+        rgba(0, 0, 0, 0.08);
+}
+
+.filters-card h3,
+.add-goal-card h3 {
     margin-bottom: 20px;
 }
 
-.container input {
+.filters-toolbar {
+    display: grid;
+
+    grid-template-columns:
+        2fr
+        1fr
+        1fr
+        1fr
+        1fr;
+
+    gap: 16px;
+
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+}
+
+.container input,
+.container select {
     width: 100%;
-    padding: 10px;
-    margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+
+    padding: 12px;
+
+    border: 1px solid #d1d5db;
+
+    border-radius: 10px;
+}
+
+.goal-options {
+    display: grid;
+
+    grid-template-columns:
+        repeat(3, 1fr);
+
+    gap: 16px;
+
+    margin: 20px 0;
+}
+
+.goal-counter {
+    margin: 20px 0;
+
+    font-weight: 500;
+
+    color: #666;
 }
 
 .error {
     color: red;
-    margin-bottom: 15px;
+    margin-top: 10px;
 }
 
-.container button {
-    margin-bottom: 20px;
+@media (max-width: 1000px) {
+    .filters-toolbar {
+        grid-template-columns:
+            repeat(2, 1fr);
+    }
+
+    .goal-options {
+        grid-template-columns:
+            1fr;
+    }
+}
+
+@media (max-width: 700px) {
+    .filters-toolbar {
+        grid-template-columns:
+            1fr;
+    }
+}
+.goals-grid {
+    display: grid;
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(350px, 1fr)
+        );
+
+    gap: 20px;
 }

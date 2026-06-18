@@ -34,7 +34,11 @@ function Card({
     }
     return (
         
-        <div className="card">
+        <div className={`card ${
+                completed
+                    ? "completed-card"
+                    : "" }`}
+        >
             {isEditing ? (
                 <input
                     type="text"
@@ -44,32 +48,37 @@ function Card({
                     }
                 />
             ) : (
-                <>
+                <div className="card-header">
                     <h2>{title}</h2>
-                </>
+
+                    {completed && (
+                        <span className="completed-badge">
+                            ✓ Completed
+                        </span>
+                    )}
+                </div>
                 )
                 
             }
-            {
-                category && (
-                    <p>
-                        Category: {category}
-                    </p>
-                )
-            }
+            <div className="badges-row">
+                {category && (
+                    <span className="category-badge">
+                        {category}
+                    </span>
+                )}
 
-            {
-                priority && (
-                    <p>Priority: {priority}</p>
-                )
-            }
-
+                {priority && (
+                    <span
+                        className={`priority-badge ${priority.toLowerCase()}`}
+                    >
+                        {priority}
+                    </span>
+                )}
+            </div>
             {
                 deadline && (
                     <>
-                        <p>
-                            Deadline: {deadline}
-                        </p>
+                        <p> Deadline: {deadline} </p>
 
                         <p>
                             {daysLeft > 0
@@ -84,13 +93,11 @@ function Card({
 
             {
                 completed && (
-                    <p>
-                        Completed
-                    </p>
+                    <p> Completed </p>
                 )
             }
 
-            <p>Progress: {progress}%</p>
+           {!completed &&<p>Progress: {progress}%</p>}
 
             <div className="progress-bar">
                 <div
@@ -99,46 +106,50 @@ function Card({
                 ></div>
             </div>
 
-            <button
-                onClick={() => onProgress(id)}
-            >
-                Update Progress
-            </button>
-            {isEditing ? (
-                <>
-                    <button
-                        onClick={() => {
-                            onEdit(id, editedTitle);
-                            setIsEditing(false);
-                        }}
-                    >
-                        Save
-                    </button>
-
-                    <button
-                        onClick={() => {
-                            setEditedTitle(title);
-                            setIsEditing(false);
-                        }}
-                    >
-                        Cancel
-                    </button>
-                </>
-            ) : (
+            <div className="card-actions">
                 <button
-                    onClick={() =>
-                        setIsEditing(true)
-                    }
+                    onClick={() => onProgress(id)}
+                    disabled={completed}
                 >
-                    Edit
+                    {completed
+                        ? "Completed"
+                        : "Update Progress"}
                 </button>
-            )}
-            <button
-                onClick={() => onDelete(id)}
-            >
-                Delete
-            </button>
+                {isEditing ? (
+                    <>
+                        <button
+                            onClick={() => {
+                                onEdit(id, editedTitle);
+                                setIsEditing(false);
+                            }}
+                        >
+                            Save
+                        </button>
 
+                        <button
+                            onClick={() => {
+                                setEditedTitle(title);
+                                setIsEditing(false);
+                            }}
+                        >
+                            Cancel
+                        </button>
+                    </>
+                ) : (
+                    <button
+                        onClick={() =>
+                            setIsEditing(true)
+                        }
+                    >
+                        Edit
+                    </button>
+                )}
+                <button
+                    onClick={() => onDelete(id)}
+                >
+                    Delete
+                </button>
+            </div>
         </div>
     );
 }
