@@ -7,24 +7,13 @@ function Resources() {
     const [newTitle, setNewTitle] = useState("");
     const [newUrl, setNewUrl] = useState("");
     const [newType, setNewType] = useState("Documentation");
-
     const [errorMsg, setErrorMsg] = useState("");
-
-    const [searchResource, setSearchResource] =
-        useState("");
-
-    const [sortOption, setSortOption] =
-        useState("default");
-
-    const [editingId, setEditingId] =
-        useState(null);
-
-    const [editedTitle, setEditedTitle] =
-        useState("");
-
-    const [editedUrl, setEditedUrl] =
-        useState("");
-
+    const [searchResource, setSearchResource] = useState("");
+    const [sortOption, setSortOption] = useState("default");
+    const [editingId, setEditingId] = useState(null);
+    const [editedTitle, setEditedTitle] = useState("");
+    const [editedUrl, setEditedUrl] = useState("");
+    const [filterOption, setFilterOption] = useState("All");
     const [resources, setResources] = useState(() => {
         const savedResources =
             localStorage.getItem("resources");
@@ -98,6 +87,22 @@ function Resources() {
         );
     }
 
+    function toggleFavorite(resourceId) {
+        setResources(prevResources =>
+            prevResources.map(resource => {
+                if (resource.id === resourceId) {
+                    return {
+                        ...resource,
+                        favorite: !resource.favorite,
+                        lastUpdated: Date.now()
+                    };
+                }
+
+                return resource;
+            })
+        );
+    }
+
     function editResource(
         resourceId,
         updatedTitle,
@@ -147,6 +152,20 @@ function Resources() {
                     searchResource.toLowerCase()
                 )
         )
+        .filter(resource => {
+            if (filterOption === "All") {
+                return true;
+            }
+
+            if (filterOption === "Favorites") {
+                return resource.favorite;
+            }
+
+            return (
+                resource.type ===
+                filterOption
+            );
+        })
         .sort((a, b) => {
             if (sortOption === "az") {
                 return a.title.localeCompare(
@@ -210,6 +229,40 @@ function Resources() {
                     Recently Updated
                 </option>
             </SearchSortBar>
+            
+            {/* Filter Dropdown */}
+            <select
+                value={filterOption}
+                onChange={(e) =>
+                    setFilterOption(
+                        e.target.value
+                    )
+                }
+            >
+                <option value="All">
+                    All Resources
+                </option>
+
+                <option value="Favorites">
+                    Favorites
+                </option>
+
+                <option value="Documentation">
+                    Documentation
+                </option>
+
+                <option value="Course">
+                    Course
+                </option>
+
+                <option value="Video">
+                    Video
+                </option>
+
+                <option value="Article">
+                    Article
+                </option>
+            </select>
 
             {/* Resource Counter */}
             <p className="resource-counter">
@@ -220,6 +273,16 @@ function Resources() {
                 of{" "}
                 {resources.length}{" "}
                 resources
+            </p>
+            
+            {/* Favorite Counter */}
+            <p className="resource-counter">
+                Favorites: {
+                    resources.filter(
+                        resource =>
+                            resource.favorite
+                    ).length
+                }
             </p>
 
             {/* Add Resource Form */}
@@ -315,24 +378,16 @@ function Resources() {
                                         }
                                         onChange={(e) =>
                                             setEditedTitle(
-                                                e
-                                                    .target
-                                                    .value
+                                                e.target.value
                                             )
                                         }
                                     />
 
                                     <input
                                         type="url"
-                                        value={
-                                            editedUrl
-                                        }
+                                        value={editedUrl}
                                         onChange={(e) =>
-                                            setEditedUrl(
-                                                e
-                                                    .target
-                                                    .value
-                                            )
+                                            setEditedUrl(e.target.value)
                                         }
                                     />
 
@@ -346,9 +401,7 @@ function Resources() {
                                                     editedUrl
                                                 );
 
-                                                setEditingId(
-                                                    null
-                                                );
+                                                setEditingId(null);
                                             }}
                                         >
                                             Save
@@ -356,9 +409,7 @@ function Resources() {
 
                                         <button
                                             onClick={() =>
-                                                setEditingId(
-                                                    null
-                                                )
+                                                setEditingId(null)
                                             }
                                         >
                                             Cancel
@@ -366,9 +417,7 @@ function Resources() {
 
                                         <button
                                             onClick={() =>
-                                                deleteResource(
-                                                    resource.id
-                                                )
+                                                deleteResource(resource.id)
                                             }
                                         >
                                             Delete
@@ -384,18 +433,24 @@ function Resources() {
                                         }
                                     </span>
 
+                                    {resource.favorite && (
+                                        <span className="favorite-badge">
+                                            ★ Favorite
+                                        </span>
+                                    )}
+
                                     <h3>
                                         {
                                             resource.title
                                         }
                                     </h3>
 
+                                    
+
                                     <div className="resource-actions">
 
                                         <a
-                                            href={
-                                                resource.url
-                                            }
+                                            href={resource.url}
                                             target="_blank"
                                             rel="noopener noreferrer"
                                         >
@@ -404,17 +459,9 @@ function Resources() {
 
                                         <button
                                             onClick={() => {
-                                                setEditingId(
-                                                    resource.id
-                                                );
-
-                                                setEditedTitle(
-                                                    resource.title
-                                                );
-
-                                                setEditedUrl(
-                                                    resource.url
-                                                );
+                                                setEditingId(resource.id);
+                                                setEditedTitle(resource.title);
+                                                setEditedUrl(resource.url);
                                             }}
                                         >
                                             Edit
@@ -422,12 +469,18 @@ function Resources() {
 
                                         <button
                                             onClick={() =>
-                                                deleteResource(
-                                                    resource.id
-                                                )
+                                                deleteResource(resource.id)
                                             }
                                         >
                                             Delete
+                                        </button>
+
+                                        <button
+                                            onClick={() =>
+                                                toggleFavorite(resource.id)
+                                            }
+                                        >
+                                            {resource.favorite ? "Unfavorite" : "Favorite"}
                                         </button>
 
                                     </div>
