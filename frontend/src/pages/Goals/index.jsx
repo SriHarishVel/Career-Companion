@@ -4,6 +4,7 @@ import initialGoals from "../../data/goals";
 import "./index.css"
 
 function Goals() {
+    // Form, filter, and sorting state for the goals page.
     const [newGoal, setNewGoal] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [searchGoal, setSearchGoal] = useState("");
@@ -31,6 +32,7 @@ function Goals() {
     }, [goals]);
 
     function handleProgress(goalId) {
+        // Increase progress in small steps and mark goals complete at 100%.
         setGoals(prevGoals => prevGoals.map(goal => {
             if (goal.id === goalId) {
                 const newProgress =
@@ -52,16 +54,20 @@ function Goals() {
     }
 
     function deleteGoal(goalId) {
+        // Remove the selected goal from the saved list.
         setGoals(prevGoals => prevGoals.filter(goal => goal.id !== goalId));
     }
 
 
     function addGoal() {
+        // Stop empty goals from being added to the tracker.
         if (newGoal.trim() === "") {
             setErrorMsg("Goal cannot be empty.");
             return;
         }
         setErrorMsg("");
+
+        // Add the new goal with the current category, priority, and deadline.
         setGoals(prevGoals => [
             ...prevGoals,
             {
@@ -82,6 +88,7 @@ function Goals() {
     }
 
     function editGoal(goalId, updatedTitle) {
+        // Ignore blank edits so existing goal names are not erased.
         if (updatedTitle.trim() === "") {
             return;
         }
@@ -201,7 +208,11 @@ function Goals() {
         });
 
     return (
-        <div className="goals-container">
+        <div className="container">
+            {/* Page Title */}
+            <h1>Goals</h1>
+
+            {/* Filters Card */}
             <div className="filters-card">
                 <h3>Filters</h3>
 
@@ -357,6 +368,7 @@ function Goals() {
                 </div>
             </div>
             
+            {/* Add Goal Card */}
             <div className="add-goal-card">
                 <h3>Add Goal</h3>
 
@@ -453,12 +465,11 @@ function Goals() {
                 </button>
 
                 <p className="goal-counter">
-                    Showing {filteredGoals.length}
-                    {" "}of{" "}
-                    {goals.length} goals
+                    Showing {filteredGoals.length} of {goals.length} goals
                 </p>
             </div>
             
+            {/* Goals Grid */}
             <div className="goals-grid">
                 {/* Goal cards */}
                 {filteredGoals.map((goal) => (

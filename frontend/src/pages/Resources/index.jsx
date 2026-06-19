@@ -192,7 +192,7 @@ function Resources() {
         });
 
     return (
-        <div className="resources-container">
+        <div className="container">
 
             {/* Page Title */}
             <h1>Resources</h1>

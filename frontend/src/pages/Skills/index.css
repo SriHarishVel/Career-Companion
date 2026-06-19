@@ -1,27 +1,103 @@
-/* Page layout */
-.container {
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 30px;
-    background-color: white;
-    border-radius: 10px;
-}
+/* Page Title */
 
 .container h1 {
-    margin-bottom: 20px;
+    margin-bottom: 25px;
+    text-align: center;
 }
 
-/* Form fields */
-.container input {
+/* Filters Card */
+
+.filters-card {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+}
+
+.filters-card h3 {
+    margin-bottom: 15px;
+}
+
+/* Filter Group */
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    margin-top: 15px;
+}
+
+.filter-group label {
+    font-size: 0.85rem;
+    font-weight: 600;
+    color: #555;
+}
+
+/* Add Skill Card */
+
+.add-skill-card {
+    background: #f8fafc;
+    padding: 20px;
+    border-radius: 12px;
+    margin-bottom: 20px;
+    border: 1px solid #e5e7eb;
+}
+
+.add-skill-card h3 {
+    margin-bottom: 15px;
+}
+
+/* Form Fields */
+
+.add-skill-card input,
+.add-skill-card select {
     width: 100%;
     padding: 10px;
     margin-bottom: 15px;
-    border: 1px solid #ccc;
-    border-radius: 6px;
+    border-radius: 8px;
 }
 
-/* Error message */
+/* Add Skill Button */
+
+.add-skill-card button {
+    width: 100%;
+}
+
+/* Skill Counter */
+
+.skill-counter {
+    margin-top: 15px;
+    color: #666;
+    font-weight: 500;
+}
+
+/* Skills Grid */
+
+.skills-grid {
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(320px, 1fr)
+        );
+
+    gap: 20px;
+}
+
+/* Error Message */
+
 .error {
     color: red;
-    margin-bottom: 15px;
+    margin-top: 10px;
+}
+
+/* Mobile */
+
+@media (max-width: 768px) {
+    .skills-grid {
+        grid-template-columns: 1fr;
+    }
+
 }

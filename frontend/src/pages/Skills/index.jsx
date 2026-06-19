@@ -9,10 +9,16 @@ function Skills() {
     const [errorMsg, setErrorMsg] = useState("");
     const [searchSkill, setSearchSkill] = useState("");
     const [sortOption, setSortOption] = useState("default");
+    const [newCategory, setNewCategory] = useState("Frontend");
+    const [categoryFilter, setCategoryFilter] = useState("All");
+    const [newLevel, setNewLevel] = useState("Beginner");
 
+const [levelFilter, setLevelFilter] =
+    useState("All");
     const [skills, setSkills] = useState(() => {
-        // Use saved skills when available, otherwise start with sample skills.
-        const savedSkills = localStorage.getItem("skills");
+        // Load saved skills first so user changes stay after refresh.
+        const savedSkills =
+            localStorage.getItem("skills");
 
         if (savedSkills) {
             return JSON.parse(savedSkills);
@@ -22,7 +28,7 @@ function Skills() {
     });
 
     useEffect(() => {
-        // Save skill changes so progress is not lost on refresh.
+        // Keep localStorage in sync whenever the skills list changes.
         localStorage.setItem(
             "skills",
             JSON.stringify(skills)
@@ -30,6 +36,7 @@ function Skills() {
     }, [skills]);
 
     function handleProgress(skillId) {
+        // Increase progress in small steps without going past 100%.
         setSkills(prevSkills =>
             prevSkills.map(skill => {
                 if (skill.id === skillId) {
@@ -39,7 +46,8 @@ function Skills() {
                             skill.progress + 10,
                             100
                         ),
-                        lastUpdated: Date.now()
+                        lastUpdated:
+                            Date.now()
                     };
                 }
 
@@ -49,14 +57,17 @@ function Skills() {
     }
 
     function deleteSkill(skillId) {
+        // Remove the selected skill from the saved list.
         setSkills(prevSkills =>
             prevSkills.filter(
-                skill => skill.id !== skillId
+                skill =>
+                    skill.id !== skillId
             )
         );
     }
 
     function addSkill() {
+        // Stop empty skills from being added to the tracker.
         if (newSkill.trim() === "") {
             setErrorMsg(
                 "Skill cannot be empty."
@@ -66,31 +77,47 @@ function Skills() {
 
         setErrorMsg("");
 
+        // Add the new skill with a default level and starting progress.
         setSkills(prevSkills => [
             ...prevSkills,
             {
                 id: Date.now(),
                 title: newSkill.trim(),
+                category: newCategory,
+                level: newLevel,
                 progress: 0,
                 lastUpdated: Date.now()
             }
         ]);
 
         setNewSkill("");
+        setNewCategory(
+            "Frontend"
+        );
     }
 
-    function editSkill(skillId, updatedTitle) {
-        if (updatedTitle.trim() === "") {
+    function editSkill(
+        skillId,
+        updatedTitle
+    ) {
+        // Ignore blank edits so existing skill names are not erased.
+        if (
+            updatedTitle.trim() === ""
+        ) {
             return;
         }
 
         setSkills(prevSkills =>
             prevSkills.map(skill => {
-                if (skill.id === skillId) {
+                if (
+                    skill.id === skillId
+                ) {
                     return {
                         ...skill,
-                        title: updatedTitle.trim(),
-                        lastUpdated: Date.now()
+                        title:
+                            updatedTitle.trim(),
+                        lastUpdated:
+                            Date.now()
                     };
                 }
 
@@ -99,8 +126,10 @@ function Skills() {
         );
     }
 
-    // Apply search and sorting before rendering the skill cards.
-    const filteredSkills = [...skills]
+    // Build the visible list from the current search, category, and sort choices.
+    const filteredSkills = [
+        ...skills
+    ]
         .filter(skill =>
             skill.title
                 .toLowerCase()
@@ -108,32 +137,60 @@ function Skills() {
                     searchSkill.toLowerCase()
                 )
         )
+        .filter(skill =>
+            categoryFilter ===
+            "All"
+                ? true
+                : skill.category ===
+                  categoryFilter
+        )
+        .filter(skill =>
+            levelFilter === "All"
+                ? true
+                : skill.level ===
+                levelFilter
+        )
         .sort((a, b) => {
-            if (sortOption === "az") {
+            if (
+                sortOption === "az"
+            ) {
                 return a.title.localeCompare(
                     b.title
                 );
             }
 
-            if (sortOption === "za") {
+            if (
+                sortOption === "za"
+            ) {
                 return b.title.localeCompare(
                     a.title
                 );
             }
 
-            if (sortOption === "high") {
+            if (
+                sortOption ===
+                "high"
+            ) {
                 return (
-                    b.progress - a.progress
+                    b.progress -
+                    a.progress
                 );
             }
 
-            if (sortOption === "low") {
+            if (
+                sortOption ===
+                "low"
+            ) {
                 return (
-                    a.progress - b.progress
+                    a.progress -
+                    b.progress
                 );
             }
 
-            if (sortOption === "recent") {
+            if (
+                sortOption ===
+                "recent"
+            ) {
                 return (
                     b.lastUpdated -
                     a.lastUpdated
@@ -144,85 +201,226 @@ function Skills() {
         });
 
     return (
-        <div classtitle="container">
-            {/* Search and sort controls */}
-            <SearchSortBar
-                searchValue={searchSkill}
-                onSearchChange={
-                    setSearchSkill
-                }
-                sortValue={sortOption}
-                onSortChange={
-                    setSortOption
-                }
-                searchPlaceholder="Search Skills"
-            >
-                <option value="default">
-                    Default
-                </option>
+        <div className="container">
 
-                <option value="az">
-                    A-Z
-                </option>
+            {/* Page Title */}
+            <h1>Skills</h1>
 
-                <option value="za">
-                    Z-A
-                </option>
+            {/* Filters Card */}
+            <div className="filters-card">
 
-                <option value="high">
-                    Highest Progress
-                </option>
+                <h3>Filters</h3>
 
-                <option value="low">
-                    Lowest Progress
-                </option>
-
-                <option value="recent">
-                    Recently Updated
-                </option>
-            </SearchSortBar>
-
-            {/* New skill form */}
-            <input
-                type="text"
-                placeholder="Add Skill"
-                value={newSkill}
-                onChange={(e) => {
-                    setNewSkill(
-                        e.target.value
-                    );
-                    setErrorMsg("");
-                }}
-            />
-
-            {errorMsg && (
-                <p>{errorMsg}</p>
-            )}
-
-            <button onClick={addSkill}>
-                Add Skill
-            </button>
-
-            {/* Skill cards */}
-            {filteredSkills.map(skill => (
-                <Card
-                    key={skill.id}
-                    id={skill.id}
-                    title={skill.title}
-                    progress={
-                        skill.progress
+                <SearchSortBar
+                    searchValue={
+                        searchSkill
                     }
-                    onProgress={
-                        handleProgress
+                    onSearchChange={
+                        setSearchSkill
                     }
-                    onDelete={
-                        deleteSkill
+                    sortValue={
+                        sortOption
                     }
-                    onEdit={ 
-                        editSkill
+                    onSortChange={
+                        setSortOption
                     }
+                    searchPlaceholder="Search Skills"
+                >
+                    <option value="default">
+                        Default
+                    </option>
+
+                    <option value="az">
+                        A-Z
+                    </option>
+
+                    <option value="za">
+                        Z-A
+                    </option>
+
+                    <option value="high">
+                        Highest Progress
+                    </option>
+
+                    <option value="low">
+                        Lowest Progress
+                    </option>
+
+                    <option value="recent">
+                        Recently Updated
+                    </option>
+                </SearchSortBar>
+
+                <div className="filter-group">
+
+                    <label>
+                        Category
+                    </label>
+
+                    <select
+                        value={
+                            categoryFilter
+                        }
+                        onChange={(e) =>
+                            setCategoryFilter(
+                                e.target.value
+                            )
+                        }
+                    >
+                        <option value="All">
+                            All Categories
+                        </option>
+
+                        <option value="Frontend">
+                            Frontend
+                        </option>
+
+                        <option value="Backend">
+                            Backend
+                        </option>
+
+                        <option value="Database">
+                            Database
+                        </option>
+
+                        <option value="AI">
+                            AI
+                        </option>
+
+                        <option value="Tools">
+                            Tools
+                        </option>
+                    </select>
+
+                    <label>Levels</label>
+
+                    <select
+                        value={
+                            levelFilter
+                        }
+                        onChange={(e) =>
+                            setLevelFilter(
+                                e.target.value
+                            )
+                        }
+                    >
+                        <option value="All">
+                            All Levels
+                        </option>
+
+                        <option value="Beginner">
+                            Beginner
+                        </option>
+
+                        <option value="Intermediate">
+                            Intermediate
+                        </option>
+
+                        <option value="Advanced">
+                            Advanced
+                        </option>
+                    </select>
+
+                </div>
+
+                <p className="skill-counter">
+                    Showing{" "}
+                    {
+                        filteredSkills.length
+                    }{" "}
+                    of{" "}
+                    {skills.length}{" "}
+                    skills
+                </p>
+
+            </div>
+
+            {/* Add Skill Card */}
+            <div className="add-skill-card">
+
+                <h3>Add Skill</h3>
+
+                <input
+                    type="text"
+                    placeholder="Add Skill"
+                    value={newSkill}
+                    onChange={(e) => {
+                        setNewSkill(
+                            e.target.value
+                        );
+
+                        setErrorMsg("");
+                    }}
                 />
-            ))}
+
+                <select
+                    value={
+                        newCategory
+                    }
+                    onChange={(e) =>
+                        setNewCategory(
+                            e.target.value
+                        )
+                    }
+                >
+                    <option value="Frontend">
+                        Frontend
+                    </option>
+
+                    <option value="Backend">
+                        Backend
+                    </option>
+
+                    <option value="Database">
+                        Database
+                    </option>
+
+                    <option value="AI">
+                        AI
+                    </option>
+
+                    <option value="Tools">
+                        Tools
+                    </option>
+                </select>
+
+                {errorMsg && (
+                    <p className="error">
+                        {errorMsg}
+                    </p>
+                )}
+
+                <button
+                    onClick={
+                        addSkill
+                    }
+                >
+                    Add Skill
+                </button>
+
+            </div>
+
+            {/* Skills Grid */}
+            <div className="skills-grid">
+
+                {filteredSkills.map(
+                    skill => (
+                        <Card
+                            key={skill.id}
+                            id={skill.id}
+                            title={skill.title}
+                            progress={skill.progress}
+                            category={skill.category}
+                            level={skill.level}
+                            onProgress={handleProgress}
+                            onDelete={deleteSkill}
+                            onEdit={editSkill}
+                        />
+                    )
+                )}
+
+            </div>
+
         </div>
     );
 }

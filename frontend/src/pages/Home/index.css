@@ -1,12 +1,3 @@
-/* Page layout */
-.container {
-    max-width: 900px;
-    margin: 30px auto;
-    padding: 30px;
-    background-color: white;
-    border-radius: 10px;
-}
-
 .container h1 {
     margin-bottom: 10px;
 }

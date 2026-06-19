@@ -6,16 +6,19 @@ function Card({
     title,
     progress,
     category,
+    level,
     onProgress,
     priority,
     onDelete,
     onEdit,
     deadline,
-    completed
+    completed,
+    
 }){
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(title);
 
+    // Goals can pass a deadline; skills leave this empty.
     let daysLeft = null;
 
     if (deadline) {
@@ -32,6 +35,7 @@ function Card({
             (1000 * 60 * 60 * 24)
         );
     }
+
     return (
         
         <div className={`card ${
@@ -39,6 +43,7 @@ function Card({
                     ? "completed-card"
                     : "" }`}
         >
+            {/* Switch between title editing and the normal card header. */}
             {isEditing ? (
                 <input
                     type="text"
@@ -61,22 +66,28 @@ function Card({
                 
             }
             <div className="badges-row">
+                {/* Optional labels let the same card support goals and skills. */}
                 {category && (
                     <span className="category-badge">
                         {category}
                     </span>
                 )}
 
+                {level && (
+                    <span className={`level-badge ${level.toLowerCase()}`}>
+                        {level}
+                    </span>
+                )}
+
                 {priority && (
-                    <span
-                        className={`priority-badge ${priority.toLowerCase()}`}
-                    >
+                    <span className={`priority-badge ${priority.toLowerCase()}`}>
                         {priority}
                     </span>
                 )}
             </div>
             {
                 deadline && (
+                    // Show deadline details only for goal cards.
                     <>
                         <p> Deadline: {deadline} </p>
 
@@ -107,6 +118,7 @@ function Card({
             </div>
 
             <div className="card-actions">
+                {/* Progress is disabled once a goal has reached completion. */}
                 <button
                     onClick={() => onProgress(id)}
                     disabled={completed}
@@ -115,6 +127,8 @@ function Card({
                         ? "Completed"
                         : "Update Progress"}
                 </button>
+
+                {/* Inline editing keeps card updates on the current page. */}
                 {isEditing ? (
                     <>
                         <button

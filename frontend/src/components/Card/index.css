@@ -88,8 +88,8 @@
 }
 
 .priority-badge.high {
-    background: #fee2e2;
-    color: #b91c1c;
+    background: #fff7ed; /* softer orange background */
+    color: #c2410c; /* warm, less alarming high-priority color */
 }
 
 .priority-badge.medium {
@@ -100,6 +100,25 @@
 .priority-badge.low {
     background: #dcfce7;
     color: #166534;
+}
+.level-badge {
+    display: inline-block;
+    border-radius: 999px;   
+    padding: 4px 10px;
+    font-size: 0.85rem;
+}
+
+.level-badge.beginner {
+    background: #dbeafe;
+    color: #1e40af;
+}
+.level-badge.intermediate {
+    background: #fef3c7;
+    color: #92400e;
+}
+.level-badge.advanced {
+    background: #ede9fe; /* calm indigo background for advanced level */
+    color: #4c1d95; /* deep indigo text for contrast without red alarm */
 }
 
 /* Action buttons */

@@ -1,16 +1,4 @@
 /* Page layout */
-.goals-container {
-    width: 100%;
-    max-width: none;
-
-    margin: 0;
-    padding: 30px;
-
-    background: transparent;
-    box-shadow: none;
-    border-radius: 0;
-}
-
 .container h1 {
     margin-bottom: 25px;
 }
