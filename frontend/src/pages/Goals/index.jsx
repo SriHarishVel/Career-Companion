@@ -16,6 +16,8 @@ function Goals() {
     const [categoryFilter, setCategoryFilter] = useState("All");
     const [priorityFilter, setPriorityFilter] = useState("All");
     const [statusFilter, setStatusFilter] = useState("All");
+    const [goalTypeFilter, setGoalTypeFilter] = useState("All");
+    const [newGoalType, setNewGoalType] = useState("Primary");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedGoalId, setSelectedGoalId] = useState(null);
     const [goals, setGoals] = useState(() => {
@@ -87,6 +89,7 @@ function Goals() {
                 category: newCategory,
                 priority: newPriority,
                 progress: 0,
+                goalType: newGoalType,
                 completed: false,
                 deadline: newDeadline,
                 lastUpdated: Date.now()
@@ -96,6 +99,7 @@ function Goals() {
         setNewDeadline("");
         setNewCategory("Learning");
         setNewPriority("Medium");
+        setNewGoalType("Primary");
     }
 
     function editGoal(goalId, updatedTitle) {
@@ -120,6 +124,10 @@ function Goals() {
     }
 
     // Build the visible list from the current search, category, and sort choices.
+    const primaryGoals = goals.filter(goal => goal.goalType === "Primary");
+
+    const secondaryGoals = goals.filter(goal => goal.goalType === "Secondary");
+
     const filteredGoals = [...goals]
         .filter(goal =>
             goal.title
@@ -156,6 +164,11 @@ function Goals() {
 
             return true;
         })
+        .filter(goal =>
+            goalTypeFilter === "All"
+                ? true
+                : goal.goalType === goalTypeFilter
+        )
         .sort((a, b) => {
             if (sortOption === "az") {
                 return a.title.localeCompare(
@@ -218,7 +231,21 @@ function Goals() {
             return 0;
         });
 
-    return (
+    const filteredPrimaryGoals =
+        filteredGoals.filter(
+            goal =>
+                goal.goalType ===
+                "Primary"
+        );
+
+    const filteredSecondaryGoals =
+        filteredGoals.filter(
+            goal =>
+                goal.goalType ===
+                "Secondary"
+        );
+
+        return (
         <div className="container">
             {/* Page Title */}
             <h1>Goals</h1>
@@ -350,6 +377,31 @@ function Goals() {
                             </option>
                         </select>
                     </div>
+                    
+                    <div className="filter-group">
+                        <label>Goal Type</label>
+
+                        <select
+                            value={goalTypeFilter}
+                            onChange={(e) =>
+                                setGoalTypeFilter(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="All">
+                                All Types
+                            </option>
+
+                            <option value="Primary">
+                                Primary Goals
+                            </option>
+
+                            <option value="Secondary">
+                                Secondary Goals
+                            </option>
+                        </select>
+                    </div>
 
                     <div className="filter-group">
                         <label>Status</label>
@@ -450,6 +502,27 @@ function Goals() {
                     </div>
 
                     <div className="filter-group">
+                        <label>Goal Type</label>
+
+                        <select
+                            value={newGoalType}
+                            onChange={(e) =>
+                                setNewGoalType(
+                                    e.target.value
+                                )
+                            }
+                        >
+                            <option value="Primary">
+                                Primary
+                            </option>
+
+                            <option value="Secondary">
+                                Secondary
+                            </option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
                         <label>Deadline</label>
 
                         <input
@@ -478,52 +551,103 @@ function Goals() {
                 <p className="goal-counter">
                     Showing {filteredGoals.length} of {goals.length} goals
                 </p>
+                <p className="goal-counter">
+                    Primary Goals: {primaryGoals.length}
+                </p>
+
+                <p className="goal-counter">
+                    Secondary Goals: {secondaryGoals.length}
+                </p>
             </div>
             
-            {/* Goals Grid */}
-            <div className="goals-grid">
+            {/* Goal Sections */}
+            <div>
                 {/* Goal cards */}
-                { filteredGoals.length > 0? 
-                    filteredGoals.map((goal) => (
-                        <Card
-                            key={goal.id}
-                            id={goal.id}
-                            title={goal.title}
-                            progress={goal.progress}
-                            category={goal.category}
-                            onProgress={handleProgress}
-                            priority={goal.priority}
-                            onDelete={(goalId) => {
-                                setSelectedGoalId(goalId);
-                                setShowDeleteModal(true);
-                            }}
-                            onEdit={editGoal}
-                            deadline={goal.deadline}
-                            completed={goal.completed}
-                        />
-                    ))
-                    : (
-                        <div className="empty-state">
-                            <h3>No Goals found</h3>
+                {filteredGoals.length > 0 ? (
+                    <>
+                        {filteredPrimaryGoals.length > 0 && (
+                            <>
+                                <h2 className="goal-section-title">
+                                    Primary Goals
+                                </h2>
 
-                            <p>
-                                Add a Goal or adjust
-                                your filters.
-                            </p>
-                        </div>
-                    )}
-                    <ConfirmModal
-                        isOpen={showDeleteModal}
-                        title="Delete Goal"
-                        message="Are you sure you want to delete this goal?"
-                        onConfirm={confirmDeleteGoal}
-                        onCancel={() => {
-                            setShowDeleteModal(false);
-                            setSelectedGoalId(null);
-                        }}
-                    />
+                                <div className="goals-grid">
+                                    {filteredPrimaryGoals.map(goal => (
+                                        <Card
+                                            key={goal.id}
+                                            id={goal.id}
+                                            title={goal.title}
+                                            progress={goal.progress}
+                                            category={goal.category}
+                                            onProgress={handleProgress}
+                                            priority={goal.priority}
+                                            goalType={goal.goalType}
+                                            onDelete={(goalId) => {
+                                                setSelectedGoalId(goalId);
+                                                setShowDeleteModal(true);
+                                            }}
+                                            onEdit={editGoal}
+                                            deadline={goal.deadline}
+                                            completed={goal.completed}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
+
+                        {filteredSecondaryGoals.length > 0 && (
+                            <>
+                                <h2 className="goal-section-title">
+                                    Secondary Goals
+                                </h2>
+
+                                <div className="goals-grid">
+                                    {filteredSecondaryGoals.map(goal => (
+                                        <Card
+                                            key={goal.id}
+                                            id={goal.id}
+                                            title={goal.title}
+                                            progress={goal.progress}
+                                            category={goal.category}
+                                            onProgress={handleProgress}
+                                            priority={goal.priority}
+                                            goalType={goal.goalType}
+                                            onDelete={(goalId) => {
+                                                setSelectedGoalId(goalId);
+                                                setShowDeleteModal(true);
+                                            }}
+                                            onEdit={editGoal}
+                                            deadline={goal.deadline}
+                                            completed={goal.completed}
+                                        />
+                                    ))}
+                                </div>
+                            </>
+                        )}
+                    </>
+                ) : (
+                    <div className="empty-state">
+                        <h3>No Goals found</h3>
+
+                        <p>
+                            Add a Goal or adjust
+                            your filters.
+                        </p>
+                    </div>
+                )}
+
+                <ConfirmModal
+                    isOpen={showDeleteModal}
+                    title="Delete Goal"
+                    message="Are you sure you want to delete this goal?"
+                    onConfirm={confirmDeleteGoal}
+                    onCancel={() => {
+                        setShowDeleteModal(false);
+                        setSelectedGoalId(null);
+                    }}
+                />
             </div>
-        </div>
+</div>
     );   
 
 }

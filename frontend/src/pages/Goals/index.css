@@ -35,6 +35,7 @@
         1fr
         1fr
         1fr
+        1fr
         1fr;
 
     gap: 16px;
@@ -71,7 +72,7 @@
     display: grid;
 
     grid-template-columns:
-        repeat(3, 1fr);
+        repeat(4, 1fr);
 
     gap: 16px;
 
@@ -81,15 +82,21 @@
 /* Goal list */
 .goals-grid {
     display: grid;
+    justify-content: start;
     grid-template-columns:
         repeat(
-            auto-fit,
-            minmax(350px, 1fr)
+            auto-fill,
+            minmax(350px, 400px)
         );
-
     gap: 20px;
+
 }
 
+.goal-section-title {
+    margin: 35px 0 15px;
+    padding-bottom: 8px;
+    border-bottom: 2px solid #e5e7eb;
+}
 /* Helper text */
 .goal-counter {
     margin: 20px 0;

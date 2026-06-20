@@ -1,10 +1,11 @@
 // Default goals shown before the user adds or saves their own goals.
 const initialGoals = [
-        {
+    {
         id: 1,
-        title: "Learn React",
-        category: "Learning",
-        priority: "Medium",
+        title: "Get Software Developer Job (8+ LPA)",
+        category: "Career",
+        priority: "High",
+        goalType: "Primary",
         progress: 20,
         completed: false,
         deadline: "",
@@ -15,6 +16,7 @@ const initialGoals = [
         title: "Practice DSA",
         category: "Career",
         priority: "High",
+        goalType: "Secondary",
         completed: false,
         progress: 40,
         deadline: "",
@@ -24,7 +26,8 @@ const initialGoals = [
         id: 3,
         title: "Build Portfolio",
         category: "Career",
-        priority: "Low",
+        priority: "Medium",
+        goalType: "Secondary",
         completed: false,
         progress: 10,
         deadline: "",

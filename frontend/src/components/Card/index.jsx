@@ -7,6 +7,7 @@ function Card({
     progress,
     category,
     level,
+    goalType,
     onProgress,
     priority,
     onDelete,
@@ -70,6 +71,14 @@ function Card({
                 {category && (
                     <span className="category-badge">
                         {category}
+                    </span>
+                )}
+
+                {goalType && (
+                    <span
+                        className={`goal-type-badge ${goalType.toLowerCase()}`}
+                    >
+                        {goalType}
                     </span>
                 )}
 
