@@ -141,6 +141,7 @@ function Card({
                         </button>
 
                         <button
+                        className="cancel-btn"
                             onClick={() => {
                                 setEditedTitle(title);
                                 setIsEditing(false);
@@ -151,6 +152,7 @@ function Card({
                     </>
                 ) : (
                     <button
+                    className="edit-btn"
                         onClick={() =>
                             setIsEditing(true)
                         }
@@ -159,6 +161,7 @@ function Card({
                     </button>
                 )}
                 <button
+                className="delete-btn"
                     onClick={() => onDelete(id)}
                 >
                     Delete

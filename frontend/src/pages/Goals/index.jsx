@@ -1,6 +1,7 @@
 import {useState, useEffect} from "react";
 import Card from "../../components/Card";
 import initialGoals from "../../data/goals";
+import ConfirmModal from "../../components/ConfirmModal";
 import "./index.css"
 
 function Goals() {
@@ -15,6 +16,8 @@ function Goals() {
     const [categoryFilter, setCategoryFilter] = useState("All");
     const [priorityFilter, setPriorityFilter] = useState("All");
     const [statusFilter, setStatusFilter] = useState("All");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedGoalId, setSelectedGoalId] = useState(null);
     const [goals, setGoals] = useState(() => {
         // Load saved goals first so user changes stay after refresh.
         const savedGoals = localStorage.getItem("goals");
@@ -53,9 +56,17 @@ function Goals() {
         }));
     }
 
-    function deleteGoal(goalId) {
-        // Remove the selected goal from the saved list.
-        setGoals(prevGoals => prevGoals.filter(goal => goal.id !== goalId));
+    function confirmDeleteGoal() {
+        setGoals(prevGoals =>
+            prevGoals.filter(
+                goal =>
+                    goal.id !==
+                    selectedGoalId
+            )
+        );
+
+        setShowDeleteModal(false);
+        setSelectedGoalId(null);
     }
 
 
@@ -472,21 +483,45 @@ function Goals() {
             {/* Goals Grid */}
             <div className="goals-grid">
                 {/* Goal cards */}
-                {filteredGoals.map((goal) => (
-                    <Card
-                        key={goal.id}
-                        id={goal.id}
-                        title={goal.title}
-                        progress={goal.progress}
-                        category={goal.category}
-                        onProgress={handleProgress}
-                        priority={goal.priority}
-                        onDelete={deleteGoal}
-                        onEdit={editGoal}
-                        deadline={goal.deadline}
-                        completed={goal.completed}
+                { filteredGoals.length > 0? 
+                    filteredGoals.map((goal) => (
+                        <Card
+                            key={goal.id}
+                            id={goal.id}
+                            title={goal.title}
+                            progress={goal.progress}
+                            category={goal.category}
+                            onProgress={handleProgress}
+                            priority={goal.priority}
+                            onDelete={(goalId) => {
+                                setSelectedGoalId(goalId);
+                                setShowDeleteModal(true);
+                            }}
+                            onEdit={editGoal}
+                            deadline={goal.deadline}
+                            completed={goal.completed}
+                        />
+                    ))
+                    : (
+                        <div className="empty-state">
+                            <h3>No Goals found</h3>
+
+                            <p>
+                                Add a Goal or adjust
+                                your filters.
+                            </p>
+                        </div>
+                    )}
+                    <ConfirmModal
+                        isOpen={showDeleteModal}
+                        title="Delete Goal"
+                        message="Are you sure you want to delete this goal?"
+                        onConfirm={confirmDeleteGoal}
+                        onCancel={() => {
+                            setShowDeleteModal(false);
+                            setSelectedGoalId(null);
+                        }}
                     />
-                ))}
             </div>
         </div>
     );   

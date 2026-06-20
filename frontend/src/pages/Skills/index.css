@@ -19,6 +19,22 @@
     margin-bottom: 15px;
 }
 
+.empty-state {
+    background: #f8fafc;
+    border: 2px dashed #cbd5e1;
+    border-radius: 12px;
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.empty-state h3 {
+    margin-bottom: 10px;
+}
+
+.empty-state p {
+    color: #64748b;
+}
+
 /* Filter Group */
 
 .filter-group {

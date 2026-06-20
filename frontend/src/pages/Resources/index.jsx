@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import initialResources from "../../data/resources";
 import SearchSortBar from "../../components/SearchSortBar";
+import ConfirmModal from "../../components/ConfirmModal";
 import "./index.css";
 
 function Resources() {
@@ -14,6 +15,8 @@ function Resources() {
     const [editedTitle, setEditedTitle] = useState("");
     const [editedUrl, setEditedUrl] = useState("");
     const [filterOption, setFilterOption] = useState("All");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedResourceId, setSelectedResourceId] = useState(null);
     const [resources, setResources] = useState(() => {
         const savedResources =
             localStorage.getItem("resources");
@@ -77,14 +80,17 @@ function Resources() {
         setNewType("Documentation");
     }
 
-    function deleteResource(resourceId) {
+    function confirmDeleteResource() {
         setResources(prevResources =>
             prevResources.filter(
                 resource =>
                     resource.id !==
-                    resourceId
+                    selectedResourceId
             )
         );
+
+        setShowDeleteModal(false);
+        setSelectedResourceId(null);
     }
 
     function toggleFavorite(resourceId) {
@@ -360,139 +366,153 @@ function Resources() {
             {/* Resource Cards */}
             <div className="resources-grid">
 
-                {filteredResources.map(
-                    resource => (
+                {filteredResources.length > 0 ? (
+                    filteredResources.map(resource => (
                         <div
                             className="resource-card"
-                            key={
-                                resource.id
-                            }
+                            key={resource.id}
                         >
-                            {editingId ===
-                            resource.id ? (
-                                <>
-                                    <input
-                                        type="text"
-                                        value={
-                                            editedTitle
-                                        }
-                                        onChange={(e) =>
-                                            setEditedTitle(
-                                                e.target.value
-                                            )
-                                        }
-                                    />
-
-                                    <input
-                                        type="url"
-                                        value={editedUrl}
-                                        onChange={(e) =>
-                                            setEditedUrl(e.target.value)
-                                        }
-                                    />
-
-                                    <div className="resource-actions">
-
-                                        <button
-                                            onClick={() => {
-                                                editResource(
-                                                    resource.id,
-                                                    editedTitle,
-                                                    editedUrl
-                                                );
-
-                                                setEditingId(null);
-                                            }}
-                                        >
-                                            Save
-                                        </button>
-
-                                        <button
-                                            onClick={() =>
-                                                setEditingId(null)
+                                {editingId === resource.id ? (
+                                    <>
+                                        <input
+                                            type="text"
+                                            value={editedTitle}
+                                            onChange={(e) =>
+                                                setEditedTitle(e.target.value)
                                             }
-                                        >
-                                            Cancel
-                                        </button>
+                                        />
 
-                                        <button
-                                            onClick={() =>
-                                                deleteResource(resource.id)
+                                        <input
+                                            type="url"
+                                            value={editedUrl}
+                                            onChange={(e) =>
+                                                setEditedUrl(e.target.value)
                                             }
-                                        >
-                                            Delete
-                                        </button>
+                                        />
 
-                                    </div>
-                                </>
-                            ) : (
-                                <>
-                                    <span className="resource-type">
-                                        {
-                                            resource.type
-                                        }
-                                    </span>
+                                        <div className="resource-actions">
 
-                                    {resource.favorite && (
-                                        <span className="favorite-badge">
-                                            ★ Favorite
+                                            <button
+                                                onClick={() => {
+                                                    editResource(
+                                                        resource.id,
+                                                        editedTitle,
+                                                        editedUrl
+                                                    );
+
+                                                    setEditingId(null);
+                                                }}
+                                            >
+                                                Save
+                                            </button>
+
+                                            <button
+                                                className="cancel-btn"
+                                                onClick={() =>
+                                                    setEditingId(null)
+                                                }
+                                            >
+                                                Cancel
+                                            </button>
+
+                                            <button
+                                                className="delete-btn"
+                                                onClick={() => {
+                                                    setSelectedResourceId(resource.id);
+                                                    setShowDeleteModal(true);
+                                                }}
+                                            >
+                                                Delete
+                                            </button>
+
+                                        </div>
+                                    </>
+                                ) : (
+                                    <>
+                                        <span className="resource-type">
+                                            {resource.type}
                                         </span>
-                                    )}
 
-                                    <h3>
-                                        {
-                                            resource.title
-                                        }
-                                    </h3>
+                                        {resource.favorite && (
+                                            <span className="favorite-badge">
+                                                ★ Favorite
+                                            </span>
+                                        )}
 
-                                    
+                                        <h3>
+                                            {resource.title}
+                                        </h3>
 
-                                    <div className="resource-actions">
+                                        <div className="resource-actions">
 
-                                        <a
-                                            href={resource.url}
-                                            target="_blank"
-                                            rel="noopener noreferrer"
-                                        >
-                                            Open Resource
-                                        </a>
+                                            <a
+                                                href={resource.url}
+                                                target="_blank"
+                                                rel="noopener noreferrer"
+                                            >
+                                                Open Resource
+                                            </a>
 
-                                        <button
-                                            onClick={() => {
-                                                setEditingId(resource.id);
-                                                setEditedTitle(resource.title);
-                                                setEditedUrl(resource.url);
-                                            }}
-                                        >
-                                            Edit
-                                        </button>
+                                            <button
+                                                className="edit-btn"
+                                                onClick={() => {
+                                                    setEditingId(resource.id);
+                                                    setEditedTitle(resource.title);
+                                                    setEditedUrl(resource.url);
+                                                }}
+                                            >
+                                                Edit
+                                            </button>
 
-                                        <button
-                                            onClick={() =>
-                                                deleteResource(resource.id)
-                                            }
-                                        >
-                                            Delete
-                                        </button>
+                                            <button 
+                                                className="delete-btn"
+                                                onClick={() => {
+                                                    setSelectedResourceId(resource.id);
+                                                    setShowDeleteModal(true);
+                                                }}
+                                            >
+                                                Delete
+                                            </button>
+                                            <button
+                                                className="favorite-btn"
+                                                onClick={() => toggleFavorite(resource.id)}
+                                            >
+                                                {resource.favorite
+                                                    ? "Unfavorite"
+                                                    : "Favorite"}
+                                            </button>
 
-                                        <button
-                                            onClick={() =>
-                                                toggleFavorite(resource.id)
-                                            }
-                                        >
-                                            {resource.favorite ? "Unfavorite" : "Favorite"}
-                                        </button>
+                                        </div>
+                                    </>
+                                )}
 
-                                    </div>
-                                </>
-                            )}
                         </div>
-                    )
+                    ))
+                ) : (
+                    <div className="empty-state">
+                        <h3>No Resources found</h3>
+
+                        <p>
+                            Add a resource or adjust
+                            your filters.
+                        </p>
+                    </div>
                 )}
+                <ConfirmModal
+                    isOpen={showDeleteModal}
+                    title="Delete Resource"
+                    message="Are you sure you want to delete this resource?"
+                    onConfirm={
+                        confirmDeleteResource
+                    }
+                    onCancel={() => {
+                        setShowDeleteModal(false);
+                        setSelectedResourceId(null);
+                    }}
+                />
+                </div>
 
             </div>
-
-        </div>
     );
 }
 

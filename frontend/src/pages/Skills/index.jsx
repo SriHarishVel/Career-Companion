@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import Card from "../../components/Card";
 import initialSkills from "../../data/skills";
 import SearchSortBar from "../../components/SearchSortBar";
+import ConfirmModal from "../../components/ConfirmModal";
 import "./index.css";
 
 function Skills() {
@@ -11,10 +12,9 @@ function Skills() {
     const [sortOption, setSortOption] = useState("default");
     const [newCategory, setNewCategory] = useState("Frontend");
     const [categoryFilter, setCategoryFilter] = useState("All");
-    const [newLevel, setNewLevel] = useState("Beginner");
-
-const [levelFilter, setLevelFilter] =
-    useState("All");
+    const [levelFilter, setLevelFilter] = useState("All");
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
+    const [selectedSkillId, setSelectedSkillId] = useState(null);
     const [skills, setSkills] = useState(() => {
         // Load saved skills first so user changes stay after refresh.
         const savedSkills =
@@ -39,15 +39,25 @@ const [levelFilter, setLevelFilter] =
         // Increase progress in small steps without going past 100%.
         setSkills(prevSkills =>
             prevSkills.map(skill => {
+                const newProgress = Math.min( skill.progress + 10, 100 );
+
+                let newLevel =
+                    "Beginner";
+
+                if (newProgress >= 80) {
+                    newLevel = "Advanced";
+                } else if (
+                    newProgress >= 40
+                ) {
+                    newLevel =
+                        "Intermediate";
+                }
                 if (skill.id === skillId) {
                     return {
                         ...skill,
-                        progress: Math.min(
-                            skill.progress + 10,
-                            100
-                        ),
-                        lastUpdated:
-                            Date.now()
+                        progress: newProgress,
+                        level: newLevel,
+                        lastUpdated: Date.now()
                     };
                 }
 
@@ -56,14 +66,17 @@ const [levelFilter, setLevelFilter] =
         );
     }
 
-    function deleteSkill(skillId) {
-        // Remove the selected skill from the saved list.
+    function confirmDeleteSkill() {
         setSkills(prevSkills =>
             prevSkills.filter(
                 skill =>
-                    skill.id !== skillId
+                    skill.id !==
+                    selectedSkillId
             )
         );
+
+        setShowDeleteModal(false);
+        setSelectedSkillId(null);
     }
 
     function addSkill() {
@@ -84,16 +97,14 @@ const [levelFilter, setLevelFilter] =
                 id: Date.now(),
                 title: newSkill.trim(),
                 category: newCategory,
-                level: newLevel,
+                level: "Beginner",
                 progress: 0,
                 lastUpdated: Date.now()
             }
         ]);
 
         setNewSkill("");
-        setNewCategory(
-            "Frontend"
-        );
+        setNewCategory("Frontend");
     }
 
     function editSkill(
@@ -127,9 +138,7 @@ const [levelFilter, setLevelFilter] =
     }
 
     // Build the visible list from the current search, category, and sort choices.
-    const filteredSkills = [
-        ...skills
-    ]
+    const filteredSkills = [...skills]
         .filter(skill =>
             skill.title
                 .toLowerCase()
@@ -139,8 +148,7 @@ const [levelFilter, setLevelFilter] =
         )
         .filter(skill =>
             categoryFilter ===
-            "All"
-                ? true
+            "All" ? true
                 : skill.category ===
                   categoryFilter
         )
@@ -299,9 +307,7 @@ const [levelFilter, setLevelFilter] =
                             levelFilter
                         }
                         onChange={(e) =>
-                            setLevelFilter(
-                                e.target.value
-                            )
+                            setLevelFilter(e.target.value)
                         }
                     >
                         <option value="All">
@@ -324,13 +330,7 @@ const [levelFilter, setLevelFilter] =
                 </div>
 
                 <p className="skill-counter">
-                    Showing{" "}
-                    {
-                        filteredSkills.length
-                    }{" "}
-                    of{" "}
-                    {skills.length}{" "}
-                    skills
+                    Showing {filteredSkills.length} of {skills.length} skills
                 </p>
 
             </div>
@@ -382,7 +382,7 @@ const [levelFilter, setLevelFilter] =
                     <option value="Tools">
                         Tools
                     </option>
-                </select>
+                </select> 
 
                 {errorMsg && (
                     <p className="error">
@@ -403,8 +403,8 @@ const [levelFilter, setLevelFilter] =
             {/* Skills Grid */}
             <div className="skills-grid">
 
-                {filteredSkills.map(
-                    skill => (
+                {filteredSkills.length > 0 ? (
+                    filteredSkills.map(skill => (
                         <Card
                             key={skill.id}
                             id={skill.id}
@@ -413,12 +413,34 @@ const [levelFilter, setLevelFilter] =
                             category={skill.category}
                             level={skill.level}
                             onProgress={handleProgress}
-                            onDelete={deleteSkill}
+                            onDelete={(skillId) => {
+                                setSelectedSkillId(skillId);
+                                setShowDeleteModal(true);
+                            }}
                             onEdit={editSkill}
                         />
-                    )
+                    ))
+                ) : (
+                    <div className="empty-state">
+                        <h3>No skills found</h3>
+
+                        <p>
+                            Add a skill or adjust
+                            your filters.
+                        </p>
+                    </div>
                 )}
 
+                <ConfirmModal
+                    isOpen={showDeleteModal}
+                    title="Delete Skill"
+                    message="Are you sure you want to delete this skill?"
+                    onConfirm={confirmDeleteSkill}
+                    onCancel={() => {
+                        setShowDeleteModal(false);
+                        setSelectedSkillId(null);
+                    }}
+                />
             </div>
 
         </div>

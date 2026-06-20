@@ -99,6 +99,53 @@ button {
     font: inherit;
     cursor: pointer;
 }
+.container button {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+}
+
+.container button:hover {
+    background-color: #1d4ed8;
+}
+
+/* Button Variants */
+
+.edit-btn {
+    background: #475569  !important;
+}
+
+.edit-btn:hover {
+    background: #334155  !important;
+}
+
+.delete-btn {
+    background: #dc2626 !important;
+}
+
+.delete-btn:hover {
+    background: #b91c1c !important;
+}
+
+.cancel-btn {
+    background: #b7b8bb !important;
+    color: #06090f !important;
+}
+
+.cancel-btn:hover {
+    background: #8d8f92 !important;
+}
+
+.favorite-btn {
+    background: #16a34a !important;
+}
+
+.favorite-btn:hover {
+    background: #15803d !important;
+}
 
 /* Inputs */
 
