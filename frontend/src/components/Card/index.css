@@ -1,12 +1,14 @@
 /* Card container */
-
 .card {
+    display: flex;
+    flex-direction: column;
     background-color: #f8fafc;
     border-top: 5px solid #2563eb;
     border-radius: 12px;
     margin-top: 20px;
-    padding: 20px;
-    height: 100%;
+    padding: 20px;  
+
+    height: max-content;
     box-shadow:
         0 2px 8px
         rgba(0, 0, 0, 0.05);
@@ -32,7 +34,7 @@
 /* Card header */
 
 .card-header {
-    min-height: 90px;
+    min-height: 60px;
 }
 
 .card-header h2 {
@@ -52,7 +54,8 @@
     display: flex;
     flex-wrap: wrap;
     gap: 10px;
-    margin-bottom: 20px;
+    margin-bottom: 12px;
+    align-items: center;
 }
 
 .category-badge {
@@ -154,7 +157,7 @@
     display: flex;
     gap: 10px;
     flex-wrap: wrap;
-    margin-top: 15px;
+    margin-top: 12px;
 }
 
 .card button {

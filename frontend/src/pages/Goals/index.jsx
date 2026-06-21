@@ -18,6 +18,7 @@ function Goals() {
     const [statusFilter, setStatusFilter] = useState("All");
     const [goalTypeFilter, setGoalTypeFilter] = useState("All");
     const [newGoalType, setNewGoalType] = useState("Primary");
+    const [parentGoalId, setParentGoalId] = useState("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedGoalId, setSelectedGoalId] = useState(null);
     const [goals, setGoals] = useState(() => {
@@ -90,6 +91,7 @@ function Goals() {
                 priority: newPriority,
                 progress: 0,
                 goalType: newGoalType,
+                parentGoalId: newGoalType === "Secondary" ? parentGoalId : null,
                 completed: false,
                 deadline: newDeadline,
                 lastUpdated: Date.now()
@@ -100,6 +102,7 @@ function Goals() {
         setNewCategory("Learning");
         setNewPriority("Medium");
         setNewGoalType("Primary");
+        setParentGoalId("");
     }
 
     function editGoal(goalId, updatedTitle) {
@@ -243,6 +246,12 @@ function Goals() {
             goal =>
                 goal.goalType ===
                 "Secondary"
+        );
+    
+    const primaryGoalOptions =
+        goals.filter(
+            goal =>
+                goal.goalType === "Primary"
         );
 
         return (
@@ -521,6 +530,34 @@ function Goals() {
                             </option>
                         </select>
                     </div>
+                    
+                    {newGoalType === "Secondary" && (
+                        <div className="filter-group">
+                            <label>Parent Goal</label>
+
+                            <select
+                                value={parentGoalId}
+                                onChange={(e) =>
+                                    setParentGoalId(
+                                        Number(e.target.value)
+                                    )
+                                }
+                            >
+                                <option value="">
+                                    Select Parent Goal
+                                </option>
+
+                                {primaryGoalOptions.map(goal => (
+                                    <option
+                                        key={goal.id}
+                                        value={goal.id}
+                                    >
+                                        {goal.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )}
 
                     <div className="filter-group">
                         <label>Deadline</label>
