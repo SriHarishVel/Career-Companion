@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import Card from "../../components/Card";
+import SkillCard from "../../components/SkillCard";
 import initialSkills from "../../data/skills";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -15,6 +15,7 @@ function Skills() {
     const [levelFilter, setLevelFilter] = useState("All");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedSkillId, setSelectedSkillId] = useState(null);
+    const [secondaryGoalId,setSecondaryGoalId] = useState("");
     const [skills, setSkills] = useState(() => {
         // Load saved skills first so user changes stay after refresh.
         const savedSkills =
@@ -99,12 +100,15 @@ function Skills() {
                 category: newCategory,
                 level: "Beginner",
                 progress: 0,
+                secondaryGoalId:
+                    secondaryGoalId || null,
                 lastUpdated: Date.now()
             }
         ]);
 
         setNewSkill("");
         setNewCategory("Frontend");
+        setSecondaryGoalId("");
     }
 
     function editSkill(
@@ -207,6 +211,28 @@ function Skills() {
 
             return 0;
         });
+    
+    const goals =
+        JSON.parse(
+            localStorage.getItem("goals")
+        ) || [];
+        
+    const secondaryGoalOptions =
+        goals.filter(
+            goal =>
+                goal.goalType ===
+                "Secondary"
+        );
+    
+    function getGoalTitle(goalId) {
+        const goal = goals.find(
+            goal => goal.id === goalId
+        );
+
+        return goal
+            ? goal.title
+            : null;
+    }
 
     return (
         <div className="container">
@@ -214,8 +240,8 @@ function Skills() {
             {/* Page Title */}
             <h1>Skills</h1>
 
-            {/* Filters Card */}
-            <div className="filters-card">
+            {/* Filters SkillCard */}
+            <div className="filters-SkillCard">
 
                 <h3>Filters</h3>
 
@@ -326,7 +352,8 @@ function Skills() {
                             Advanced
                         </option>
                     </select>
-
+                    
+                    
                 </div>
 
                 <p className="skill-counter">
@@ -335,8 +362,8 @@ function Skills() {
 
             </div>
 
-            {/* Add Skill Card */}
-            <div className="add-skill-card">
+            {/* Add Skill SkillCard */}
+            <div className="add-skill-SkillCard">
 
                 <h3>Add Skill</h3>
 
@@ -390,6 +417,30 @@ function Skills() {
                     </p>
                 )}
 
+                <select
+                    value={secondaryGoalId}
+                    onChange={(e) =>
+                        setSecondaryGoalId(
+                            Number(e.target.value)
+                        )
+                    }
+                >
+                    <option value="">
+                        Related Goal (Optional)
+                    </option>
+
+                    {secondaryGoalOptions.map(
+                        goal => (
+                            <option
+                                key={goal.id}
+                                value={goal.id}
+                            >
+                                {goal.title}
+                            </option>
+                        )
+                    )}
+                </select>
+
                 <button
                     onClick={
                         addSkill
@@ -405,7 +456,7 @@ function Skills() {
 
                 {filteredSkills.length > 0 ? (
                     filteredSkills.map(skill => (
-                        <Card
+                        <SkillCard
                             key={skill.id}
                             id={skill.id}
                             title={skill.title}
@@ -413,6 +464,7 @@ function Skills() {
                             category={skill.category}
                             level={skill.level}
                             onProgress={handleProgress}
+                            relatedGoalTitle={getGoalTitle(skill.secondaryGoalId)}
                             onDelete={(skillId) => {
                                 setSelectedSkillId(skillId);
                                 setShowDeleteModal(true);

@@ -6,6 +6,7 @@ const initialSkills = [
         category: "Frontend",
         level: "Beginner",
         progress: 20,
+        secondaryGoalId: null,
         lastUpdated: Date.now()
     },
     {
@@ -14,6 +15,7 @@ const initialSkills = [
         category: "Backend",
         level: "Intermediate",
         progress: 40,
+        secondaryGoalId: null,
         lastUpdated: Date.now()
     },
     {
@@ -22,6 +24,7 @@ const initialSkills = [
         category: "AI",
         level: "Beginner",
         progress: 10,
+        secondaryGoalId: null,
         lastUpdated: Date.now()
     }
 ];

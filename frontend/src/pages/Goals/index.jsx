@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import Card from "../../components/Card";
+import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
 import ConfirmModal from "../../components/ConfirmModal";
 import "./index.css"
@@ -276,8 +276,8 @@ function Goals() {
             {/* Page Title */}
             <h1>Goals</h1>
 
-            {/* Filters Card */}
-            <div className="filters-card">
+            {/* Filters GoalCard */}
+            <div className="filters-GoalCard">
                 <h3>Filters</h3>
 
                 <div className="filters-toolbar">
@@ -457,8 +457,8 @@ function Goals() {
                 </div>
             </div>
             
-            {/* Add Goal Card */}
-            <div className="add-goal-card">
+            {/* Add Goal GoalCard */}
+            <div className="add-goal-GoalCard">
                 <h3>Add Goal</h3>
 
                 <input
@@ -616,7 +616,7 @@ function Goals() {
             
             {/* Goal Sections */}
             <div>
-                {/* Goal cards */}
+                {/* Goal GoalCards */}
                 {filteredGoals.length > 0 ? (
                     <>
                         {filteredPrimaryGoals.length > 0 && (
@@ -627,7 +627,7 @@ function Goals() {
 
                                 <div className="goals-grid">
                                     {filteredPrimaryGoals.map(goal => (
-                                        <Card
+                                        <GoalCard
                                             key={goal.id}
                                             id={goal.id}
                                             title={goal.title}
@@ -658,7 +658,7 @@ function Goals() {
 
                                 <div className="goals-grid">
                                     {filteredSecondaryGoals.map(goal => (
-                                        <Card
+                                        <GoalCard
                                             key={goal.id}
                                             id={goal.id}
                                             title={goal.title}

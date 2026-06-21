@@ -1,33 +1,29 @@
 import { useState } from "react";
-import "./index.css"
+import "./index.css";
 
-function Card({
+function GoalCard({
     id,
     title,
     progress,
     category,
-    level,
     goalType,
-    onProgress,
     priority,
-    onDelete,
-    onEdit,
     deadline,
     completed,
     parentGoalTitle,
-    childGoals = []
-}){
+    childGoals = [],
+    onProgress,
+    onDelete,
+    onEdit
+}) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(title);
 
-    // Goals can pass a deadline; skills leave this empty.
     let daysLeft = null;
 
     if (deadline) {
         const today = new Date();
-
-        const deadlineDate =
-            new Date(deadline);
+        const deadlineDate = new Date(deadline);
 
         const difference =
             deadlineDate - today;
@@ -39,19 +35,21 @@ function Card({
     }
 
     return (
-        
-        <div className={`card ${
+        <div
+            className={`card ${
                 completed
                     ? "completed-card"
-                    : "" }`}
+                    : ""
+            }`}
         >
-            {/* Switch between title editing and the normal card header. */}
             {isEditing ? (
                 <input
                     type="text"
                     value={editedTitle}
                     onChange={(e) =>
-                        setEditedTitle(e.target.value)
+                        setEditedTitle(
+                            e.target.value
+                        )
                     }
                 />
             ) : (
@@ -64,11 +62,9 @@ function Card({
                         </span>
                     )}
                 </div>
-                )
-                
-            }
+            )}
+
             <div className="badges-row">
-                {/* Optional labels let the same card support goals and skills. */}
                 {category && (
                     <span className="category-badge">
                         {category}
@@ -83,19 +79,15 @@ function Card({
                     </span>
                 )}
 
-                {level && (
-                    <span className={`level-badge ${level.toLowerCase()}`}>
-                        {level}
-                    </span>
-                )}
-
                 {priority && (
-                    <span className={`priority-badge ${priority.toLowerCase()}`}>
+                    <span
+                        className={`priority-badge ${priority.toLowerCase()}`}
+                    >
                         {priority}
                     </span>
                 )}
             </div>
-            
+
             {childGoals.length > 0 && (
                 <div className="child-goals">
                     <div className="child-goals-label">
@@ -124,42 +116,48 @@ function Card({
                     </div>
                 </div>
             )}
-            {
-                deadline && (
-                    // Show deadline details only for goal cards.
-                    <>
-                        <p> Deadline: {deadline} </p>
 
-                        <p>
-                            {daysLeft > 0
-                                ? `${daysLeft} days left`
-                                : daysLeft === 0
-                                ? "Due today"
-                                : "Overdue"}
-                        </p>
-                    </>
-                )
-            }
+            {deadline && (
+                <>
+                    <p>
+                        Deadline:
+                        {" "}
+                        {deadline}
+                    </p>
 
-            {
-                completed && (
-                    <p> Completed </p>
-                )
-            }
+                    <p>
+                        {daysLeft > 0
+                            ? `${daysLeft} days left`
+                            : daysLeft === 0
+                            ? "Due today"
+                            : "Overdue"}
+                    </p>
+                </>
+            )}
 
-           {!completed &&<p>Progress: {progress}%</p>}
+            {!completed && (
+                <p>
+                    Progress:
+                    {" "}
+                    {progress}%
+                </p>
+            )}
 
             <div className="progress-bar">
                 <div
                     className="progress-fill"
-                    style={{ width: `${progress}%` }}
-                ></div>
+                    style={{
+                        width:
+                            `${progress}%`
+                    }}
+                />
             </div>
 
             <div className="card-actions">
-                {/* Progress is disabled once a goal has reached completion. */}
                 <button
-                    onClick={() => onProgress(id)}
+                    onClick={() =>
+                        onProgress(id)
+                    }
                     disabled={completed}
                 >
                     {completed
@@ -167,23 +165,33 @@ function Card({
                         : "Update Progress"}
                 </button>
 
-                {/* Inline editing keeps card updates on the current page. */}
                 {isEditing ? (
                     <>
                         <button
                             onClick={() => {
-                                onEdit(id, editedTitle);
-                                setIsEditing(false);
+                                onEdit(
+                                    id,
+                                    editedTitle
+                                );
+
+                                setIsEditing(
+                                    false
+                                );
                             }}
                         >
                             Save
                         </button>
 
                         <button
-                        className="cancel-btn"
+                            className="cancel-btn"
                             onClick={() => {
-                                setEditedTitle(title);
-                                setIsEditing(false);
+                                setEditedTitle(
+                                    title
+                                );
+
+                                setIsEditing(
+                                    false
+                                );
                             }}
                         >
                             Cancel
@@ -191,17 +199,22 @@ function Card({
                     </>
                 ) : (
                     <button
-                    className="edit-btn"
+                        className="edit-btn"
                         onClick={() =>
-                            setIsEditing(true)
+                            setIsEditing(
+                                true
+                            )
                         }
                     >
                         Edit
                     </button>
                 )}
+
                 <button
-                className="delete-btn"
-                    onClick={() => onDelete(id)}
+                    className="delete-btn"
+                    onClick={() =>
+                        onDelete(id)
+                    }
                 >
                     Delete
                 </button>
@@ -210,4 +223,4 @@ function Card({
     );
 }
 
-export default Card;
+export default GoalCard;
