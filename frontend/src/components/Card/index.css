@@ -200,3 +200,22 @@
     color: #1e293b;
     font-weight: 500;
 }
+
+/* Supporting Goals */
+
+.child-goals {
+    margin-bottom: 12px;
+}
+
+.child-goals-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    margin-bottom: 4px;
+}
+
+.child-goal-item {
+    color: #334155;
+    font-size: 0.9rem;
+}

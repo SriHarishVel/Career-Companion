@@ -14,7 +14,8 @@ function Card({
     onEdit,
     deadline,
     completed,
-    parentGoalTitle
+    parentGoalTitle,
+    childGoals = []
 }){
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(title);
@@ -94,6 +95,23 @@ function Card({
                     </span>
                 )}
             </div>
+            
+            {childGoals.length > 0 && (
+                <div className="child-goals">
+                    <div className="child-goals-label">
+                        Supporting Goals
+                    </div>
+
+                    {childGoals.map(goal => (
+                        <div
+                            key={goal.id}
+                            className="child-goal-item"
+                        >
+                            • {goal.title}
+                        </div>
+                    ))}
+                </div>
+            )}
 
             {parentGoalTitle && (
                 <div className="parent-goal-card">

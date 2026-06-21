@@ -263,6 +263,14 @@ function Goals() {
             ? parentGoal.title
             : null;
     }
+
+    function getChildGoals(parentId) {
+        return goals.filter(
+            goal =>
+                goal.parentGoalId === parentId
+        );
+    }
+
         return (
         <div className="container">
             {/* Page Title */}
@@ -628,6 +636,7 @@ function Goals() {
                                             onProgress={handleProgress}
                                             priority={goal.priority}
                                             goalType={goal.goalType}
+                                            childGoals={getChildGoals(goal.id)}
                                             onDelete={(goalId) => {
                                                 setSelectedGoalId(goalId);
                                                 setShowDeleteModal(true);

@@ -40,3 +40,9 @@ I often lose track of my learning resources, job applications, and overall progr
 ## Why I Am Building This
 
 I want to build a meaningful project for my resume while learning professional software engineering practices. I also want a tool that I would personally use to organize my own career journey.
+
+## Future Vision
+
+Career Companion should eventually help users create structured career plans by breaking large goals into smaller goals, skills, resources, applications, and selection stages.
+
+The system should guide planning while keeping the user in control of all decisions.

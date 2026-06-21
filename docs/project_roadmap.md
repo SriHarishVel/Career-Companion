@@ -96,3 +96,44 @@ Prepare the application for public use and portfolio presentation.
 * Documentation
 * Deployment
 * Performance Optimization
+
+## Future Enhancements
+
+### Guided Goal Planning
+
+Allow users to create a career plan starting from a primary goal.
+
+Example:
+
+Primary Goal:
+- Get Software Developer Job (8+ LPA)
+
+The application can suggest:
+
+Secondary Goals:
+- Practice DSA
+- Build Portfolio
+- Learn Backend Development
+- Prepare for Interviews
+
+Skills:
+- Java
+- SQL
+- Node.js
+- React
+
+Resources:
+- Courses
+- Documentation
+- Videos
+
+Users can accept, reject, or customize the suggested plan.
+
+The system should assist planning without removing user control.
+
+### Goal Relationships
+
+- Link secondary goals to primary goals
+- Link skills to secondary goals
+- Link resources to skills
+- Link applications to primary goals

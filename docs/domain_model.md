@@ -12,6 +12,7 @@ The main career objective.
 
 Examples:
 
+* Software Engineer (8+ LPA)
 * Backend Engineer
 * AI Engineer
 
@@ -24,17 +25,19 @@ Smaller objectives that support the primary goal.
 Examples:
 
 * Finish DSA
-* Build 2 Projects
+* Build Portfolio
+* Complete Projects
 
 ---
 
-## Skill
+Skill
 
-A capability required to achieve a goal.
+A capability required to achieve a secondary goal.
 
 Examples:
 
-* Java
+* Node.js
+* React
 * SQL
 * DSA
 
@@ -69,16 +72,52 @@ Examples:
 
 Represents an application to a company.
 
-May optionally belong to a goal.
+May optionally belong to a primary goal.
+
+Examples:
+
+* Zoho
+* Infosys
+* Cognizant
 
 ---
 
-## Interview Round
+## Selection Stage
 
-Represents a stage of a job application.
+Represents a stage within a job application.
 
 Examples:
 
 * Online Assessment
-* Technical Round
-* HR Round
+* Coding Test
+* Aptitude Test
+* Technical Interview
+* HR Interview
+* Assignment
+* Group Discussion
+
+---
+
+## Note
+
+Stores important information that should not be forgotten.
+
+Examples:
+
+* Questions asked
+* Interview experience
+* Important deadlines
+* Preparation observations
+
+---
+
+## Action Item
+
+Represents the next task that should be completed.
+
+Examples:
+
+* Practice SQL joins
+* Revise OOP concepts
+* Complete assignment
+* Prepare for HR interview
