@@ -14,7 +14,7 @@ function Card({
     onEdit,
     deadline,
     completed,
-    
+    parentGoalTitle
 }){
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(title);
@@ -94,6 +94,18 @@ function Card({
                     </span>
                 )}
             </div>
+
+            {parentGoalTitle && (
+                <div className="parent-goal-card">
+                    <div className="parent-goal-label">
+                        Primary Goal
+                    </div>
+
+                    <div className="parent-goal-title">
+                        {parentGoalTitle}
+                    </div>
+                </div>
+            )}
             {
                 deadline && (
                     // Show deadline details only for goal cards.

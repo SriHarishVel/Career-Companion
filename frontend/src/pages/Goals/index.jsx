@@ -253,7 +253,16 @@ function Goals() {
             goal =>
                 goal.goalType === "Primary"
         );
+    
+    function getParentGoalTitle(parentGoalId) {
+        const parentGoal = goals.find(
+            goal => goal.id === parentGoalId
+        );
 
+        return parentGoal
+            ? parentGoal.title
+            : null;
+    }
         return (
         <div className="container">
             {/* Page Title */}
@@ -653,6 +662,11 @@ function Goals() {
                                                 setSelectedGoalId(goalId);
                                                 setShowDeleteModal(true);
                                             }}
+                                            parentGoalTitle={
+                                                getParentGoalTitle(
+                                                    goal.parentGoalId
+                                                )
+                                            }
                                             onEdit={editGoal}
                                             deadline={goal.deadline}
                                             completed={goal.completed}

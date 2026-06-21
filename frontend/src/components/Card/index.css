@@ -91,8 +91,8 @@
 }
 
 .priority-badge.high {
-    background: #fff7ed;
-    color: #c2410c;
+    background: #ffe2e2;
+    color: #c20c0c;
 }
 
 .priority-badge.medium {
@@ -175,4 +175,28 @@
 .card button:disabled {
     cursor: not-allowed;
     opacity: 0.6;
+}
+
+/* Linked Parent Goal */
+
+.parent-goal-card {
+    background: #eff6ff;
+    border-left: 3px solid #2563eb;
+    border-radius: 8px;
+    padding: 8px 12px;
+    margin-bottom: 12px;
+}
+
+.parent-goal-label {
+    font-size: 0.75rem;
+    font-weight: 600;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 4px;
+}
+
+.parent-goal-title {
+    color: #1e293b;
+    font-weight: 500;
 }
