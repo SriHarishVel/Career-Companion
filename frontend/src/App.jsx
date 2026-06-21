@@ -7,6 +7,7 @@ import Skills from "./pages/Skills";
 import Resources from "./pages/Resources";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
+import Applications from "./pages/Applications";
 
 function App() {
   return (
@@ -21,6 +22,7 @@ function App() {
         <Route path="/goals" element={<Goals />} />
         <Route path="/skills" element={<Skills />} />
         <Route path="/resources" element={<Resources />} />
+        <Route path="/applications" element={<Applications />} />
       </Routes>
 
       {/* Footer shown on every page */}
