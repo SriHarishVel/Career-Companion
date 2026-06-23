@@ -20,6 +20,9 @@ function Applications() {
     const [applicationUrl, setApplicationUrl] = useState("");
     const [editAppliedDate, setEditAppliedDate] = useState("");
     const [editApplicationUrl, setEditApplicationUrl] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const [searchTerm, setSearchTerm] = useState("");
+    const [sortBy, setSortBy] = useState("Last Updated");
     const [applications, setApplications] =
         useState(() => {
             const savedApplications =
@@ -116,6 +119,65 @@ function Applications() {
         setSelectedApplicationId(null);
     }
 
+    let filteredApplications =
+        applications.filter(
+            application => {
+
+                const matchesSearch =
+                    application.company
+                        .toLowerCase()
+                        .includes(
+                            searchTerm.toLowerCase()
+                        ) ||
+                    application.role
+                        .toLowerCase()
+                        .includes(
+                            searchTerm.toLowerCase()
+                        );
+
+                const matchesStatus =
+                    statusFilter === "All" ||
+                    application.status === statusFilter;
+
+                return (
+                    matchesSearch &&
+                    matchesStatus
+                );
+            }
+        );
+
+    filteredApplications.sort(
+        (a, b) => {
+
+            switch (sortBy) {
+
+                case "Applied Date":
+                    return new Date(
+                        b.appliedDate
+                    ) -
+                    new Date(
+                        a.appliedDate
+                    );
+
+                case "Company":
+                    return a.company.localeCompare(
+                        b.company
+                    );
+
+                case "Role":
+                    return a.role.localeCompare(
+                        b.role
+                    );
+
+                default:
+                    return (
+                        b.lastUpdated -
+                        a.lastUpdated
+                    );
+            }
+        }
+    );
+
     return (
         <div className="container">
             <h1>
@@ -167,9 +229,76 @@ function Applications() {
                     Add Application
                 </button>
             </div>
+
+            <div className="filters-card">
+                <h3>Filters</h3>
+
+                <div className="filters-toolbar">
+
+                    <div className="filter-group">
+                        <label>Search</label>
+
+                        <input
+                            type="text"
+                            placeholder="Company or Role"
+                            value={searchTerm}
+                            onChange={(e) =>
+                                setSearchTerm(e.target.value)
+                            }
+                        />
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Status</label>
+
+                        <select
+                            value={statusFilter}
+                            onChange={(e) =>
+                                setStatusFilter(e.target.value)
+                            }
+                        >
+                            <option value="All">All</option>
+                            <option value="Applied">Applied</option>
+                            <option value="In Progress">In Progress</option>
+                            <option value="Offer">Offer</option>
+                            <option value="Rejected">Rejected</option>
+                            <option value="Withdrawn">Withdrawn</option>
+                        </select>
+                    </div>
+
+                    <div className="filter-group">
+                        <label>Sort By</label>
+
+                        <select
+                            value={sortBy}
+                            onChange={(e) =>
+                                setSortBy(e.target.value)
+                            }
+                        >
+                            <option value="Last Updated">
+                                Last Updated
+                            </option>
+
+                            <option value="Applied Date">
+                                Applied Date
+                            </option>
+
+                            <option value="Company">
+                                Company
+                            </option>
+
+                            <option value="Role">
+                                Role
+                            </option>
+                        </select>
+                    </div>
+
+                </div>
+            </div>
+
             <div className="applications-grid">
 
-                {applications.map(
+                {filteredApplications.map(
                     application => (
                         <div
                             key={application.id}
@@ -183,16 +312,27 @@ function Applications() {
                                 {application.company}
                             </p>
 
-                            <p>
-                                Status:
-                                {" "}
+                            <span
+                                className={`application-status ${application.status
+                                    .toLowerCase()
+                                    .replace(" ", "-")}`}
+                            >
                                 {application.status}
-                            </p>
+                            </span>
 
                             <p>
                                 Applied:
                                 {" "}
                                 {application.appliedDate}
+                            </p>
+
+                            <p>
+                                Last Updated:
+                                {" "}
+                                {new Date(
+                                    application.lastUpdated
+                                ).toLocaleString()
+                                }
                             </p>
 
                             <div className="card-actions">
