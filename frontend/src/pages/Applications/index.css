@@ -34,3 +34,36 @@
     margin-top: 0;
     margin-bottom: 8px;
 }
+
+.card-actions {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+    flex-wrap: wrap;
+
+    margin-top: 16px;
+}
+
+.view-posting-link {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+
+    padding: 8px 12px;
+
+    border: 1px solid #3b82f6;
+    border-radius: 6px;
+
+    background: #eff6ff;
+    color: #2563eb;
+
+    text-decoration: none;
+    font-weight: 500;
+
+    transition: all 0.2s ease;
+}
+
+.view-posting-link:hover {
+    background: #dbeafe;
+    border-color: #2563eb;
+}

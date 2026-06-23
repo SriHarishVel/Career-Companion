@@ -17,7 +17,9 @@ function Applications() {
     const [editCompany, setEditCompany] = useState("");
     const [editRole, setEditRole] = useState("");
     const [editStatus, setEditStatus] = useState("Applied");
+    const [applicationUrl, setApplicationUrl] = useState("");
     const [editAppliedDate, setEditAppliedDate] = useState("");
+    const [editApplicationUrl, setEditApplicationUrl] = useState("");
     const [applications, setApplications] =
         useState(() => {
             const savedApplications =
@@ -64,6 +66,7 @@ function Applications() {
                         role: editRole,
                         status: editStatus,
                         appliedDate: editAppliedDate,
+                        applicationUrl: editApplicationUrl,
                         lastUpdated: Date.now()
                     }
                     : application
@@ -79,14 +82,15 @@ function Applications() {
             return;
         }
 
-        const newApplication = {
-            id: Date.now(),
-            company: company.trim(),
-            role: role.trim(),
-            status,
-            appliedDate,
-            lastUpdated: Date.now()
-        };
+       const newApplication = {
+        id: Date.now(),
+        company: company.trim(),
+        role: role.trim(),
+        status,
+        appliedDate,
+        applicationUrl,
+        lastUpdated: Date.now()
+    };
 
         setApplications(prev => [
             ...prev,
@@ -97,6 +101,7 @@ function Applications() {
         setRole("");
         setStatus("Applied");
         setAppliedDate("");
+        setApplicationUrl("");
     }
 
     function confirmDeleteApplication() {
@@ -132,6 +137,13 @@ function Applications() {
                     placeholder="Role"
                     value={role}
                     onChange={(e) => setRole(e.target.value)}
+                />
+
+                <input
+                    type="url"
+                    placeholder="Application URL"
+                    value={applicationUrl}
+                    onChange={(e) => setApplicationUrl(e.target.value)}
                 />
 
                 <select
@@ -183,24 +195,43 @@ function Applications() {
                                 {application.appliedDate}
                             </p>
 
-                            <button
-                                className="edit-btn"
-                                onClick={() =>
-                                    openEditModal(application)
-                                }
-                            >
-                                Edit
-                            </button>
+                            <div className="card-actions">
 
-                            <button
-                                className="delete-btn"
-                                onClick={() => {
-                                    setSelectedApplicationId(application.id);
-                                    setShowDeleteModal(true);
-                                }}
-                            >
-                                Delete
-                            </button>
+                                {application.applicationUrl && (
+                                    <a
+                                        href={
+                                            application.applicationUrl.startsWith("http")
+                                                ? application.applicationUrl
+                                                : `https://${application.applicationUrl}`
+                                        }
+                                        className="view-posting-link"
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        ↗ View Posting
+                                    </a>
+                                )}
+
+                                <button
+                                    className="edit-btn"
+                                    onClick={() =>
+                                        openEditModal(application)
+                                    }
+                                >
+                                    Edit
+                                </button>
+
+                                <button
+                                    className="delete-btn"
+                                    onClick={() => {
+                                        setSelectedApplicationId(application.id);
+                                        setShowDeleteModal(true);
+                                    }}
+                                >
+                                    Delete
+                                </button>
+
+                            </div>
                         </div>
                     )
                 )}
@@ -243,6 +274,15 @@ function Applications() {
                         setEditRole(e.target.value)
                     }
                     placeholder="Role"
+                />
+
+                <input
+                    type="url"
+                    value={editApplicationUrl}
+                    onChange={(e) =>
+                        setEditApplicationUrl(e.target.value)
+                    }
+                    placeholder="Application URL"
                 />
 
                 <select

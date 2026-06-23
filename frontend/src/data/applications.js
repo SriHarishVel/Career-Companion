@@ -7,6 +7,7 @@ const initialApplications = [
         status: "Active",
         appliedDate: "2026-06-21",
         notes: "",
+        applicationUrl: "",
         lastUpdated: Date.now()
     },
     {
@@ -16,6 +17,7 @@ const initialApplications = [
         status: "Active",
         appliedDate: "2026-06-18",
         notes: "",
+        applicationUrl: "",
         lastUpdated: Date.now()
     },
     {
@@ -25,6 +27,7 @@ const initialApplications = [
         status: "Rejected",
         appliedDate: "2026-06-10",
         notes: "",
+        applicationUrl: "",
         lastUpdated: Date.now()
     }
 ];
