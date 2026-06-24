@@ -138,9 +138,11 @@
 }
 
 .round-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
     padding: 10px 14px;
     margin-top: 8px;
-    margin-bottom: 8px;
     border-radius: 8px;
     font-weight: 500;
 }

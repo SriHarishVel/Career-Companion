@@ -44,6 +44,10 @@ function Applications() {
 
     const [roundTitle, setRoundTitle] = useState("");
     const [roundStatus, setRoundStatus] = useState("Pending");
+    const [roundDate, setRoundDate] = useState("");
+
+    const [showEditRoundModal, setShowEditRoundModal] = useState(false);
+    const [selectedRound, setSelectedRound] = useState(null);
 
     useEffect(() => {
         localStorage.setItem(
@@ -63,6 +67,23 @@ function Applications() {
         setEditAppliedDate(application.appliedDate);
 
         setShowEditModal(true);
+    }
+
+    function openEditRoundModal(
+        applicationId,
+        round
+    ) {
+        setRoundApplicationId(
+            applicationId
+        );
+
+        setSelectedRound(round);
+
+        setRoundTitle(round.title);
+        setRoundStatus(round.status);
+        setRoundDate(round.date || "");
+
+        setShowEditRoundModal(true);
     }
 
     function saveApplication() {
@@ -201,7 +222,8 @@ function Applications() {
                             {
                                 id: Date.now(),
                                 title: roundTitle,
-                                status: roundStatus
+                                status: roundStatus,
+                                date: roundDate
                             }
                         ],
                         lastUpdated: Date.now()
@@ -214,8 +236,50 @@ function Applications() {
         setRoundStatus("Pending");
         setRoundApplicationId(null);
         setShowRoundModal(false);
+        setRoundDate("");
     }
 
+    function saveEditedRound() {
+
+        setApplications(
+            applications.map(application => {
+
+                if (
+                    application.id !==
+                    roundApplicationId
+                ) {
+                    return application;
+                }
+
+                return {
+                    ...application,
+
+                    interviewRounds:
+                        application.interviewRounds.map(
+                            round =>
+                                round.id ===
+                                selectedRound.id
+                                    ? {
+                                        ...round,
+                                        title: roundTitle,
+                                        status: roundStatus,
+                                        date: roundDate
+                                    }
+                                    : round
+                        ),
+
+                    lastUpdated:
+                        Date.now()
+                };
+            })
+        );
+
+        setShowEditRoundModal(false);
+        setSelectedRound(null);
+        setRoundTitle("");
+        setRoundStatus("Pending");
+        setRoundDate("");
+    }
 
     return (
         <div className="container">
@@ -376,10 +440,28 @@ function Applications() {
                                     <div
                                         key={round.id}
                                         className={`round-item ${round.status.toLowerCase()}`}
-                                    >
-                                        {round.title}
-                                        {" • "}
-                                        {round.status}
+                                    >   
+                                        <span>
+                                            {round.title} • {round.status}
+                                            {round.date && (
+                                                <>
+                                                    {" • "}
+                                                    {round.date}
+                                                </>
+                                            )}
+                                        </span>
+
+                                        <button
+                                            className="edit-btn"
+                                            onClick={() =>
+                                                openEditRoundModal(
+                                                    application.id,
+                                                    round
+                                                )
+                                            }
+                                        >
+                                            Edit
+                                        </button>
                                     </div>
                                 )
                             )}
@@ -548,6 +630,48 @@ function Applications() {
                     <option value="Completed">Completed</option>
                     <option value="Failed">Failed</option>
                 </select>
+            </EditModal>
+
+            <EditModal
+                isOpen={showEditRoundModal}
+                title="Edit Interview Round"
+                onSave={saveEditedRound}
+                onCancel={() => {
+                    setShowEditRoundModal(false);
+                    setSelectedRound(null);
+                    setRoundTitle("");
+                    setRoundStatus("Pending");
+                    setRoundDate("");
+                }}
+            >
+                <input
+                    type="text"
+                    value={roundTitle}
+                    onChange={(e) =>
+                        setRoundTitle(e.target.value)
+                    }
+                    placeholder="Round Name"
+                />
+
+                <select
+                    value={roundStatus}
+                    onChange={(e) =>
+                        setRoundStatus(e.target.value)
+                    }
+                >
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Failed">Failed</option>
+                </select>
+
+                <input
+                    type="date"
+                    value={roundDate}
+                    onChange={(e) =>
+                        setRoundDate(e.target.value)
+                    }
+                />
+
             </EditModal>
         </div>
     );
