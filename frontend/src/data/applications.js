@@ -8,6 +8,7 @@ const initialApplications = [
         appliedDate: "2026-06-21",
         notes: "",
         applicationUrl: "",
+        interviewRounds: [],
         lastUpdated: Date.now()
     },
     {
@@ -18,6 +19,7 @@ const initialApplications = [
         appliedDate: "2026-06-18",
         notes: "",
         applicationUrl: "",
+        interviewRounds: [],
         lastUpdated: Date.now()
     },
     {
@@ -28,6 +30,7 @@ const initialApplications = [
         appliedDate: "2026-06-10",
         notes: "",
         applicationUrl: "",
+        interviewRounds: [],
         lastUpdated: Date.now()
     }
 ];

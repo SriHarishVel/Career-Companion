@@ -10,34 +10,40 @@ function Applications() {
     const [role, setRole] = useState("");
     const [status, setStatus] = useState("Applied");
     const [appliedDate, setAppliedDate] = useState("");
+    const [applicationUrl, setApplicationUrl] = useState("");
+
+    const [applications, setApplications] = useState(() => {
+        const savedApplications =
+            localStorage.getItem("applications");
+
+        if (savedApplications) {
+            return JSON.parse(savedApplications);
+        }
+
+        return initialApplications;
+    });
+
+    const [searchTerm, setSearchTerm] = useState("");
+    const [statusFilter, setStatusFilter] = useState("All");
+    const [sortBy, setSortBy] = useState("Last Updated");
+
     const [showDeleteModal, setShowDeleteModal] = useState(false);
-    const [selectedApplicationId, setSelectedApplicationId] = useState(null);
+    const [applicationToDeleteId, setApplicationToDeleteId] = useState(null);
+
     const [showEditModal, setShowEditModal] = useState(false);
     const [selectedApplication, setSelectedApplication] = useState(null);
+
     const [editCompany, setEditCompany] = useState("");
     const [editRole, setEditRole] = useState("");
     const [editStatus, setEditStatus] = useState("Applied");
-    const [applicationUrl, setApplicationUrl] = useState("");
     const [editAppliedDate, setEditAppliedDate] = useState("");
     const [editApplicationUrl, setEditApplicationUrl] = useState("");
-    const [statusFilter, setStatusFilter] = useState("All");
-    const [searchTerm, setSearchTerm] = useState("");
-    const [sortBy, setSortBy] = useState("Last Updated");
-    const [applications, setApplications] =
-        useState(() => {
-            const savedApplications =
-                localStorage.getItem(
-                    "applications"
-                );
 
-            if (savedApplications) {
-                return JSON.parse(
-                    savedApplications
-                );
-            }
+    const [showRoundModal, setShowRoundModal] = useState(false);
+    const [roundApplicationId, setRoundApplicationId] = useState(null);
 
-            return initialApplications;
-        });
+    const [roundTitle, setRoundTitle] = useState("");
+    const [roundStatus, setRoundStatus] = useState("Pending");
 
     useEffect(() => {
         localStorage.setItem(
@@ -86,14 +92,15 @@ function Applications() {
         }
 
        const newApplication = {
-        id: Date.now(),
-        company: company.trim(),
-        role: role.trim(),
-        status,
-        appliedDate,
-        applicationUrl,
-        lastUpdated: Date.now()
-    };
+            id: Date.now(),
+            company: company.trim(),
+            role: role.trim(),
+            status,
+            appliedDate,
+            applicationUrl,
+            interviewRounds: [],
+            lastUpdated: Date.now()
+        };
 
         setApplications(prev => [
             ...prev,
@@ -111,12 +118,12 @@ function Applications() {
         setApplications(
             applications.filter(
                 application =>
-                    application.id !== selectedApplicationId
+                    application.id !== applicationToDeleteId
             )
         );
 
         setShowDeleteModal(false);
-        setSelectedApplicationId(null);
+        setApplicationToDeleteId(null);
     }
 
     let filteredApplications =
@@ -177,6 +184,38 @@ function Applications() {
             }
         }
     );
+
+    function addRound() {
+
+        if (!roundTitle.trim()) {
+            return;
+        }
+
+        setApplications(
+            applications.map(application =>
+                application.id === roundApplicationId
+                    ? {
+                        ...application,
+                        interviewRounds: [
+                            ...(application.interviewRounds || []),
+                            {
+                                id: Date.now(),
+                                title: roundTitle,
+                                status: roundStatus
+                            }
+                        ],
+                        lastUpdated: Date.now()
+                    }
+                    : application
+            )
+        );
+
+        setRoundTitle("");
+        setRoundStatus("Pending");
+        setRoundApplicationId(null);
+        setShowRoundModal(false);
+    }
+
 
     return (
         <div className="container">
@@ -325,6 +364,25 @@ function Applications() {
                                 {" "}
                                 {application.appliedDate}
                             </p>
+                            
+                            <p>
+                                Interview Rounds:
+                                {" "}
+                                {(application.interviewRounds || []).length}
+                            </p>
+                            
+                            {(application.interviewRounds || []).map(
+                                round => (
+                                    <div
+                                        key={round.id}
+                                        className={`round-item ${round.status.toLowerCase()}`}
+                                    >
+                                        {round.title}
+                                        {" • "}
+                                        {round.status}
+                                    </div>
+                                )
+                            )}
 
                             <p>
                                 Last Updated:
@@ -352,6 +410,19 @@ function Applications() {
                                     </a>
                                 )}
 
+                                
+                                <button
+                                    onClick={() => {
+                                        setRoundApplicationId(
+                                            application.id
+                                        );
+
+                                        setShowRoundModal(true);
+                                    }}
+                                >
+                                    Add Round
+                                </button>
+
                                 <button
                                     className="edit-btn"
                                     onClick={() =>
@@ -364,7 +435,7 @@ function Applications() {
                                 <button
                                     className="delete-btn"
                                     onClick={() => {
-                                        setSelectedApplicationId(application.id);
+                                        setApplicationToDeleteId(application.id);
                                         setShowDeleteModal(true);
                                     }}
                                 >
@@ -384,7 +455,7 @@ function Applications() {
                 onConfirm={confirmDeleteApplication}
                 onCancel={() => {
                     setShowDeleteModal(false);
-                    setSelectedApplicationId(null);
+                    setApplicationToDeleteId(null);
                 }}
             />
 
@@ -445,6 +516,38 @@ function Applications() {
                         setEditAppliedDate(e.target.value)
                     }
                 />
+            </EditModal>
+
+            <EditModal
+                isOpen={showRoundModal}
+                title="Add Interview Round"
+                onSave={addRound}
+                onCancel={() => {
+                    setShowRoundModal(false);
+                    setRoundTitle("");
+                    setRoundStatus("Pending");
+                    setRoundApplicationId(null);
+                }}
+            >
+                <input
+                    type="text"
+                    placeholder="Round Name"
+                    value={roundTitle}
+                    onChange={(e) =>
+                        setRoundTitle(e.target.value)
+                    }
+                />
+
+                <select
+                    value={roundStatus}
+                    onChange={(e) =>
+                        setRoundStatus(e.target.value)
+                    }
+                >
+                    <option value="Pending">Pending</option>
+                    <option value="Completed">Completed</option>
+                    <option value="Failed">Failed</option>
+                </select>
             </EditModal>
         </div>
     );
