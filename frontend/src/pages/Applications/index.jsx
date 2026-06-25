@@ -49,6 +49,8 @@ function Applications() {
     const [showEditRoundModal, setShowEditRoundModal] = useState(false);
     const [selectedRound, setSelectedRound] = useState(null);
 
+    const [showDeleteRoundModal, setShowDeleteRoundModal] = useState(false);
+
     useEffect(() => {
         localStorage.setItem(
             "applications",
@@ -239,6 +241,7 @@ function Applications() {
         setRoundDate("");
     }
 
+
     function saveEditedRound() {
 
         setApplications(
@@ -279,6 +282,40 @@ function Applications() {
         setRoundTitle("");
         setRoundStatus("Pending");
         setRoundDate("");
+        setRoundApplicationId(null);
+    }
+
+    function confirmDeleteRound() {
+
+        setApplications(
+            applications.map(application => {
+
+                if (
+                    application.id !==
+                    roundApplicationId
+                ) {
+                    return application;
+                }
+
+                return {
+                    ...application,
+
+                    interviewRounds:
+                        application.interviewRounds.filter(
+                            round =>
+                                round.id !==
+                                selectedRound.id
+                        ),
+
+                    lastUpdated:
+                        Date.now()
+                };
+            })
+        );
+
+        setShowDeleteRoundModal(false);
+        setSelectedRound(null);
+        setRoundApplicationId(null);
     }
 
     return (
@@ -435,14 +472,20 @@ function Applications() {
                                 {(application.interviewRounds || []).length}
                             </p>
                             
-                            {(application.interviewRounds || []).map(
+                            {[...(application.interviewRounds || [])] 
+                                .sort((a, b) =>
+                                    new Date(a.date) -
+                                    new Date(b.date)
+                                )
+                                .map(
                                 round => (
                                     <div
                                         key={round.id}
                                         className={`round-item ${round.status.toLowerCase()}`}
-                                    >   
+                                    >
                                         <span>
                                             {round.title} • {round.status}
+
                                             {round.date && (
                                                 <>
                                                     {" • "}
@@ -451,17 +494,42 @@ function Applications() {
                                             )}
                                         </span>
 
-                                        <button
-                                            className="edit-btn"
-                                            onClick={() =>
-                                                openEditRoundModal(
-                                                    application.id,
-                                                    round
-                                                )
-                                            }
-                                        >
-                                            Edit
-                                        </button>
+                                        <div className="round-actions">
+
+                                            <button
+                                                className="round-action-btn"
+                                                title="Edit Round"
+                                                onClick={() =>
+                                                    openEditRoundModal(
+                                                        application.id,
+                                                        round
+                                                    )
+                                                }
+                                            >
+                                                ✏️
+                                            </button>
+
+                                            <button
+                                                className="round-action-btn delete"
+                                                title="Delete Round"
+                                                onClick={() => {
+                                                    setRoundApplicationId(
+                                                        application.id
+                                                    );
+
+                                                    setSelectedRound(
+                                                        round
+                                                    );
+
+                                                    setShowDeleteRoundModal(
+                                                        true
+                                                    );
+                                                }}
+                                            >
+                                                ✖
+                                            </button>
+
+                                        </div>
                                     </div>
                                 )
                             )}
@@ -609,6 +677,7 @@ function Applications() {
                     setRoundTitle("");
                     setRoundStatus("Pending");
                     setRoundApplicationId(null);
+                    setRoundDate("");
                 }}
             >
                 <input
@@ -630,6 +699,15 @@ function Applications() {
                     <option value="Completed">Completed</option>
                     <option value="Failed">Failed</option>
                 </select>
+
+                <input
+                    type="date"
+                    value={roundDate}
+                    onChange={(e) =>
+                        setRoundDate(e.target.value)
+                    }
+                />
+
             </EditModal>
 
             <EditModal
@@ -673,6 +751,19 @@ function Applications() {
                 />
 
             </EditModal>
+
+            <ConfirmModal
+                isOpen={showDeleteRoundModal}
+                title="Delete Interview Round"
+                message="Are you sure you want to delete this interview round?"
+                onConfirm={confirmDeleteRound}
+                onCancel={() => {
+                    setShowDeleteRoundModal(false);
+                    setSelectedRound(null);
+                    setRoundApplicationId(null);
+                }}
+            />
+
         </div>
     );
 }

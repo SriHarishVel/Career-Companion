@@ -141,10 +141,40 @@
     display: flex;
     justify-content: space-between;
     align-items: center;
+
     padding: 10px 14px;
     margin-top: 8px;
+
     border-radius: 8px;
+
     font-weight: 500;
+}
+
+.round-actions {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.round-action-btn {
+    background: transparent !important;
+    border: none;
+    padding: 2px 4px;
+
+    cursor: pointer;
+
+    font-size: 0.95rem;
+    line-height: 1;
+
+    color: inherit;
+}
+
+.round-action-btn:hover {
+    transform: scale(1.1);
+}
+
+.round-action-btn.delete {
+    color: #dc2626;
 }
 
 .round-item.pending {
