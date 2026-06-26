@@ -1,5 +1,13 @@
 # Career Companion Roadmap
 
+## Project Direction
+
+Career Companion is designed as a guided career management platform rather than a collection of independent productivity tools.
+
+The application should guide users from defining a career objective to developing the required skills, organizing learning resources, tracking job applications, and measuring career progress.
+
+Each phase in this roadmap contributes toward building that guided experience.
+
 ## Phase 1 - Foundation
 
 Establish the core structure of the application and create the first version of the career management system.

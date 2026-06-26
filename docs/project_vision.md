@@ -37,6 +37,19 @@ I often lose track of my learning resources, job applications, and overall progr
 * Preserve history.
 * Help users understand where they are and what comes next.
 
+## Design Principles
+
+Every feature in Career Companion should follow these principles:
+
+* Guide the user through a structured career journey instead of presenting disconnected modules.
+* Encourage progress without forcing users into rigid workflows.
+* Allow users to skip optional setup steps and return to them later.
+* Preserve relationships between goals, skills, resources, and applications.
+* Minimize duplicated information by linking related entities whenever possible.
+* Keep the interface simple, consistent, and focused on the user's next action.
+* Build reusable components and maintain a consistent design system across the application.
+* Prioritize maintainability and scalability when introducing new features.
+
 ## Why I Am Building This
 
 I want to build a meaningful project for my resume while learning professional software engineering practices. I also want a tool that I would personally use to organize my own career journey.

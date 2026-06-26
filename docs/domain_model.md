@@ -1,5 +1,20 @@
 # Domain Model
 
+## Entity Relationships
+
+Although each entity can exist independently, the primary workflow follows the relationship below.
+
+Career Journey
+→ Primary Goal
+→ Secondary Goals
+→ Skills
+→ Resources
+→ Topics
+→ Applications
+→ Selection Stages
+
+Standalone goals, skills, and resources are supported for personal organization but are considered part of the user's personal library rather than the guided career journey.
+
 ## User
 
 Represents the owner of the account.

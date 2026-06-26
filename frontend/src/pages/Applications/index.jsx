@@ -483,17 +483,25 @@ function Applications() {
                                         key={round.id}
                                         className={`round-item ${round.status.toLowerCase()}`}
                                     >
-                                        <span>
-                                            {round.title} • {round.status}
+                                        <div className="round-content">
+                                            <div>
+                                                {round.title} • {round.status}
+                                            </div>
 
                                             {round.date && (
-                                                <>
-                                                    {" • "}
-                                                    {round.date}
-                                                </>
+                                                <small className="round-date">
+                                                    {new Date(round.date)
+                                                        .toLocaleDateString(
+                                                            "en-GB",
+                                                            {
+                                                                day: "2-digit",
+                                                                month: "short",
+                                                                year: "numeric"
+                                                            }
+                                                        )}
+                                                </small>
                                             )}
-                                        </span>
-
+                                        </div>
                                         <div className="round-actions">
 
                                             <button
