@@ -37,3 +37,20 @@
     background: #dcfce7;
     border-left-color: #22c55e;
 }
+
+.secondary-goals {
+    margin-top: 20px;
+}
+
+.secondary-goal {
+    padding: 12px;
+    margin-top: 10px;
+    border-radius: 8px;
+    background: #f8fafc;
+    border-left: 4px solid #2563eb;
+}
+
+.secondary-goal p {
+    margin: 6px 0 0;
+    font-size: 14px;
+}

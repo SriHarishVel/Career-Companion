@@ -1,6 +1,21 @@
 import "./index.css";
 
 function Home() {
+    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+
+    const primaryGoal = goals.find(goal => goal.goalType === "Primary");
+
+    const secondaryGoals =
+    goals.filter(
+        goal =>
+            goal.goalType === "Secondary" &&
+            goal.parentGoalId === primaryGoal?.id
+    );
+
+    const completedSecondaryGoals =
+    secondaryGoals.filter(
+        goal => goal.completed
+    ).length;
 
     return (
         <div className="container">
@@ -10,15 +25,39 @@ function Home() {
             <div className="home-grid">
 
                 <div className="home-card">
-                    <h2>Career Journey</h2>
+                   {primaryGoal ? (
+                        <>
+                            <h2>Current Goal</h2>
 
-                    <p>
-                        Continue your career journey.
-                    </p>
+                            <h3>{primaryGoal.title}</h3>
 
-                    <button>
-                        Continue Journey
-                    </button>
+                            <p>
+                                Progress: {primaryGoal.progress}%
+                            </p>
+
+                            <p>
+                                Secondary Goals:
+                                {" "}
+                                {completedSecondaryGoals}
+                                {" / "}
+                                {secondaryGoals.length}
+                                {" "}
+                                completed
+                            </p>
+
+                            <button>
+                                Continue Journey
+                            </button>
+                        </>
+                    ) : (
+                        <>
+                            <h2>Start Your Career Journey</h2>
+
+                            <p>Create your first primary goal.</p>
+
+                            <button>Create Goal</button>
+                        </>
+                    )}
                 </div>
 
                 <div className="home-card">
