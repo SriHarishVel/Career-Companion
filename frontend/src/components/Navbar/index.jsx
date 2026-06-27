@@ -53,6 +53,15 @@ function Navbar() {
             >
                 Dashboard
             </NavLink>
+
+            <NavLink
+                to="/applications"
+                className={({ isActive }) =>
+                    isActive ? "active" : ""
+                }
+            >
+                Applications
+            </NavLink>
         </nav>
     );
 }

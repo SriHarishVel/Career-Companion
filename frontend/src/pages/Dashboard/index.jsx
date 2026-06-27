@@ -134,7 +134,7 @@ function Dashboard() {
             ? Math.round(
                 (completedGoals /
                     goals.length) *
-                    100
+                   100
             )
             : 0;
         
