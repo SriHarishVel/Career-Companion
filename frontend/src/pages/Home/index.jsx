@@ -1,6 +1,8 @@
+import { useNavigate } from "react-router-dom";
 import "./index.css";
 
 function Home() {
+    const navigate = useNavigate();
     const goals = JSON.parse(localStorage.getItem("goals")) || [];
 
     const primaryGoal = goals.find(goal => goal.goalType === "Primary");
@@ -11,12 +13,36 @@ function Home() {
             goal.goalType === "Secondary" &&
             goal.parentGoalId === primaryGoal?.id
     );
-
+        
     const completedSecondaryGoals =
-    secondaryGoals.filter(
-        goal => goal.completed
-    ).length;
+        secondaryGoals.filter(
+            goal => goal.completed
+        ).length;
+    
+    const overallProgress =
+        secondaryGoals.length > 0
+            ? Math.round(
+                secondaryGoals.reduce(
+                    (total, goal) => total + goal.progress,
+                    0
+                ) / secondaryGoals.length
+            )
+            : 0;
 
+    function handleContinueJourney() {
+
+        if (!primaryGoal) {
+            navigate("/goals");
+            return;
+        }
+
+        if (secondaryGoals.length === 0) {
+            navigate("/goals");
+            return;
+        }
+
+        navigate("/goals");
+    }
     return (
         <div className="container">
 
@@ -27,35 +53,41 @@ function Home() {
                 <div className="home-card">
                    {primaryGoal ? (
                         <>
-                            <h2>Current Goal</h2>
+                            <h2>Current Career Journey</h2>
 
                             <h3>{primaryGoal.title}</h3>
+                            <div className="journey-summary">
 
-                            <p>
-                                Progress: {primaryGoal.progress}%
-                            </p>
+                                <div className="summary-item">
+                                    <span>Progress</span>
+                                    <strong>{overallProgress}%</strong>
+                                </div>
 
-                            <p>
-                                Secondary Goals:
-                                {" "}
-                                {completedSecondaryGoals}
-                                {" / "}
-                                {secondaryGoals.length}
-                                {" "}
-                                completed
-                            </p>
+                                <div className="summary-item">
+                                    <span>Secondary Goals</span>
+                                    <strong>
+                                        {completedSecondaryGoals} / {secondaryGoals.length}
+                                    </strong>
+                                </div>
 
-                            <button>
+                            </div>
+
+                            <button onClick={handleContinueJourney}>
                                 Continue Journey
                             </button>
                         </>
                     ) : (
                         <>
-                            <h2>Start Your Career Journey</h2>
+                            <h2>Welcome to Career Companion</h2>
 
-                            <p>Create your first primary goal.</p>
+                            <p>
+                                You haven't started your career journey yet.
+                                Create your primary goal to begin planning your career.
+                            </p>
 
-                            <button>Create Goal</button>
+                            <button onClick={handleContinueJourney}>
+                                Create Primary Goal
+                            </button>
                         </>
                     )}
                 </div>
@@ -66,11 +98,21 @@ function Home() {
 
                     <div className="journey-progress">
 
-                        <div className="journey-step completed">
+                        <div
+                            className={`journey-step ${
+                                primaryGoal ? "completed" : ""
+                            }`}
+                        >
+                            {primaryGoal ? "✓ " : ""}
                             Primary Goal
                         </div>
 
-                        <div className="journey-step">
+                        <div
+                            className={`journey-step ${
+                                secondaryGoals.length > 0 ? "completed" : ""
+                            }`}
+                        >
+                            {secondaryGoals.length > 0 ? "✓ " : ""}
                             Secondary Goals
                         </div>
 
@@ -88,14 +130,6 @@ function Home() {
 
                     </div>
 
-                </div>
-
-                <div className="home-card">
-                    <h2>Current Goal</h2>
-
-                    <p>
-                        No primary goal selected.
-                    </p>
                 </div>
 
                 <div className="home-card">

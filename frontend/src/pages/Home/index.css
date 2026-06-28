@@ -54,3 +54,23 @@
     margin: 6px 0 0;
     font-size: 14px;
 }
+.journey-summary {
+    display: flex;
+    gap: 24px;
+    margin: 20px 0;
+}
+
+.summary-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.summary-item span {
+    font-size: 0.85rem;
+    color: #6b7280;
+}
+
+.summary-item strong {
+    font-size: 1.25rem;
+    margin-top: 4px;
+}
