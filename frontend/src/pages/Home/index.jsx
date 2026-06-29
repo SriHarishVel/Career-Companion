@@ -5,6 +5,12 @@ function Home() {
     const navigate = useNavigate();
     const goals = JSON.parse(localStorage.getItem("goals")) || [];
 
+    const skills = JSON.parse(localStorage.getItem("skills")) || [];
+
+    const resources = JSON.parse(localStorage.getItem("resources")) || [];
+
+    const applications = JSON.parse(localStorage.getItem("applications")) || [];
+
     const primaryGoal = goals.find(goal => goal.goalType === "Primary");
 
     const secondaryGoals =
@@ -116,18 +122,32 @@ function Home() {
                             Secondary Goals
                         </div>
 
-                        <div className="journey-step">
+                        <div
+                            className={`journey-step ${
+                                skills.length > 0 ? "completed" : ""
+                            }`}
+                        >
+                            {skills.length > 0 ? "✓ " : ""}
                             Skills
                         </div>
 
-                        <div className="journey-step">
+                        <div
+                            className={`journey-step ${
+                                resources.length > 0 ? "completed" : ""
+                            }`}
+                        >
+                            {resources.length > 0 ? "✓ " : ""}
                             Resources
                         </div>
 
-                        <div className="journey-step">
+                        <div
+                            className={`journey-step ${
+                                applications.length > 0 ? "completed" : ""
+                            }`}
+                        >
+                            {applications.length > 0 ? "✓ " : ""}
                             Applications
                         </div>
-
                     </div>
 
                 </div>
