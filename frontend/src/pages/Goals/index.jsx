@@ -2,6 +2,7 @@ import {useState, useEffect} from "react";
 import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
 import ConfirmModal from "../../components/ConfirmModal";
+import { storageService } from "../../services/storageService";
 import "./index.css"
 
 function Goals() {
@@ -22,19 +23,16 @@ function Goals() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedGoalId, setSelectedGoalId] = useState(null);
     const [goals, setGoals] = useState(() => {
-        // Load saved goals first so user changes stay after refresh.
-        const savedGoals = localStorage.getItem("goals");
+        const savedGoals = storageService.getGoals();
 
-        if (savedGoals) {
-            return JSON.parse(savedGoals);
-        }
-
-        return initialGoals;
-    });
+            return savedGoals.length > 0
+                ? savedGoals
+                : initialGoals;
+        });
 
     useEffect(() => {
         // Keep localStorage in sync whenever the goals list changes.
-        localStorage.setItem("goals", JSON.stringify(goals));
+        storageService.saveGoals(goals);
     }, [goals]);
 
     function handleProgress(goalId) {

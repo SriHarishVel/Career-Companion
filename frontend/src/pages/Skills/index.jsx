@@ -3,6 +3,7 @@ import SkillCard from "../../components/SkillCard";
 import initialSkills from "../../data/skills";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
+import { storageService } from "../../services/storageService";
 import "./index.css";
 
 function Skills() {
@@ -17,23 +18,16 @@ function Skills() {
     const [selectedSkillId, setSelectedSkillId] = useState(null);
     const [secondaryGoalId,setSecondaryGoalId] = useState("");
     const [skills, setSkills] = useState(() => {
-        // Load saved skills first so user changes stay after refresh.
-        const savedSkills =
-            localStorage.getItem("skills");
+        const savedSkills = storageService.getGoals();
 
-        if (savedSkills) {
-            return JSON.parse(savedSkills);
-        }
-
-        return initialSkills;
+        return savedSkills.length > 0
+            ? savedSkills
+            : initialSkills;
     });
 
     useEffect(() => {
         // Keep localStorage in sync whenever the skills list changes.
-        localStorage.setItem(
-            "skills",
-            JSON.stringify(skills)
-        );
+        storageService.saveSkills(skills);
     }, [skills]);
 
     function handleProgress(skillId) {

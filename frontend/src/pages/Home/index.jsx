@@ -1,15 +1,16 @@
 import { useNavigate } from "react-router-dom";
+import { storageService } from "../../services/storageService";
 import "./index.css";
 
 function Home() {
     const navigate = useNavigate();
-    const goals = JSON.parse(localStorage.getItem("goals")) || [];
+    const goals = storageService.getGoals();
 
-    const skills = JSON.parse(localStorage.getItem("skills")) || [];
+    const skills = storageService.getSkills();
 
-    const resources = JSON.parse(localStorage.getItem("resources")) || [];
+    const resources = storageService.getResources();
 
-    const applications = JSON.parse(localStorage.getItem("applications")) || [];
+    const applications = storageService.getResources();
 
     const primaryGoal = goals.find(goal => goal.goalType === "Primary");
 

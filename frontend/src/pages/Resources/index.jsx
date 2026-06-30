@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import initialResources from "../../data/resources";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
+import { storageService } from "../../services/storageService";
 import "./index.css";
 
 function Resources() {
@@ -18,21 +19,15 @@ function Resources() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedResourceId, setSelectedResourceId] = useState(null);
     const [resources, setResources] = useState(() => {
-        const savedResources =
-            localStorage.getItem("resources");
+        const savedResources = storageService.getGoals();
 
-        if (savedResources) {
-            return JSON.parse(savedResources);
-        }
-
-        return initialResources;
+        return savedResources.length > 0
+            ? savedResources
+            : initialResources;
     });
 
     useEffect(() => {
-        localStorage.setItem(
-            "resources",
-            JSON.stringify(resources)
-        );
+        storageService.saveResources(resources);
     }, [resources]);
 
     function addResource() {
