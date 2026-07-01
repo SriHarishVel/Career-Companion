@@ -1,5 +1,13 @@
 const get = (key, fallback = []) => {
-    return JSON.parse(localStorage.getItem(key)) || fallback;
+    try {
+        const value = localStorage.getItem(key);
+
+        return value
+            ? JSON.parse(value)
+            : fallback;
+    } catch {
+        return fallback;
+    }
 };
 
 const set = (key, value) => {
@@ -31,6 +39,17 @@ export const storageService = {
         get("applications"),
 
     saveApplications: applications =>
-        set("applications", applications)
+        set("applications", applications),
 
+    clearGoals: () =>
+        localStorage.removeItem("goals"),
+
+    clearSkills: () =>
+        localStorage.removeItem("skills"),
+
+    clearResources: () =>
+        localStorage.removeItem("resources"),
+
+    clearApplications: () =>
+        localStorage.removeItem("applications")
 };
