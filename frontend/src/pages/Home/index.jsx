@@ -39,17 +39,54 @@ function Home() {
     function handleContinueJourney() {
 
         if (!primaryGoal) {
-            navigate("/goals");
+            navigate("/goals", {
+    state: {
+        fromJourney: true,
+        action: "createPrimaryGoal"
+    }
+});
             return;
         }
 
         if (secondaryGoals.length === 0) {
-            navigate("/goals");
+           navigate("/goals", {
+                state: {
+                    fromJourney: true,
+                    action: "createSecondaryGoal"
+                }
+            });
             return;
         }
 
-        navigate("/goals");
+        if (skills.length === 0) {
+           navigate("/skills", {
+                state: {
+                    fromJourney: true,
+                    action: "createSkill"
+                }
+            });
+            return;
+        }
+
+        if (resources.length === 0) {
+            navigate("/resources", {
+                state: {
+                    fromJourney: true,
+                    action: "addResource"
+                }
+            });
+            return;
+        }
+
+        navigate("/applications", {
+            state: {
+                fromJourney: true,
+                action: "addApplication"
+            }
+        });
     }
+    const todaysFocus = secondaryGoals.find(goal => !goal.completed);
+
     return (
         <div className="container">
 
@@ -156,9 +193,23 @@ function Home() {
                 <div className="home-card">
                     <h2>Today's Focus</h2>
 
-                    <p>
-                        Nothing planned yet.
-                    </p>
+                    {todaysFocus ? (
+                        <>
+                            <h3>{todaysFocus.title}</h3>
+
+                            <p>
+                                Progress: {todaysFocus.progress}%
+                            </p>
+                        </>
+                    ) : primaryGoal ? (
+                        <p>
+                            All secondary goals are completed.
+                        </p>
+                    ) : (
+                        <p>
+                            Create a primary goal to get started.
+                        </p>
+                    )}
                 </div>
 
                 <div className="home-card">

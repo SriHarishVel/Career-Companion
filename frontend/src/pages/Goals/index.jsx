@@ -1,4 +1,5 @@
 import {useState, useEffect} from "react";
+import { useLocation } from "react-router-dom";
 import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -6,6 +7,8 @@ import { storageService } from "../../services/storageService";
 import "./index.css"
 
 function Goals() {
+    const location = useLocation();
+    const journeyAction = location.state?.action;
     // Form, filter, and sorting state for the goals page.
     const [newGoal, setNewGoal] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -18,7 +21,11 @@ function Goals() {
     const [priorityFilter, setPriorityFilter] = useState("All");
     const [statusFilter, setStatusFilter] = useState("All");
     const [goalTypeFilter, setGoalTypeFilter] = useState("All");
-    const [newGoalType, setNewGoalType] = useState("Primary");
+    const [newGoalType, setNewGoalType] = useState(() => {
+        return journeyAction === "createSecondaryGoal"
+            ? "Secondary"
+            : "Primary";
+    });
     const [parentGoalId, setParentGoalId] = useState("");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedGoalId, setSelectedGoalId] = useState(null);
@@ -34,6 +41,9 @@ function Goals() {
         // Keep localStorage in sync whenever the goals list changes.
         storageService.saveGoals(goals);
     }, [goals]);
+
+
+
 
     function handleProgress(goalId) {
         // Increase progress in small steps and mark goals complete at 100%.
@@ -59,11 +69,18 @@ function Goals() {
 
     function confirmDeleteGoal() {
         setGoals(prevGoals =>
-            prevGoals.filter(
-                goal =>
-                    goal.id !==
-                    selectedGoalId
-            )
+            prevGoals.filter(goal => {
+
+                if (goal.id === selectedGoalId) {
+                    return false;
+                }
+
+                if (goal.parentGoalId === selectedGoalId) {
+                    return false;
+                }
+
+                return true;
+            })
         );
 
         setShowDeleteModal(false);
