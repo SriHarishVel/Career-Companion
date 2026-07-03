@@ -42,29 +42,65 @@ function Goals() {
         storageService.saveGoals(goals);
     }, [goals]);
 
+    function recalculatePrimaryGoals(goals) {
 
+        return goals.map(goal => {
 
+            if (goal.goalType !== "Primary") {
+                return goal;
+            }
+
+            const childGoals = goals.filter(
+                child => child.parentGoalId === goal.id
+            );
+
+            if (childGoals.length === 0) {
+                return goal;
+            }
+
+            const averageProgress = Math.round(
+                childGoals.reduce(
+                    (total, child) => total + child.progress,
+                    0
+                ) / childGoals.length
+            );
+
+            return {
+                ...goal,
+                progress: averageProgress,
+                completed: averageProgress === 100
+            };
+
+        });
+
+    }
 
     function handleProgress(goalId) {
         // Increase progress in small steps and mark goals complete at 100%.
-        setGoals(prevGoals => prevGoals.map(goal => {
-            if (goal.id === goalId) {
-                const newProgress =
-                    Math.min(
+        setGoals(prevGoals => {
+
+            const updatedGoals = prevGoals.map(goal => {
+                if (goal.id === goalId) {
+
+                    const newProgress = Math.min(
                         goal.progress + 10,
                         100
                     );
 
-                return {
-                    ...goal,
-                    progress: newProgress,
-                    completed:
-                        newProgress === 100,
-                    lastUpdated: Date.now()
-                };
-            }
-            return goal;
-        }));
+                    return {
+                        ...goal,
+                        progress: newProgress,
+                        completed: newProgress === 100,
+                        lastUpdated: Date.now()
+                    };
+                }
+
+                return goal;
+            });
+
+            return recalculatePrimaryGoals(updatedGoals);
+
+        });
     }
 
     function confirmDeleteGoal() {
@@ -97,21 +133,24 @@ function Goals() {
         setErrorMsg("");
 
         // Add the new goal with the current category, priority, and deadline.
-        setGoals(prevGoals => [
-            ...prevGoals,
-            {
-                id: Date.now(),
-                title: newGoal.trim(),
-                category: newCategory,
-                priority: newPriority,
-                progress: 0,
-                goalType: newGoalType,
-                parentGoalId: newGoalType === "Secondary" ? parentGoalId : null,
-                completed: false,
-                deadline: newDeadline,
-                lastUpdated: Date.now()
-            }
-        ]);
+        setGoals(prevGoals => {
+            const updatedGoals =[
+                ...prevGoals,
+                {
+                    id: Date.now(),
+                    title: newGoal.trim(),
+                    category: newCategory,
+                    priority: newPriority,
+                    progress: 0,
+                    goalType: newGoalType,
+                    parentGoalId: newGoalType === "Secondary" ? parentGoalId : null,
+                    completed: false,
+                    deadline: newDeadline,
+                    lastUpdated: Date.now()
+                }
+            ];
+            return recalculatePrimaryGoals(updatedGoals);
+        });
         setNewGoal("");
         setNewDeadline("");
         setNewCategory("Learning");
@@ -648,7 +687,7 @@ function Goals() {
                                             title={goal.title}
                                             progress={goal.progress}
                                             category={goal.category}
-                                            onProgress={handleProgress}
+                                            onProgress={null}
                                             priority={goal.priority}
                                             goalType={goal.goalType}
                                             childGoals={getChildGoals(goal.id)}
