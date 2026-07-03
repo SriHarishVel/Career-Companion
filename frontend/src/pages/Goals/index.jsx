@@ -6,6 +6,41 @@ import ConfirmModal from "../../components/ConfirmModal";
 import { storageService } from "../../services/storageService";
 import "./index.css"
 
+function syncPrimaryGoalProgress(goals) {
+
+    return goals.map(goal => {
+
+        if (goal.goalType !== "Primary") {
+            return goal;
+        }
+         
+        const childGoals = goals.filter(
+            child => child.parentGoalId === goal.id
+        );
+    
+        if (childGoals.length === 0) {
+            return {
+                ...goal,
+                progress: 0,
+                completed: false
+            };
+        }
+        const averageProgress = Math.round(
+            childGoals.reduce(
+                (total, child) => total + child.progress,
+                0
+            ) / childGoals.length
+        );
+
+        return {
+            ...goal,
+            progress: averageProgress,
+            completed: averageProgress === 100
+        };
+    });
+}
+
+
 function Goals() {
     const location = useLocation();
     const journeyAction = location.state?.action;
@@ -32,9 +67,11 @@ function Goals() {
     const [goals, setGoals] = useState(() => {
         const savedGoals = storageService.getGoals();
 
-            return savedGoals.length > 0
-                ? savedGoals
-                : initialGoals;
+            const goals = savedGoals.length > 0
+                    ? savedGoals
+                    : initialGoals;
+
+            return syncPrimaryGoalProgress(goals);
         });
 
     useEffect(() => {
@@ -42,38 +79,6 @@ function Goals() {
         storageService.saveGoals(goals);
     }, [goals]);
 
-    function recalculatePrimaryGoals(goals) {
-
-        return goals.map(goal => {
-
-            if (goal.goalType !== "Primary") {
-                return goal;
-            }
-
-            const childGoals = goals.filter(
-                child => child.parentGoalId === goal.id
-            );
-
-            if (childGoals.length === 0) {
-                return goal;
-            }
-
-            const averageProgress = Math.round(
-                childGoals.reduce(
-                    (total, child) => total + child.progress,
-                    0
-                ) / childGoals.length
-            );
-
-            return {
-                ...goal,
-                progress: averageProgress,
-                completed: averageProgress === 100
-            };
-
-        });
-
-    }
 
     function handleProgress(goalId) {
         // Increase progress in small steps and mark goals complete at 100%.
@@ -98,14 +103,39 @@ function Goals() {
                 return goal;
             });
 
-            return recalculatePrimaryGoals(updatedGoals);
+            return syncPrimaryGoalProgress(updatedGoals);
 
         });
     }
 
     function confirmDeleteGoal() {
-        setGoals(prevGoals =>
-            prevGoals.filter(goal => {
+
+        const goalToDelete = goals.find(
+            goal => goal.id === selectedGoalId
+        );
+
+        const childGoals = goals.filter(
+            goal => goal.parentGoalId === selectedGoalId
+        );
+
+        if (
+            goalToDelete?.goalType === "Primary" &&
+            childGoals.length > 0
+        ) {
+            const confirmed = window.confirm(
+                `This will also delete ${childGoals.length} secondary goal(s). Continue?`
+            );
+
+            if (!confirmed) {
+                setShowDeleteModal(false);
+                setSelectedGoalId(null);
+                return;
+            }
+        }
+
+        setGoals(prevGoals => {
+
+            const updatedGoals = prevGoals.filter(goal => {
 
                 if (goal.id === selectedGoalId) {
                     return false;
@@ -116,8 +146,11 @@ function Goals() {
                 }
 
                 return true;
-            })
-        );
+            });
+
+            return syncPrimaryGoalProgress(updatedGoals);
+
+        });
 
         setShowDeleteModal(false);
         setSelectedGoalId(null);
@@ -131,6 +164,36 @@ function Goals() {
             return;
         }
         setErrorMsg("");
+
+        if (
+            newGoalType === "Secondary" &&
+            !parentGoalId
+        ) {
+            setErrorMsg(
+                "Please select a parent goal."
+            );
+            return;
+        }
+
+        if (
+            newGoalType === "Primary" &&
+            goals.some(goal => goal.goalType === "Primary")
+        ) {
+            setErrorMsg(
+                "Only one primary goal can exist at a time."
+            );
+            return;
+        }
+
+        if (
+            newGoalType === "Secondary" &&
+            primaryGoalOptions.length === 0
+        ) {
+            setErrorMsg(
+                "Create a primary goal before adding secondary goals."
+            );
+            return;
+        }
 
         // Add the new goal with the current category, priority, and deadline.
         setGoals(prevGoals => {
@@ -149,7 +212,7 @@ function Goals() {
                     lastUpdated: Date.now()
                 }
             ];
-            return recalculatePrimaryGoals(updatedGoals);
+            return syncPrimaryGoalProgress(updatedGoals);
         });
         setNewGoal("");
         setNewDeadline("");
@@ -165,8 +228,8 @@ function Goals() {
             return;
         }
 
-        setGoals(prevGoals  =>
-            prevGoals.map(goal => {
+        setGoals(prevGoals  => {
+            const updatedGoals = prevGoals.map(goal => {
                 if (goal.id === goalId) {
                     return {
                         ...goal,
@@ -177,7 +240,8 @@ function Goals() {
 
                 return goal;
             })
-        );
+            return syncPrimaryGoalProgress(updatedGoals);
+        });
     }
 
     // Build the visible list from the current search, category, and sort choices.
