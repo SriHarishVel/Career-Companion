@@ -107,7 +107,7 @@ function Goals() {
 
         });
     }
-
+primaryGoalOptions
     function confirmDeleteGoal() {
 
         const goalToDelete = goals.find(
@@ -159,8 +159,8 @@ function Goals() {
 
     function addGoal() {
         // Stop empty goals from being added to the tracker.
-        if (newGoal.trim() === "") {
-            setErrorMsg("Goal cannot be empty.");
+        if (newGoal.trim().length < 3) {
+            setErrorMsg("Goal title must be at least 3 characters.");
             return;
         }
         setErrorMsg("");
@@ -171,16 +171,6 @@ function Goals() {
         ) {
             setErrorMsg(
                 "Please select a parent goal."
-            );
-            return;
-        }
-
-        if (
-            newGoalType === "Primary" &&
-            goals.some(goal => goal.goalType === "Primary")
-        ) {
-            setErrorMsg(
-                "Only one primary goal can exist at a time."
             );
             return;
         }
@@ -372,6 +362,25 @@ function Goals() {
                 goal.goalType === "Primary"
         );
     
+        useEffect(() => {
+
+            if (newGoalType !== "Secondary") {
+                return;
+            }
+
+            if (
+                primaryGoalOptions.length === 1 &&
+                !parentGoalId
+            ) {
+                setParentGoalId(primaryGoalOptions[0].id);
+            }
+
+        }, [
+            newGoalType,
+            parentGoalId,
+            primaryGoalOptions
+        ]);
+
     function getParentGoalTitle(parentGoalId) {
         const parentGoal = goals.find(
             goal => goal.id === parentGoalId
@@ -660,12 +669,21 @@ function Goals() {
                                 Primary
                             </option>
 
-                            <option value="Secondary">
+                            <option
+                                value="Secondary"
+                                disabled={primaryGoalOptions.length === 0}
+                            >
                                 Secondary
                             </option>
                         </select>
                     </div>
                     
+                    {primaryGoalOptions.length === 0 && (
+                        <small className="helper-text">
+                            Create a primary goal first to unlock secondary goals.
+                        </small>
+                    )}
+
                     {newGoalType === "Secondary" && (
                         <div className="filter-group">
                             <label>Parent Goal</label>
