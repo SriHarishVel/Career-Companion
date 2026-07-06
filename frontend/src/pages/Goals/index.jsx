@@ -1,5 +1,6 @@
 import {useState, useEffect} from "react";
 import { useLocation } from "react-router-dom";
+import { useRef } from "react";
 import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -73,6 +74,10 @@ function Goals() {
 
             return syncPrimaryGoalProgress(goals);
         });
+    const [completedGoal, setCompletedGoal] = useState(null);
+    const [editingGoalId, setEditingGoalId] = useState(null);
+
+    const goalFormRef = useRef(null);
 
     useEffect(() => {
         // Keep localStorage in sync whenever the goals list changes.
@@ -92,6 +97,13 @@ function Goals() {
                         100
                     );
 
+                    if (
+                        newProgress === 100 &&
+                        !goal.completed
+                    ) {
+                        setCompletedGoal(goal.title);
+                    }
+
                     return {
                         ...goal,
                         progress: newProgress,
@@ -106,6 +118,19 @@ function Goals() {
             return syncPrimaryGoalProgress(updatedGoals);
 
         });
+    }
+
+    function handleCancelEdit() {
+
+        setEditingGoalId(null);
+        setNewGoal("");
+        setNewDeadline("");
+        setNewCategory("Learning");
+        setNewPriority("Medium");
+        setNewGoalType("Primary");
+        setParentGoalId("");
+        setErrorMsg("");
+
     }
 
     function confirmDeleteGoal() {
@@ -186,16 +211,69 @@ function Goals() {
         }
         const normalizedTitle = newGoal.trim().toLowerCase();
 
-        const duplicateGoal = goals.some(goal =>
-            goal.title.trim().toLowerCase() ===
-                normalizedTitle &&
-            goal.parentGoalId === parentGoalId
-        );
+        const duplicateGoal = goals.some(goal => {
+
+            if (goal.goalType !== newGoalType) {
+                return false;
+            }
+
+            if (goal.goalType === "Primary") {
+                return (
+                    goal.title.toLowerCase() === normalizedTitle
+                );
+            }
+
+            return (
+                goal.title.toLowerCase() === normalizedTitle &&
+                goal.parentGoalId === parentGoalId
+            );
+        });
 
         if (duplicateGoal) {
             setErrorMsg(
-                "A secondary goal with this title already exists."
+                `${newGoalType} goal already exists.`
             );
+            return;
+        }
+
+        if (editingGoalId) {
+
+            setGoals(prevGoals => {
+
+                const updatedGoals = prevGoals.map(goal => {
+
+                    if (goal.id !== editingGoalId) {
+                        return goal;
+                    }
+
+                    return {
+                        ...goal,
+                        title: newGoal.trim(),
+                        category: newCategory,
+                        priority: newPriority,
+                        deadline: newDeadline,
+                        goalType: newGoalType,
+                        parentGoalId:
+                            newGoalType === "Secondary"
+                                ? parentGoalId
+                                : null,
+                        lastUpdated: Date.now()
+                    };
+
+                });
+
+                return syncPrimaryGoalProgress(updatedGoals);
+
+            });
+
+            setEditingGoalId(null);
+            setNewGoal("");
+            setNewDeadline("");
+            setNewCategory("Learning");
+            setNewPriority("Medium");
+            setNewGoalType("Primary");
+            setParentGoalId("");
+
             return;
         }
 
@@ -226,26 +304,31 @@ function Goals() {
         setParentGoalId("");
     }
 
-    function editGoal(goalId, updatedTitle) {
-        // Ignore blank edits so existing goal names are not erased.
-        if (updatedTitle.trim() === "") {
+   function editGoal(goalId) {
+
+        const goal = goals.find(
+            goal => goal.id === goalId
+        );
+
+        if (!goal) {
             return;
         }
 
-        setGoals(prevGoals  => {
-            const updatedGoals = prevGoals.map(goal => {
-                if (goal.id === goalId) {
-                    return {
-                        ...goal,
-                        title: updatedTitle.trim(),
-                        lastUpdated: Date.now()
-                    };
-                }
+        setEditingGoalId(goal.id);
 
-                return goal;
-            })
-            return syncPrimaryGoalProgress(updatedGoals);
+        setNewGoal(goal.title);
+        setNewCategory(goal.category);
+        setNewPriority(goal.priority);
+        setNewDeadline(goal.deadline);
+        setNewGoalType(goal.goalType);
+        setParentGoalId(goal.parentGoalId ?? "");
+        setErrorMsg("");
+        
+        goalFormRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
         });
+
     }
 
     function handleGoalTypeChange(event) {
@@ -599,12 +682,20 @@ function Goals() {
             </div>
             
             {/* Add Goal GoalCard */}
-            <div className="add-goal-GoalCard">
-                <h3>Add Goal</h3>
+            <div className="add-goal-GoalCard" ref={goalFormRef}>
+                <h3>
+                    {editingGoalId
+                        ? "Edit Goal"
+                        : "Add Goal"}
+                </h3>
 
                 <input
                     type="text"
-                    placeholder="Goal Title"
+                    placeholder={
+                        editingGoalId
+                            ? "Edit Goal Title"
+                            : "Goal Title"
+                    }
                     value={newGoal}
                     onChange={(e) => {
                         setNewGoal(e.target.value);
@@ -744,9 +835,24 @@ function Goals() {
                     </p>
                 )}
 
-                <button onClick={addGoal}>
-                    Add Goal
-                </button>
+                <div className="goal-form-actions">
+
+                    <button onClick={addGoal}>
+                        {editingGoalId
+                            ? "Update Goal"
+                            : "Add Goal"}
+                    </button>
+
+                    {editingGoalId && (
+                        <button
+                            className="cancel-btn"
+                            onClick={handleCancelEdit}
+                        >
+                            Cancel Edit
+                        </button>
+                    )}
+
+                </div>
 
                 <p className="goal-counter">
                     Showing {filteredGoals.length} of {goals.length} goals
@@ -839,6 +945,17 @@ function Goals() {
                             Add a Goal or adjust
                             your filters.
                         </p>
+                    </div>
+                )}
+
+                {completedGoal && (
+                    <div className="success-banner">
+                        🎉 Congratulations! You completed "{completedGoal}".
+                        <button
+                            onClick={() => setCompletedGoal(null)}
+                        >
+                            Dismiss
+                        </button>
                     </div>
                 )}
 

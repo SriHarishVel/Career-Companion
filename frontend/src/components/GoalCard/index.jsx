@@ -1,4 +1,3 @@
-import { useState } from "react";
 import "./index.css";
 
 function GoalCard({
@@ -16,8 +15,6 @@ function GoalCard({
     onDelete,
     onEdit
 }) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedTitle, setEditedTitle] = useState(title);
 
     let daysLeft = null;
 
@@ -42,28 +39,15 @@ function GoalCard({
                     : ""
             }`}
         >
-            {isEditing ? (
-                <input
-                    type="text"
-                    value={editedTitle}
-                    onChange={(e) =>
-                        setEditedTitle(
-                            e.target.value
-                        )
-                    }
-                />
-            ) : (
-                <div className="card-header">
-                    <h2>{title}</h2>
+            <div className="card-header">
+                <h2>{title}</h2>
 
-                    {completed && (
-                        <span className="completed-badge">
-                            ✓ Completed
-                        </span>
-                    )}
-                </div>
-            )}
-
+                {completed && (
+                    <span className="completed-badge">
+                        ✓ Completed
+                    </span>
+                )}
+            </div>
             <div className="badges-row">
                 {category && (
                     <span className="category-badge">
@@ -165,50 +149,12 @@ function GoalCard({
                         : "Update Progress"}
                 </button>
 
-                {isEditing ? (
-                    <>
-                        <button
-                            onClick={() => {
-                                onEdit(
-                                    id,
-                                    editedTitle
-                                );
-
-                                setIsEditing(
-                                    false
-                                );
-                            }}
-                        >
-                            Save
-                        </button>
-
-                        <button
-                            className="cancel-btn"
-                            onClick={() => {
-                                setEditedTitle(
-                                    title
-                                );
-
-                                setIsEditing(
-                                    false
-                                );
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </>
-                ) : (
-                    <button
-                        className="edit-btn"
-                        onClick={() =>
-                            setIsEditing(
-                                true
-                            )
-                        }
-                    >
-                        Edit
-                    </button>
-                )}
+                <button
+                    className="edit-btn"
+                    onClick={() => onEdit(id)}
+                >
+                    Edit
+                </button>
 
                 <button
                     className="delete-btn"
