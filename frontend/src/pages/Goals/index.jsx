@@ -107,7 +107,7 @@ function Goals() {
 
         });
     }
-primaryGoalOptions
+
     function confirmDeleteGoal() {
 
         const goalToDelete = goals.find(
@@ -184,6 +184,20 @@ primaryGoalOptions
             );
             return;
         }
+        const normalizedTitle = newGoal.trim().toLowerCase();
+
+        const duplicateGoal = goals.some(goal =>
+            goal.title.trim().toLowerCase() ===
+                normalizedTitle &&
+            goal.parentGoalId === parentGoalId
+        );
+
+        if (duplicateGoal) {
+            setErrorMsg(
+                "A secondary goal with this title already exists."
+            );
+            return;
+        }
 
         // Add the new goal with the current category, priority, and deadline.
         setGoals(prevGoals => {
@@ -232,6 +246,25 @@ primaryGoalOptions
             })
             return syncPrimaryGoalProgress(updatedGoals);
         });
+    }
+
+    function handleGoalTypeChange(event) {
+
+        setErrorMsg("");
+
+        const value = event.target.value;
+
+        setNewGoalType(value);
+
+        if (
+            value === "Secondary" &&
+            primaryGoalOptions.length === 1
+        ) {
+            setParentGoalId(primaryGoalOptions[0].id);
+        } else {
+            setParentGoalId("");
+        }
+
     }
 
     // Build the visible list from the current search, category, and sort choices.
@@ -361,25 +394,6 @@ primaryGoalOptions
             goal =>
                 goal.goalType === "Primary"
         );
-    
-        useEffect(() => {
-
-            if (newGoalType !== "Secondary") {
-                return;
-            }
-
-            if (
-                primaryGoalOptions.length === 1 &&
-                !parentGoalId
-            ) {
-                setParentGoalId(primaryGoalOptions[0].id);
-            }
-
-        }, [
-            newGoalType,
-            parentGoalId,
-            primaryGoalOptions
-        ]);
 
     function getParentGoalTitle(parentGoalId) {
         const parentGoal = goals.find(
@@ -659,11 +673,7 @@ primaryGoalOptions
 
                         <select
                             value={newGoalType}
-                            onChange={(e) =>
-                                setNewGoalType(
-                                    e.target.value
-                                )
-                            }
+                            onChange={handleGoalTypeChange}
                         >
                             <option value="Primary">
                                 Primary
@@ -727,7 +737,7 @@ primaryGoalOptions
                     </div>
 
                 </div>
-
+                
                 {errorMsg && (
                     <p className="error">
                         {errorMsg}
