@@ -1,5 +1,6 @@
 import { useNavigate } from "react-router-dom";
 import { storageService } from "../../services/storageService";
+import { journeyService } from "../../services/journeyService";
 import "./index.css";
 
 function Home() {
@@ -38,53 +39,18 @@ function Home() {
 
     function handleContinueJourney() {
 
-        if (!primaryGoal) {
-            navigate("/goals", {
-    state: {
-        fromJourney: true,
-        action: "createPrimaryGoal"
-    }
-});
-            return;
-        }
+        const nextStep =
+            journeyService.getNextStep();
 
-        if (secondaryGoals.length === 0) {
-           navigate("/goals", {
-                state: {
-                    fromJourney: true,
-                    action: "createSecondaryGoal"
-                }
-            });
-            return;
-        }
-
-        if (skills.length === 0) {
-           navigate("/skills", {
-                state: {
-                    fromJourney: true,
-                    action: "createSkill"
-                }
-            });
-            return;
-        }
-
-        if (resources.length === 0) {
-            navigate("/resources", {
-                state: {
-                    fromJourney: true,
-                    action: "addResource"
-                }
-            });
-            return;
-        }
-
-        navigate("/applications", {
+        navigate(nextStep.page, {
             state: {
                 fromJourney: true,
-                action: "addApplication"
+                action: nextStep.action
             }
         });
+
     }
+
     const todaysFocus = secondaryGoals.find(goal => !goal.completed);
 
     return (

@@ -5,6 +5,7 @@ import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
 import ConfirmModal from "../../components/ConfirmModal";
 import { storageService } from "../../services/storageService";
+import { journeyService } from "../../services/journeyService";
 import "./index.css"
 
 function syncPrimaryGoalProgress(goals) {
@@ -45,6 +46,7 @@ function syncPrimaryGoalProgress(goals) {
 function Goals() {
     const location = useLocation();
     const journeyAction = location.state?.action;
+    const journeyStep = journeyService.getNextStep();
     // Form, filter, and sorting state for the goals page.
     const [newGoal, setNewGoal] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -498,7 +500,17 @@ function Goals() {
         return (
         <div className="container">
             {/* Page Title */}
-            <h1>Goals</h1>
+            <h1>
+                {journeyAction
+                    ? journeyStep.title
+                    : "Goals"}
+            </h1>
+
+            {journeyAction && (
+                <p className="journey-message">
+                    {journeyStep.description}
+                </p>
+            )}
 
             {/* Filters GoalCard */}
             <div className="filters-GoalCard">

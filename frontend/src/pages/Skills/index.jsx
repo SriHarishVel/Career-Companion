@@ -1,12 +1,18 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import SkillCard from "../../components/SkillCard";
 import initialSkills from "../../data/skills";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
 import { storageService } from "../../services/storageService";
+import { journeyService } from "../../services/journeyService";
 import "./index.css";
 
 function Skills() {
+    const location = useLocation();
+    const journeyAction = location.state?.action;
+    const journeyStep = journeyService.getNextStep();
+
     const [newSkill, setNewSkill] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
     const [searchSkill, setSearchSkill] = useState("");
@@ -18,7 +24,7 @@ function Skills() {
     const [selectedSkillId, setSelectedSkillId] = useState(null);
     const [secondaryGoalId,setSecondaryGoalId] = useState("");
     const [skills, setSkills] = useState(() => {
-        const savedSkills = storageService.getGoals();
+        const savedSkills = storageService.getSkills();
 
         return savedSkills.length > 0
             ? savedSkills
@@ -232,7 +238,17 @@ function Skills() {
         <div className="container">
 
             {/* Page Title */}
-            <h1>Skills</h1>
+            <h1>
+                {journeyAction
+                    ? journeyStep.title
+                    : "Skills"}
+            </h1>
+
+            {journeyAction && (
+                <p className="journey-message">
+                    {journeyStep.description}
+                </p>
+            )}
 
             {/* Filters SkillCard */}
             <div className="filters-SkillCard">
