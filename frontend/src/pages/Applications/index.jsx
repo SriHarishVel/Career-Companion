@@ -1,10 +1,17 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
+import { useLocation } from "react-router-dom";
 import initialApplications from "../../data/applications";
 import ConfirmModal from "../../components/ConfirmModal";
 import EditModal from "../../components/EditModal";
+import { storageService } from "../../services/storageService";
+import { journeyService } from "../../services/journeyService";
 import "./index.css"
 
 function Applications() {
+    const location = useLocation();
+    const journeyAction = location.state?.action;
+    const journeyStep = journeyService.getNextStep();
+    const applicationFormRef = useRef(null);
 
     const [company, setCompany] = useState("");
     const [role, setRole] = useState("");
@@ -13,14 +20,11 @@ function Applications() {
     const [applicationUrl, setApplicationUrl] = useState("");
 
     const [applications, setApplications] = useState(() => {
-        const savedApplications =
-            localStorage.getItem("applications");
+        const savedApplications = storageService.getApplications()
 
-        if (savedApplications) {
-            return JSON.parse(savedApplications);
-        }
-
-        return initialApplications;
+        return savedApplications.length > 0
+        ? savedApplications
+        : initialApplications;
     });
 
     const [searchTerm, setSearchTerm] = useState("");
@@ -52,13 +56,20 @@ function Applications() {
     const [showDeleteRoundModal, setShowDeleteRoundModal] = useState(false);
 
     useEffect(() => {
-        localStorage.setItem(
-            "applications",
-            JSON.stringify(
-                applications
-            )
-        );
+        storageService.saveApplications(applications)
     }, [applications]);
+
+    useEffect(() => {
+        if (
+            journeyAction === "addApplication"
+        ) {
+            applicationFormRef.current?.scrollIntoView({
+                behavior: "smooth",
+                block: "start"
+            });
+        }
+
+    }, [journeyAction]);
 
     function openEditModal(application) {
         setSelectedApplication(application);
@@ -320,11 +331,21 @@ function Applications() {
 
     return (
         <div className="container">
-            <h1>
-                Applications
-            </h1>
+            <>
+                <h1>
+                    {journeyAction
+                        ? journeyStep.title
+                        : "Applications"}
+                </h1>
 
-            <div className="add-application-card">
+                {journeyAction && (
+                    <p className="journey-message">
+                        {journeyStep.description}
+                    </p>
+                )}
+            </>
+
+            <div className="add-application-card" ref={applicationFormRef}>
                 <h3>Add Application</h3>
 
                 <input

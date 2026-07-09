@@ -5,6 +5,7 @@ import "./index.css";
 
 function Home() {
     const navigate = useNavigate();
+    const journeyStep = journeyService.getNextStep();
     const goals = storageService.getGoals();
 
     const skills = storageService.getSkills();
@@ -39,13 +40,10 @@ function Home() {
 
     function handleContinueJourney() {
 
-        const nextStep =
-            journeyService.getNextStep();
-
-        navigate(nextStep.page, {
+        navigate(journeyStep.page, {
             state: {
                 fromJourney: true,
-                action: nextStep.action
+                action: journeyStep.action
             }
         });
 
@@ -66,6 +64,16 @@ function Home() {
                             <h2>Current Career Journey</h2>
 
                             <h3>{primaryGoal.title}</h3>
+
+                            <p className="journey-message">
+                                <strong>Next Step:</strong>{" "}
+                                {journeyStep.title}
+                            </p>
+
+                            <p className="journey-description">
+                                {journeyStep.description}
+                            </p>
+
                             <div className="journey-summary">
 
                                 <div className="summary-item">

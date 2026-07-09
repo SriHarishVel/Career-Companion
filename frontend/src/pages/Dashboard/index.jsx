@@ -1,16 +1,12 @@
+import { storageService } from "../../services/storageService";
 import "./index.css";
 
 function Dashboard() {
     // Dashboard reads the saved page data and calculates quick summaries from it.
-    const goals =
-        JSON.parse(localStorage.getItem("goals")) || [];
-
-    const skills =
-        JSON.parse(localStorage.getItem("skills")) || [];
-
-    const resources =
-        JSON.parse(localStorage.getItem("resources")) || [];
-
+    const goals = storageService.getGoals();
+    const skills = storageService.getSkills();
+    const resources = storageService.getResources();
+    
     const topGoal =
         goals.length > 0
             ? goals.reduce((best, goal) =>
