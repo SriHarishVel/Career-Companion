@@ -1,5 +1,5 @@
 import {useState, useEffect} from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useRef } from "react";
 import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
@@ -44,9 +44,11 @@ function syncPrimaryGoalProgress(goals) {
 
 
 function Goals() {
+    const navigate = useNavigate();
     const location = useLocation();
     const journeyAction = location.state?.action;
     const journeyStep = journeyService.getNextStep();
+    
     // Form, filter, and sorting state for the goals page.
     const [newGoal, setNewGoal] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -120,6 +122,20 @@ function Goals() {
             return syncPrimaryGoalProgress(updatedGoals);
 
         });
+    }
+
+    function goToNextStep() {
+
+        const nextStep =
+            journeyService.getNextStep();
+
+        navigate(nextStep.page, {
+            state: {
+                fromJourney: true,
+                action: nextStep.action
+            }
+        });
+
     }
 
     function handleCancelEdit() {
@@ -211,6 +227,15 @@ function Goals() {
             );
             return;
         }
+
+        if (journeyAction === "createPrimaryGoal") {
+            goToNextStep();
+        }
+
+        if (journeyAction === "createSecondaryGoal") {
+            goToNextStep();
+        }
+
         const normalizedTitle = newGoal.trim().toLowerCase();
 
         const duplicateGoal = goals.some(goal => {

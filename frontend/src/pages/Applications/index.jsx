@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import initialApplications from "../../data/applications";
 import ConfirmModal from "../../components/ConfirmModal";
 import EditModal from "../../components/EditModal";
@@ -8,6 +8,7 @@ import { journeyService } from "../../services/journeyService";
 import "./index.css"
 
 function Applications() {
+    const navigate = useNavigate();
     const location = useLocation();
     const journeyAction = location.state?.action;
     const journeyStep = journeyService.getNextStep();
@@ -71,6 +72,19 @@ function Applications() {
 
     }, [journeyAction]);
 
+    function goToNextStep() {
+
+        const nextStep = journeyService.getNextStep();
+
+        navigate(nextStep.page, {
+            state: {
+                fromJourney: true,
+                action: nextStep.action
+            }
+        });
+
+    }
+
     function openEditModal(application) {
         setSelectedApplication(application);
 
@@ -123,6 +137,10 @@ function Applications() {
     function addApplication() {
         if (!company.trim() || !role.trim()) {
             return;
+        }
+
+        if (journeyAction === "addApplication") {
+            goToNextStep();
         }
 
        const newApplication = {

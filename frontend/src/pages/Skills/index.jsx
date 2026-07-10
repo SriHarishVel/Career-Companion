@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { useLocation } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import SkillCard from "../../components/SkillCard";
 import initialSkills from "../../data/skills";
 import SearchSortBar from "../../components/SearchSortBar";
@@ -9,6 +9,7 @@ import { journeyService } from "../../services/journeyService";
 import "./index.css";
 
 function Skills() {
+    const navigate = useNavigate();
     const location = useLocation();
     const journeyAction = location.state?.action;
     const journeyStep = journeyService.getNextStep();
@@ -67,6 +68,20 @@ function Skills() {
         );
     }
 
+    function goToNextStep() {
+
+        const nextStep =
+            journeyService.getNextStep();
+
+        navigate(nextStep.page, {
+            state: {
+                fromJourney: true,
+                action: nextStep.action
+            }
+        });
+
+}
+
     function confirmDeleteSkill() {
         setSkills(prevSkills =>
             prevSkills.filter(
@@ -90,6 +105,10 @@ function Skills() {
         }
 
         setErrorMsg("");
+
+        if (journeyAction === "createSkill") {
+            goToNextStep();
+        }
 
         // Add the new skill with a default level and starting progress.
         setSkills(prevSkills => [
