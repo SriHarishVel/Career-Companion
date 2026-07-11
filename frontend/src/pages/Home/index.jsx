@@ -1,42 +1,21 @@
 import { useNavigate } from "react-router-dom";
-import { storageService } from "../../services/storageService";
 import { journeyService } from "../../services/journeyService";
 import "./index.css";
 
 function Home() {
     const navigate = useNavigate();
     const journeyStep = journeyService.getNextStep();
-    const goals = storageService.getGoals();
 
-    const skills = storageService.getSkills();
-
-    const resources = storageService.getResources();
-
-    const applications = storageService.getResources();
-
-    const primaryGoal = goals.find(goal => goal.goalType === "Primary");
-
-    const secondaryGoals =
-    goals.filter(
-        goal =>
-            goal.goalType === "Secondary" &&
-            goal.parentGoalId === primaryGoal?.id
-    );
-        
-    const completedSecondaryGoals =
-        secondaryGoals.filter(
-            goal => goal.completed
-        ).length;
-    
-    const overallProgress =
-        secondaryGoals.length > 0
-            ? Math.round(
-                secondaryGoals.reduce(
-                    (total, goal) => total + goal.progress,
-                    0
-                ) / secondaryGoals.length
-            )
-            : 0;
+    const {
+        primaryGoal,
+        secondaryGoals,
+        completedSecondaryGoals,
+        overallProgress,
+        todaysFocus,
+        skills,
+        resources,
+        applications
+    } = journeyService.getJourneyOverview();
 
     function handleContinueJourney() {
 
@@ -48,8 +27,6 @@ function Home() {
         });
 
     }
-
-    const todaysFocus = secondaryGoals.find(goal => !goal.completed);
 
     return (
         <div className="container">
@@ -191,13 +168,21 @@ function Home() {
 
                     <div className="quick-links">
 
-                        <button>Goals</button>
+                        <button onClick={() => navigate("/goals")}>
+                            Goals
+                        </button>
 
-                        <button>Skills</button>
+                        <button onClick={() => navigate("/skills")}>
+                            Skills
+                        </button>
 
-                        <button>Resources</button>
+                        <button onClick={() => navigate("/resources")}>
+                            Resources
+                        </button>
 
-                        <button>Applications</button>
+                        <button onClick={() => navigate("/applications")}>
+                            Applications
+                        </button>
 
                     </div>
                 </div>

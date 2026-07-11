@@ -2,7 +2,7 @@ import { storageService } from "./storageService";
 
 export const journeyService = {
 
-    getNextStep() {
+    getGoalsData() {
 
         const goals = storageService.getGoals();
 
@@ -11,8 +11,64 @@ export const journeyService = {
         );
 
         const secondaryGoals = goals.filter(
-            goal => goal.goalType === "Secondary"
+            goal =>
+                goal.goalType === "Secondary" &&
+                goal.parentGoalId === primaryGoal?.id
         );
+
+        return {
+            primaryGoal,
+            secondaryGoals
+        };
+
+    },
+
+    getJourneyOverview() {
+        const {
+            primaryGoal,
+            secondaryGoals
+        } = this.getGoalsData();
+
+        const skills = storageService.getSkills();
+        const resources = storageService.getResources();
+        const applications = storageService.getApplications();
+
+        const completedSecondaryGoals =
+            secondaryGoals.filter(
+                goal => goal.completed
+            ).length;
+
+        const overallProgress =
+            secondaryGoals.length > 0
+                ? Math.round(
+                    secondaryGoals.reduce(
+                        (total, goal) => total + goal.progress,
+                        0
+                    ) / secondaryGoals.length
+                )
+                : 0;
+        const todaysFocus =
+            secondaryGoals.find(
+                goal => !goal.completed
+            );
+        return {
+            primaryGoal,
+            secondaryGoals,
+            skills,
+            resources,
+            applications,
+            completedSecondaryGoals,
+            overallProgress,
+            todaysFocus
+        };
+    },
+
+    getNextStep() {
+
+        const {
+            primaryGoal,
+            secondaryGoals
+        } = this.getGoalsData();
 
         const skills = storageService.getSkills();
         const applications = storageService.getApplications();
