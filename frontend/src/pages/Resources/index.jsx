@@ -19,7 +19,7 @@ function Resources() {
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedResourceId, setSelectedResourceId] = useState(null);
     const [resources, setResources] = useState(() => {
-        const savedResources = storageService.getGoals();
+        const savedResources = storageService.getResources();
 
         return savedResources.length > 0
             ? savedResources

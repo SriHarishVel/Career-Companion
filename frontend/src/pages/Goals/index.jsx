@@ -48,7 +48,8 @@ function Goals() {
     const location = useLocation();
     const journeyAction = location.state?.action;
     const journeyStep = journeyService.getNextStep();
-    
+    const { primaryGoal } = journeyService.getJourneyOverview();
+
     // Form, filter, and sorting state for the goals page.
     const [newGoal, setNewGoal] = useState("");
     const [errorMsg, setErrorMsg] = useState("");
@@ -87,7 +88,6 @@ function Goals() {
         // Keep localStorage in sync whenever the goals list changes.
         storageService.saveGoals(goals);
     }, [goals]);
-
 
     function handleProgress(goalId) {
         // Increase progress in small steps and mark goals complete at 100%.
@@ -525,17 +525,22 @@ function Goals() {
         return (
         <div className="container">
             {/* Page Title */}
-            <h1>
-                {journeyAction
-                    ? journeyStep.title
-                    : "Goals"}
-            </h1>
+            <h1>Goals</h1>
 
-            {journeyAction && (
-                <p className="journey-message">
+            <div className="journey-message">
+
+                <p>
                     {journeyStep.description}
                 </p>
-            )}
+
+                {primaryGoal && (
+                    <p>
+                        <strong>Current Primary Goal:</strong>{" "}
+                        {primaryGoal.title}
+                    </p>
+                )}
+
+            </div>
 
             {/* Filters GoalCard */}
             <div className="filters-GoalCard">
@@ -720,10 +725,14 @@ function Goals() {
             
             {/* Add Goal GoalCard */}
             <div className="add-goal-GoalCard" ref={goalFormRef}>
-                <h3>
+               <h3>
                     {editingGoalId
                         ? "Edit Goal"
-                        : "Add Goal"}
+                        : journeyAction === "createPrimaryGoal"
+                            ? "Create Primary Goal"
+                            : journeyAction === "createSecondaryGoal"
+                                ? "Create Secondary Goal"
+                                : "Add Goal"}
                 </h3>
 
                 <input
@@ -796,6 +805,7 @@ function Goals() {
                         </select>
                     </div>
 
+                    {!journeyAction && (
                     <div className="filter-group">
                         <label>Goal Type</label>
 
@@ -815,6 +825,7 @@ function Goals() {
                             </option>
                         </select>
                     </div>
+                )}
                     
                     {primaryGoalOptions.length === 0 && (
                         <small className="helper-text">
@@ -822,7 +833,10 @@ function Goals() {
                         </small>
                     )}
 
-                    {newGoalType === "Secondary" && (
+                    {(
+                        newGoalType === "Secondary" ||
+                        journeyAction === "createSecondaryGoal"
+                    ) && (
                         <div className="filter-group">
                             <label>Parent Goal</label>
 
@@ -877,7 +891,11 @@ function Goals() {
                     <button onClick={addGoal}>
                         {editingGoalId
                             ? "Update Goal"
-                            : "Add Goal"}
+                            : journeyAction === "createPrimaryGoal"
+                                ? "Create Primary Goal"
+                                : journeyAction === "createSecondaryGoal"
+                                    ? "Create Secondary Goal"
+                                    : "Add Goal"}
                     </button>
 
                     {editingGoalId && (
