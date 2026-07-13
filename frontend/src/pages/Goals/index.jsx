@@ -49,6 +49,9 @@ function Goals() {
     const journeyAction = location.state?.action;
     const journeyStep = journeyService.getNextStep();
     const { primaryGoal } = journeyService.getJourneyOverview();
+    const isGuidedSetup =
+        journeyAction === "createPrimaryGoal" ||
+        journeyAction === "createSecondaryGoal";
 
     // Form, filter, and sorting state for the goals page.
     const [newGoal, setNewGoal] = useState("");
@@ -228,11 +231,10 @@ function Goals() {
             return;
         }
 
-        if (journeyAction === "createPrimaryGoal") {
-            goToNextStep();
-        }
-
-        if (journeyAction === "createSecondaryGoal") {
+        if (
+            journeyStep.action === "createPrimaryGoal" ||
+            journeyStep.action === "createSecondaryGoal"
+        ) {
             goToNextStep();
         }
 
@@ -723,14 +725,36 @@ function Goals() {
                 </div>
             </div>
             
+            {isGuidedSetup &&
+                journeyStep.action === "createPrimaryGoal" && (
+                <div className="journey-banner">
+                    <h3>Step 1 of 2</h3>
+
+                    <p>
+                        Create your primary career goal to begin your career journey.
+                    </p>
+                </div>
+            )}
+
+            {isGuidedSetup &&
+                journeyStep.action === "createSecondaryGoal" && (
+                <div className="journey-banner">
+                    <h3>Step 2 of 2</h3>
+
+                    <p>
+                        Add one or more secondary goals that will help you achieve your primary goal.
+                    </p>
+                </div>
+            )}
+
             {/* Add Goal GoalCard */}
             <div className="add-goal-GoalCard" ref={goalFormRef}>
                <h3>
                     {editingGoalId
                         ? "Edit Goal"
-                        : journeyAction === "createPrimaryGoal"
+                        : journeyStep.action === "createPrimaryGoal"
                             ? "Create Primary Goal"
-                            : journeyAction === "createSecondaryGoal"
+                            : journeyStep.action === "createSecondaryGoal"
                                 ? "Create Secondary Goal"
                                 : "Add Goal"}
                 </h3>
@@ -798,14 +822,14 @@ function Goals() {
                             <option value="Medium">
                                 Medium
                             </option>
-
+                        
                             <option value="Low">
                                 Low
                             </option>
                         </select>
                     </div>
 
-                    {!journeyAction && (
+                    {!isGuidedSetup && (
                     <div className="filter-group">
                         <label>Goal Type</label>
 
@@ -835,7 +859,7 @@ function Goals() {
 
                     {(
                         newGoalType === "Secondary" ||
-                        journeyAction === "createSecondaryGoal"
+                        journeyStep.action === "createSecondaryGoal"
                     ) && (
                         <div className="filter-group">
                             <label>Parent Goal</label>
