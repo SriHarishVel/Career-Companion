@@ -4,6 +4,9 @@ import { useRef } from "react";
 import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
 import ConfirmModal from "../../components/ConfirmModal";
+import JourneyBanner from "./components/JourneyBanner";
+import GoalFilters from "./components/GoalFilters";
+import JourneyMessage from "./components/JourneyMessage";
 import { storageService } from "../../services/storageService";
 import { journeyService } from "../../services/journeyService";
 import "./index.css"
@@ -526,245 +529,36 @@ function Goals() {
             {/* Page Title */}
             <h1>Goals</h1>
 
-            <div className="journey-message">
-
-                <p>
-                    {journeyStep.description}
-                </p>
-
-                {primaryGoal && (
-                    <p>
-                        <strong>Current Primary Goal:</strong>{" "}
-                        {primaryGoal.title}
-                    </p>
-                )}
-
-            </div>
+            <JourneyMessage
+                journeyStep={journeyStep}
+                primaryGoal={primaryGoal}
+            />
 
             {/* Filters GoalCard */}
             {!isGuidedSetup && (
-                <div className="filters-GoalCard">
-                    <h3>Filters</h3>
-
-                    <div className="filters-toolbar">
-
-                        <div className="filter-group">
-                            <label>Search</label>
-
-                            <input
-                                type="search"
-                                placeholder="Search Goals"
-                                value={searchGoal}
-                                onChange={(e) =>
-                                    setSearchGoal(
-                                        e.target.value
-                                    )
-                                }
-                            />
-                        </div>
-
-                        <div className="filter-group">
-                            <label>Sort By</label>
-
-                            <select
-                                value={sortOption}
-                                onChange={(e) =>
-                                    setSortOption(
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="default">
-                                    Default
-                                </option>
-
-                                <option value="az">
-                                    A-Z
-                                </option>
-
-                                <option value="za">
-                                    Z-A
-                                </option>
-
-                                <option value="priorityHigh">
-                                    Priority High-Low
-                                </option>
-
-                                <option value="priorityLow">
-                                    Priority Low-High
-                                </option>
-
-                                <option value="high">
-                                    Highest Progress
-                                </option>
-
-                                <option value="low">
-                                    Lowest Progress
-                                </option>
-
-                                <option value="recent">
-                                    Recently Updated
-                                </option>
-                            </select>
-                        </div>
-
-                        <div className="filter-group">
-                            <label>Category</label>
-
-                            <select
-                                value={categoryFilter}
-                                onChange={(e) =>
-                                    setCategoryFilter(
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="All">
-                                    All Categories
-                                </option>
-
-                                <option value="Learning">
-                                    Learning
-                                </option>
-
-                                <option value="Career">
-                                    Career
-                                </option>
-
-                                <option value="Personal">
-                                    Personal
-                                </option>
-
-                                <option value="Health">
-                                    Health
-                                </option>
-                            </select>
-                        </div>
-
-                        <div className="filter-group">
-                            <label>Priority</label>
-
-                            <select
-                                value={priorityFilter}
-                                onChange={(e) =>
-                                    setPriorityFilter(
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="All">
-                                    All Priorities
-                                </option>
-
-                                <option value="High">
-                                    High
-                                </option>
-
-                                <option value="Medium">
-                                    Medium
-                                </option>
-
-                                <option value="Low">
-                                    Low
-                                </option>
-                            </select>
-                        </div>
-                        
-                        <div className="filter-group">
-                            <label>Goal Type</label>
-
-                            <select
-                                value={goalTypeFilter}
-                                onChange={(e) =>
-                                    setGoalTypeFilter(
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="All">
-                                    All Types
-                                </option>
-
-                                <option value="Primary">
-                                    Primary Goals
-                                </option>
-
-                                <option value="Secondary">
-                                    Secondary Goals
-                                </option>
-                            </select>
-                        </div>
-
-                        <div className="filter-group">
-                            <label>Status</label>
-
-                            <select
-                                value={statusFilter}
-                                onChange={(e) =>
-                                    setStatusFilter(
-                                        e.target.value
-                                    )
-                                }
-                            >
-                                <option value="All">
-                                    All Goals
-                                </option>
-
-                                <option value="Active">
-                                    Active Goals
-                                </option>
-
-                                <option value="Completed">
-                                    Completed Goals
-                                </option>
-                            </select>
-                        </div>
-
-                    </div>
-                </div>
-            )}
-            {isGuidedSetup &&
-                journeyStep.action === "createPrimaryGoal" && (
-                <div className="journey-banner">
-
-                    <div className="setup-progress">
-                        <div className="setup-progress-fill step-1"></div>
-                    </div>
-
-                    <p>
-                        Create your primary career goal to begin your career journey.
-                    </p>
-
-                    <p className="journey-hint">
-                        Every career journey starts with one clear primary goal.
-                    </p>
-
-                </div>
+                <GoalFilters
+                    searchGoal={searchGoal}
+                    setSearchGoal={setSearchGoal}
+                    sortOption={sortOption}
+                    setSortOption={setSortOption}
+                    categoryFilter={categoryFilter}
+                    setCategoryFilter={setCategoryFilter}
+                    priorityFilter={priorityFilter}
+                    setPriorityFilter={setPriorityFilter}
+                    goalTypeFilter={goalTypeFilter}
+                    setGoalTypeFilter={setGoalTypeFilter}
+                    statusFilter={statusFilter}
+                    setStatusFilter={setStatusFilter}
+                />
             )}
 
-            {isGuidedSetup &&
-                journeyStep.action === "createSecondaryGoal" && (
-                <div className="journey-banner">
 
-                    <div className="setup-progress">
-                        <div className="setup-progress-fill step-2"></div>
-                    </div>
+            <JourneyBanner
+                isGuidedSetup={isGuidedSetup}
+                journeyStep={journeyStep}
+                secondaryGoals={secondaryGoals}
+            />
 
-                    <p>
-                        Add one or more secondary goals that will help you achieve your primary goal.
-                    </p>
-
-                    <p className="journey-hint">
-                        You can add multiple secondary goals before finishing your setup.
-                    </p>
-
-                    <p className="journey-summary">
-                        {secondaryGoals.length} secondary goal
-                        {secondaryGoals.length !== 1 ? "s" : ""} added
-                    </p>
-
-                </div>
-            )}
             {/* Add Goal GoalCard */}
             <div className="add-goal-GoalCard" ref={goalFormRef}>
                <h3>
