@@ -1,11 +1,11 @@
 import {useState, useEffect} from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import { useRef } from "react";
-import GoalCard from "../../components/GoalCard";
 import initialGoals from "../../data/goals";
-import ConfirmModal from "../../components/ConfirmModal";
 import JourneyBanner from "./components/JourneyBanner";
+import GoalSections from "./components/GoalSections";
 import GoalFilters from "./components/GoalFilters";
+import GoalForm from "./components/GoalForm";
 import JourneyMessage from "./components/JourneyMessage";
 import { storageService } from "../../services/storageService";
 import { journeyService } from "../../services/journeyService";
@@ -560,319 +560,52 @@ function Goals() {
             />
 
             {/* Add Goal GoalCard */}
-            <div className="add-goal-GoalCard" ref={goalFormRef}>
-               <h3>
-                    {editingGoalId
-                        ? "Edit Goal"
-                        : journeyStep.action === "createPrimaryGoal"
-                            ? "Create Primary Goal"
-                            : journeyStep.action === "createSecondaryGoal"
-                                ? "Create Secondary Goal"
-                                : "Add Goal"}
-                </h3>
-
-                <input
-                    type="text"
-                    placeholder={
-                        editingGoalId
-                            ? "Edit Goal Title"
-                            : "Goal Title"
-                    }
-                    value={newGoal}
-                    onChange={(e) => {
-                        setNewGoal(e.target.value);
-                        setErrorMsg("");
-                    }}
-                />
-
-                <div className="goal-options">
-
-                    <div className="filter-group">
-                        <label>Category</label>
-
-                        <select
-                            value={newCategory}
-                            onChange={(e) =>
-                                setNewCategory(
-                                    e.target.value
-                                )
-                            }
-                        >
-                            <option value="Learning">
-                                Learning
-                            </option>
-
-                            <option value="Career">
-                                Career
-                            </option>
-
-                            <option value="Personal">
-                                Personal
-                            </option>
-
-                            <option value="Health">
-                                Health
-                            </option>
-                        </select>
-                    </div>
-
-                    <div className="filter-group">
-                        <label>Priority</label>
-
-                        <select
-                            value={newPriority}
-                            onChange={(e) =>
-                                setNewPriority(
-                                    e.target.value
-                                )
-                            }
-                        >
-                            <option value="High">
-                                High
-                            </option>
-
-                            <option value="Medium">
-                                Medium
-                            </option>
-                        
-                            <option value="Low">
-                                Low
-                            </option>
-                        </select>
-                    </div>
-
-                    {!isGuidedSetup && (
-                    <div className="filter-group">
-                        <label>Goal Type</label>
-
-                        <select
-                            value={newGoalType}
-                            onChange={handleGoalTypeChange}
-                        >
-                            <option value="Primary">
-                                Primary
-                            </option>
-
-                            <option
-                                value="Secondary"
-                                disabled={primaryGoalOptions.length === 0}
-                            >
-                                Secondary
-                            </option>
-                        </select>
-                    </div>
-                )}
-                    
-                    {primaryGoalOptions.length === 0 && (
-                        <small className="helper-text">
-                            Create a primary goal first to unlock secondary goals.
-                        </small>
-                    )}
-
-                    {(
-                        newGoalType === "Secondary" ||
-                        journeyStep.action === "createSecondaryGoal"
-                    ) && (
-                        <div className="filter-group">
-                            <label>Parent Goal</label>
-
-                            <select
-                                value={parentGoalId}
-                                onChange={(e) =>
-                                    setParentGoalId(
-                                        Number(e.target.value)
-                                    )
-                                }
-                            >
-                                <option value="">
-                                    Select Parent Goal
-                                </option>
-
-                                {primaryGoalOptions.map(goal => (
-                                    <option
-                                        key={goal.id}
-                                        value={goal.id}
-                                    >
-                                        {goal.title}
-                                    </option>
-                                ))}
-                            </select>
-                        </div>
-                    )}
-
-                    <div className="filter-group">
-                        <label>Deadline</label>
-
-                        <input
-                            type="date"
-                            value={newDeadline}
-                            onChange={(e) =>
-                                setNewDeadline(
-                                    e.target.value
-                                )
-                            }
-                        />
-                    </div>
-
-                </div>
-                
-                {errorMsg && (
-                    <p className="error">
-                        {errorMsg}
-                    </p>
-                )}
-
-                <div className="goal-form-actions">
-
-                    <button onClick={addGoal}>
-                        {editingGoalId
-                            ? "Update Goal"
-                            : journeyStep.action === "createPrimaryGoal"
-                                ? "Create Primary Goal"
-                                : journeyStep.action === "createSecondaryGoal"
-                                    ? "Create Secondary Goal"
-                                    : "Add Goal"}
-                    </button>
-                                        
-                    {isGuidedSetup &&
-                        journeyStep.action === "createSecondaryGoal" && (
-                            <button
-                                type="button"
-                                className="secondary-btn"
-                                onClick={() => navigate("/home")}
-                            >
-                                Finish Setup
-                            </button>
-                    )}
-
-                    {editingGoalId && (
-                        <button
-                            className="cancel-btn"
-                            onClick={handleCancelEdit}
-                        >
-                            Cancel Edit
-                        </button>
-                    )}
-
-                </div>
-
-                <p className="goal-counter">
-                    Showing {filteredGoals.length} of {goals.length} goals
-                </p>
-                <p className="goal-counter">
-                    Primary Goals: {primaryGoals.length}
-                </p>
-
-                <p className="goal-counter">
-                    Secondary Goals: {secondaryGoals.length}
-                </p>
-            </div>
+            <GoalForm
+                goalFormRef={goalFormRef}
+                editingGoalId={editingGoalId}
+                journeyStep={journeyStep}
+                newGoal={newGoal}
+                setNewGoal={setNewGoal}
+                newCategory={newCategory}
+                setNewCategory={setNewCategory}
+                newPriority={newPriority}
+                setNewPriority={setNewPriority}
+                isGuidedSetup={isGuidedSetup}
+                newGoalType={newGoalType}
+                handleGoalTypeChange={handleGoalTypeChange}
+                primaryGoalOptions={primaryGoalOptions}
+                parentGoalId={parentGoalId}
+                setParentGoalId={setParentGoalId}
+                newDeadline={newDeadline}
+                setNewDeadline={setNewDeadline}
+                errorMsg={errorMsg}
+                setErrorMsg={setErrorMsg}
+                addGoal={addGoal}
+                navigate={navigate}
+                handleCancelEdit={handleCancelEdit}
+                filteredGoals={filteredGoals}
+                goals={goals}
+                primaryGoals={primaryGoals}
+                secondaryGoals={secondaryGoals}
+            />
             
             {/* Goal Sections */}
             {!isGuidedSetup && (
-                <div>
-                    {/* Goal GoalCards */}
-                    {filteredGoals.length > 0 ? (
-                        <>
-                            {filteredPrimaryGoals.length > 0 && (
-                                <>
-                                    <h2 className="goal-section-title">
-                                        Primary Goals
-                                    </h2>
-
-                                    <div className="goals-grid">
-                                        {filteredPrimaryGoals.map(goal => (
-                                            <GoalCard
-                                                key={goal.id}
-                                                id={goal.id}
-                                                title={goal.title}
-                                                progress={goal.progress}
-                                                category={goal.category}
-                                                onProgress={null}
-                                                priority={goal.priority}
-                                                goalType={goal.goalType}
-                                                childGoals={getChildGoals(goal.id)}
-                                                onDelete={(goalId) => {
-                                                    setSelectedGoalId(goalId);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                                onEdit={editGoal}
-                                                deadline={goal.deadline}
-                                                completed={goal.completed}
-                                            />
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-
-                            {filteredSecondaryGoals.length > 0 && (
-                                <>
-                                    <h2 className="goal-section-title">
-                                        Secondary Goals
-                                    </h2>
-
-                                    <div className="goals-grid">
-                                        {filteredSecondaryGoals.map(goal => (
-                                            <GoalCard
-                                                key={goal.id}
-                                                id={goal.id}
-                                                title={goal.title}
-                                                progress={goal.progress}
-                                                category={goal.category}
-                                                onProgress={handleProgress}
-                                                priority={goal.priority}
-                                                goalType={goal.goalType}
-                                                onDelete={(goalId) => {
-                                                    setSelectedGoalId(goalId);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                                parentGoalTitle={
-                                                    getParentGoalTitle(
-                                                        goal.parentGoalId
-                                                    )
-                                                }
-                                                onEdit={editGoal}
-                                                deadline={goal.deadline}
-                                                completed={goal.completed}
-                                            />
-                                        ))}
-                                    </div>
-                                </>
-                            )}
-                        </>
-                    ) : (
-                        <div className="empty-state">
-                            <h3>No Goals found</h3>
-
-                            <p>
-                                Add a Goal or adjust
-                                your filters.
-                            </p>
-                        </div>
-                    )}
-
-                    {completedGoal && (
-                        <div className="success-banner">
-                            🎉 Congratulations! You completed "{completedGoal}".
-                            <button
-                                onClick={() => setCompletedGoal(null)}
-                            >
-                                Dismiss
-                            </button>
-                        </div>
-                    )}
-
-                    <ConfirmModal
-                        isOpen={showDeleteModal}
-                        title="Delete Goal"
-                        message="Are you sure you want to delete this goal?"
-                        onConfirm={confirmDeleteGoal}
-                        onCancel={() => {
-                            setShowDeleteModal(false);
-                            setSelectedGoalId(null);
-                        }}
-                    />
-                </div>
+                <GoalSections
+                    filteredGoals={filteredGoals}
+                    filteredPrimaryGoals={filteredPrimaryGoals}
+                    filteredSecondaryGoals={filteredSecondaryGoals}
+                    getChildGoals={getChildGoals}
+                    getParentGoalTitle={getParentGoalTitle}
+                    handleProgress={handleProgress}
+                    editGoal={editGoal}
+                    completedGoal={completedGoal}
+                    setCompletedGoal={setCompletedGoal}
+                    showDeleteModal={showDeleteModal}
+                    confirmDeleteGoal={confirmDeleteGoal}
+                    setShowDeleteModal={setShowDeleteModal}
+                    setSelectedGoalId={setSelectedGoalId}
+                />
             )}
         </div>
     );   
