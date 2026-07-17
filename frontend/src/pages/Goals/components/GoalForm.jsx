@@ -1,3 +1,5 @@
+import { useEffect } from "react";
+
 function GoalForm({
     goalFormRef,
     editingGoalId,
@@ -26,6 +28,22 @@ function GoalForm({
     primaryGoals,
     secondaryGoals
 }) {
+
+    useEffect(() => {
+        if (
+            (newGoalType === "Secondary" ||
+                journeyStep.action === "createSecondaryGoal") &&
+            primaryGoalOptions.length === 1
+        ) {
+            setParentGoalId(primaryGoalOptions[0].id);
+        }
+    }, [
+        newGoalType,
+        journeyStep.action,
+        primaryGoalOptions,
+        setParentGoalId,
+    ]);
+
     return (
         <div className="add-goal-GoalCard" ref={goalFormRef}>
             <h3>
@@ -140,33 +158,38 @@ function GoalForm({
                     newGoalType === "Secondary" ||
                     journeyStep.action === "createSecondaryGoal"
                 ) && (
-                    <div className="filter-group">
-                        <label>Parent Goal</label>
+                    primaryGoalOptions.length === 1 ? (
+                        <div className="filter-group">
+                            <label>Parent Goal</label>
 
-                        <select
-                            value={parentGoalId}
-                            onChange={(e) =>
-                                setParentGoalId(
-                                    Number(e.target.value)
-                                )
-                            }
-                        >
-                            <option value="">
-                                Select Parent Goal
-                            </option>
+                            <input
+                                type="text"
+                                value={primaryGoalOptions[0].title}
+                                readOnly
+                            />
+                        </div>
+                    ) : (
+                        <div className="filter-group">
+                            <label>Parent Goal</label>
 
-                            {primaryGoalOptions.map(goal => (
-                                <option
-                                    key={goal.id}
-                                    value={goal.id}
-                                >
-                                    {goal.title}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+                            <select
+                                value={parentGoalId}
+                                onChange={(e) => setParentGoalId(Number(e.target.value))}
+                            >
+                                <option value="">Select Parent Goal</option>
+
+                                {primaryGoalOptions.map(goal => (
+                                    <option
+                                        key={goal.id}
+                                        value={goal.id}
+                                    >
+                                        {goal.title}
+                                    </option>
+                                ))}
+                            </select>
+                        </div>
+                    )
                 )}
-
                 <div className="filter-group">
                     <label>Deadline</label>
 
