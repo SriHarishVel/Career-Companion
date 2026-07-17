@@ -231,11 +231,8 @@ function Skills() {
             return 0;
         });
     
-    const goals =
-        JSON.parse(
-            localStorage.getItem("goals")
-        ) || [];
-        
+    const goals = storageService.getGoals();
+       
     const secondaryGoalOptions =
         goals.filter(
             goal =>
@@ -499,6 +496,11 @@ function Skills() {
                                 setShowDeleteModal(true);
                             }}
                             onEdit={editSkill}
+                            onResources={(skillId) =>
+                                navigate("/resources", {
+                                    state: {skillId}
+                                })
+                            }
                         />
                     ))
                 ) : (

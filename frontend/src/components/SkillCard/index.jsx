@@ -10,7 +10,8 @@ function SkillCard({
     relatedGoalTitle,
     onProgress,
     onDelete,
-    onEdit
+    onEdit,
+    onResources
 }) {
     const [isEditing, setIsEditing] = useState(false);
     const [editedTitle, setEditedTitle] = useState(title);
@@ -135,6 +136,13 @@ function SkillCard({
                         Edit
                     </button>
                 )}
+
+                <button
+                    className="resource-btn"
+                    onClick={() => onResources(id)}
+                >
+                    Resources
+                </button>
 
                 <button
                     className="delete-btn"

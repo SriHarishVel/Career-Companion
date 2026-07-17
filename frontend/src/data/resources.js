@@ -5,6 +5,7 @@ const initialResources = [
         url: "https://react.dev",
         type: "Documentation",
         favorite: false,
+        skillId: null,
         lastUpdated: Date.now()
     },
     {
@@ -13,6 +14,7 @@ const initialResources = [
         url: "https://developer.mozilla.org/en-US/docs/Web/JavaScript",
         type: "Documentation",
         favorite: false,
+        skillId: null,
         lastUpdated: Date.now()
     }
 ];

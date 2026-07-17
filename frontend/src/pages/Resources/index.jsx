@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useLocation } from "react-router-dom";
 import initialResources from "../../data/resources";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -6,6 +7,8 @@ import { storageService } from "../../services/storageService";
 import "./index.css";
 
 function Resources() {
+    const location = useLocation();
+
     const [newTitle, setNewTitle] = useState("");
     const [newUrl, setNewUrl] = useState("");
     const [newType, setNewType] = useState("Documentation");
@@ -25,10 +28,39 @@ function Resources() {
             ? savedResources
             : initialResources;
     });
+    const [skillId, setSkillId] = useState(
+        location.state?.skillId || ""
+    );
+    const [skillFilter, setSkillFilter] = useState(
+        location.state?.skillId || "All"
+    );
 
     useEffect(() => {
         storageService.saveResources(resources);
     }, [resources]);
+
+    const skills = storageService.getSkills();
+    const goals = storageService.getGoals();
+
+    function getSkillTitle(skillId) {
+        const skill = skills.find(
+            skill => skill.id === skillId
+        );
+
+        return skill
+            ? skill.title
+            : null;
+    }
+
+    function getParentGoalTitle(skill) {
+        if (!skill.secondaryGoalId) return "";
+
+        const goal = goals.find(
+            goal => goal.id === skill.secondaryGoalId
+        );
+
+        return goal ? goal.title : "";
+    }
 
     function addResource() {
         if (
@@ -50,29 +82,20 @@ function Resources() {
             ...prevResources,
             {
                 id: Date.now(),
-
-                title:
-                    newTitle.trim(),
-
-                url:
-                    formattedUrl.startsWith(
-                        "http"
-                    )
-                        ? formattedUrl
-                        : `https://${formattedUrl}`,
-
+                title: newTitle.trim(),
+                url: formattedUrl.startsWith("http") 
+                        ? formattedUrl : `https://${formattedUrl}`,
                 type: newType,
-
                 favorite: false,
-
-                lastUpdated:
-                    Date.now()
+                skillId: skillId || null,
+                lastUpdated: Date.now()
             }
         ]);
 
         setNewTitle("");
         setNewUrl("");
         setNewType("Documentation");
+        setSkillId("");
     }
 
     function confirmDeleteResource() {
@@ -167,6 +190,11 @@ function Resources() {
                 filterOption
             );
         })
+        .filter(resource =>
+            skillFilter === "All"
+                ? true
+                : resource.skillId === Number(skillFilter)
+        )
         .sort((a, b) => {
             if (sortOption === "az") {
                 return a.title.localeCompare(
@@ -194,9 +222,11 @@ function Resources() {
 
     return (
         <div className="container">
-
-            {/* Page Title */}
-            <h1>Resources</h1>
+            <h1>
+                {skillFilter === "All"
+                    ? "Resources"
+                    : `Resources for ${getSkillTitle(Number(skillFilter))}`}
+            </h1>
 
             {/* Search + Sort */}
             <SearchSortBar
@@ -265,6 +295,21 @@ function Resources() {
                 </option>
             </select>
 
+            <select
+                value={skillFilter}
+                onChange={(e) => setSkillFilter(e.target.value)}
+            >
+                <option value="All">All Skills</option>
+
+                {skills.map(skill => (
+                    <option
+                        key={skill.id}
+                        value={skill.id}
+                    >
+                        {`${getParentGoalTitle(skill)} → ${skill.title}`}
+                    </option>
+                ))}
+            </select>
             {/* Resource Counter */}
             <p className="resource-counter">
                 Showing{" "}
@@ -341,6 +386,24 @@ function Resources() {
                         setErrorMsg("");
                     }}
                 />
+
+                <select
+                    value={skillId}
+                    onChange={(e) => setSkillId(Number(e.target.value))}
+                >
+                    <option value="">
+                        Related Skill (Optional)
+                    </option>
+
+                    {skills.map(skill => (
+                        <option
+                            key={skill.id}
+                            value={skill.id}
+                        >
+                            {skill.title}
+                        </option>
+                    ))}
+                </select>
 
                 {errorMsg && (
                     <p className="error">
@@ -432,6 +495,12 @@ function Resources() {
                                             <span className="favorite-badge">
                                                 ★ Favorite
                                             </span>
+                                        )}
+
+                                        {resource.skillId && (
+                                            <p className="related-skill">
+                                                Skill: {getSkillTitle(resource.skillId)}
+                                            </p>
                                         )}
 
                                         <h3>
