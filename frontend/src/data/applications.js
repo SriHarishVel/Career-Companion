@@ -9,6 +9,7 @@ const initialApplications = [
         notes: "",
         applicationUrl: "",
         interviewRounds: [],
+        primaryGoalId: null,
         lastUpdated: Date.now()
     },
     {
@@ -20,6 +21,7 @@ const initialApplications = [
         notes: "",
         applicationUrl: "",
         interviewRounds: [],
+        primaryGoalId: null,
         lastUpdated: Date.now()
     },
     {
@@ -31,6 +33,7 @@ const initialApplications = [
         notes: "",
         applicationUrl: "",
         interviewRounds: [],
+        primaryGoalId: null,
         lastUpdated: Date.now()
     }
 ];

@@ -56,6 +56,10 @@ function Applications() {
 
     const [showDeleteRoundModal, setShowDeleteRoundModal] = useState(false);
 
+    const [primaryGoalId, setPrimaryGoalId] = useState("");
+
+    const [goalFilter, setGoalFilter] = useState("All");
+
     useEffect(() => {
         storageService.saveApplications(applications)
     }, [applications]);
@@ -71,6 +75,22 @@ function Applications() {
         }
 
     }, [journeyAction]);
+
+    const goals = storageService.getGoals();
+
+    const primaryGoalOptions = goals.filter(
+        goal => goal.goalType === "Primary"
+    );
+
+    function getGoalTitle(goalId) {
+        const goal = goals.find(
+            goal => goal.id === goalId
+        );
+
+        return goal
+            ? goal.title
+            : null;
+    }
 
     function goToNextStep() {
 
@@ -151,6 +171,7 @@ function Applications() {
             appliedDate,
             applicationUrl,
             interviewRounds: [],
+            primaryGoalId: primaryGoalId || null,
             lastUpdated: Date.now()
         };
 
@@ -164,6 +185,7 @@ function Applications() {
         setStatus("Applied");
         setAppliedDate("");
         setApplicationUrl("");
+        setPrimaryGoalId("");
     }
 
     function confirmDeleteApplication() {
@@ -203,6 +225,11 @@ function Applications() {
                     matchesStatus
                 );
             }
+        )
+        .filter(application =>
+            goalFilter === "All"
+                ? true
+                : application.primaryGoalId === Number(goalFilter)
         );
 
     filteredApplications.sort(
@@ -353,7 +380,9 @@ function Applications() {
                 <h1>
                     {journeyAction
                         ? journeyStep.title
-                        : "Applications"}
+                        : goalFilter === "All"
+                            ? "Applications"
+                            : `Applications for ${getGoalTitle(Number(goalFilter))}`}
                 </h1>
 
                 {journeyAction && (
@@ -396,6 +425,26 @@ function Applications() {
                     <option value="Offer">Offer</option>
                     <option value="Rejected">Rejected</option>
                     <option value="Withdrawn">Withdrawn</option>
+                </select>
+
+                <select
+                    value={primaryGoalId}
+                    onChange={(e) =>
+                        setPrimaryGoalId(Number(e.target.value))
+                    }
+                >
+                    <option value="">
+                        Career Goal (Optional)
+                    </option>
+
+                    {primaryGoalOptions.map(goal => (
+                        <option
+                            key={goal.id}
+                            value={goal.id}
+                        >
+                            {goal.title}
+                        </option>
+                    ))}
                 </select>
 
                 <input
@@ -444,6 +493,22 @@ function Applications() {
                             <option value="Withdrawn">Withdrawn</option>
                         </select>
                     </div>
+                    
+                    <select
+                        value={goalFilter}
+                        onChange={(e) => setGoalFilter(e.target.value)}
+                    >
+                        <option value="All">All Career Goals</option>
+
+                        {primaryGoalOptions.map(goal => (
+                            <option
+                                key={goal.id}
+                                value={goal.id}
+                            >
+                                {goal.title}
+                            </option>
+                        ))}
+                    </select>
 
                     <div className="filter-group">
                         <label>Sort By</label>
@@ -491,6 +556,12 @@ function Applications() {
                                 {application.company}
                             </p>
 
+                            {application.primaryGoalId && (
+                                <p className="related-goal">
+                                    Career Goal: {getGoalTitle(application.primaryGoalId)}
+                                </p>
+                            )}
+
                             <span
                                 className={`application-status ${application.status
                                     .toLowerCase()
@@ -516,8 +587,7 @@ function Applications() {
                                     new Date(a.date) -
                                     new Date(b.date)
                                 )
-                                .map(
-                                round => (
+                                .map( round => (
                                     <div
                                         key={round.id}
                                         className={`round-item ${round.status.toLowerCase()}`}
