@@ -75,6 +75,15 @@ function Dashboard() {
     .sort((a, b) => b.lastUpdated - a.lastUpdated)
     .slice(0, 5);
 
+    const upcomingDeadlines = [...goals]
+        .filter(goal => goal.deadline)
+        .sort(
+            (a, b) =>
+                new Date(a.deadline) -
+                new Date(b.deadline)
+        )
+        .slice(0, 5);
+        
     return (
         <div className="container">
             <h1>Dashboard</h1>
@@ -186,6 +195,39 @@ function Dashboard() {
                         <p>No recent activity.</p>
                     )}
                 </div>
+            </div>
+            
+            <div className="dashboard-section">
+                <h2>Upcoming Deadlines</h2>
+
+                {upcomingDeadlines.length > 0 ? (
+                    <div className="deadline-list">
+                        {upcomingDeadlines.map(goal => (
+                            <div
+                                key={goal.id}
+                                className="deadline-item"
+                            >
+                                <div>
+                                    <h3>{goal.title}</h3>
+                                    <p>{goal.category}</p>
+                                </div>
+
+                                <span>
+                                    {new Date(goal.deadline).toLocaleDateString(
+                                        "en-GB",
+                                        {
+                                            day: "numeric",
+                                            month: "short",
+                                            year: "numeric",
+                                        }
+                                    )}
+                                </span>
+                            </div>
+                        ))}
+                    </div>
+                ) : (
+                    <p>No upcoming deadlines.</p>
+                )}
             </div>
 
         </div>
