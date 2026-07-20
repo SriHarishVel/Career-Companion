@@ -1,5 +1,7 @@
 import { Routes, Route } from "react-router-dom";
 
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
@@ -23,6 +25,8 @@ function App() {
         <Route path="/skills" element={<Skills />} />
         <Route path="/resources" element={<Resources />} />
         <Route path="/applications" element={<Applications />} />
+        <Route path="/login" element={<Login />} />
+        <Route path="/signup" element={<Signup />} />
       </Routes>
 
       {/* Footer shown on every page */}
