@@ -1,20 +1,58 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import "./index.css";
 
 function Login() {
+    const navigate = useNavigate();
+
     const [formData, setFormData] = useState({
         email: "",
         password: ""
     });
 
     const [showPassword, setShowPassword] = useState(false);
+    const [errors, setErrors] = useState({});
 
     const handleChange = (e) => {
         setFormData({
             ...formData,
             [e.target.name]: e.target.value
         });
+    };
+    const handleSubmit = (e) => {
+        e.preventDefault();
+
+        const users =
+            JSON.parse(localStorage.getItem("users")) || [];
+
+        const user = users.find(
+            (user) => user.email === formData.email
+        );
+
+        if (!user) {
+            setErrors({
+                email: "Email not found"
+            });
+
+            return;
+        }
+
+        if (user.password !== formData.password) {
+            setErrors({
+                password: "Incorrect password"
+            });
+
+            return;
+        }
+
+        localStorage.setItem(
+            "currentUser",
+            JSON.stringify(user)
+        );
+
+        alert("Login Successful!");
+
+        navigate("/dashboard");
     };
 
     return (
@@ -24,7 +62,7 @@ function Login() {
                 <h1>Career Companion</h1>
                 <h2>Welcome Back</h2>
 
-                <form>
+                <form onSubmit={handleSubmit}>
 
                     <div className="form-group">
                         <label>Email</label>
@@ -36,6 +74,13 @@ function Login() {
                             value={formData.email}
                             onChange={handleChange}
                         />
+
+                        {errors.email && (
+                            <p className="error-message">
+                                {errors.email}
+                            </p>
+                        )}
+
                     </div>
 
                     <div className="form-group">
@@ -60,6 +105,13 @@ function Login() {
                                 {showPassword ? "Hide" : "Show"}
                             </button>
                         </div>
+
+                        {errors.password && (
+                            <p className="error-message">
+                                {errors.password}
+                            </p>
+                        )}
+
                     </div>
 
                     <div className="login-options">
