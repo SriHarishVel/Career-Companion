@@ -9,6 +9,7 @@ import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import goalRoutes from "./routes/goalRoutes.js";
 
 dotenv.config();
 
@@ -22,6 +23,7 @@ app.use(express.json());
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/goals", goalRoutes);
 
 app.get("/", (req, res) => {
     res.send("Career Companion API Running...");
