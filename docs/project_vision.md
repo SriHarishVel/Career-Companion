@@ -14,10 +14,12 @@ I often lose track of my learning resources, job applications, and overall progr
 
 ## Version 1 Features
 
+* User Authentication
 * Primary and Secondary Goal Management
+* Job Application Tracker
+* Dashboard Analytics
 * Learning Tracker
 * Resource Organizer
-* Job Application Tracker
 * Interview Round Tracker
 * Dashboard showing current progress and next steps
 
@@ -52,7 +54,7 @@ Every feature in Career Companion should follow these principles:
 
 ## Why I Am Building This
 
-I want to build a meaningful project for my resume while learning professional software engineering practices. I also want a tool that I would personally use to organize my own career journey.
+I want to build a meaningful full-stack project for my resume while learning professional software engineering practices. I also want a tool that I would personally use to organize my own career journey.
 
 ## Future Vision
 

@@ -46,11 +46,11 @@ Introduce career-focused modules that connect directly to user goals.
 
 ### Features
 
-* Job Application Tracker
-* Application Status Management
+* Job Application Tracker (Completed)
+* Application Status Management (Completed)
 * Interview Round Tracker
 * Interview Notes
-* Career Progress Dashboard
+* Career Progress Dashboard (Completed)
 
 ---
 
@@ -76,7 +76,11 @@ Move from browser storage to a persistent backend architecture.
 
 * Node.js and Express Backend
 * REST API Development
-* PostgreSQL Database
+* MongoDB Database
+* User Profile APIs
+* Job Management APIs
+* Goal Management APIs
+* Dashboard Analytics APIs
 * Data Migration from Local Storage
 
 ---
@@ -91,6 +95,8 @@ Introduce user accounts and secure access to data.
 * User Login and Logout
 * JWT Authentication
 * Protected Routes
+* User Profile Management
+* Password Change
 
 ---
 

@@ -6,45 +6,39 @@ Stores account information.
 
 Fields:
 
-* id
-* name
+* _id
+* fullName
 * email
-* password_hash
-* created_at
-* updated_at
+* password
+* createdAt
+* updatedAt
 
 ---
 
-## Primary Goal
+## Goal
 
-Stores the user's main career objective.
-
-Fields:
-
-* id
-* user_id
-* title
-* target_role
-* target_package
-* target_company
-* status
-* created_at
-* updated_at
-
----
-
-## Secondary Goal
-
-Stores smaller goals that support the primary goal.
+Stores both primary and secondary goals.
 
 Fields:
 
-* id
-* primary_goal_id
+* _id
 * title
-* status
-* created_at
-* updated_at
+* category
+* priority
+* goalType
+* parentGoal
+* progress
+* completed
+* deadline
+* lastUpdated
+* user
+* createdAt
+* updatedAt
+
+Notes:
+
+* Primary goals have `goalType = "Primary"` and `parentGoal = null`.
+* Secondary goals have `goalType = "Secondary"` and reference their parent through `parentGoal`.
 
 ---
 
@@ -52,12 +46,18 @@ Fields:
 
 Stores skills required for the primary goal.
 
+**Planned**
+
 Fields:
 
-* id
+* _id
 * name
-* status
-* progress_percentage
+* level
+* progress
+* goal
+* user
+* createdAt
+* updatedAt
 
 ---
 
@@ -65,48 +65,42 @@ Fields:
 
 Stores learning resources.
 
+**Planned**
+
 Fields:
 
-* id
-* skill_id
+* _id
 * title
 * type
-* link
-* trusted_source
-* status
-* progress_percentage
+* url
+* description
+* favorite
+* completed
+* skill
+* user
+* createdAt
+* updatedAt
 
 ---
 
-## Topic
-
-Stores smaller learning units inside a resource.
-
-Fields:
-
-* id
-* resource_id
-* title
-* status
-* notes
-
----
-
-## Application
+## Job
 
 Stores job applications.
 
 Fields:
 
-* id
-* user_id
+* _id
+* title
 * company
-* role
-* date_applied
+* location
 * status
-* is_goal_aligned
-* referral
+* jobType
+* salary
 * notes
+* applicationDate
+* user
+* createdAt
+* updatedAt
 
 ---
 
@@ -114,12 +108,16 @@ Fields:
 
 Stores interview stages.
 
+**Planned**
+
 Fields:
 
-* id
-* application_id
-* round_name
+* _id
+* job
+* roundName
 * date
 * status
 * result
 * notes
+* createdAt
+* updatedAt

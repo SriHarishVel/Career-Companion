@@ -1,19 +1,22 @@
 # Domain Model
 
-## Entity Relationships
+## Primary Workflow
 
-Although each entity can exist independently, the primary workflow follows the relationship below.
+Career Companion is centered around a guided career journey.
 
-Career Journey
-→ Primary Goal
+The typical workflow is:
+
+Primary Goal
 → Secondary Goals
 → Skills
 → Resources
-→ Topics
-→ Applications
-→ Selection Stages
+→ Job Applications
+→ Interview Rounds
+→ Career Progress
 
-Standalone goals, skills, and resources are supported for personal organization but are considered part of the user's personal library rather than the guided career journey.
+Although standalone goals, skills, resources, and job applications can exist independently, the primary experience is built around helping users progress toward a defined career objective.
+
+---
 
 ## User
 
@@ -21,23 +24,26 @@ Represents the owner of the account.
 
 ---
 
-## Primary Goal
+## Goal
 
-The main career objective.
+Represents a career objective.
+
+Goals are stored as a single entity and can be either:
+
+* Primary Goal
+* Secondary Goal
+
+A Secondary Goal may reference a Primary Goal through a parent-child relationship.
 
 Examples:
+
+Primary Goals:
 
 * Software Engineer (8+ LPA)
 * Backend Engineer
 * AI Engineer
 
----
-
-## Secondary Goal
-
-Smaller objectives that support the primary goal.
-
-Examples:
+Secondary Goals:
 
 * Finish DSA
 * Build Portfolio
@@ -45,9 +51,9 @@ Examples:
 
 ---
 
-Skill
+## Skill
 
-A capability required to achieve a secondary goal.
+A capability required to achieve a goal.
 
 Examples:
 
@@ -79,15 +85,16 @@ Examples:
 * YouTube Playlist
 * PDF
 * Course
+* Documentation
 * Drive Link
 
 ---
 
 ## Job Application
 
-Represents an application to a company.
+Represents an application submitted to a company.
 
-May optionally belong to a primary goal.
+May optionally be associated with a career goal.
 
 Examples:
 
@@ -97,7 +104,7 @@ Examples:
 
 ---
 
-## Selection Stage
+## Interview Round
 
 Represents a stage within a job application.
 
