@@ -7,6 +7,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import homeRoutes from "./routes/homeRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
@@ -28,6 +29,7 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/skills", skillRoutes);
 app.use("/api/dashboard", dashboardRoutes);
+app.use("/api/home", homeRoutes);
 
 app.get("/", (req, res) => {
     res.send("Career Companion API Running...");
