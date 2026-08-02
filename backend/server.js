@@ -10,6 +10,7 @@ import authRoutes from "./routes/authRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
+import resourceRoutes from "./routes/resourceRoutes.js";
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/goals", goalRoutes);
+app.use("/api/resources", resourceRoutes);
 
 app.get("/", (req, res) => {
     res.send("Career Companion API Running...");
