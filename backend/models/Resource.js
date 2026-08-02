@@ -43,8 +43,8 @@ const resourceSchema = new mongoose.Schema(
         },
 
         skill: {
-            type: String,
-            trim: true,
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Skill",
         },
 
         user: {

@@ -79,6 +79,7 @@ export const getResources = async (req, res) => {
         }
 
         const resources = await Resource.find(query)
+            .populate("skill", "name level")
             .sort(sortOption);
 
         res.status(200).json(resources);
@@ -93,7 +94,8 @@ export const getResources = async (req, res) => {
 export const getResource = async (req, res) => {
     try {
 
-        const resource = await Resource.findById(req.params.id);
+        const resource = await Resource.findById(req.params.id)
+            .populate("skill", "name level");
 
         if (!resource) {
             return res.status(404).json({
