@@ -1,11 +1,17 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
+import { register } from "../../services/authService";
 import "./index.css";
 
 function Signup() {
+    const navigate = useNavigate();
+
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const [error, setError] = useState("");
+
     const [errors, setErrors] = useState({});
+
     const [formData, setFormData] = useState({
         fullName: "",
         email: "",
@@ -37,9 +43,9 @@ function Signup() {
 
         if (!formData.password) {
             newErrors.password = "Password is required";
-        } else if (formData.password.length < 8) {
+        } else if (formData.password.length < 6) {
             newErrors.password =
-                "Password must be at least 8 characters";
+                "Password must be at least 6 characters";
         }
 
         if (!formData.confirmPassword) {
@@ -57,40 +63,35 @@ function Signup() {
         return Object.keys(newErrors).length === 0;
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        if (!validateForm()) return;
-
-        const users =
-            JSON.parse(localStorage.getItem("users")) || [];
-
-        const userExists = users.some(
-            (user) => user.email === formData.email
-        );
-
-        if (userExists) {
-            setErrors({
-                email: "Email already exists"
-            });
-
+        if (!validateForm()) {
             return;
         }
 
-        const newUser = {
-            fullName: formData.fullName,
-            email: formData.email,
-            password: formData.password
-        };
+        try {
 
-        users.push(newUser);
+            setError("");
 
-        localStorage.setItem(
-            "users",
-            JSON.stringify(users)
-        );
+            await register({
+                fullName: formData.fullName,
+                email: formData.email,
+                password: formData.password
+            });
 
-        alert("Account created successfully!");
+            alert("Account created successfully!");
+
+            navigate("/login");
+
+        } catch (error) {
+
+            setError(
+                error.response?.data?.message ||
+                "Registration failed"
+            );
+
+        }
     };
 
     return (
@@ -101,6 +102,7 @@ function Signup() {
                 <h2>Create Account</h2>
 
                 <form onSubmit={handleSubmit}>
+
                     <div className="form-group">
                         <label>Full Name</label>
 
@@ -117,6 +119,7 @@ function Signup() {
                                 {errors.fullName}
                             </p>
                         )}
+
                     </div>
 
                     <div className="form-group">
@@ -135,12 +138,14 @@ function Signup() {
                                 {errors.email}
                             </p>
                         )}
+
                     </div>
 
                     <div className="form-group">
                         <label>Password</label>
 
                         <div className="password-field">
+
                             <input
                                 type={showPassword ? "text" : "password"}
                                 name="password"
@@ -152,10 +157,13 @@ function Signup() {
                             <button
                                 type="button"
                                 className="toggle-password"
-                                onClick={() => setShowPassword(!showPassword)}
+                                onClick={() =>
+                                    setShowPassword(!showPassword)
+                                }
                             >
                                 {showPassword ? "Hide" : "Show"}
                             </button>
+
                         </div>
 
                         {errors.password && (
@@ -163,14 +171,20 @@ function Signup() {
                                 {errors.password}
                             </p>
                         )}
+
                     </div>
 
                     <div className="form-group">
                         <label>Confirm Password</label>
 
-                         <div className="password-field">
+                        <div className="password-field">
+
                             <input
-                                type={showConfirmPassword ? "text" : "password"}
+                                type={
+                                    showConfirmPassword
+                                        ? "text"
+                                        : "password"
+                                }
                                 name="confirmPassword"
                                 placeholder="Confirm your password"
                                 value={formData.confirmPassword}
@@ -180,10 +194,15 @@ function Signup() {
                             <button
                                 type="button"
                                 className="toggle-password"
-                                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                                onClick={() =>
+                                    setShowConfirmPassword(
+                                        !showConfirmPassword
+                                    )
+                                }
                             >
                                 {showConfirmPassword ? "Hide" : "Show"}
                             </button>
+
                         </div>
 
                         {errors.confirmPassword && (
@@ -194,15 +213,28 @@ function Signup() {
 
                     </div>
 
-                    <button type="submit" className="signup-btn">
+                    {error && (
+                        <p className="error-message">
+                            {error}
+                        </p>
+                    )}
+
+                    <button
+                        type="submit"
+                        className="signup-btn"
+                    >
                         Create Account
                     </button>
 
                     <p className="login-link">
-                        Already have an account? <Link to="/login">Login</Link>
+                        Already have an account?{" "}
+                        <Link to="/login">
+                            Login
+                        </Link>
                     </p>
 
                 </form>
+
             </div>
         </div>
     );

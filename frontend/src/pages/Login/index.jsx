@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
+import { login } from "../../services/authService";
 import "./index.css";
 
 function Login() {
@@ -11,7 +12,7 @@ function Login() {
     });
 
     const [showPassword, setShowPassword] = useState(false);
-    const [errors, setErrors] = useState({});
+    const [error, setError] = useState("");
 
     const handleChange = (e) => {
         setFormData({
@@ -19,40 +20,24 @@ function Login() {
             [e.target.name]: e.target.value
         });
     };
-    const handleSubmit = (e) => {
+
+    const handleSubmit = async (e) => {
         e.preventDefault();
 
-        const users =
-            JSON.parse(localStorage.getItem("users")) || [];
+        try {
+            setError("");
 
-        const user = users.find(
-            (user) => user.email === formData.email
-        );
+            await login(formData);
 
-        if (!user) {
-            setErrors({
-                email: "Email not found"
-            });
+            alert("Login Successful!");
 
-            return;
+            navigate("/dashboard");
+
+        } catch (error) {
+            setError(
+                error.response?.data?.message || "Login failed"
+            );
         }
-
-        if (user.password !== formData.password) {
-            setErrors({
-                password: "Incorrect password"
-            });
-
-            return;
-        }
-
-        localStorage.setItem(
-            "currentUser",
-            JSON.stringify(user)
-        );
-
-        alert("Login Successful!");
-
-        navigate("/dashboard");
     };
 
     return (
@@ -73,13 +58,8 @@ function Login() {
                             placeholder="Enter your email"
                             value={formData.email}
                             onChange={handleChange}
+                            required
                         />
-
-                        {errors.email && (
-                            <p className="error-message">
-                                {errors.email}
-                            </p>
-                        )}
 
                     </div>
 
@@ -93,6 +73,7 @@ function Login() {
                                 placeholder="Enter your password"
                                 value={formData.password}
                                 onChange={handleChange}
+                                required
                             />
 
                             <button
@@ -106,13 +87,13 @@ function Login() {
                             </button>
                         </div>
 
-                        {errors.password && (
-                            <p className="error-message">
-                                {errors.password}
-                            </p>
-                        )}
-
                     </div>
+
+                    {error && (
+                        <p className="error-message">
+                            {error}
+                        </p>
+                    )}
 
                     <div className="login-options">
                         <label>

@@ -1,4 +1,5 @@
 import { NavLink, useNavigate } from "react-router-dom";
+import { logout } from "../../services/authService";
 import {
     FaHome,
     FaBullseye,
@@ -13,15 +14,16 @@ import "./index.css";
 function Navbar() {
     const navigate = useNavigate();
 
-    const currentUser = JSON.parse(localStorage.getItem("currentUser"));
+    const token = localStorage.getItem("token");
+    const currentUser = JSON.parse(localStorage.getItem("user"));
 
     function handleLogout() {
-        localStorage.removeItem("currentUser");
+        logout();
         navigate("/login");
     }
 
     // Hide navbar on login/signup pages
-    if (!currentUser) {
+    if (!token || !currentUser) {
         return null;
     }
 

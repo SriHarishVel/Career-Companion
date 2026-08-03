@@ -3,6 +3,7 @@ import { Routes, Route } from "react-router-dom";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
 import ProtectedRoute from "./components/ProtectedRoute";
+import PublicRoute from "./components/PublicRoute";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
@@ -20,8 +21,23 @@ function App() {
 
       {/* Page routes */}
       <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/signup" element={<Signup />} />
+        <Route
+            path="/login"
+            element={
+                <PublicRoute>
+                    <Login />
+                </PublicRoute>
+            }
+        />
+
+        <Route
+            path="/signup"
+            element={
+                <PublicRoute>
+                    <Signup />
+                </PublicRoute>
+            }
+        />
 
         <Route
             path="/"
