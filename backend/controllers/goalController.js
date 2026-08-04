@@ -214,6 +214,14 @@ export const deleteGoal = async (req, res) => {
             });
         }
 
+        // If deleting a primary goal, delete all its secondary goals
+        if (goal.goalType === "Primary") {
+            await Goal.deleteMany({
+                parentGoal: goal._id,
+                user: req.user._id
+            });
+        }
+
         await goal.deleteOne();
 
         res.status(200).json({

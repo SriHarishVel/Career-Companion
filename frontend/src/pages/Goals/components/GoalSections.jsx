@@ -30,15 +30,15 @@ function GoalSections({
                             <div className="goals-grid">
                                 {filteredPrimaryGoals.map(goal => (
                                     <GoalCard
-                                        key={goal.id}
-                                        id={goal.id}
+                                        key={goal._id}
+                                        id={goal._id}
                                         title={goal.title}
                                         progress={goal.progress}
                                         category={goal.category}
                                         onProgress={null}
                                         priority={goal.priority}
                                         goalType={goal.goalType}
-                                        childGoals={getChildGoals(goal.id)}
+                                        childGoals={getChildGoals(goal._id)}
                                         onDelete={(goalId) => {
                                             setSelectedGoalId(goalId);
                                             setShowDeleteModal(true);
@@ -61,8 +61,8 @@ function GoalSections({
                             <div className="goals-grid">
                                 {filteredSecondaryGoals.map(goal => (
                                     <GoalCard
-                                        key={goal.id}
-                                        id={goal.id}
+                                        key={goal._id}
+                                        id={goal._id}
                                         title={goal.title}
                                         progress={goal.progress}
                                         category={goal.category}
@@ -75,7 +75,7 @@ function GoalSections({
                                         }}
                                         parentGoalTitle={
                                             getParentGoalTitle(
-                                                goal.parentGoalId
+                                                goal.parentGoal?._id
                                             )
                                         }
                                         onEdit={editGoal}
@@ -87,41 +87,40 @@ function GoalSections({
                         </>
                     )}
                 </>
-                ) : (
-                    <div className="empty-state">
-                        <h3>No Goals found</h3>
+            ) : (
+                <div className="empty-state">
+                    <h3>No Goals found</h3>
 
-                        <p>
-                            Add a Goal or adjust
-                            your filters.
-                        </p>
-                    </div>
-                )}
+                    <p>
+                        Add a Goal or adjust
+                        your filters.
+                    </p>
+                </div>
+            )}
 
-                {completedGoal && (
-                    <div className="success-banner">
-                        🎉 Congratulations! You completed "{completedGoal}".
-                        <button
-                            onClick={() => setCompletedGoal(null)}
-                        >
-                            Dismiss
-                        </button>
-                    </div>
-                )}
+            {completedGoal && (
+                <div className="success-banner">
+                    🎉 Congratulations! You completed "{completedGoal}".
+                    <button
+                        onClick={() => setCompletedGoal(null)}
+                    >
+                        Dismiss
+                    </button>
+                </div>
+            )}
 
-                <ConfirmModal
-                    isOpen={showDeleteModal}
-                    title="Delete Goal"
-                    message="Are you sure you want to delete this goal?"
-                    onConfirm={confirmDeleteGoal}
-                    onCancel={() => {
-                        setShowDeleteModal(false);
-                        setSelectedGoalId(null);
-                    }}
-                />
-            </>
-
-        );
+            <ConfirmModal
+                isOpen={showDeleteModal}
+                title="Delete Goal"
+                message="Are you sure you want to delete this goal?"
+                onConfirm={confirmDeleteGoal}
+                onCancel={() => {
+                    setShowDeleteModal(false);
+                    setSelectedGoalId(null);
+                }}
+            />
+        </>
+    );
 
 }
 

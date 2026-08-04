@@ -48,6 +48,7 @@ function GoalCard({
                     </span>
                 )}
             </div>
+
             <div className="badges-row">
                 {category && (
                     <span className="category-badge">
@@ -80,7 +81,7 @@ function GoalCard({
 
                     {childGoals.map(goal => (
                         <div
-                            key={goal.id}
+                            key={goal._id}
                             className="child-goal-item"
                         >
                             • {goal.title}
@@ -113,8 +114,8 @@ function GoalCard({
                         {daysLeft > 0
                             ? `${daysLeft} days left`
                             : daysLeft === 0
-                            ? "Due today"
-                            : "Overdue"}
+                                ? "Due today"
+                                : "Overdue"}
                     </p>
                 </>
             )}
@@ -131,23 +132,22 @@ function GoalCard({
                 <div
                     className="progress-fill"
                     style={{
-                        width:
-                            `${progress}%`
+                        width: `${progress}%`
                     }}
                 />
             </div>
 
             <div className="card-actions">
-                <button
-                    onClick={() =>
-                        onProgress(id)
-                    }
-                    disabled={completed}
-                >
-                    {completed
-                        ? "Completed"
-                        : "Update Progress"}
-                </button>
+                {onProgress && (
+                    <button
+                        onClick={() => onProgress(id)}
+                        disabled={completed}
+                    >
+                        {completed
+                            ? "Completed"
+                            : "Update Progress"}
+                    </button>
+                )}
 
                 <button
                     className="edit-btn"
@@ -158,9 +158,7 @@ function GoalCard({
 
                 <button
                     className="delete-btn"
-                    onClick={() =>
-                        onDelete(id)
-                    }
+                    onClick={() => onDelete(id)}
                 >
                     Delete
                 </button>

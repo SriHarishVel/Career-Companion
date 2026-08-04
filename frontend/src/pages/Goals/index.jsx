@@ -1,14 +1,18 @@
     import {useState, useEffect} from "react";
     import { useLocation, useNavigate } from "react-router-dom";
     import { useRef } from "react";
-    import initialGoals from "../../data/goals";
     import JourneyBanner from "./components/JourneyBanner";
     import GoalSections from "./components/GoalSections";
     import GoalFilters from "./components/GoalFilters";
     import GoalForm from "./components/GoalForm";
     import JourneyMessage from "./components/JourneyMessage";
-    import { storageService } from "../../services/storageService";
     import { journeyService } from "../../services/journeyService";
+    import {
+        getGoals,
+        createGoal,
+        updateGoal,
+        deleteGoal
+    } from "../../services/goalService";
     import "./index.css"
 
     function syncPrimaryGoalProgress(goals) {
@@ -20,7 +24,7 @@
             }
             
             const childGoals = goals.filter(
-                child => child.parentGoalId === goal.id
+                child => child.parentGoal?._id === goal._id
             );
         
             if (childGoals.length === 0) {
@@ -76,58 +80,71 @@
         const [parentGoalId, setParentGoalId] = useState("");
         const [showDeleteModal, setShowDeleteModal] = useState(false);
         const [selectedGoalId, setSelectedGoalId] = useState(null);
-        const [goals, setGoals] = useState(() => {
-            const savedGoals = storageService.getGoals();
-
-                const goals = savedGoals.length > 0
-                        ? savedGoals
-                        : initialGoals;
-
-                return syncPrimaryGoalProgress(goals);
-            });
+        const [goals, setGoals] = useState([]);
         const [completedGoal, setCompletedGoal] = useState(null);
         const [editingGoalId, setEditingGoalId] = useState(null);
 
         const goalFormRef = useRef(null);
 
         useEffect(() => {
-            // Keep localStorage in sync whenever the goals list changes.
-            storageService.saveGoals(goals);
-        }, [goals]);
 
-        function handleProgress(goalId) {
-            // Increase progress in small steps and mark goals complete at 100%.
-            setGoals(prevGoals => {
+            async function fetchGoals() {
 
-                const updatedGoals = prevGoals.map(goal => {
-                    if (goal.id === goalId) {
+                try {
 
-                        const newProgress = Math.min(
-                            goal.progress + 10,
-                            100
-                        );
+                    const goals = await getGoals();
 
-                        if (
-                            newProgress === 100 &&
-                            !goal.completed
-                        ) {
-                            setCompletedGoal(goal.title);
-                        }
+                    setGoals(
+                        syncPrimaryGoalProgress(goals)
+                    );
 
-                        return {
-                            ...goal,
-                            progress: newProgress,
-                            completed: newProgress === 100,
-                            lastUpdated: Date.now()
-                        };
-                    }
+                } catch (error) {
+                    console.error(error);
+                }
 
-                    return goal;
+            }
+
+            fetchGoals();
+
+        }, []);
+
+        async function handleProgress(goalId) {
+
+            try {
+                const goal = goals.find(
+                    goal => goal._id === goalId
+                );
+
+                if (!goal) {
+                    return;
+                }
+
+                const newProgress = Math.min(
+                    goal.progress + 10,
+                    100
+                );
+
+                await updateGoal(goalId, {
+                    progress: newProgress,
+                    completed: newProgress === 100
                 });
 
-                return syncPrimaryGoalProgress(updatedGoals);
+                if (
+                    newProgress === 100 &&
+                    !goal.completed
+                ) {
+                    setCompletedGoal(goal.title);
+                }
 
-            });
+                const updatedGoals = await getGoals();
+
+                setGoals(
+                    syncPrimaryGoalProgress(updatedGoals)
+                );
+
+            } catch (error) {
+                console.error(error);
+            }
         }
 
         function goToNextStep() {
@@ -157,14 +174,14 @@
 
         }
 
-        function confirmDeleteGoal() {
+        async function confirmDeleteGoal() {
 
             const goalToDelete = goals.find(
-                goal => goal.id === selectedGoalId
+                goal => goal._id === selectedGoalId
             );
 
             const childGoals = goals.filter(
-                goal => goal.parentGoalId === selectedGoalId
+                goal => goal.parentGoal?._id === selectedGoalId
             );
 
             if (
@@ -182,31 +199,26 @@
                 }
             }
 
-            setGoals(prevGoals => {
+            try {
 
-                const updatedGoals = prevGoals.filter(goal => {
+                await deleteGoal(selectedGoalId);
 
-                    if (goal.id === selectedGoalId) {
-                        return false;
-                    }
+                const updatedGoals = await getGoals();
 
-                    if (goal.parentGoalId === selectedGoalId) {
-                        return false;
-                    }
+                setGoals(
+                    syncPrimaryGoalProgress(updatedGoals)
+                );
 
-                    return true;
-                });
-
-                return syncPrimaryGoalProgress(updatedGoals);
-
-            });
+            } catch (error) {
+                console.error(error);
+            }
 
             setShowDeleteModal(false);
             setSelectedGoalId(null);
         }
 
 
-        function addGoal() {
+        async function addGoal() {
             // Stop empty goals from being added to the tracker.
             if (newGoal.trim().length < 3) {
                 setErrorMsg("Goal title must be at least 3 characters.");
@@ -250,7 +262,7 @@
 
                 return (
                     goal.title.toLowerCase() === normalizedTitle &&
-                    goal.parentGoalId === parentGoalId
+                    goal.parentGoal?._id === parentGoalId
                 );
             });
 
@@ -263,33 +275,29 @@
 
             if (editingGoalId) {
 
-                setGoals(prevGoals => {
+                try {
 
-                    const updatedGoals = prevGoals.map(goal => {
-
-                        if (goal.id !== editingGoalId) {
-                            return goal;
-                        }
-
-                        return {
-                            ...goal,
-                            title: newGoal.trim(),
-                            category: newCategory,
-                            priority: newPriority,
-                            deadline: newDeadline,
-                            goalType: newGoalType,
-                            parentGoalId:
-                                newGoalType === "Secondary"
-                                    ? parentGoalId
-                                    : null,
-                            lastUpdated: Date.now()
-                        };
-
+                    await updateGoal(editingGoalId, {
+                        title: newGoal.trim(),
+                        category: newCategory,
+                        priority: newPriority,
+                        deadline: newDeadline,
+                        goalType: newGoalType,
+                        parentGoal:
+                            newGoalType === "Secondary"
+                                ? parentGoalId
+                                : null
                     });
 
-                    return syncPrimaryGoalProgress(updatedGoals);
+                    const goals = await getGoals();
 
-                });
+                    setGoals(
+                        syncPrimaryGoalProgress(goals)
+                    );
+
+                } catch (error) {
+                    console.error(error);
+                }
 
                 setEditingGoalId(null);
                 setNewGoal("");
@@ -307,24 +315,28 @@
             }
 
             // Add the new goal with the current category, priority, and deadline.
-            setGoals(prevGoals => {
-                const updatedGoals =[
-                    ...prevGoals,
-                    {
-                        id: Date.now(),
-                        title: newGoal.trim(),
-                        category: newCategory,
-                        priority: newPriority,
-                        progress: 0,
-                        goalType: newGoalType,
-                        parentGoalId: newGoalType === "Secondary" ? parentGoalId : null,
-                        completed: false,
-                        deadline: newDeadline,
-                        lastUpdated: Date.now()
-                    }
-                ];
-                return syncPrimaryGoalProgress(updatedGoals);
-            });
+            try{
+                await createGoal({
+                    title: newGoal.trim(),
+                    category: newCategory,
+                    priority: newPriority,
+                    goalType: newGoalType,
+                    parentGoal:
+                        newGoalType === "Secondary"
+                            ? parentGoalId
+                            : null,
+                    progress: 0,
+                    completed: false,
+                    deadline: newDeadline
+                });
+                const goals = await getGoals();
+                setGoals(
+                    syncPrimaryGoalProgress(goals)
+                );
+            } catch (error) {
+                console.error(error);
+            }
+
             setNewGoal("");
             setNewDeadline("");
             setNewCategory("Learning");
@@ -336,21 +348,21 @@
     function editGoal(goalId) {
 
             const goal = goals.find(
-                goal => goal.id === goalId
+                goal => goal._id === goalId
             );
 
             if (!goal) {
                 return;
             }
 
-            setEditingGoalId(goal.id);
+            setEditingGoalId(goal._id);
 
             setNewGoal(goal.title);
             setNewCategory(goal.category);
             setNewPriority(goal.priority);
             setNewDeadline(goal.deadline);
             setNewGoalType(goal.goalType);
-            setParentGoalId(goal.parentGoalId ?? "");
+            setParentGoalId(goal.parentGoal?._id ?? "");
             setErrorMsg("");
             
             goalFormRef.current?.scrollIntoView({
@@ -372,7 +384,7 @@
                 value === "Secondary" &&
                 primaryGoalOptions.length === 1
             ) {
-                setParentGoalId(primaryGoalOptions[0].id);
+                setParentGoalId(primaryGoalOptions[0]._id);
             } else {
                 setParentGoalId("");
             }
@@ -509,7 +521,7 @@
 
         function getParentGoalTitle(parentGoalId) {
             const parentGoal = goals.find(
-                goal => goal.id === parentGoalId
+                goal => goal._id === parentGoalId
             );
 
             return parentGoal
@@ -520,7 +532,7 @@
         function getChildGoals(parentId) {
             return goals.filter(
                 goal =>
-                    goal.parentGoalId === parentId
+                    goal.parentGoal?._id === parentId
             );
         }
 
