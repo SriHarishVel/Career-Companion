@@ -1,10 +1,15 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import SkillCard from "../../components/SkillCard";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
 import { journeyService } from "../../services/journeyService";
 import { getGoals } from "../../services/goalService";
+import { 
+    createResource, 
+    updateResource,
+    getResources
+} from "../../services/resourceService";
 import {
     getSkills,
     createSkill,
@@ -31,6 +36,11 @@ function Skills() {
     const [secondaryGoalId,setSecondaryGoalId] = useState("");
     const [skills, setSkills] = useState([]);
     const [goals, setGoals] = useState([]);
+    const [editingSkillId, setEditingSkillId] = useState(null);
+    const [newResource, setNewResource] = useState("");
+    const [resourceId, setResourceId] = useState(null);
+
+    const skillFormRef = useRef(null);
 
     useEffect(() => {
 
@@ -124,6 +134,7 @@ function Skills() {
     }
 
     async function addSkill() {
+
         if (newSkill.trim() === "") {
             setErrorMsg("Skill cannot be empty.");
             return;
@@ -133,13 +144,75 @@ function Skills() {
 
         try {
 
-            await createSkill({
+            if (editingSkillId) {
+
+                await updateSkill(editingSkillId, {
+                    name: newSkill.trim(),
+                    category: newCategory,
+                    secondaryGoal: secondaryGoalId || null
+                });
+
+                if (newResource.trim()) {
+
+                    if (resourceId) {
+
+                        await updateResource(resourceId, {
+                            title: `${newSkill.trim()} Resource`,
+                            url: newResource.trim(),
+                            skill: editingSkillId
+                        });
+
+                    } else {
+
+                        await createResource({
+                            title: `${newSkill.trim()} Resource`,
+                            type: "Article",
+                            url: newResource.trim(),
+                            skill: editingSkillId
+                        });
+
+                    }
+
+                } else if (resourceId) {
+
+                    await updateResource(resourceId, {
+                        title: `${newSkill.trim()} Resource`,
+                        url: ""
+                    });
+
+                }
+
+                const skills = await getSkills();
+
+                setSkills(skills);
+
+                handleCancelEdit();
+
+                if (journeyAction === "createSkill") {
+                    goToNextStep();
+                }
+
+                return;
+            }
+
+            const createdSkill = await createSkill({
                 name: newSkill.trim(),
                 category: newCategory,
                 level: "Beginner",
                 progress: 0,
                 secondaryGoal: secondaryGoalId || null
             });
+
+            if (newResource.trim()) {
+
+                await createResource({
+                    title: `${newSkill.trim()} Resource`,
+                    type: "Article",
+                    url: newResource.trim(),
+                    skill: createdSkill._id
+                });
+
+            }
 
             const skills = await getSkills();
 
@@ -152,37 +225,74 @@ function Skills() {
             setNewSkill("");
             setNewCategory("Programming");
             setSecondaryGoalId("");
-
-        } catch (error) {
-            console.error(error);
-        }
-    }
-
-    async function editSkill(
-        skillId,
-        updatedName
-    ) {
-        if (
-            updatedName.trim() === ""
-        ) {
-            return;
-        }
-
-        try {
-
-            await updateSkill(skillId, {
-                name: updatedName.trim()
-            });
-
-            const skills = await getSkills();
-
-            setSkills(skills);
+            setErrorMsg("");
+            setNewResource("");
 
         } catch (error) {
             console.error(error);
         }
     }
     
+    async function handleEditSkill(skillId) {
+
+        const skill = skills.find(
+            skill => skill._id === skillId
+        );
+
+        if (!skill) {
+            return;
+        }
+
+        setEditingSkillId(skill._id);
+
+        setNewSkill(skill.name);
+        setNewCategory(skill.category);
+        setSecondaryGoalId(
+            skill.secondaryGoal?._id || ""
+        );
+
+        setErrorMsg("");
+
+        const resources = await getResources();
+
+        const resource = resources.find(
+            resource =>
+                resource.skill &&
+                resource.skill._id.toString() === skillId
+        );
+
+        if (resource) {
+
+            setResourceId(resource._id);
+            setNewResource(resource.url);
+
+        } else {
+
+            setResourceId(null);
+            setNewResource("");
+
+        }
+
+        skillFormRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
+
+    }
+
+    function handleCancelEdit() {
+
+        setEditingSkillId(null);
+        setNewSkill("");
+        setNewCategory("Programming");
+        setSecondaryGoalId("");
+        setNewResource("");
+        setErrorMsg("");
+        setResourceId(null);
+        setNewResource("");
+
+    }
+
     // Build the visible list from the current search, category, and sort choices.
     const filteredSkills = [...skills]
         .filter(skill =>
@@ -260,16 +370,6 @@ function Skills() {
                 goal.goalType ===
                 "Secondary"
         );
-    
-    function getGoalTitle(goalId) {
-        const goal = goals.find(
-            goal => goal._id === goalId
-        );
-
-        return goal
-            ? goal.title
-            : null;
-    }
 
     return (
         <div className="container">
@@ -394,13 +494,21 @@ function Skills() {
             </div>
 
             {/* Add Skill SkillCard */}
-            <div className="add-skill-SkillCard">
+            <div className="add-skill-SkillCard" ref={skillFormRef}>
 
-                <h3>Add Skill</h3>
+                <h3>
+                    {editingSkillId
+                        ? "Edit Skill"
+                        : "Add Skill"}
+                </h3>
 
                 <input
                     type="text"
-                    placeholder="Add Skill"
+                    placeholder={
+                        editingSkillId
+                            ? "Edit Skill"
+                            : "Add Skill"
+                    }
                     value={newSkill}
                     onChange={(e) => {
                         setNewSkill(
@@ -458,14 +566,32 @@ function Skills() {
                         )
                     )}
                 </select>
+                
+                <input
+                    type="url"
+                    placeholder="Learning Resource URL (Optional)"
+                    value={newResource}
+                    onChange={(e) =>
+                        setNewResource(e.target.value)
+                    }
+                />
 
                 <button
-                    onClick={
-                        addSkill
-                    }
+                    onClick={addSkill}
                 >
-                    Add Skill
+                    {editingSkillId
+                        ? "Update Skill"
+                        : "Add Skill"}
                 </button>
+
+                {editingSkillId && (
+                    <button
+                        className="cancel-btn"
+                        onClick={handleCancelEdit}
+                    >
+                        Cancel Edit
+                    </button>
+                )}
 
             </div>
 
@@ -481,12 +607,13 @@ function Skills() {
                             progress={skill.progress}
                             category={skill.category}
                             level={skill.level}
+                            relatedGoalTitle={skill.secondaryGoal?.title}
                             onProgress={handleProgress}
                             onDelete={(skillId) => {
                                 setSelectedSkillId(skillId);
                                 setShowDeleteModal(true);
                             }}
-                            onEdit={editSkill}
+                            onEdit={handleEditSkill}
                             onResources={(skillId) =>
                                 navigate("/resources", {
                                     state: { skillId }

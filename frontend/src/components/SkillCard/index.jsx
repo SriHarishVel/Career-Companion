@@ -1,9 +1,8 @@
-import { useState } from "react";
 import "./index.css";
 
 function SkillCard({
     id,
-    title,
+    name,
     progress,
     category,
     level,
@@ -13,27 +12,13 @@ function SkillCard({
     onEdit,
     onResources
 }) {
-    const [isEditing, setIsEditing] = useState(false);
-    const [editedTitle, setEditedTitle] = useState(title);
 
     return (
         <div className="skill-card">
 
-            {isEditing ? (
-                <input
-                    type="text"
-                    value={editedTitle}
-                    onChange={(e) =>
-                        setEditedTitle(
-                            e.target.value
-                        )
-                    }
-                />
-            ) : (
-                <div className="skill-card-header">
-                    <h2>{title}</h2>
-                </div>
-            )}
+            <div className="skill-card-header">
+                <h2>{name}</h2>
+            </div>
 
             <div className="badges-row">
 
@@ -92,50 +77,12 @@ function SkillCard({
                     Update Progress
                 </button>
 
-                {isEditing ? (
-                    <>
-                        <button
-                            onClick={() => {
-                                onEdit(
-                                    id,
-                                    editedTitle
-                                );
-
-                                setIsEditing(
-                                    false
-                                );
-                            }}
-                        >
-                            Save
-                        </button>
-
-                        <button
-                            className="cancel-btn"
-                            onClick={() => {
-                                setEditedTitle(
-                                    title
-                                );
-
-                                setIsEditing(
-                                    false
-                                );
-                            }}
-                        >
-                            Cancel
-                        </button>
-                    </>
-                ) : (
-                    <button
-                        className="edit-btn"
-                        onClick={() =>
-                            setIsEditing(
-                                true
-                            )
-                        }
-                    >
-                        Edit
-                    </button>
-                )}
+                <button
+                    className="edit-btn"
+                    onClick={() => onEdit(id)}
+                >
+                    Edit
+                </button>
 
                 <button
                     className="resource-btn"

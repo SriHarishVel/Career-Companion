@@ -38,6 +38,12 @@ const skillSchema = new mongoose.Schema(
             default: 0,
         },
 
+        secondaryGoal: {
+            type: mongoose.Schema.Types.ObjectId,
+            ref: "Goal",
+            default: null
+        },
+        
         user: {
             type: mongoose.Schema.Types.ObjectId,
             ref: "User",

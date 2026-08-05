@@ -7,6 +7,7 @@ export const createSkill = async (req, res) => {
             category,
             level,
             progress,
+            secondaryGoal,
         } = req.body;
 
         const skill = await Skill.create({
@@ -14,6 +15,7 @@ export const createSkill = async (req, res) => {
             category,
             level,
             progress,
+            secondaryGoal,
             user: req.user._id,
         });
 
@@ -71,6 +73,7 @@ export const getSkills = async (req, res) => {
         }
 
         const skills = await Skill.find(query)
+            .populate("secondaryGoal")
             .sort(sortOption);
 
         res.status(200).json(skills);
@@ -85,7 +88,8 @@ export const getSkills = async (req, res) => {
 export const getSkill = async (req, res) => {
     try {
 
-        const skill = await Skill.findById(req.params.id);
+        const skill = await Skill.findById(req.params.id)
+            .populate("secondaryGoal");
 
         if (!skill) {
             return res.status(404).json({
@@ -129,6 +133,7 @@ export const updateSkill = async (req, res) => {
         skill.category = req.body.category ?? skill.category;
         skill.level = req.body.level ?? skill.level;
         skill.progress = req.body.progress ?? skill.progress;
+        skill.secondaryGoal = req.body.secondaryGoal ?? skill.secondaryGoal;
 
         const updatedSkill = await skill.save();
 
