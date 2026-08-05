@@ -1,11 +1,16 @@
 import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import SkillCard from "../../components/SkillCard";
-import initialSkills from "../../data/skills";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
-import { storageService } from "../../services/storageService";
 import { journeyService } from "../../services/journeyService";
+import { getGoals } from "../../services/goalService";
+import {
+    getSkills,
+    createSkill,
+    updateSkill,
+    deleteSkill
+} from "../../services/skillService";
 import "./index.css";
 
 function Skills() {
@@ -18,54 +23,76 @@ function Skills() {
     const [errorMsg, setErrorMsg] = useState("");
     const [searchSkill, setSearchSkill] = useState("");
     const [sortOption, setSortOption] = useState("default");
-    const [newCategory, setNewCategory] = useState("Frontend");
+    const [newCategory, setNewCategory] = useState("Programming");
     const [categoryFilter, setCategoryFilter] = useState("All");
     const [levelFilter, setLevelFilter] = useState("All");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedSkillId, setSelectedSkillId] = useState(null);
     const [secondaryGoalId,setSecondaryGoalId] = useState("");
-    const [skills, setSkills] = useState(() => {
-        const savedSkills = storageService.getSkills();
-
-        return savedSkills.length > 0
-            ? savedSkills
-            : initialSkills;
-    });
+    const [skills, setSkills] = useState([]);
+    const [goals, setGoals] = useState([]);
 
     useEffect(() => {
-        // Keep localStorage in sync whenever the skills list changes.
-        storageService.saveSkills(skills);
-    }, [skills]);
 
-    function handleProgress(skillId) {
-        // Increase progress in small steps without going past 100%.
-        setSkills(prevSkills =>
-            prevSkills.map(skill => {
-                const newProgress = Math.min( skill.progress + 10, 100 );
+        async function fetchSkills() {
 
-                let newLevel =
-                    "Beginner";
+            try {
+                const [skills, goals] = await Promise.all([
+                    getSkills(),
+                    getGoals()
+                ]);
 
-                if (newProgress >= 80) {
-                    newLevel = "Advanced";
-                } else if (
-                    newProgress >= 40
-                ) {
-                    newLevel =
-                        "Intermediate";
-                }
-                if (skill.id === skillId) {
-                    return {
-                        ...skill,
-                        progress: newProgress,
-                        level: newLevel,
-                        lastUpdated: Date.now()
-                    };
-                }
+                setSkills(skills);
+                setGoals(goals);
+            } catch (error) {
+                console.error(error);
+            }
 
-                return skill;
-            })
-        );
+        }
+
+        fetchSkills();
+
+    }, []);
+      
+
+    async function handleProgress(skillId) {
+
+        try {
+
+            const skill = skills.find(
+                skill => skill._id === skillId
+            );
+
+            if (!skill) {
+                return;
+            }
+
+            const newProgress = Math.min(
+                skill.progress + 10,
+                100
+            );
+
+            let newLevel = "Beginner";
+
+            if (newProgress >= 80) {
+                newLevel = "Advanced";
+            } else if (newProgress >= 40) {
+                newLevel = "Intermediate";
+            }
+
+            await updateSkill(skillId, {
+                progress: newProgress,
+                level: newLevel
+            });
+
+            const updatedSkills = await getSkills();
+
+            setSkills(updatedSkills);
+
+        } catch (error) {
+            console.error(error);
+        }
+
     }
 
     function goToNextStep() {
@@ -82,88 +109,84 @@ function Skills() {
 
 }
 
-    function confirmDeleteSkill() {
-        setSkills(prevSkills =>
-            prevSkills.filter(
-                skill =>
-                    skill.id !==
-                    selectedSkillId
-            )
-        );
+    async function confirmDeleteSkill() {
+
+        try {
+            await deleteSkill(selectedSkillId);
+            const skills = await getSkills();
+            setSkills(skills);
+        } catch (error) {
+            console.error(error);
+        }
 
         setShowDeleteModal(false);
         setSelectedSkillId(null);
     }
 
-    function addSkill() {
-        // Stop empty skills from being added to the tracker.
+    async function addSkill() {
         if (newSkill.trim() === "") {
-            setErrorMsg(
-                "Skill cannot be empty."
-            );
+            setErrorMsg("Skill cannot be empty.");
             return;
         }
 
         setErrorMsg("");
 
-        if (journeyAction === "createSkill") {
-            goToNextStep();
-        }
+        try {
 
-        // Add the new skill with a default level and starting progress.
-        setSkills(prevSkills => [
-            ...prevSkills,
-            {
-                id: Date.now(),
-                title: newSkill.trim(),
+            await createSkill({
+                name: newSkill.trim(),
                 category: newCategory,
                 level: "Beginner",
                 progress: 0,
-                secondaryGoalId:
-                    secondaryGoalId || null,
-                lastUpdated: Date.now()
-            }
-        ]);
+                secondaryGoal: secondaryGoalId || null
+            });
 
-        setNewSkill("");
-        setNewCategory("Frontend");
-        setSecondaryGoalId("");
+            const skills = await getSkills();
+
+            setSkills(skills);
+
+            if (journeyAction === "createSkill") {
+                goToNextStep();
+            }
+
+            setNewSkill("");
+            setNewCategory("Programming");
+            setSecondaryGoalId("");
+
+        } catch (error) {
+            console.error(error);
+        }
     }
 
-    function editSkill(
+    async function editSkill(
         skillId,
-        updatedTitle
+        updatedName
     ) {
-        // Ignore blank edits so existing skill names are not erased.
         if (
-            updatedTitle.trim() === ""
+            updatedName.trim() === ""
         ) {
             return;
         }
 
-        setSkills(prevSkills =>
-            prevSkills.map(skill => {
-                if (
-                    skill.id === skillId
-                ) {
-                    return {
-                        ...skill,
-                        title:
-                            updatedTitle.trim(),
-                        lastUpdated:
-                            Date.now()
-                    };
-                }
+        try {
 
-                return skill;
-            })
-        );
+            await updateSkill(skillId, {
+                name: updatedName.trim()
+            });
+
+            const skills = await getSkills();
+
+            setSkills(skills);
+
+        } catch (error) {
+            console.error(error);
+        }
     }
-
+    
     // Build the visible list from the current search, category, and sort choices.
     const filteredSkills = [...skills]
         .filter(skill =>
-            skill.title
+            skill.name
                 .toLowerCase()
                 .includes(
                     searchSkill.toLowerCase()
@@ -185,16 +208,16 @@ function Skills() {
             if (
                 sortOption === "az"
             ) {
-                return a.title.localeCompare(
-                    b.title
+                return a.name.localeCompare(
+                    b.name
                 );
             }
 
             if (
                 sortOption === "za"
             ) {
-                return b.title.localeCompare(
-                    a.title
+                return b.name.localeCompare(
+                    a.name
                 );
             }
 
@@ -223,16 +246,14 @@ function Skills() {
                 "recent"
             ) {
                 return (
-                    b.lastUpdated -
-                    a.lastUpdated
+                    new Date(b.updatedAt) -
+                    new Date(a.updatedAt)
                 );
             }
 
             return 0;
         });
     
-    const goals = storageService.getGoals();
-       
     const secondaryGoalOptions =
         goals.filter(
             goal =>
@@ -242,7 +263,7 @@ function Skills() {
     
     function getGoalTitle(goalId) {
         const goal = goals.find(
-            goal => goal.id === goalId
+            goal => goal._id === goalId
         );
 
         return goal
@@ -253,7 +274,7 @@ function Skills() {
     return (
         <div className="container">
 
-            {/* Page Title */}
+            {/* Page name */}
             <h1>
                 {journeyAction
                     ? journeyStep.title
@@ -327,29 +348,13 @@ function Skills() {
                             )
                         }
                     >
-                        <option value="All">
-                            All Categories
-                        </option>
-
-                        <option value="Frontend">
-                            Frontend
-                        </option>
-
-                        <option value="Backend">
-                            Backend
-                        </option>
-
-                        <option value="Database">
-                            Database
-                        </option>
-
-                        <option value="AI">
-                            AI
-                        </option>
-
-                        <option value="Tools">
-                            Tools
-                        </option>
+                        <option value="All">All Categories</option>
+                        <option value="Programming">Programming</option>
+                        <option value="Database">Database</option>
+                        <option value="Framework">Framework</option>
+                        <option value="Tools">Tools</option>
+                        <option value="Soft Skills">Soft Skills</option>
+                        <option value="Other">Other</option>
                     </select>
 
                     <label>Levels</label>
@@ -416,25 +421,12 @@ function Skills() {
                         )
                     }
                 >
-                    <option value="Frontend">
-                        Frontend
-                    </option>
-
-                    <option value="Backend">
-                        Backend
-                    </option>
-
-                    <option value="Database">
-                        Database
-                    </option>
-
-                    <option value="AI">
-                        AI
-                    </option>
-
-                    <option value="Tools">
-                        Tools
-                    </option>
+                    <option value="Programming">Programming</option>
+                    <option value="Database">Database</option>
+                    <option value="Framework">Framework</option>
+                    <option value="Tools">Tools</option>
+                    <option value="Soft Skills">Soft Skills</option>
+                    <option value="Other">Other</option>
                 </select> 
 
                 {errorMsg && (
@@ -447,7 +439,7 @@ function Skills() {
                     value={secondaryGoalId}
                     onChange={(e) =>
                         setSecondaryGoalId(
-                            Number(e.target.value)
+                            e.target.value
                         )
                     }
                 >
@@ -458,8 +450,8 @@ function Skills() {
                     {secondaryGoalOptions.map(
                         goal => (
                             <option
-                                key={goal.id}
-                                value={goal.id}
+                                key={goal._id}
+                                value={goal._id}
                             >
                                 {goal.title}
                             </option>
@@ -483,14 +475,13 @@ function Skills() {
                 {filteredSkills.length > 0 ? (
                     filteredSkills.map(skill => (
                         <SkillCard
-                            key={skill.id}
-                            id={skill.id}
-                            title={skill.title}
+                            key={skill._id}
+                            id={skill._id}
+                            name={skill.name}
                             progress={skill.progress}
                             category={skill.category}
                             level={skill.level}
                             onProgress={handleProgress}
-                            relatedGoalTitle={getGoalTitle(skill.secondaryGoalId)}
                             onDelete={(skillId) => {
                                 setSelectedSkillId(skillId);
                                 setShowDeleteModal(true);
@@ -498,7 +489,7 @@ function Skills() {
                             onEdit={editSkill}
                             onResources={(skillId) =>
                                 navigate("/resources", {
-                                    state: {skillId}
+                                    state: { skillId }
                                 })
                             }
                         />
