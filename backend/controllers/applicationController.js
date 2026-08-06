@@ -149,6 +149,113 @@ export const updateApplication = async (req, res) => {
     }
 };
 
+export const addInterviewRound = async (req, res) => {
+    try {
+
+        const application =
+            await Application.findById(req.params.id);
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found",
+            });
+        }
+
+        if (
+            application.user.toString() !==
+            req.user._id.toString()
+        ) {
+            return res.status(403).json({
+                message: "Not authorized",
+            });
+        }
+
+        application.interviewRounds.push({
+            title: req.body.title,
+            status: req.body.status,
+            date: req.body.date,
+        });
+
+        await application.save();
+
+        const updatedApplication =
+            await Application.findById(req.params.id)
+                .populate("primaryGoal");
+
+        res.status(200).json(
+            updatedApplication
+        );
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message,
+        });
+
+    }
+};
+
+export const updateInterviewRound = async (req, res) => {
+    try {
+
+        const application =
+            await Application.findById(req.params.id);
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found",
+            });
+        }
+
+        if (
+            application.user.toString() !==
+            req.user._id.toString()
+        ) {
+            return res.status(403).json({
+                message: "Not authorized",
+            });
+        }
+
+        const round =
+            application.interviewRounds.id(
+                req.params.roundId
+            );
+
+        if (!round) {
+            return res.status(404).json({
+                message: "Interview round not found",
+            });
+        }
+
+        round.title =
+            req.body.title ?? round.title;
+
+        round.status =
+            req.body.status ?? round.status;
+
+        round.date =
+            req.body.date ?? round.date;
+
+        await application.save();
+
+        const updatedApplication =
+            await Application.findById(
+                req.params.id
+            ).populate("primaryGoal");
+
+        res.status(200).json(
+            updatedApplication
+        );
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message,
+        });
+
+    }
+};
+
 // Delete an application.
 export const deleteApplication = async (req, res) => {
     try {
