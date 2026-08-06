@@ -1,0 +1,187 @@
+import Application from "../models/Application.js";
+
+// Create a new job application.
+export const createApplication = async (req, res) => {
+    try {
+
+        const {
+            company,
+            role,
+            status,
+            appliedDate,
+            applicationUrl,
+            primaryGoal
+        } = req.body;
+
+        const application =
+            await Application.create({
+
+                company,
+                role,
+                status,
+                appliedDate,
+                applicationUrl,
+                primaryGoal,
+                user: req.user._id
+
+            });
+
+        res.status(201).json(application);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
+// Get all applications for the logged-in user.
+export const getApplications = async (req, res) => {
+    try {
+
+        const applications =
+            await Application.find({
+                user: req.user._id
+            })
+            .populate("primaryGoal")
+            .sort({
+                createdAt: -1
+            });
+
+        res.status(200).json(applications);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
+// Get one application.
+export const getApplication = async (req, res) => {
+    try {
+
+        const application =
+            await Application.findById(req.params.id)
+                .populate("primaryGoal");
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found"
+            });
+        }
+
+        if (
+            application.user.toString() !==
+            req.user._id.toString()
+        ) {
+            return res.status(403).json({
+                message: "Not authorized"
+            });
+        }
+
+        res.status(200).json(application);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
+// Update an application.
+export const updateApplication = async (req, res) => {
+    try {
+
+        const application =
+            await Application.findById(req.params.id);
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found"
+            });
+        }
+
+        if (
+            application.user.toString() !==
+            req.user._id.toString()
+        ) {
+            return res.status(403).json({
+                message: "Not authorized"
+            });
+        }
+
+        application.company =
+            req.body.company ?? application.company;
+
+        application.role =
+            req.body.role ?? application.role;
+
+        application.status =
+            req.body.status ?? application.status;
+
+        application.appliedDate =
+            req.body.appliedDate ?? application.appliedDate;
+
+        application.applicationUrl =
+            req.body.applicationUrl ?? application.applicationUrl;
+
+        application.primaryGoal =
+            req.body.primaryGoal ?? application.primaryGoal;
+
+        const updatedApplication =
+            await application.save();
+
+        res.status(200).json(updatedApplication);
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};
+
+// Delete an application.
+export const deleteApplication = async (req, res) => {
+    try {
+
+        const application =
+            await Application.findById(req.params.id);
+
+        if (!application) {
+            return res.status(404).json({
+                message: "Application not found"
+            });
+        }
+
+        if (
+            application.user.toString() !==
+            req.user._id.toString()
+        ) {
+            return res.status(403).json({
+                message: "Not authorized"
+            });
+        }
+
+        await application.deleteOne();
+
+        res.status(200).json({
+            message: "Application deleted successfully"
+        });
+
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message
+        });
+
+    }
+};

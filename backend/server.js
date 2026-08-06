@@ -13,6 +13,7 @@ import goalRoutes from "./routes/goalRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import skillRoutes from "./routes/skillRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
+import applicationRoutes from "./routes/applicationRoutes.js";
 
 dotenv.config();
 
@@ -25,11 +26,12 @@ app.use(express.json());
 
 app.use("/api/auth", authRoutes);
 app.use("/api/jobs", jobRoutes);
+app.use("/api/home", homeRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/skills", skillRoutes);
 app.use("/api/dashboard", dashboardRoutes);
-app.use("/api/home", homeRoutes);
+app.use("/api/applications", applicationRoutes);
 
 app.get("/", (req, res) => {
     res.send("Career Companion API Running...");
