@@ -627,7 +627,10 @@ function Applications() {
                             <p>
                                 Applied:
                                 {" "}
-                                {application.appliedDate}
+                                {application.appliedDate
+                                    ? new Date(application.appliedDate)
+                                        .toLocaleDateString("en-GB")
+                                    : "-"}
                             </p>
                             
                             <p>
@@ -709,9 +712,8 @@ function Applications() {
                                 Last Updated:
                                 {" "}
                                 {new Date(
-                                    application.lastUpdated
-                                ).toLocaleString()
-                                }
+                                    application.updatedAt
+                                ).toLocaleString()}
                             </p>
 
                             <div className="card-actions">

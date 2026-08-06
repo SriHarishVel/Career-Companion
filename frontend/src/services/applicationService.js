@@ -71,6 +71,19 @@ export const updateInterviewRound = async (
 
 };
 
+export const deleteInterviewRound = async (
+    applicationId,
+    roundId
+) => {
+
+    const response = await api.delete(
+        `/applications/${applicationId}/rounds/${roundId}`
+    );
+
+    return response.data;
+
+};
+
 export const deleteApplication = async (id) => {
     const response = await api.delete(
         `/applications/${id}`

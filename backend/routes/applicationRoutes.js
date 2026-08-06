@@ -6,7 +6,8 @@ import {
     updateApplication,
     deleteApplication,
     addInterviewRound,
-    updateInterviewRound
+    updateInterviewRound,
+    deleteInterviewRound
 } from "../controllers/applicationController.js";
 import { protect } from "../middleware/authMiddleware.js";
 
@@ -24,9 +25,15 @@ router.get("/:id", protect, getApplication);
 // Update application
 router.put("/:id", protect, updateApplication);
 
+// Add interview round
 router.post("/:id/rounds", protect, addInterviewRound);
 
+// Update interview round
 router.put("/:id/rounds/:roundId", protect, updateInterviewRound);
+
+// Delete interview round
+router.delete("/:id/rounds/:roundId", protect, deleteInterviewRound);
+
 // Delete application
 router.delete("/:id", protect, deleteApplication);
 
