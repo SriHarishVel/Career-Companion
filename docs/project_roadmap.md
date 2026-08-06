@@ -70,18 +70,19 @@ Improve usability, consistency, and overall user experience.
 
 ## Phase 5 - Backend Integration
 
-Move from browser storage to a persistent backend architecture.
+Move the application from browser storage to a centralized backend architecture.
 
 ### Features
 
 * Node.js and Express Backend
 * REST API Development
 * MongoDB Database
-* User Profile APIs
-* Job Management APIs
-* Goal Management APIs
+* Backend Integration for Frontend Modules
+* Goal APIs
+* Skill APIs
+* Resource APIs
+* Application APIs
 * Dashboard Analytics APIs
-* Data Migration from Local Storage
 
 ---
 
@@ -151,3 +152,26 @@ The system should assist planning without removing user control.
 - Link skills to secondary goals
 - Link resources to skills
 - Link applications to primary goals
+
+## Technical Debt & Optimizations
+
+These improvements are intentionally postponed until all core features are complete.
+
+### Backend
+
+- [ ] Move search, filtering, and sorting from the frontend to the backend for all modules using query parameters (`req.query`) and `getX(params)` service calls.
+- [ ] Add pagination and result limits to all list endpoints.
+- [ ] Add database indexes for frequently queried fields.
+- [ ] Standardize API responses and error handling.
+
+### Frontend
+
+- [ ] Add loading indicators for API requests.
+- [ ] Replace `console.error` with user-friendly error messages.
+- [ ] Debounce search inputs.
+- [ ] Implement optimistic UI updates where appropriate.
+
+### Navigation
+
+- [ ] Improve navigation between related entities.
+- [ ] Make Goals, Skills, Resources, and Applications cross-link to each other.
