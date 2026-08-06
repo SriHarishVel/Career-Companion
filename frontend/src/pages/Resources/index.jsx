@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import initialResources from "../../data/resources";
 import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
-import { storageService } from "../../services/storageService";
+import {
+    getResources,
+    createResource,
+    updateResource,
+    deleteResource
+} from "../../services/resourceService";
+import { getSkills } from "../../services/skillService";
 import "./index.css";
 
 function Resources() {
@@ -15,19 +20,10 @@ function Resources() {
     const [errorMsg, setErrorMsg] = useState("");
     const [searchResource, setSearchResource] = useState("");
     const [sortOption, setSortOption] = useState("default");
-    const [editingId, setEditingId] = useState(null);
-    const [editedTitle, setEditedTitle] = useState("");
-    const [editedUrl, setEditedUrl] = useState("");
     const [filterOption, setFilterOption] = useState("All");
     const [showDeleteModal, setShowDeleteModal] = useState(false);
     const [selectedResourceId, setSelectedResourceId] = useState(null);
-    const [resources, setResources] = useState(() => {
-        const savedResources = storageService.getResources();
-
-        return savedResources.length > 0
-            ? savedResources
-            : initialResources;
-    });
+    const [resources, setResources] = useState([]);
     const [skillId, setSkillId] = useState(
         location.state?.skillId || ""
     );
@@ -35,34 +31,79 @@ function Resources() {
         location.state?.skillId || "All"
     );
 
-    useEffect(() => {
-        storageService.saveResources(resources);
-    }, [resources]);
+    const [skills, setSkills] = useState([]);
+    const [editingResourceId, setEditingResourceId] = useState(null);
 
-    const skills = storageService.getSkills();
-    const goals = storageService.getGoals();
+    useEffect(() => {
+
+        async function fetchData() {
+
+            try {
+
+                const [
+                    resources,
+                    skills,
+                ] = await Promise.all([
+                    getResources(),
+                    getSkills(),
+                ]);
+
+                setResources(resources);
+                setSkills(skills);
+
+            } catch (error) {
+                console.error(error);
+            }
+
+        }
+
+        fetchData();
+
+    }, []);
 
     function getSkillTitle(skillId) {
         const skill = skills.find(
-            skill => skill.id === skillId
+            skill => skill._id === skillId
         );
 
         return skill
-            ? skill.title
+            ? skill.name
             : null;
     }
 
     function getParentGoalTitle(skill) {
-        if (!skill.secondaryGoalId) return "";
+        if (!skill.secondaryGoal) {
+            return "";
+        }
 
-        const goal = goals.find(
-            goal => goal.id === skill.secondaryGoalId
-        );
-
-        return goal ? goal.title : "";
+        return skill.secondaryGoal.title;
     }
 
-    function addResource() {
+    function handleEditResource(resourceId) {
+
+        const resource = resources.find(
+            resource => resource._id === resourceId
+        );
+
+        if (!resource) {
+            return;
+        }
+
+        setEditingResourceId(resource._id);
+
+        setNewTitle(resource.title);
+        setNewUrl(resource.url);
+        setNewType(resource.type);
+        setSkillId(
+            resource.skill?._id || ""
+        );
+
+        setErrorMsg("");
+
+    }
+
+    async function addResource() {
+
         if (
             newTitle.trim() === "" ||
             newUrl.trim() === ""
@@ -76,94 +117,117 @@ function Resources() {
         setErrorMsg("");
 
         const formattedUrl =
-            newUrl.trim();
+            newUrl.trim().startsWith("http")
+                ? newUrl.trim()
+                : `https://${newUrl.trim()}`;
 
-        setResources(prevResources => [
-            ...prevResources,
-            {
-                id: Date.now(),
-                title: newTitle.trim(),
-                url: formattedUrl.startsWith("http") 
-                        ? formattedUrl : `https://${formattedUrl}`,
-                type: newType,
-                favorite: false,
-                skillId: skillId || null,
-                lastUpdated: Date.now()
+        if (editingResourceId) {
+
+            try {
+
+                await updateResource(
+                    editingResourceId,
+                    {
+                        title: newTitle.trim(),
+                        type: newType,
+                        url: formattedUrl,
+                        skill: skillId || null
+                    }
+                );
+
+                const resources =
+                    await getResources();
+
+                setResources(resources);
+
+            } catch (error) {
+                console.error(error);
             }
-        ]);
 
-        setNewTitle("");
-        setNewUrl("");
-        setNewType("Documentation");
-        setSkillId("");
-    }
+            setEditingResourceId(null);
+            setNewTitle("");
+            setNewUrl("");
+            setNewType("Documentation");
+            setSkillId("");
+            setErrorMsg("");
 
-    function confirmDeleteResource() {
-        setResources(prevResources =>
-            prevResources.filter(
-                resource =>
-                    resource.id !==
-                    selectedResourceId
-            )
-        );
-
-        setShowDeleteModal(false);
-        setSelectedResourceId(null);
-    }
-
-    function toggleFavorite(resourceId) {
-        setResources(prevResources =>
-            prevResources.map(resource => {
-                if (resource.id === resourceId) {
-                    return {
-                        ...resource,
-                        favorite: !resource.favorite,
-                        lastUpdated: Date.now()
-                    };
-                }
-
-                return resource;
-            })
-        );
-    }
-
-    function editResource(
-        resourceId,
-        updatedTitle,
-        updatedUrl
-    ) {
-        if (
-            updatedTitle.trim() === "" ||
-            updatedUrl.trim() === ""
-        ) {
             return;
         }
 
-        setResources(prevResources =>
-            prevResources.map(
-                resource => {
-                    if (
-                        resource.id ===
-                        resourceId
-                    ) {
-                        return {
-                            ...resource,
+        try {
 
-                            title:
-                                updatedTitle.trim(),
+            await createResource({
+                title: newTitle.trim(),
+                type: newType,
+                url: formattedUrl,
+                description: "",
+                favorite: false,
+                completed: false,
+                skill: skillId || null
+            });
 
-                            url:
-                                updatedUrl.trim(),
+            const resources =
+                await getResources();
 
-                            lastUpdated:
-                                Date.now()
-                        };
-                    }
+            setResources(resources);
 
-                    return resource;
+            setNewTitle("");
+            setNewUrl("");
+            setNewType("Documentation");
+            setSkillId("");
+
+        } catch (error) {
+            console.error(error);
+        }
+
+    }
+
+    async function confirmDeleteResource() {
+
+        try {
+
+            await deleteResource(
+                selectedResourceId
+            );
+
+            const resources =
+                await getResources();
+
+            setResources(resources);
+
+        } catch (error) {
+            console.error(error);
+        }
+
+        setShowDeleteModal(false);
+        setSelectedResourceId(null);
+
+    }
+
+    async function toggleFavorite(resourceId) {
+
+        try {
+
+            const resource = resources.find(
+                resource => resource._id === resourceId
+            );
+
+            await updateResource(
+                resourceId,
+                {
+                    favorite: !resource.favorite
                 }
-            )
-        );
+            );
+
+            const updatedResources =
+                await getResources();
+
+            setResources(updatedResources);
+
+        } catch (error) {
+            console.error(error);
+        }
+
     }
 
     const filteredResources = [
@@ -193,7 +257,7 @@ function Resources() {
         .filter(resource =>
             skillFilter === "All"
                 ? true
-                : resource.skillId === Number(skillFilter)
+                : resource.skill?._id === skillFilter
         )
         .sort((a, b) => {
             if (sortOption === "az") {
@@ -208,13 +272,12 @@ function Resources() {
                 );
             }
 
-            if (
-                sortOption === "recent"
-            ) {
+            if (sortOption === "recent") {
                 return (
-                    b.lastUpdated -
-                    a.lastUpdated
+                    new Date(b.updatedAt) -
+                    new Date(a.updatedAt)
                 );
+
             }
 
             return 0;
@@ -225,7 +288,7 @@ function Resources() {
             <h1>
                 {skillFilter === "All"
                     ? "Resources"
-                    : `Resources for ${getSkillTitle(Number(skillFilter))}`}
+                    : `Resources for ${getSkillTitle(skillFilter)}`}
             </h1>
 
             {/* Search + Sort */}
@@ -303,10 +366,10 @@ function Resources() {
 
                 {skills.map(skill => (
                     <option
-                        key={skill.id}
-                        value={skill.id}
+                        key={skill._id}
+                        value={skill._id}
                     >
-                        {`${getParentGoalTitle(skill)} → ${skill.title}`}
+                        {`${getParentGoalTitle(skill)} → ${skill.name}`}
                     </option>
                 ))}
             </select>
@@ -334,7 +397,11 @@ function Resources() {
             {/* Add Resource Form */}
             <div className="add-resource-card">
 
-                <h3>Add Resource</h3>
+                <h3>
+                    {editingResourceId
+                        ? "Edit Resource"
+                        : "Add Resource"}
+                </h3>
 
                 <select
                     value={newType}
@@ -389,7 +456,7 @@ function Resources() {
 
                 <select
                     value={skillId}
-                    onChange={(e) => setSkillId(Number(e.target.value))}
+                    onChange={(e) => setSkillId(e.target.value)}
                 >
                     <option value="">
                         Related Skill (Optional)
@@ -397,10 +464,10 @@ function Resources() {
 
                     {skills.map(skill => (
                         <option
-                            key={skill.id}
-                            value={skill.id}
+                            key={skill._id}
+                            value={skill._id}
                         >
-                            {skill.title}
+                            {skill.name}
                         </option>
                     ))}
                 </select>
@@ -411,13 +478,27 @@ function Resources() {
                     </p>
                 )}
 
-                <button
-                    onClick={
-                        addResource
-                    }
-                >
-                    Add Resource
+                <button onClick={addResource}>
+                    {editingResourceId
+                        ? "Update Resource"
+                        : "Add Resource"}
                 </button>
+                
+                {editingResourceId && (
+                    <button
+                        className="cancel-btn"
+                        onClick={() => {
+                            setEditingResourceId(null);
+                            setNewTitle("");
+                            setNewUrl("");
+                            setNewType("Documentation");
+                            setSkillId("");
+                            setErrorMsg("");
+                        }}
+                    >
+                        Cancel Edit
+                    </button>
+                )}
 
             </div>
 
@@ -428,127 +509,71 @@ function Resources() {
                     filteredResources.map(resource => (
                         <div
                             className="resource-card"
-                            key={resource.id}
+                            key={resource._id}
                         >
-                                {editingId === resource.id ? (
-                                    <>
-                                        <input
-                                            type="text"
-                                            value={editedTitle}
-                                            onChange={(e) =>
-                                                setEditedTitle(e.target.value)
-                                            }
-                                        />
+                            <>
+                                <span className="resource-type">
+                                    {resource.type}
+                                </span>
 
-                                        <input
-                                            type="url"
-                                            value={editedUrl}
-                                            onChange={(e) =>
-                                                setEditedUrl(e.target.value)
-                                            }
-                                        />
-
-                                        <div className="resource-actions">
-
-                                            <button
-                                                onClick={() => {
-                                                    editResource(
-                                                        resource.id,
-                                                        editedTitle,
-                                                        editedUrl
-                                                    );
-
-                                                    setEditingId(null);
-                                                }}
-                                            >
-                                                Save
-                                            </button>
-
-                                            <button
-                                                className="cancel-btn"
-                                                onClick={() =>
-                                                    setEditingId(null)
-                                                }
-                                            >
-                                                Cancel
-                                            </button>
-
-                                            <button
-                                                className="delete-btn"
-                                                onClick={() => {
-                                                    setSelectedResourceId(resource.id);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                Delete
-                                            </button>
-
-                                        </div>
-                                    </>
-                                ) : (
-                                    <>
-                                        <span className="resource-type">
-                                            {resource.type}
-                                        </span>
-
-                                        {resource.favorite && (
-                                            <span className="favorite-badge">
-                                                ★ Favorite
-                                            </span>
-                                        )}
-
-                                        {resource.skillId && (
-                                            <p className="related-skill">
-                                                Skill: {getSkillTitle(resource.skillId)}
-                                            </p>
-                                        )}
-
-                                        <h3>
-                                            {resource.title}
-                                        </h3>
-
-                                        <div className="resource-actions">
-
-                                            <a
-                                                href={resource.url}
-                                                target="_blank"
-                                                rel="noopener noreferrer"
-                                            >
-                                                Open Resource
-                                            </a>
-
-                                            <button
-                                                className="edit-btn"
-                                                onClick={() => {
-                                                    setEditingId(resource.id);
-                                                    setEditedTitle(resource.title);
-                                                    setEditedUrl(resource.url);
-                                                }}
-                                            >
-                                                Edit
-                                            </button>
-
-                                            <button 
-                                                className="delete-btn"
-                                                onClick={() => {
-                                                    setSelectedResourceId(resource.id);
-                                                    setShowDeleteModal(true);
-                                                }}
-                                            >
-                                                Delete
-                                            </button>
-                                            <button
-                                                className="favorite-btn"
-                                                onClick={() => toggleFavorite(resource.id)}
-                                            >
-                                                {resource.favorite
-                                                    ? "Unfavorite"
-                                                    : "Favorite"}
-                                            </button>
-
-                                        </div>
-                                    </>
+                                {resource.favorite && (
+                                    <span className="favorite-badge">
+                                        ★ Favorite
+                                    </span>
                                 )}
+
+                                {resource.skill && (
+                                    <p className="related-skill">
+                                        Skill: {resource.skill.name}
+                                    </p>
+                                )}
+
+                                <h3>
+                                    {resource.title}
+                                </h3>
+
+                                <div className="resource-actions">
+
+                                    <a
+                                        href={resource.url}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                    >
+                                        Open Resource
+                                    </a>
+
+                                    <button
+                                        className="edit-btn"
+                                        onClick={() =>
+                                            handleEditResource(resource._id)
+                                        }
+                                    >
+                                        Edit
+                                    </button>
+
+                                    <button
+                                        className="delete-btn"
+                                        onClick={() => {
+                                            setSelectedResourceId(resource._id);
+                                            setShowDeleteModal(true);
+                                        }}
+                                    >
+                                        Delete
+                                    </button>
+
+                                    <button
+                                        className="favorite-btn"
+                                        onClick={() =>
+                                            toggleFavorite(resource._id)
+                                        }
+                                    >
+                                        {resource.favorite
+                                            ? "Unfavorite"
+                                            : "Favorite"}
+                                    </button>
+
+                                </div>
+                            </>
 
                         </div>
                     ))
