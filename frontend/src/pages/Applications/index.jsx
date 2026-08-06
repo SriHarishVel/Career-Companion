@@ -1,10 +1,18 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import initialApplications from "../../data/applications";
 import ConfirmModal from "../../components/ConfirmModal";
 import EditModal from "../../components/EditModal";
-import { storageService } from "../../services/storageService";
 import { journeyService } from "../../services/journeyService";
+import { getGoals } from "../../services/goalService";
+import {
+    getApplications,
+    createApplication,
+    updateApplication,
+    deleteApplication,
+    addInterviewRound,
+    updateInterviewRound,
+    deleteInterviewRound
+} from "../../services/applicationService";
 import "./index.css"
 
 function Applications() {
@@ -20,13 +28,7 @@ function Applications() {
     const [appliedDate, setAppliedDate] = useState("");
     const [applicationUrl, setApplicationUrl] = useState("");
 
-    const [applications, setApplications] = useState(() => {
-        const savedApplications = storageService.getApplications()
-
-        return savedApplications.length > 0
-        ? savedApplications
-        : initialApplications;
-    });
+    const [applications, setApplications] = useState([]);
 
     const [searchTerm, setSearchTerm] = useState("");
     const [statusFilter, setStatusFilter] = useState("All");
@@ -55,14 +57,37 @@ function Applications() {
     const [selectedRound, setSelectedRound] = useState(null);
 
     const [showDeleteRoundModal, setShowDeleteRoundModal] = useState(false);
-
+    
+    const [goals, setGoals] = useState([]);
     const [primaryGoalId, setPrimaryGoalId] = useState("");
-
     const [goalFilter, setGoalFilter] = useState("All");
 
     useEffect(() => {
-        storageService.saveApplications(applications)
-    }, [applications]);
+
+        async function fetchData() {
+
+            try {
+
+                const [
+                    applications,
+                    goals
+                ] = await Promise.all([
+                    getApplications(),
+                    getGoals()
+                ]);
+
+                setApplications(applications);
+                setGoals(goals);
+
+            } catch (error) {
+                console.error(error);
+            }
+
+        }
+
+        fetchData();
+
+    }, []);
 
     useEffect(() => {
         if (
@@ -76,20 +101,22 @@ function Applications() {
 
     }, [journeyAction]);
 
-    const goals = storageService.getGoals();
+    
 
     const primaryGoalOptions = goals.filter(
         goal => goal.goalType === "Primary"
     );
 
     function getGoalTitle(goalId) {
+
         const goal = goals.find(
-            goal => goal.id === goalId
+            goal => goal._id === goalId
         );
 
         return goal
             ? goal.title
             : null;
+
     }
 
     function goToNextStep() {
@@ -106,14 +133,19 @@ function Applications() {
     }
 
     function openEditModal(application) {
+
         setSelectedApplication(application);
 
         setEditCompany(application.company);
         setEditRole(application.role);
         setEditStatus(application.status);
         setEditAppliedDate(application.appliedDate);
+        setEditApplicationUrl(
+            application.applicationUrl
+        );
 
         setShowEditModal(true);
+
     }
 
     function openEditRoundModal(
@@ -129,75 +161,108 @@ function Applications() {
         setRoundTitle(round.title);
         setRoundStatus(round.status);
         setRoundDate(round.date || "");
-
+        
         setShowEditRoundModal(true);
     }
 
-    function saveApplication() {
-        setApplications(
-            applications.map(application =>
-                application.id === selectedApplication.id
-                    ? {
-                        ...application,
-                        company: editCompany,
-                        role: editRole,
-                        status: editStatus,
-                        appliedDate: editAppliedDate,
-                        applicationUrl: editApplicationUrl,
-                        lastUpdated: Date.now()
-                    }
-                    : application
-            )
-        );
+    async function saveApplication() {
 
-        setShowEditModal(false);
-        setSelectedApplication(null);
+        try {
+
+            await updateApplication(
+                selectedApplication._id,
+                {
+                    company: editCompany,
+                    role: editRole,
+                    status: editStatus,
+                    appliedDate: editAppliedDate,
+                    applicationUrl: editApplicationUrl
+                }
+            );
+
+            const applications =
+                await getApplications();
+
+            setApplications(applications);
+
+            setShowEditModal(false);
+            setSelectedApplication(null);
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
     }
 
-    function addApplication() {
+    async function addApplication() {
+
         if (!company.trim() || !role.trim()) {
             return;
         }
 
-        if (journeyAction === "addApplication") {
-            goToNextStep();
+        try {
+
+            await createApplication({
+
+                company: company.trim(),
+                role: role.trim(),
+                status,
+                appliedDate,
+                applicationUrl,
+                primaryGoal: primaryGoalId || null
+
+            });
+
+            const applications =
+                await getApplications();
+
+            setApplications(applications);
+
+            if (
+                journeyAction === "addApplication"
+            ) {
+                goToNextStep();
+            }
+
+            setCompany("");
+            setRole("");
+            setStatus("Applied");
+            setAppliedDate("");
+            setApplicationUrl("");
+            setPrimaryGoalId("");
+
+        } catch (error) {
+
+            console.error(error);
+
         }
 
-       const newApplication = {
-            id: Date.now(),
-            company: company.trim(),
-            role: role.trim(),
-            status,
-            appliedDate,
-            applicationUrl,
-            interviewRounds: [],
-            primaryGoalId: primaryGoalId || null,
-            lastUpdated: Date.now()
-        };
-
-        setApplications(prev => [
-            ...prev,
-            newApplication
-        ]);
-
-        setCompany("");
-        setRole("");
-        setStatus("Applied");
-        setAppliedDate("");
-        setApplicationUrl("");
-        setPrimaryGoalId("");
     }
 
-    function confirmDeleteApplication() {
-        setApplications(
-            applications.filter(
-                application =>
-                    application.id !== applicationToDeleteId
-            )
-        );
+    async function confirmDeleteApplication() {
 
-        setShowDeleteModal(false);
-        setApplicationToDeleteId(null);
+        try {
+
+            await deleteApplication(
+                applicationToDeleteId
+            );
+
+            const applications =
+                await getApplications();
+
+            setApplications(applications);
+
+            setShowDeleteModal(false);
+            setApplicationToDeleteId(null);
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
     }
 
     let filteredApplications =
@@ -229,7 +294,7 @@ function Applications() {
         .filter(application =>
             goalFilter === "All"
                 ? true
-                : application.primaryGoalId === Number(goalFilter)
+                : application.primaryGoal?._id === goalFilter
         );
 
     filteredApplications.sort(
@@ -257,121 +322,108 @@ function Applications() {
 
                 default:
                     return (
-                        b.lastUpdated -
-                        a.lastUpdated
+                        new Date(b.updatedAt) -
+                        new Date(a.updatedAt)
                     );
             }
         }
     );
 
-    function addRound() {
+    async function addRound() {
 
         if (!roundTitle.trim()) {
             return;
         }
 
-        setApplications(
-            applications.map(application =>
-                application.id === roundApplicationId
-                    ? {
-                        ...application,
-                        interviewRounds: [
-                            ...(application.interviewRounds || []),
-                            {
-                                id: Date.now(),
-                                title: roundTitle,
-                                status: roundStatus,
-                                date: roundDate
-                            }
-                        ],
-                        lastUpdated: Date.now()
-                    }
-                    : application
-            )
-        );
+        try {
 
-        setRoundTitle("");
-        setRoundStatus("Pending");
-        setRoundApplicationId(null);
-        setShowRoundModal(false);
-        setRoundDate("");
+            await addInterviewRound(
+                roundApplicationId,
+                {
+                    title: roundTitle,
+                    status: roundStatus,
+                    date: roundDate,
+                }
+            );
+
+            const applications =
+                await getApplications();
+
+            setApplications(applications);
+
+            setRoundTitle("");
+            setRoundStatus("Pending");
+            setRoundApplicationId(null);
+            setShowRoundModal(false);
+            setRoundDate("");
+
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
     }
 
 
-    function saveEditedRound() {
+    async function saveEditedRound() {
 
-        setApplications(
-            applications.map(application => {
+        try {
 
-                if (
-                    application.id !==
-                    roundApplicationId
-                ) {
-                    return application;
+            await updateInterviewRound(
+                roundApplicationId,
+                selectedRound._id,
+                {
+                    title: roundTitle,
+                    status: roundStatus,
+                    date: roundDate,
                 }
+            );
 
-                return {
-                    ...application,
+            const applications =
+                await getApplications();
 
-                    interviewRounds:
-                        application.interviewRounds.map(
-                            round =>
-                                round.id ===
-                                selectedRound.id
-                                    ? {
-                                        ...round,
-                                        title: roundTitle,
-                                        status: roundStatus,
-                                        date: roundDate
-                                    }
-                                    : round
-                        ),
+            setApplications(applications);
 
-                    lastUpdated:
-                        Date.now()
-                };
-            })
-        );
+            setShowEditRoundModal(false);
+            setSelectedRound(null);
+            setRoundTitle("");
+            setRoundStatus("Pending");
+            setRoundDate("");
+            setRoundApplicationId(null);
 
-        setShowEditRoundModal(false);
-        setSelectedRound(null);
-        setRoundTitle("");
-        setRoundStatus("Pending");
-        setRoundDate("");
-        setRoundApplicationId(null);
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
     }
 
-    function confirmDeleteRound() {
+    async function confirmDeleteRound() {
 
-        setApplications(
-            applications.map(application => {
+        try {
 
-                if (
-                    application.id !==
-                    roundApplicationId
-                ) {
-                    return application;
-                }
+            await deleteInterviewRound(
+                roundApplicationId,
+                selectedRound._id
+            );
 
-                return {
-                    ...application,
+            const applications =
+                await getApplications();
 
-                    interviewRounds:
-                        application.interviewRounds.filter(
-                            round =>
-                                round.id !==
-                                selectedRound.id
-                        ),
+            setApplications(applications);
 
-                    lastUpdated:
-                        Date.now()
-                };
-            })
-        );
+            setShowDeleteRoundModal(false);
+            setSelectedRound(null);
+            setRoundApplicationId(null);
 
-        setShowDeleteRoundModal(false);
-        setSelectedRound(null);
-        setRoundApplicationId(null);
+        } catch (error) {
+
+            console.error(error);
+
+        }
+
     }
 
     return (
@@ -382,7 +434,7 @@ function Applications() {
                         ? journeyStep.title
                         : goalFilter === "All"
                             ? "Applications"
-                            : `Applications for ${getGoalTitle(Number(goalFilter))}`}
+                            : `Applications for ${getGoalTitle(goalFilter)}`}
                 </h1>
 
                 {journeyAction && (
@@ -430,7 +482,7 @@ function Applications() {
                 <select
                     value={primaryGoalId}
                     onChange={(e) =>
-                        setPrimaryGoalId(Number(e.target.value))
+                        setPrimaryGoalId(e.target.value)
                     }
                 >
                     <option value="">
@@ -439,8 +491,8 @@ function Applications() {
 
                     {primaryGoalOptions.map(goal => (
                         <option
-                            key={goal.id}
-                            value={goal.id}
+                            key={goal._id}
+                            value={goal._id}
                         >
                             {goal.title}
                         </option>
@@ -502,8 +554,8 @@ function Applications() {
 
                         {primaryGoalOptions.map(goal => (
                             <option
-                                key={goal.id}
-                                value={goal.id}
+                                key={goal._id}
+                                value={goal._id}
                             >
                                 {goal.title}
                             </option>
@@ -545,7 +597,7 @@ function Applications() {
                 {filteredApplications.map(
                     application => (
                         <div
-                            key={application.id}
+                            key={application._id}
                             className="application-card"
                         >
                             <h2>
@@ -556,9 +608,11 @@ function Applications() {
                                 {application.company}
                             </p>
 
-                            {application.primaryGoalId && (
+                            {application.primaryGoal && (
                                 <p className="related-goal">
-                                    Career Goal: {getGoalTitle(application.primaryGoalId)}
+                                    Career Goal:
+                                    {" "}
+                                    {application.primaryGoal.title}
                                 </p>
                             )}
 
@@ -589,7 +643,7 @@ function Applications() {
                                 )
                                 .map( round => (
                                     <div
-                                        key={round.id}
+                                        key={round._id}
                                         className={`round-item ${round.status.toLowerCase()}`}
                                     >
                                         <div className="round-content">
@@ -618,7 +672,7 @@ function Applications() {
                                                 title="Edit Round"
                                                 onClick={() =>
                                                     openEditRoundModal(
-                                                        application.id,
+                                                        application._id,
                                                         round
                                                     )
                                                 }
@@ -631,7 +685,7 @@ function Applications() {
                                                 title="Delete Round"
                                                 onClick={() => {
                                                     setRoundApplicationId(
-                                                        application.id
+                                                        application._id
                                                     );
 
                                                     setSelectedRound(
@@ -681,7 +735,7 @@ function Applications() {
                                 <button
                                     onClick={() => {
                                         setRoundApplicationId(
-                                            application.id
+                                            application._id
                                         );
 
                                         setShowRoundModal(true);
@@ -702,7 +756,7 @@ function Applications() {
                                 <button
                                     className="delete-btn"
                                     onClick={() => {
-                                        setApplicationToDeleteId(application.id);
+                                        setApplicationToDeleteId(application._id);
                                         setShowDeleteModal(true);
                                     }}
                                 >
