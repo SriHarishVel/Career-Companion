@@ -60,6 +60,7 @@ function Applications() {
     
     const [goals, setGoals] = useState([]);
     const [primaryGoalId, setPrimaryGoalId] = useState("");
+    const [editPrimaryGoalId, setEditPrimaryGoalId] = useState("");
     const [goalFilter, setGoalFilter] = useState("All");
 
     useEffect(() => {
@@ -140,11 +141,10 @@ function Applications() {
         setEditRole(application.role);
         setEditStatus(application.status);
         setEditAppliedDate(application.appliedDate);
-        setEditApplicationUrl(
-            application.applicationUrl
-        );
+        setEditApplicationUrl(application.applicationUrl);
 
         setShowEditModal(true);
+        setEditPrimaryGoalId(application.primaryGoal?._id || "");
 
     }
 
@@ -176,7 +176,8 @@ function Applications() {
                     role: editRole,
                     status: editStatus,
                     appliedDate: editAppliedDate,
-                    applicationUrl: editApplicationUrl
+                    applicationUrl: editApplicationUrl,
+                    primaryGoal: editPrimaryGoalId || null
                 }
             );
 
@@ -187,6 +188,7 @@ function Applications() {
 
             setShowEditModal(false);
             setSelectedApplication(null);
+            setEditPrimaryGoalId("");
 
         } catch (error) {
 
@@ -790,6 +792,7 @@ function Applications() {
                 onCancel={() => {
                     setShowEditModal(false);
                     setSelectedApplication(null);
+                    setEditPrimaryGoalId("");
                 }}
             >
                 <input
@@ -830,6 +833,26 @@ function Applications() {
                     <option value="Offer">Offer</option>
                     <option value="Rejected">Rejected</option>
                     <option value="Withdrawn">Withdrawn</option>
+                </select>
+                
+                <select
+                    value={editPrimaryGoalId}
+                    onChange={(e) =>
+                        setEditPrimaryGoalId(e.target.value)
+                    }
+                >
+                    <option value="">
+                        Career Goal (Optional)
+                    </option>
+
+                    {primaryGoalOptions.map(goal => (
+                        <option
+                            key={goal._id}
+                            value={goal._id}
+                        >
+                            {goal.title}
+                        </option>
+                    ))}
                 </select>
 
                 <input

@@ -1,20 +1,60 @@
-import { storageService } from "../../services/storageService";
+import { useEffect, useState } from "react";
+
+import { getGoals } from "../../services/goalService";
+import { getSkills } from "../../services/skillService";
+import { getResources } from "../../services/resourceService";
+import { getApplications } from "../../services/applicationService";
 import "./index.css";
 
 function Dashboard() {
     // Dashboard reads the saved page data and calculates quick summaries from it.
-    const goals = storageService.getGoals();
-    const skills = storageService.getSkills();
-    const resources = storageService.getResources();
-    const applications = storageService.getApplications();
+    const [goals, setGoals] = useState([]);
+    const [skills, setSkills] = useState([]);
+    const [resources, setResources] = useState([]);
+    const [applications, setApplications] = useState([]);
     
+    useEffect(() => {
+
+        async function fetchDashboard() {
+
+            try {
+
+                const [
+                    goals,
+                    skills,
+                    resources,
+                    applications
+                ] = await Promise.all([
+                    getGoals(),
+                    getSkills(),
+                    getResources(),
+                    getApplications()
+                ]);
+
+                setGoals(goals);
+                setSkills(skills);
+                setResources(resources);
+                setApplications(applications);
+
+            } catch (error) {
+
+                console.error(error);
+
+            }
+
+        }
+
+        fetchDashboard();
+
+    }, []);
+
     const applicationStatusCounts = {
         Applied: applications.filter(
             app => app.status === "Applied"
         ).length,
 
-        Interview: applications.filter(
-            app => app.status === "Interview"
+        "In Progress": applications.filter(
+            app => app.status === "In Progress"
         ).length,
 
         Offer: applications.filter(
@@ -51,28 +91,32 @@ function Dashboard() {
         ...goals.map(goal => ({
             type: "Goal",
             title: goal.title,
-            lastUpdated: goal.lastUpdated
+            updatedAt: goal.updatedAt
         })),
 
         ...skills.map(skill => ({
             type: "Skill",
-            title: skill.title,
-            lastUpdated: skill.lastUpdated
+            title: skill.name,
+            updatedAt: skill.updatedAt
         })),
 
         ...resources.map(resource => ({
             type: "Resource",
             title: resource.title,
-            lastUpdated: resource.lastUpdated
+            updatedAt: resource.updatedAt
         })),
 
         ...applications.map(application => ({
             type: "Application",
             title: application.company,
-            lastUpdated: application.lastUpdated
+            updatedAt: application.updatedAt
         }))
     ]
-    .sort((a, b) => b.lastUpdated - a.lastUpdated)
+    .sort(
+            (a, b) =>
+                new Date(b.updatedAt) -
+                new Date(a.updatedAt)
+        )
     .slice(0, 5);
 
     const upcomingDeadlines = [...goals]
@@ -113,32 +157,30 @@ function Dashboard() {
 
             <div className="dashboard-section">
                 <h2>Career Pipeline</h2>
-
-                <div className="pipeline-grid">
-
+                 <div className="pipeline-grid">
                     <div className="pipeline-card">
                         <h3>Applied</h3>
-                        <p>{applicationStatusCounts.Applied}</p>
+                        <p>{applicationStatusCounts["Applied"]}</p>
                     </div>
 
                     <div className="pipeline-card">
-                        <h3>Interview</h3>
-                        <p>{applicationStatusCounts.Interview}</p>
+                        <h3>In Progress</h3>
+                        <p>{applicationStatusCounts["In Progress"]}</p>
                     </div>
 
                     <div className="pipeline-card">
                         <h3>Offer</h3>
-                        <p>{applicationStatusCounts.Offer}</p>
+                        <p>{applicationStatusCounts["Offer"]}</p>
                     </div>
 
                     <div className="pipeline-card">
                         <h3>Rejected</h3>
-                        <p>{applicationStatusCounts.Rejected}</p>
+                        <p>{applicationStatusCounts["Rejected"]}</p>
                     </div>
 
                 </div>
-
             </div>
+            
             <div className="dashboard-section">
                 <h2>Progress Overview</h2>
 
@@ -204,7 +246,7 @@ function Dashboard() {
                     <div className="deadline-list">
                         {upcomingDeadlines.map(goal => (
                             <div
-                                key={goal.id}
+                                key={goal._id}
                                 className="deadline-item"
                             >
                                 <div>
