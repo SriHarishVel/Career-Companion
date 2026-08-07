@@ -7,6 +7,7 @@ import cors from "cors";
 import dotenv from "dotenv";
 import connectDB from "./config/db.js";
 import authRoutes from "./routes/authRoutes.js";
+import userRoutes from "./routes/userRoutes.js";
 import homeRoutes from "./routes/homeRoutes.js";
 import jobRoutes from "./routes/jobRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
@@ -25,6 +26,7 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/api/auth", authRoutes);
+app.use("/api/users", userRoutes);
 app.use("/api/jobs", jobRoutes);
 app.use("/api/home", homeRoutes);
 app.use("/api/goals", goalRoutes);

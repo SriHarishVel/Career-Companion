@@ -7,15 +7,20 @@ import {
     FaBook,
     FaChartLine,
     FaBriefcase,
-    FaSignOutAlt
+    FaUser,
+    FaSignOutAlt,
 } from "react-icons/fa";
+
 import "./index.css";
 
 function Navbar() {
+
     const navigate = useNavigate();
 
     const token = localStorage.getItem("token");
-    const currentUser = JSON.parse(localStorage.getItem("user"));
+    const currentUser = JSON.parse(
+        localStorage.getItem("user")
+    );
 
     function handleLogout() {
         logout();
@@ -105,18 +110,29 @@ function Navbar() {
                     Hi, {currentUser.fullName.split(" ")[0]} 👋
                 </span>
 
+                <NavLink
+                    to="/profile"
+                    className={({ isActive }) =>
+                        isActive ? "active" : ""
+                    }
+                >
+                    <FaUser />
+                    <span>Profile</span>
+                </NavLink>
+
                 <button
                     className="logout-btn"
                     onClick={handleLogout}
                 >
                     <FaSignOutAlt />
-                    Logout
+                    <span>Logout</span>
                 </button>
 
             </div>
 
         </nav>
     );
+
 }
 
 export default Navbar;
