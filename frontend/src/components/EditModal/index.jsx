@@ -5,7 +5,9 @@ function EditModal({
     title,
     children,
     onSave,
-    onCancel
+    onCancel,
+    saveButtonText = "Save",
+    cancelButtonText = "Cancel",
 }) {
     if (!isOpen) {
         return null;
@@ -22,18 +24,21 @@ function EditModal({
                 </div>
 
                 <div className="modal-actions">
+
                     <button
+                        className="save-btn"
                         onClick={onSave}
                     >
-                        Save
+                        {saveButtonText}
                     </button>
 
                     <button
                         className="cancel-btn"
                         onClick={onCancel}
                     >
-                        Cancel
+                        {cancelButtonText}
                     </button>
+
                 </div>
 
             </div>

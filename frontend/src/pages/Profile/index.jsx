@@ -1,11 +1,10 @@
 import { useEffect, useState } from "react";
-
 import {
     getProfile,
     updateProfile,
     changePassword,
 } from "../../services/userService";
-
+import EditModal from "../../components/EditModal";
 import "./index.css";
 
 function Profile() {
@@ -19,6 +18,10 @@ function Profile() {
     const [currentPassword, setCurrentPassword] = useState("");
 
     const [newPassword, setNewPassword] = useState("");
+
+    const [showEditModal, setShowEditModal] = useState(false);
+
+    const [showPasswordModal, setShowPasswordModal] = useState(false);
 
     useEffect(() => {
 
@@ -82,13 +85,76 @@ function Profile() {
     }
 
     return (
-        <div className="container">
+        <div className="container profile-container">
 
-            <h1>Profile</h1>
+            <h1>My Profile</h1>
 
             <div className="profile-card">
 
                 <h2>Account Information</h2>
+
+                <div className="profile-row">
+                    <span>Full Name</span>
+                    <strong>{profile.fullName}</strong>
+                </div>
+
+                <div className="profile-row">
+                    <span>Email</span>
+                    <strong>{profile.email}</strong>
+                </div>
+
+                <div className="profile-row">
+                    <span>Member Since</span>
+                    <strong>
+                        {new Date(profile.createdAt)
+                            .toLocaleDateString("en-GB")}
+                    </strong>
+                </div>
+
+                <button
+                    onClick={() =>
+                        setShowEditModal(true)
+                    }
+                >
+                    Edit Profile
+                </button>
+
+            </div>
+
+            <div className="profile-card">
+
+                <h2>Security</h2>
+
+                <div className="profile-row">
+                    <span>Password</span>
+                    <strong>••••••••••</strong>
+                </div>
+
+                <button
+                    onClick={() =>
+                        setShowPasswordModal(true)
+                    }
+                >
+                    Change Password
+                </button>
+
+            </div>
+
+            <EditModal
+                isOpen={showEditModal}
+                title="Edit Profile"
+                saveButtonText="Save Changes"
+                onSave={async () => {
+
+                    await saveProfile();
+
+                    setShowEditModal(false);
+
+                }}
+                onCancel={() =>
+                    setShowEditModal(false)
+                }
+            >
 
                 <input
                     type="text"
@@ -108,25 +174,28 @@ function Profile() {
                     placeholder="Email"
                 />
 
-                <p>
-                    Joined:
-                    {" "}
-                    {new Date(
-                        profile.createdAt
-                    ).toLocaleDateString("en-GB")}
-                </p>
+            </EditModal>
 
-                <button
-                    onClick={saveProfile}
-                >
-                    Save Profile
-                </button>
+            <EditModal
+                isOpen={showPasswordModal}
+                title="Change Password"
+                saveButtonText="Update Password"
+                onSave={async () => {
 
-            </div>
+                    await updateUserPassword();
 
-            <div className="profile-card">
+                    setShowPasswordModal(false);
 
-                <h2>Change Password</h2>
+                }}
+                onCancel={() => {
+
+                    setCurrentPassword("");
+                    setNewPassword("");
+
+                    setShowPasswordModal(false);
+
+                }}
+            >
 
                 <input
                     type="password"
@@ -150,15 +219,7 @@ function Profile() {
                     placeholder="New Password"
                 />
 
-                <button
-                    onClick={
-                        updateUserPassword
-                    }
-                >
-                    Change Password
-                </button>
-
-            </div>
+            </EditModal>
 
         </div>
     );
