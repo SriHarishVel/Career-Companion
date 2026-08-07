@@ -44,7 +44,26 @@ function Resources() {
                     resources,
                     skills,
                 ] = await Promise.all([
-                    getResources(),
+                    getResources({
+                        search: searchResource,
+                        type:
+                            filterOption === "All" ||
+                            filterOption === "Favorites"
+                                ? undefined
+                                : filterOption,
+                        favorite:
+                            filterOption === "Favorites"
+                                ? true
+                                : undefined,
+                        skill:
+                            skillFilter === "All"
+                                ? undefined
+                                : skillFilter,
+                        sort:
+                            sortOption === "default"
+                                ? undefined
+                                : sortOption,
+                    }),
                     getSkills(),
                 ]);
 
@@ -52,14 +71,21 @@ function Resources() {
                 setSkills(skills);
 
             } catch (error) {
+
                 console.error(error);
+
             }
 
         }
 
         fetchData();
 
-    }, []);
+    }, [
+        searchResource,
+        filterOption,
+        sortOption,
+        skillFilter,
+    ]);
 
     function getSkillTitle(skillId) {
         const skill = skills.find(
@@ -230,59 +256,6 @@ function Resources() {
 
     }
 
-    const filteredResources = [
-        ...resources
-    ]
-        .filter(resource =>
-            resource.title
-                .toLowerCase()
-                .includes(
-                    searchResource.toLowerCase()
-                )
-        )
-        .filter(resource => {
-            if (filterOption === "All") {
-                return true;
-            }
-
-            if (filterOption === "Favorites") {
-                return resource.favorite;
-            }
-
-            return (
-                resource.type ===
-                filterOption
-            );
-        })
-        .filter(resource =>
-            skillFilter === "All"
-                ? true
-                : resource.skill?._id === skillFilter
-        )
-        .sort((a, b) => {
-            if (sortOption === "az") {
-                return a.title.localeCompare(
-                    b.title
-                );
-            }
-
-            if (sortOption === "za") {
-                return b.title.localeCompare(
-                    a.title
-                );
-            }
-
-            if (sortOption === "recent") {
-                return (
-                    new Date(b.updatedAt) -
-                    new Date(a.updatedAt)
-                );
-
-            }
-
-            return 0;
-        });
-
     return (
         <div className="container">
             <h1>
@@ -375,13 +348,7 @@ function Resources() {
             </select>
             {/* Resource Counter */}
             <p className="resource-counter">
-                Showing{" "}
-                {
-                    filteredResources.length
-                }{" "}
-                of{" "}
-                {resources.length}{" "}
-                resources
+                Showing of {resources.length}resources
             </p>
             
             {/* Favorite Counter */}
@@ -505,8 +472,8 @@ function Resources() {
             {/* Resource Cards */}
             <div className="resources-grid">
 
-                {filteredResources.length > 0 ? (
-                    filteredResources.map(resource => (
+                {resources.length > 0 ? (
+                    resources.map(resource => (
                         <div
                             className="resource-card"
                             key={resource._id}

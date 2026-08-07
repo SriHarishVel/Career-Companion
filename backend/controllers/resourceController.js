@@ -60,6 +60,10 @@ export const getResources = async (req, res) => {
             query.completed = false;
         }
 
+        if (req.query.skill) {
+            query.skill = req.query.skill;
+        }
+
         let sortOption = {
             createdAt: -1,
         };
