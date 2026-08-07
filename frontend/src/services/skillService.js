@@ -1,7 +1,13 @@
 import api from "../api/axios";
 
-export const getSkills = async () => {
-    const response = await api.get("/skills");
+export const getSkills = async (params = {}) => {
+
+    const response = await api.get(
+        "/skills",
+        {
+            params,
+        }
+    );
     return response.data;
 };
 

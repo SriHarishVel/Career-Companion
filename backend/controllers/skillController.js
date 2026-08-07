@@ -50,6 +50,10 @@ export const getSkills = async (req, res) => {
             query.level = req.query.level;
         }
 
+        if (req.query.secondaryGoal) {
+            query.secondaryGoal = req.query.secondaryGoal;
+        }
+
         let sortOption = {
             createdAt: -1,
         };

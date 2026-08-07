@@ -47,22 +47,45 @@ function Skills() {
         async function fetchSkills() {
 
             try {
+
                 const [skills, goals] = await Promise.all([
-                    getSkills(),
-                    getGoals()
+                    getSkills({
+                        search: searchSkill,
+                        category:
+                            categoryFilter === "All"
+                                ? undefined
+                                : categoryFilter,
+                        level:
+                            levelFilter === "All"
+                                ? undefined
+                                : levelFilter,
+                        sort:
+                            sortOption === "default"
+                                ? undefined
+                                : sortOption,
+                    }),
+                    getGoals(),
                 ]);
 
                 setSkills(skills);
                 setGoals(goals);
+
             } catch (error) {
+
                 console.error(error);
+
             }
 
         }
 
         fetchSkills();
 
-    }, []);
+    }, [
+        searchSkill,
+        categoryFilter,
+        levelFilter,
+        sortOption,
+    ]);
       
 
     async function handleProgress(skillId) {
@@ -292,77 +315,6 @@ function Skills() {
         setNewResource("");
 
     }
-
-    // Build the visible list from the current search, category, and sort choices.
-    const filteredSkills = [...skills]
-        .filter(skill =>
-            skill.name
-                .toLowerCase()
-                .includes(
-                    searchSkill.toLowerCase()
-                )
-        )
-        .filter(skill =>
-            categoryFilter ===
-            "All" ? true
-                : skill.category ===
-                  categoryFilter
-        )
-        .filter(skill =>
-            levelFilter === "All"
-                ? true
-                : skill.level ===
-                levelFilter
-        )
-        .sort((a, b) => {
-            if (
-                sortOption === "az"
-            ) {
-                return a.name.localeCompare(
-                    b.name
-                );
-            }
-
-            if (
-                sortOption === "za"
-            ) {
-                return b.name.localeCompare(
-                    a.name
-                );
-            }
-
-            if (
-                sortOption ===
-                "high"
-            ) {
-                return (
-                    b.progress -
-                    a.progress
-                );
-            }
-
-            if (
-                sortOption ===
-                "low"
-            ) {
-                return (
-                    a.progress -
-                    b.progress
-                );
-            }
-
-            if (
-                sortOption ===
-                "recent"
-            ) {
-                return (
-                    new Date(b.updatedAt) -
-                    new Date(a.updatedAt)
-                );
-            }
-
-            return 0;
-        });
     
     const secondaryGoalOptions =
         goals.filter(
@@ -419,11 +371,11 @@ function Skills() {
                         Z-A
                     </option>
 
-                    <option value="high">
+                    <option value="progressHigh">
                         Highest Progress
                     </option>
 
-                    <option value="low">
+                    <option value="progressLow">
                         Lowest Progress
                     </option>
 
@@ -488,7 +440,7 @@ function Skills() {
                 </div>
 
                 <p className="skill-counter">
-                    Showing {filteredSkills.length} of {skills.length} skills
+                    Showing {skills.length} skills
                 </p>
 
             </div>
@@ -598,8 +550,8 @@ function Skills() {
             {/* Skills Grid */}
             <div className="skills-grid">
 
-                {filteredSkills.length > 0 ? (
-                    filteredSkills.map(skill => (
+                {skills.length > 0 ? (
+                    skills.map(skill => (
                         <SkillCard
                             key={skill._id}
                             id={skill._id}
