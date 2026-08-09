@@ -38,24 +38,72 @@ export const createApplication = async (req, res) => {
 };
 
 // Get all applications for the logged-in user.
+// Get all applications for the logged-in user.
 export const getApplications = async (req, res) => {
     try {
 
+        const query = {
+            user: req.user._id,
+        };
+
+        // Search company or role
+        if (req.query.search) {
+            query.$or = [
+                {
+                    company: {
+                        $regex: req.query.search,
+                        $options: "i",
+                    },
+                },
+                {
+                    role: {
+                        $regex: req.query.search,
+                        $options: "i",
+                    },
+                },
+            ];
+        }
+
+        // Status filter
+        if (req.query.status) {
+            query.status = req.query.status;
+        }
+
+        // Career goal filter
+        if (req.query.primaryGoal) {
+            query.primaryGoal = req.query.primaryGoal;
+        }
+
+        // Sorting
+        let sortOption = {
+            lastUpdated: -1,
+        };
+
+        if (req.query.sort === "appliedDate") {
+            sortOption = {
+                appliedDate: -1,
+            };
+        } else if (req.query.sort === "company") {
+            sortOption = {
+                company: 1,
+            };
+        } else if (req.query.sort === "role") {
+            sortOption = {
+                role: 1,
+            };
+        }
+
         const applications =
-            await Application.find({
-                user: req.user._id
-            })
-            .populate("primaryGoal")
-            .sort({
-                createdAt: -1
-            });
+            await Application.find(query)
+                .populate("primaryGoal")
+                .sort(sortOption);
 
         res.status(200).json(applications);
 
     } catch (error) {
 
         res.status(500).json({
-            message: error.message
+            message: error.message,
         });
 
     }

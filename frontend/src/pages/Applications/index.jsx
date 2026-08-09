@@ -64,17 +64,35 @@ function Applications() {
     const [goalFilter, setGoalFilter] = useState("All");
 
     useEffect(() => {
-
         async function fetchData() {
-
             try {
+                const [applications, goals] = await Promise.all([
+                    getApplications({
+                        search: searchTerm || undefined,
 
-                const [
-                    applications,
-                    goals
-                ] = await Promise.all([
-                    getApplications(),
-                    getGoals()
+                        status:
+                            statusFilter === "All"
+                                ? undefined
+                                : statusFilter,
+
+                        primaryGoal:
+                            goalFilter === "All"
+                                ? undefined
+                                : goalFilter,
+
+                        sort:
+                            sortBy === "Last Updated"
+                                ? undefined
+                                : sortBy === "Applied Date"
+                                    ? "appliedDate"
+                                    : sortBy === "Company"
+                                        ? "company"
+                                        : sortBy === "Role"
+                                            ? "role"
+                                            : undefined,
+                    }),
+
+                    getGoals(),
                 ]);
 
                 setApplications(applications);
@@ -83,12 +101,15 @@ function Applications() {
             } catch (error) {
                 console.error(error);
             }
-
         }
 
         fetchData();
-
-    }, []);
+    }, [
+        searchTerm,
+        statusFilter,
+        goalFilter,
+        sortBy,
+    ]);
 
     useEffect(() => {
         if (
@@ -266,70 +287,6 @@ function Applications() {
         }
 
     }
-
-    let filteredApplications =
-        applications.filter(
-            application => {
-
-                const matchesSearch =
-                    application.company
-                        .toLowerCase()
-                        .includes(
-                            searchTerm.toLowerCase()
-                        ) ||
-                    application.role
-                        .toLowerCase()
-                        .includes(
-                            searchTerm.toLowerCase()
-                        );
-
-                const matchesStatus =
-                    statusFilter === "All" ||
-                    application.status === statusFilter;
-
-                return (
-                    matchesSearch &&
-                    matchesStatus
-                );
-            }
-        )
-        .filter(application =>
-            goalFilter === "All"
-                ? true
-                : application.primaryGoal?._id === goalFilter
-        );
-
-    filteredApplications.sort(
-        (a, b) => {
-
-            switch (sortBy) {
-
-                case "Applied Date":
-                    return new Date(
-                        b.appliedDate
-                    ) -
-                    new Date(
-                        a.appliedDate
-                    );
-
-                case "Company":
-                    return a.company.localeCompare(
-                        b.company
-                    );
-
-                case "Role":
-                    return a.role.localeCompare(
-                        b.role
-                    );
-
-                default:
-                    return (
-                        new Date(b.updatedAt) -
-                        new Date(a.updatedAt)
-                    );
-            }
-        }
-    );
 
     async function addRound() {
 
@@ -596,7 +553,7 @@ function Applications() {
 
             <div className="applications-grid">
 
-                {filteredApplications.map(
+                {applications.map(
                     application => (
                         <div
                             key={application._id}
