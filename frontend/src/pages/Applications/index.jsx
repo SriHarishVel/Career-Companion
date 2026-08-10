@@ -13,6 +13,10 @@ import {
     updateInterviewRound,
     deleteInterviewRound
 } from "../../services/applicationService";
+import ApplicationForm from "./components/ApplicationForm";
+import ApplicationFilters from "./components/ApplicationFilters";
+import ApplicationList from "./components/ApplicationList";
+import InterviewModals from "./components/InterviewModals";
 import "./index.css"
 
 function Applications() {
@@ -169,6 +173,17 @@ function Applications() {
 
     }
 
+    function closeEditModal() {
+        setShowEditModal(false);
+        setSelectedApplication(null);
+        setEditCompany("");
+        setEditRole("");
+        setEditStatus("Applied");
+        setEditAppliedDate("");
+        setEditApplicationUrl("");
+        setEditPrimaryGoalId("");
+    }
+
     function openEditRoundModal(
         applicationId,
         round
@@ -207,9 +222,7 @@ function Applications() {
 
             setApplications(applications);
 
-            setShowEditModal(false);
-            setSelectedApplication(null);
-            setEditPrimaryGoalId("");
+            closeEditModal();
 
         } catch (error) {
 
@@ -403,33 +416,79 @@ function Applications() {
                 )}
             </>
 
-            <div className="add-application-card" ref={applicationFormRef}>
-                <h3>Add Application</h3>
+            <div ref={applicationFormRef}>
+                <ApplicationForm
+                    company={company}
+                    setCompany={setCompany}
+                    role={role}
+                    setRole={setRole}
+                    applicationUrl={applicationUrl}
+                    setApplicationUrl={setApplicationUrl}
+                    status={status}
+                    setStatus={setStatus}
+                    primaryGoalId={primaryGoalId}
+                    setPrimaryGoalId={setPrimaryGoalId}
+                    appliedDate={appliedDate}
+                    setAppliedDate={setAppliedDate}
+                    primaryGoalOptions={primaryGoalOptions}
+                    addApplication={addApplication}
+                />
+            </div>
 
+            <ApplicationFilters
+                searchTerm={searchTerm}
+                setSearchTerm={setSearchTerm}
+                statusFilter={statusFilter}
+                setStatusFilter={setStatusFilter}
+                goalFilter={goalFilter}
+                setGoalFilter={setGoalFilter}
+                sortBy={sortBy}
+                setSortBy={setSortBy}
+                primaryGoalOptions={primaryGoalOptions}
+            />
+
+            <ApplicationList
+                applications={applications}
+                openEditRoundModal={openEditRoundModal}
+                setRoundApplicationId={setRoundApplicationId}
+                setSelectedRound={setSelectedRound}
+                setShowDeleteRoundModal={setShowDeleteRoundModal}
+                setShowRoundModal={setShowRoundModal}
+                openEditModal={openEditModal}
+                setApplicationToDeleteId={setApplicationToDeleteId}
+                setShowDeleteModal={setShowDeleteModal}
+            />
+
+            <EditModal
+                isOpen={showEditModal}
+                title="Edit Application"
+                onSave={saveApplication}
+                onCancel={closeEditModal}
+            >
                 <input
                     type="text"
                     placeholder="Company"
-                    value={company}
-                    onChange={(e) => setCompany(e.target.value)}
+                    value={editCompany}
+                    onChange={(e) => setEditCompany(e.target.value)}
                 />
 
                 <input
                     type="text"
                     placeholder="Role"
-                    value={role}
-                    onChange={(e) => setRole(e.target.value)}
+                    value={editRole}
+                    onChange={(e) => setEditRole(e.target.value)}
                 />
 
                 <input
                     type="url"
                     placeholder="Application URL"
-                    value={applicationUrl}
-                    onChange={(e) => setApplicationUrl(e.target.value)}
+                    value={editApplicationUrl}
+                    onChange={(e) => setEditApplicationUrl(e.target.value)}
                 />
 
                 <select
-                    value={status}
-                    onChange={(e) => setStatus(e.target.value)}
+                    value={editStatus}
+                    onChange={(e) => setEditStatus(e.target.value)}
                 >
                     <option value="Applied">Applied</option>
                     <option value="In Progress">In Progress</option>
@@ -439,20 +498,12 @@ function Applications() {
                 </select>
 
                 <select
-                    value={primaryGoalId}
-                    onChange={(e) =>
-                        setPrimaryGoalId(e.target.value)
-                    }
+                    value={editPrimaryGoalId}
+                    onChange={(e) => setEditPrimaryGoalId(e.target.value)}
                 >
-                    <option value="">
-                        Career Goal (Optional)
-                    </option>
-
-                    {primaryGoalOptions.map(goal => (
-                        <option
-                            key={goal._id}
-                            value={goal._id}
-                        >
+                    <option value="">Career Goal (Optional)</option>
+                    {primaryGoalOptions.map((goal) => (
+                        <option key={goal._id} value={goal._id}>
                             {goal.title}
                         </option>
                     ))}
@@ -460,276 +511,11 @@ function Applications() {
 
                 <input
                     type="date"
-                    value={appliedDate}
-                    onChange={(e) => setAppliedDate(e.target.value)}
+                    value={editAppliedDate}
+                    onChange={(e) => setEditAppliedDate(e.target.value)}
                 />
+            </EditModal>
 
-                <button onClick={addApplication}>
-                    Add Application
-                </button>
-            </div>
-
-            <div className="filters-card">
-                <h3>Filters</h3>
-
-                <div className="filters-toolbar">
-
-                    <div className="filter-group">
-                        <label>Search</label>
-
-                        <input
-                            type="text"
-                            placeholder="Company or Role"
-                            value={searchTerm}
-                            onChange={(e) =>
-                                setSearchTerm(e.target.value)
-                            }
-                        />
-                    </div>
-
-                    <div className="filter-group">
-                        <label>Status</label>
-
-                        <select
-                            value={statusFilter}
-                            onChange={(e) =>
-                                setStatusFilter(e.target.value)
-                            }
-                        >
-                            <option value="All">All</option>
-                            <option value="Applied">Applied</option>
-                            <option value="In Progress">In Progress</option>
-                            <option value="Offer">Offer</option>
-                            <option value="Rejected">Rejected</option>
-                            <option value="Withdrawn">Withdrawn</option>
-                        </select>
-                    </div>
-                    
-                    <select
-                        value={goalFilter}
-                        onChange={(e) => setGoalFilter(e.target.value)}
-                    >
-                        <option value="All">All Career Goals</option>
-
-                        {primaryGoalOptions.map(goal => (
-                            <option
-                                key={goal._id}
-                                value={goal._id}
-                            >
-                                {goal.title}
-                            </option>
-                        ))}
-                    </select>
-
-                    <div className="filter-group">
-                        <label>Sort By</label>
-
-                        <select
-                            value={sortBy}
-                            onChange={(e) =>
-                                setSortBy(e.target.value)
-                            }
-                        >
-                            <option value="Last Updated">
-                                Last Updated
-                            </option>
-
-                            <option value="Applied Date">
-                                Applied Date
-                            </option>
-
-                            <option value="Company">
-                                Company
-                            </option>
-
-                            <option value="Role">
-                                Role
-                            </option>
-                        </select>
-                    </div>
-
-                </div>
-            </div>
-
-            <div className="applications-grid">
-
-                {applications.map(
-                    application => (
-                        <div
-                            key={application._id}
-                            className="application-card"
-                        >
-                            <h2>
-                                {application.role}
-                            </h2>
-
-                            <p>
-                                {application.company}
-                            </p>
-
-                            {application.primaryGoal && (
-                                <p className="related-goal">
-                                    Career Goal:
-                                    {" "}
-                                    {application.primaryGoal.title}
-                                </p>
-                            )}
-
-                            <span
-                                className={`application-status ${application.status
-                                    .toLowerCase()
-                                    .replace(" ", "-")}`}
-                            >
-                                {application.status}
-                            </span>
-
-                            <p>
-                                Applied:
-                                {" "}
-                                {application.appliedDate
-                                    ? new Date(application.appliedDate)
-                                        .toLocaleDateString("en-GB")
-                                    : "-"}
-                            </p>
-                            
-                            <p>
-                                Interview Rounds:
-                                {" "}
-                                {(application.interviewRounds || []).length}
-                            </p>
-                            
-                            {[...(application.interviewRounds || [])] 
-                                .sort((a, b) =>
-                                    new Date(a.date) -
-                                    new Date(b.date)
-                                )
-                                .map( round => (
-                                    <div
-                                        key={round._id}
-                                        className={`round-item ${round.status.toLowerCase()}`}
-                                    >
-                                        <div className="round-content">
-                                            <div>
-                                                {round.title} • {round.status}
-                                            </div>
-
-                                            {round.date && (
-                                                <small className="round-date">
-                                                    {new Date(round.date)
-                                                        .toLocaleDateString(
-                                                            "en-GB",
-                                                            {
-                                                                day: "2-digit",
-                                                                month: "short",
-                                                                year: "numeric"
-                                                            }
-                                                        )}
-                                                </small>
-                                            )}
-                                        </div>
-                                        <div className="round-actions">
-
-                                            <button
-                                                className="round-action-btn"
-                                                title="Edit Round"
-                                                onClick={() =>
-                                                    openEditRoundModal(
-                                                        application._id,
-                                                        round
-                                                    )
-                                                }
-                                            >
-                                                ✏️
-                                            </button>
-
-                                            <button
-                                                className="round-action-btn delete"
-                                                title="Delete Round"
-                                                onClick={() => {
-                                                    setRoundApplicationId(
-                                                        application._id
-                                                    );
-
-                                                    setSelectedRound(
-                                                        round
-                                                    );
-
-                                                    setShowDeleteRoundModal(
-                                                        true
-                                                    );
-                                                }}
-                                            >
-                                                ✖
-                                            </button>
-
-                                        </div>
-                                    </div>
-                                )
-                            )}
-
-                            <p>
-                                Last Updated:
-                                {" "}
-                                {new Date(
-                                    application.updatedAt
-                                ).toLocaleString()}
-                            </p>
-
-                            <div className="card-actions">
-
-                                {application.applicationUrl && (
-                                    <a
-                                        href={
-                                            application.applicationUrl.startsWith("http")
-                                                ? application.applicationUrl
-                                                : `https://${application.applicationUrl}`
-                                        }
-                                        className="view-posting-link"
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        ↗ View Posting
-                                    </a>
-                                )}
-
-                                
-                                <button
-                                    onClick={() => {
-                                        setRoundApplicationId(
-                                            application._id
-                                        );
-
-                                        setShowRoundModal(true);
-                                    }}
-                                >
-                                    Add Round
-                                </button>
-
-                                <button
-                                    className="edit-btn"
-                                    onClick={() =>
-                                        openEditModal(application)
-                                    }
-                                >
-                                    Edit
-                                </button>
-
-                                <button
-                                    className="delete-btn"
-                                    onClick={() => {
-                                        setApplicationToDeleteId(application._id);
-                                        setShowDeleteModal(true);
-                                    }}
-                                >
-                                    Delete
-                                </button>
-
-                            </div>
-                        </div>
-                    )
-                )}
-
-            </div>
             <ConfirmModal
                 isOpen={showDeleteModal}
                 title="Delete Application"
@@ -741,180 +527,31 @@ function Applications() {
                 }}
             />
 
+            <InterviewModals
+                showRoundModal={showRoundModal}
+                setShowRoundModal={setShowRoundModal}
+                addRound={addRound}
 
-            <EditModal
-                isOpen={showEditModal}
-                title="Edit Application"
-                onSave={saveApplication}
-                onCancel={() => {
-                    setShowEditModal(false);
-                    setSelectedApplication(null);
-                    setEditPrimaryGoalId("");
-                }}
-            >
-                <input
-                    type="text"
-                    value={editCompany}
-                    onChange={(e) =>
-                        setEditCompany(e.target.value)
-                    }
-                    placeholder="Company"
-                />
+                showEditRoundModal={showEditRoundModal}
+                setShowEditRoundModal={setShowEditRoundModal}
+                saveEditedRound={saveEditedRound}
 
-                <input
-                    type="text"
-                    value={editRole}
-                    onChange={(e) =>
-                        setEditRole(e.target.value)
-                    }
-                    placeholder="Role"
-                />
+                showDeleteRoundModal={showDeleteRoundModal}
+                setShowDeleteRoundModal={setShowDeleteRoundModal}
+                confirmDeleteRound={confirmDeleteRound}
 
-                <input
-                    type="url"
-                    value={editApplicationUrl}
-                    onChange={(e) =>
-                        setEditApplicationUrl(e.target.value)
-                    }
-                    placeholder="Application URL"
-                />
+                selectedRound={selectedRound}
+                setSelectedRound={setSelectedRound}
 
-                <select
-                    value={editStatus}
-                    onChange={(e) =>
-                        setEditStatus(e.target.value)
-                    }
-                >
-                    <option value="Applied">Applied</option>
-                    <option value="In Progress">In Progress</option>
-                    <option value="Offer">Offer</option>
-                    <option value="Rejected">Rejected</option>
-                    <option value="Withdrawn">Withdrawn</option>
-                </select>
-                
-                <select
-                    value={editPrimaryGoalId}
-                    onChange={(e) =>
-                        setEditPrimaryGoalId(e.target.value)
-                    }
-                >
-                    <option value="">
-                        Career Goal (Optional)
-                    </option>
+                roundApplicationId={roundApplicationId}
+                setRoundApplicationId={setRoundApplicationId}
 
-                    {primaryGoalOptions.map(goal => (
-                        <option
-                            key={goal._id}
-                            value={goal._id}
-                        >
-                            {goal.title}
-                        </option>
-                    ))}
-                </select>
-
-                <input
-                    type="date"
-                    value={editAppliedDate}
-                    onChange={(e) =>
-                        setEditAppliedDate(e.target.value)
-                    }
-                />
-            </EditModal>
-
-            <EditModal
-                isOpen={showRoundModal}
-                title="Add Interview Round"
-                onSave={addRound}
-                onCancel={() => {
-                    setShowRoundModal(false);
-                    setRoundTitle("");
-                    setRoundStatus("Pending");
-                    setRoundApplicationId(null);
-                    setRoundDate("");
-                }}
-            >
-                <input
-                    type="text"
-                    placeholder="Round Name"
-                    value={roundTitle}
-                    onChange={(e) =>
-                        setRoundTitle(e.target.value)
-                    }
-                />
-
-                <select
-                    value={roundStatus}
-                    onChange={(e) =>
-                        setRoundStatus(e.target.value)
-                    }
-                >
-                    <option value="Pending">Pending</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Failed">Failed</option>
-                </select>
-
-                <input
-                    type="date"
-                    value={roundDate}
-                    onChange={(e) =>
-                        setRoundDate(e.target.value)
-                    }
-                />
-
-            </EditModal>
-
-            <EditModal
-                isOpen={showEditRoundModal}
-                title="Edit Interview Round"
-                onSave={saveEditedRound}
-                onCancel={() => {
-                    setShowEditRoundModal(false);
-                    setSelectedRound(null);
-                    setRoundTitle("");
-                    setRoundStatus("Pending");
-                    setRoundDate("");
-                }}
-            >
-                <input
-                    type="text"
-                    value={roundTitle}
-                    onChange={(e) =>
-                        setRoundTitle(e.target.value)
-                    }
-                    placeholder="Round Name"
-                />
-
-                <select
-                    value={roundStatus}
-                    onChange={(e) =>
-                        setRoundStatus(e.target.value)
-                    }
-                >
-                    <option value="Pending">Pending</option>
-                    <option value="Completed">Completed</option>
-                    <option value="Failed">Failed</option>
-                </select>
-
-                <input
-                    type="date"
-                    value={roundDate}
-                    onChange={(e) =>
-                        setRoundDate(e.target.value)
-                    }
-                />
-
-            </EditModal>
-
-            <ConfirmModal
-                isOpen={showDeleteRoundModal}
-                title="Delete Interview Round"
-                message="Are you sure you want to delete this interview round?"
-                onConfirm={confirmDeleteRound}
-                onCancel={() => {
-                    setShowDeleteRoundModal(false);
-                    setSelectedRound(null);
-                    setRoundApplicationId(null);
-                }}
+                roundTitle={roundTitle}
+                setRoundTitle={setRoundTitle}
+                roundStatus={roundStatus}
+                setRoundStatus={setRoundStatus}
+                roundDate={roundDate}
+                setRoundDate={setRoundDate}
             />
 
         </div>
