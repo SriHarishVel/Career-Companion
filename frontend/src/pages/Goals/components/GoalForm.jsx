@@ -23,7 +23,6 @@ function GoalForm({
     addGoal,
     navigate,
     handleCancelEdit,
-    filteredGoals,
     goals,
     primaryGoals,
     secondaryGoals
@@ -264,7 +263,7 @@ function GoalForm({
             </div>
 
             <p className="goal-counter">
-                Showing {filteredGoals.length} of {goals.length} goals
+                Showing {goals.length} goals
             </p>
 
             <p className="goal-counter">

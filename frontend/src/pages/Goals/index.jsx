@@ -92,7 +92,14 @@
 
                 try {
 
-                    const goals = await getGoals();
+                    const goals = await getGoals({
+                        search: searchGoal,
+                        category: categoryFilter,
+                        priority: priorityFilter,
+                        goalType: goalTypeFilter,
+                        status: statusFilter,
+                        sort: sortOption,
+                    });
 
                     setGoals(
                         syncPrimaryGoalProgress(goals)
@@ -106,7 +113,14 @@
 
             fetchGoals();
 
-        }, []);
+        }, [
+            searchGoal,
+            categoryFilter,
+            priorityFilter,
+            goalTypeFilter,
+            statusFilter,
+            sortOption
+        ]);
 
         async function handleProgress(goalId) {
 
@@ -345,173 +359,55 @@
             setParentGoalId("");
         }
 
-    function editGoal(goalId) {
+function editGoal(goalId) {
 
-            const goal = goals.find(
-                goal => goal._id === goalId
-            );
+        const goal = goals.find(
+            goal => goal._id === goalId
+        );
 
-            if (!goal) {
-                return;
-            }
+        if (!goal) {
+            return;
+        }
 
-            setEditingGoalId(goal._id);
-
-            setNewGoal(goal.title);
-            setNewCategory(goal.category);
-            setNewPriority(goal.priority);
-            setNewDeadline(goal.deadline);
-            setNewGoalType(goal.goalType);
-            setParentGoalId(goal.parentGoal?._id ?? "");
-            setErrorMsg("");
+        setEditingGoalId(goal._id);
+        setNewGoal(goal.title);
+        setNewCategory(goal.category);
+        setNewPriority(goal.priority);
+        setNewDeadline(goal.deadline);
+        setNewGoalType(goal.goalType);
+        setParentGoalId(goal.parentGoal?._id ?? "");
+        setErrorMsg("");
             
-            goalFormRef.current?.scrollIntoView({
-                behavior: "smooth",
-                block: "start"
-            });
+        goalFormRef.current?.scrollIntoView({
+            behavior: "smooth",
+            block: "start"
+        });
 
+    }
+
+    function handleGoalTypeChange(event) {
+
+        setErrorMsg("");
+
+        const value = event.target.value;
+
+        setNewGoalType(value);
+
+        if (
+            value === "Secondary" &&
+            primaryGoalOptions.length === 1
+        ) {
+            setParentGoalId(primaryGoalOptions[0]._id);
+        } else {
+            setParentGoalId("");
         }
 
-        function handleGoalTypeChange(event) {
-
-            setErrorMsg("");
-
-            const value = event.target.value;
-
-            setNewGoalType(value);
-
-            if (
-                value === "Secondary" &&
-                primaryGoalOptions.length === 1
-            ) {
-                setParentGoalId(primaryGoalOptions[0]._id);
-            } else {
-                setParentGoalId("");
-            }
-
-        }
+    }
 
         // Build the visible list from the current search, category, and sort choices.
         const primaryGoals = goals.filter(goal => goal.goalType === "Primary");
 
         const secondaryGoals = goals.filter(goal => goal.goalType === "Secondary");
-
-        const filteredGoals = [...goals]
-            .filter(goal =>
-                goal.title
-                    .toLowerCase()
-                    .includes(
-                        searchGoal.toLowerCase()
-                    )
-            )
-            .filter(goal =>
-            categoryFilter === "All"
-                ? true
-                : goal.category ===
-                categoryFilter
-            )
-            .filter(goal =>
-                priorityFilter === "All"
-                    ? true
-                    : goal.priority ===
-                    priorityFilter
-            )
-            .filter(goal => {
-                if (
-                    statusFilter === "Active"
-                ) {
-                    return !goal.completed;
-                }
-
-                if (
-                    statusFilter ===
-                    "Completed"
-                ) {
-                    return goal.completed;
-                }
-
-                return true;
-            })
-            .filter(goal =>
-                goalTypeFilter === "All"
-                    ? true
-                    : goal.goalType === goalTypeFilter
-            )
-            .sort((a, b) => {
-                if (sortOption === "az") {
-                    return a.title.localeCompare(
-                        b.title
-                    );
-                }
-
-                if (sortOption === "za") {
-                    return b.title.localeCompare(
-                        a.title
-                    );
-                }
-
-                if (sortOption === "high") {
-                    return (
-                        b.progress - a.progress
-                    );
-                }
-
-                if (sortOption === "low") {
-                    return (
-                        a.progress - b.progress
-                    );
-                }
-
-                if (sortOption === "recent") {
-                    return (
-                        b.lastUpdated -
-                        a.lastUpdated
-                    );
-                }
-                const priorityOrder = {
-                    High: 3,
-                    Medium: 2,
-                    Low: 1
-                };
-
-                if (
-                    sortOption === "priorityHigh"
-                ) {
-                    return (
-                        priorityOrder[ b.priority ] - priorityOrder[ a.priority ]
-                    );
-                }
-
-                if (
-                    sortOption ===
-                    "priorityLow"
-                ) {
-                    return (
-                        priorityOrder[
-                            a.priority
-                        ] -
-                        priorityOrder[
-                            b.priority
-                        ]
-                    );
-                }
-
-                return 0;
-            });
-
-        const filteredPrimaryGoals =
-            filteredGoals.filter(
-                goal =>
-                    goal.goalType ===
-                    "Primary"
-            );
-
-        const filteredSecondaryGoals =
-            filteredGoals.filter(
-                goal =>
-                    goal.goalType ===
-                    "Secondary"
-            );
         
         const primaryGoalOptions =
             goals.filter(
@@ -595,7 +491,6 @@
                     addGoal={addGoal}
                     navigate={navigate}
                     handleCancelEdit={handleCancelEdit}
-                    filteredGoals={filteredGoals}
                     goals={goals}
                     primaryGoals={primaryGoals}
                     secondaryGoals={secondaryGoals}
@@ -604,9 +499,9 @@
                 {/* Goal Sections */}
                 {!isGuidedSetup && (
                     <GoalSections
-                        filteredGoals={filteredGoals}
-                        filteredPrimaryGoals={filteredPrimaryGoals}
-                        filteredSecondaryGoals={filteredSecondaryGoals}
+                        goals={goals}
+                        primaryGoals={primaryGoals}
+                        secondaryGoals={secondaryGoals}
                         getChildGoals={getChildGoals}
                         getParentGoalTitle={getParentGoalTitle}
                         handleProgress={handleProgress}

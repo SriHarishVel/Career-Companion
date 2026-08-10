@@ -2,9 +2,9 @@ import GoalCard from "../../../components/GoalCard";
 import ConfirmModal from "../../../components/ConfirmModal";
 
 function GoalSections({
-    filteredGoals,
-    filteredPrimaryGoals,
-    filteredSecondaryGoals,
+    goals,
+    primaryGoals,
+    secondaryGoals,
     getChildGoals,
     getParentGoalTitle,
     handleProgress,
@@ -19,16 +19,16 @@ function GoalSections({
 
     return (
         <>
-            {filteredGoals.length > 0 ? (
+            {goals.length > 0 ? (
                 <>
-                    {filteredPrimaryGoals.length > 0 && (
+                    {primaryGoals.length > 0 && (
                         <>
                             <h2 className="goal-section-title">
                                 Primary Goals
                             </h2>
 
                             <div className="goals-grid">
-                                {filteredPrimaryGoals.map(goal => (
+                                {primaryGoals.map(goal => (
                                     <GoalCard
                                         key={goal._id}
                                         id={goal._id}
@@ -52,14 +52,14 @@ function GoalSections({
                         </>
                     )}
 
-                    {filteredSecondaryGoals.length > 0 && (
+                    {secondaryGoals.length > 0 && (
                         <>
                             <h2 className="goal-section-title">
                                 Secondary Goals
                             </h2>
 
                             <div className="goals-grid">
-                                {filteredSecondaryGoals.map(goal => (
+                                {secondaryGoals.map(goal => (
                                     <GoalCard
                                         key={goal._id}
                                         id={goal._id}
