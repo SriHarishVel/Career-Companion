@@ -93,12 +93,32 @@
                 try {
 
                     const goals = await getGoals({
-                        search: searchGoal,
-                        category: categoryFilter,
-                        priority: priorityFilter,
-                        goalType: goalTypeFilter,
-                        status: statusFilter,
-                        sort: sortOption,
+                        search: searchGoal || undefined,
+
+                        category:
+                            categoryFilter === "All"
+                                ? undefined
+                                : categoryFilter,
+
+                        priority:
+                            priorityFilter === "All"
+                                ? undefined
+                                : priorityFilter,
+
+                        goalType:
+                            goalTypeFilter === "All"
+                                ? undefined
+                                : goalTypeFilter,
+
+                        status:
+                            statusFilter === "All"
+                                ? undefined
+                                : statusFilter,
+
+                        sort:
+                            sortOption === "default"
+                                ? undefined
+                                : sortOption,
                     });
 
                     setGoals(

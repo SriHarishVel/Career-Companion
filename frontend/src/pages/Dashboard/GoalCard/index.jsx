@@ -105,9 +105,15 @@ function GoalCard({
             {deadline && (
                 <>
                     <p>
-                        Deadline:
-                        {" "}
-                        {deadline}
+                        Deadline:{" "}
+                        {new Date(deadline).toLocaleDateString(
+                            "en-GB",
+                            {
+                                day: "numeric",
+                                month: "short",
+                                year: "numeric",
+                            }
+                        )}
                     </p>
 
                     <p>

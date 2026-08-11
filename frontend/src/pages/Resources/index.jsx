@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
 import { useLocation } from "react-router-dom";
-import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
+import ResourceForm from "./components/ResourceForm";
+import ResourceFilters from "./components/ResourceFilters";
+import ResourceCard from "./components/ResourceCard";
 import {
     getResources,
     createResource,
@@ -264,88 +266,18 @@ function Resources() {
                     : `Resources for ${getSkillTitle(skillFilter)}`}
             </h1>
 
-            {/* Search + Sort */}
-            <SearchSortBar
-                searchValue={
-                    searchResource
-                }
-                onSearchChange={
-                    setSearchResource
-                }
-                sortValue={
-                    sortOption
-                }
-                onSortChange={
-                    setSortOption
-                }
-                searchPlaceholder="Search Resources"
-            >
-                <option value="default">
-                    Default
-                </option>
-
-                <option value="az">
-                    A-Z
-                </option>
-
-                <option value="za">
-                    Z-A
-                </option>
-
-                <option value="recent">
-                    Recently Updated
-                </option>
-            </SearchSortBar>
-            
-            {/* Filter Dropdown */}
-            <select
-                value={filterOption}
-                onChange={(e) =>
-                    setFilterOption(
-                        e.target.value
-                    )
-                }
-            >
-                <option value="All">
-                    All Resources
-                </option>
-
-                <option value="Favorites">
-                    Favorites
-                </option>
-
-                <option value="Documentation">
-                    Documentation
-                </option>
-
-                <option value="Course">
-                    Course
-                </option>
-
-                <option value="Video">
-                    Video
-                </option>
-
-                <option value="Article">
-                    Article
-                </option>
-            </select>
-
-            <select
-                value={skillFilter}
-                onChange={(e) => setSkillFilter(e.target.value)}
-            >
-                <option value="All">All Skills</option>
-
-                {skills.map(skill => (
-                    <option
-                        key={skill._id}
-                        value={skill._id}
-                    >
-                        {`${getParentGoalTitle(skill)} → ${skill.name}`}
-                    </option>
-                ))}
-            </select>
+            <ResourceFilters
+                searchResource={searchResource}
+                setSearchResource={setSearchResource}
+                sortOption={sortOption}
+                setSortOption={setSortOption}
+                filterOption={filterOption}
+                setFilterOption={setFilterOption}
+                skillFilter={skillFilter}
+                setSkillFilter={setSkillFilter}
+                skills={skills}
+                getParentGoalTitle={getParentGoalTitle}
+            />
             {/* Resource Counter */}
             <p className="resource-counter">
                 Showing of {resources.length}resources
@@ -362,187 +294,36 @@ function Resources() {
             </p>
 
             {/* Add Resource Form */}
-            <div className="add-resource-card">
-
-                <h3>
-                    {editingResourceId
-                        ? "Edit Resource"
-                        : "Add Resource"}
-                </h3>
-
-                <select
-                    value={newType}
-                    onChange={(e) =>
-                        setNewType(
-                            e.target.value
-                        )
-                    }
-                >
-                    <option value="Documentation">
-                        Documentation
-                    </option>
-
-                    <option value="Course">
-                        Course
-                    </option>
-
-                    <option value="Video">
-                        Video
-                    </option>
-
-                    <option value="Article">
-                        Article
-                    </option>
-                </select>
-
-                <input
-                    type="text"
-                    placeholder="Resource Title"
-                    value={newTitle}
-                    onChange={(e) => {
-                        setNewTitle(
-                            e.target.value
-                        );
-
-                        setErrorMsg("");
-                    }}
-                />
-
-                <input
-                    type="url"
-                    placeholder="Resource URL"
-                    value={newUrl}
-                    onChange={(e) => {
-                        setNewUrl(
-                            e.target.value
-                        );
-
-                        setErrorMsg("");
-                    }}
-                />
-
-                <select
-                    value={skillId}
-                    onChange={(e) => setSkillId(e.target.value)}
-                >
-                    <option value="">
-                        Related Skill (Optional)
-                    </option>
-
-                    {skills.map(skill => (
-                        <option
-                            key={skill._id}
-                            value={skill._id}
-                        >
-                            {skill.name}
-                        </option>
-                    ))}
-                </select>
-
-                {errorMsg && (
-                    <p className="error">
-                        {errorMsg}
-                    </p>
-                )}
-
-                <button onClick={addResource}>
-                    {editingResourceId
-                        ? "Update Resource"
-                        : "Add Resource"}
-                </button>
-                
-                {editingResourceId && (
-                    <button
-                        className="cancel-btn"
-                        onClick={() => {
-                            setEditingResourceId(null);
-                            setNewTitle("");
-                            setNewUrl("");
-                            setNewType("Documentation");
-                            setSkillId("");
-                            setErrorMsg("");
-                        }}
-                    >
-                        Cancel Edit
-                    </button>
-                )}
-
-            </div>
+            <ResourceForm
+                editingResourceId={editingResourceId}
+                newType={newType}
+                setNewType={setNewType}
+                newTitle={newTitle}
+                setNewTitle={setNewTitle}
+                newUrl={newUrl}
+                setNewUrl={setNewUrl}
+                skillId={skillId}
+                setSkillId={setSkillId}
+                skills={skills}
+                errorMsg={errorMsg}
+                addResource={addResource}
+            />
 
             {/* Resource Cards */}
             <div className="resources-grid">
 
                 {resources.length > 0 ? (
                     resources.map(resource => (
-                        <div
-                            className="resource-card"
+                        <ResourceCard
                             key={resource._id}
-                        >
-                            <>
-                                <span className="resource-type">
-                                    {resource.type}
-                                </span>
-
-                                {resource.favorite && (
-                                    <span className="favorite-badge">
-                                        ★ Favorite
-                                    </span>
-                                )}
-
-                                {resource.skill && (
-                                    <p className="related-skill">
-                                        Skill: {resource.skill.name}
-                                    </p>
-                                )}
-
-                                <h3>
-                                    {resource.title}
-                                </h3>
-
-                                <div className="resource-actions">
-
-                                    <a
-                                        href={resource.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                    >
-                                        Open Resource
-                                    </a>
-
-                                    <button
-                                        className="edit-btn"
-                                        onClick={() =>
-                                            handleEditResource(resource._id)
-                                        }
-                                    >
-                                        Edit
-                                    </button>
-
-                                    <button
-                                        className="delete-btn"
-                                        onClick={() => {
-                                            setSelectedResourceId(resource._id);
-                                            setShowDeleteModal(true);
-                                        }}
-                                    >
-                                        Delete
-                                    </button>
-
-                                    <button
-                                        className="favorite-btn"
-                                        onClick={() =>
-                                            toggleFavorite(resource._id)
-                                        }
-                                    >
-                                        {resource.favorite
-                                            ? "Unfavorite"
-                                            : "Favorite"}
-                                    </button>
-
-                                </div>
-                            </>
-
-                        </div>
+                            resource={resource}
+                            onEdit={handleEditResource}
+                            onDelete={(resourceId) => {
+                                setSelectedResourceId(resourceId);
+                                setShowDeleteModal(true);
+                            }}
+                            onToggleFavorite={toggleFavorite}
+                        />
                     ))
                 ) : (
                     <div className="empty-state">
@@ -554,21 +335,21 @@ function Resources() {
                         </p>
                     </div>
                 )}
+
                 <ConfirmModal
                     isOpen={showDeleteModal}
                     title="Delete Resource"
                     message="Are you sure you want to delete this resource?"
-                    onConfirm={
-                        confirmDeleteResource
-                    }
+                    onConfirm={confirmDeleteResource}
                     onCancel={() => {
                         setShowDeleteModal(false);
                         setSelectedResourceId(null);
                     }}
                 />
-                </div>
 
             </div>
+
+        </div>
     );
 }
 

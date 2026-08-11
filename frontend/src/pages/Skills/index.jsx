@@ -1,8 +1,9 @@
 import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
-import SkillCard from "../../components/SkillCard";
-import SearchSortBar from "../../components/SearchSortBar";
 import ConfirmModal from "../../components/ConfirmModal";
+import SkillCard from "./components/SkillCard";
+import SkillFilters from "./components/SkillFilters";
+import SkillForm from "./components/SkillForm";
 import { journeyService } from "../../services/journeyService";
 import { getGoals } from "../../services/goalService";
 import { 
@@ -43,11 +44,8 @@ function Skills() {
     const skillFormRef = useRef(null);
 
     useEffect(() => {
-
         async function fetchSkills() {
-
             try {
-
                 const [skills, goals] = await Promise.all([
                     getSkills({
                         search: searchSkill,
@@ -69,24 +67,18 @@ function Skills() {
 
                 setSkills(skills);
                 setGoals(goals);
-
             } catch (error) {
-
                 console.error(error);
-
             }
-
         }
 
         fetchSkills();
-
     }, [
         searchSkill,
         categoryFilter,
         levelFilter,
         sortOption,
     ]);
-      
 
     async function handleProgress(skillId) {
 
@@ -339,213 +331,39 @@ function Skills() {
                 </p>
             )}
 
-            {/* Filters SkillCard */}
-            <div className="filters-SkillCard">
-
-                <h3>Filters</h3>
-
-                <SearchSortBar
-                    searchValue={
-                        searchSkill
-                    }
-                    onSearchChange={
-                        setSearchSkill
-                    }
-                    sortValue={
-                        sortOption
-                    }
-                    onSortChange={
-                        setSortOption
-                    }
-                    searchPlaceholder="Search Skills"
-                >
-                    <option value="default">
-                        Default
-                    </option>
-
-                    <option value="az">
-                        A-Z
-                    </option>
-
-                    <option value="za">
-                        Z-A
-                    </option>
-
-                    <option value="progressHigh">
-                        Highest Progress
-                    </option>
-
-                    <option value="progressLow">
-                        Lowest Progress
-                    </option>
-
-                    <option value="recent">
-                        Recently Updated
-                    </option>
-                </SearchSortBar>
-
-                <div className="filter-group">
-
-                    <label>
-                        Category
-                    </label>
-
-                    <select
-                        value={
-                            categoryFilter
-                        }
-                        onChange={(e) =>
-                            setCategoryFilter(
-                                e.target.value
-                            )
-                        }
-                    >
-                        <option value="All">All Categories</option>
-                        <option value="Programming">Programming</option>
-                        <option value="Database">Database</option>
-                        <option value="Framework">Framework</option>
-                        <option value="Tools">Tools</option>
-                        <option value="Soft Skills">Soft Skills</option>
-                        <option value="Other">Other</option>
-                    </select>
-
-                    <label>Levels</label>
-
-                    <select
-                        value={
-                            levelFilter
-                        }
-                        onChange={(e) =>
-                            setLevelFilter(e.target.value)
-                        }
-                    >
-                        <option value="All">
-                            All Levels
-                        </option>
-
-                        <option value="Beginner">
-                            Beginner
-                        </option>
-
-                        <option value="Intermediate">
-                            Intermediate
-                        </option>
-
-                        <option value="Advanced">
-                            Advanced
-                        </option>
-                    </select>
-                    
-                    
-                </div>
-
-                <p className="skill-counter">
-                    Showing {skills.length} skills
-                </p>
-
-            </div>
+            {/* Skill Filters */}
+            <SkillFilters
+                searchSkill={searchSkill}
+                setSearchSkill={setSearchSkill}
+                sortOption={sortOption}
+                setSortOption={setSortOption}
+                categoryFilter={categoryFilter}
+                setCategoryFilter={setCategoryFilter}
+                levelFilter={levelFilter}
+                setLevelFilter={setLevelFilter}
+                skillCount={skills.length}
+            />
 
             {/* Add Skill SkillCard */}
-            <div className="add-skill-SkillCard" ref={skillFormRef}>
-
-                <h3>
-                    {editingSkillId
-                        ? "Edit Skill"
-                        : "Add Skill"}
-                </h3>
-
-                <input
-                    type="text"
-                    placeholder={
-                        editingSkillId
-                            ? "Edit Skill"
-                            : "Add Skill"
-                    }
-                    value={newSkill}
-                    onChange={(e) => {
-                        setNewSkill(
-                            e.target.value
-                        );
-
-                        setErrorMsg("");
-                    }}
-                />
-
-                <select
-                    value={
-                        newCategory
-                    }
-                    onChange={(e) =>
-                        setNewCategory(
-                            e.target.value
-                        )
-                    }
-                >
-                    <option value="Programming">Programming</option>
-                    <option value="Database">Database</option>
-                    <option value="Framework">Framework</option>
-                    <option value="Tools">Tools</option>
-                    <option value="Soft Skills">Soft Skills</option>
-                    <option value="Other">Other</option>
-                </select> 
-
-                {errorMsg && (
-                    <p className="error">
-                        {errorMsg}
-                    </p>
-                )}
-
-                <select
-                    value={secondaryGoalId}
-                    onChange={(e) =>
-                        setSecondaryGoalId(
-                            e.target.value
-                        )
-                    }
-                >
-                    <option value="">
-                        Related Goal (Optional)
-                    </option>
-
-                    {secondaryGoalOptions.map(
-                        goal => (
-                            <option
-                                key={goal._id}
-                                value={goal._id}
-                            >
-                                {goal.title}
-                            </option>
-                        )
-                    )}
-                </select>
-                
-                <input
-                    type="url"
-                    placeholder="Learning Resource URL (Optional)"
-                    value={newResource}
-                    onChange={(e) =>
-                        setNewResource(e.target.value)
-                    }
-                />
-
-                <button
-                    onClick={addSkill}
-                >
-                    {editingSkillId
-                        ? "Update Skill"
-                        : "Add Skill"}
-                </button>
-
-                {editingSkillId && (
-                    <button
-                        className="cancel-btn"
-                        onClick={handleCancelEdit}
-                    >
-                        Cancel Edit
-                    </button>
-                )}
-
-            </div>
+            <SkillForm
+                editingSkillId={editingSkillId}
+                newSkill={newSkill}
+                setNewSkill={(value) => {
+                    setNewSkill(value);
+                    setErrorMsg("");
+                }}
+                newCategory={newCategory}
+                setNewCategory={setNewCategory}
+                secondaryGoalId={secondaryGoalId}
+                setSecondaryGoalId={setSecondaryGoalId}
+                secondaryGoalOptions={secondaryGoalOptions}
+                newResource={newResource}
+                setNewResource={setNewResource}
+                errorMsg={errorMsg}
+                addSkill={addSkill}
+                handleCancelEdit={handleCancelEdit}
+                skillFormRef={skillFormRef}
+            />
 
             {/* Skills Grid */}
             <div className="skills-grid">
