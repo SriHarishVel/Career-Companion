@@ -4,10 +4,15 @@ import { getGoals } from "../../services/goalService";
 import { getSkills } from "../../services/skillService";
 import { getResources } from "../../services/resourceService";
 import { getApplications } from "../../services/applicationService";
+import SummaryCards from "./components/SummaryCards";
+import CareerPipeline from "./components/CareerPipeline";
+import ProgressOverview from "./components/ProgressOverview";
+import RecentActivity from "./components/RecentActivity";
+import UpcomingDeadlines from "./components/UpcomingDeadlines";
 import "./index.css";
 
 function Dashboard() {
-    // Dashboard reads the saved page data and calculates quick summaries from it.
+    // Dashboard fetches data from the backend and prepares summary data for the UI.
     const [goals, setGoals] = useState([]);
     const [skills, setSkills] = useState([]);
     const [resources, setResources] = useState([]);
@@ -132,145 +137,23 @@ function Dashboard() {
         <div className="container">
             <h1>Dashboard</h1>
 
-            <div className="dashboard-grid">
-                <div className="summary-card">
-                    <h2>Goals</h2>
-                    <p>{goals.length}</p>
-                </div>
+            <SummaryCards
+                goals={goals}
+                skills={skills}
+                resources={resources}
+                applications={applications}
+            />
 
-                <div className="summary-card">
-                    <h2>Skills</h2>
-                    <p>{skills.length}</p>
-                </div>
-
-                <div className="summary-card">
-                    <h2>Resources</h2>
-                    <p>{resources.length}</p>
-                </div>
-
-                <div className="summary-card">
-                    <h2>Applications</h2>
-                    <p>{applications.length}</p>
-                </div>
-
-            </div>
-
-            <div className="dashboard-section">
-                <h2>Career Pipeline</h2>
-                 <div className="pipeline-grid">
-                    <div className="pipeline-card">
-                        <h3>Applied</h3>
-                        <p>{applicationStatusCounts["Applied"]}</p>
-                    </div>
-
-                    <div className="pipeline-card">
-                        <h3>In Progress</h3>
-                        <p>{applicationStatusCounts["In Progress"]}</p>
-                    </div>
-
-                    <div className="pipeline-card">
-                        <h3>Offer</h3>
-                        <p>{applicationStatusCounts["Offer"]}</p>
-                    </div>
-
-                    <div className="pipeline-card">
-                        <h3>Rejected</h3>
-                        <p>{applicationStatusCounts["Rejected"]}</p>
-                    </div>
-
-                </div>
-            </div>
+            <CareerPipeline applicationStatusCounts={applicationStatusCounts} />
             
-            <div className="dashboard-section">
-                <h2>Progress Overview</h2>
-
-                <div className="progress-item">
-                    <p>Average Goal Progress</p>
-
-                    <div className="progress-bar">
-                        <div
-                            className="progress-fill"
-                            style={{
-                                width: `${averageGoalProgress}%`
-                            }}
-                        ></div>
-                    </div>
-
-                    <span>{averageGoalProgress}%</span>
-                </div>
-
-                <div className="progress-item">
-                    <p>Average Skill Progress</p>
-
-                    <div className="progress-bar">
-                        <div
-                            className="progress-fill"
-                            style={{
-                                width: `${averageSkillProgress}%`
-                            }}
-                        ></div>
-                    </div>
-
-                    <span>{averageSkillProgress}%</span>
-
-                </div>
-            </div>
+            <ProgressOverview
+                averageGoalProgress={averageGoalProgress}
+                averageSkillProgress={averageSkillProgress}
+            />
             
-            <div className="dashboard-section">
-                <h2>Recent Activity</h2>
-
-                <div className="activity-grid">
-                    {recentItems.length > 0 ? (
-                        recentItems.map((item, index) => (
-                            <div
-                                key={index}
-                                className="activity-card"
-                            >
-                                <span className="activity-type">
-                                    {item.type}
-                                </span>
-
-                                <h3>{item.title}</h3>
-                            </div>
-                        ))
-                    ) : (
-                        <p>No recent activity.</p>
-                    )}
-                </div>
-            </div>
+            <RecentActivity recentItems={recentItems} />
             
-            <div className="dashboard-section">
-                <h2>Upcoming Deadlines</h2>
-
-                {upcomingDeadlines.length > 0 ? (
-                    <div className="deadline-list">
-                        {upcomingDeadlines.map(goal => (
-                            <div
-                                key={goal._id}
-                                className="deadline-item"
-                            >
-                                <div>
-                                    <h3>{goal.title}</h3>
-                                    <p>{goal.category}</p>
-                                </div>
-
-                                <span>
-                                    {new Date(goal.deadline).toLocaleDateString(
-                                        "en-GB",
-                                        {
-                                            day: "numeric",
-                                            month: "short",
-                                            year: "numeric",
-                                        }
-                                    )}
-                                </span>
-                            </div>
-                        ))}
-                    </div>
-                ) : (
-                    <p>No upcoming deadlines.</p>
-                )}
-            </div>
+            <UpcomingDeadlines upcomingDeadlines={upcomingDeadlines} />
 
         </div>
     );

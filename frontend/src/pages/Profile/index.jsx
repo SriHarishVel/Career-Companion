@@ -4,7 +4,8 @@ import {
     updateProfile,
     changePassword,
 } from "../../services/userService";
-import EditModal from "../../components/EditModal";
+import ProfileInfo from "./components/ProfileInfo";
+import SecuritySection from "./components/SecuritySection";
 import "./index.css";
 
 function Profile() {
@@ -89,137 +90,26 @@ function Profile() {
 
             <h1>My Profile</h1>
 
-            <div className="profile-card">
+            <ProfileInfo
+                profile={profile}
+                fullName={fullName}
+                email={email}
+                setFullName={setFullName}
+                setEmail={setEmail}
+                showEditModal={showEditModal}
+                setShowEditModal={setShowEditModal}
+                saveProfile={saveProfile}
+            />
 
-                <h2>Account Information</h2>
-
-                <div className="profile-row">
-                    <span>Full Name</span>
-                    <strong>{profile.fullName}</strong>
-                </div>
-
-                <div className="profile-row">
-                    <span>Email</span>
-                    <strong>{profile.email}</strong>
-                </div>
-
-                <div className="profile-row">
-                    <span>Member Since</span>
-                    <strong>
-                        {new Date(profile.createdAt)
-                            .toLocaleDateString("en-GB")}
-                    </strong>
-                </div>
-
-                <button
-                    onClick={() =>
-                        setShowEditModal(true)
-                    }
-                >
-                    Edit Profile
-                </button>
-
-            </div>
-
-            <div className="profile-card">
-
-                <h2>Security</h2>
-
-                <div className="profile-row">
-                    <span>Password</span>
-                    <strong>••••••••••</strong>
-                </div>
-
-                <button
-                    onClick={() =>
-                        setShowPasswordModal(true)
-                    }
-                >
-                    Change Password
-                </button>
-
-            </div>
-
-            <EditModal
-                isOpen={showEditModal}
-                title="Edit Profile"
-                saveButtonText="Save Changes"
-                onSave={async () => {
-
-                    await saveProfile();
-
-                    setShowEditModal(false);
-
-                }}
-                onCancel={() =>
-                    setShowEditModal(false)
-                }
-            >
-
-                <input
-                    type="text"
-                    value={fullName}
-                    onChange={(e) =>
-                        setFullName(e.target.value)
-                    }
-                    placeholder="Full Name"
-                />
-
-                <input
-                    type="email"
-                    value={email}
-                    onChange={(e) =>
-                        setEmail(e.target.value)
-                    }
-                    placeholder="Email"
-                />
-
-            </EditModal>
-
-            <EditModal
-                isOpen={showPasswordModal}
-                title="Change Password"
-                saveButtonText="Update Password"
-                onSave={async () => {
-
-                    await updateUserPassword();
-
-                    setShowPasswordModal(false);
-
-                }}
-                onCancel={() => {
-
-                    setCurrentPassword("");
-                    setNewPassword("");
-
-                    setShowPasswordModal(false);
-
-                }}
-            >
-
-                <input
-                    type="password"
-                    value={currentPassword}
-                    onChange={(e) =>
-                        setCurrentPassword(
-                            e.target.value
-                        )
-                    }
-                    placeholder="Current Password"
-                />
-
-                <input
-                    type="password"
-                    value={newPassword}
-                    onChange={(e) =>
-                        setNewPassword(
-                            e.target.value
-                        )
-                    }
-                    placeholder="New Password"
-                />
-
-            </EditModal>
+            <SecuritySection
+                currentPassword={currentPassword}
+                newPassword={newPassword}
+                setCurrentPassword={setCurrentPassword}
+                setNewPassword={setNewPassword}
+                showPasswordModal={showPasswordModal}
+                setShowPasswordModal={setShowPasswordModal}
+                updateUserPassword={updateUserPassword}
+            />
 
         </div>
     );

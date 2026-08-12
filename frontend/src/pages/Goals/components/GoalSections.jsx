@@ -1,4 +1,4 @@
-import GoalCard from "../../Dashboard/GoalCard";
+import GoalCard from "./GoalCard";
 import ConfirmModal from "../../../components/ConfirmModal";
 
 function GoalSections({

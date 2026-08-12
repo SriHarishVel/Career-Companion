@@ -1,5 +1,9 @@
 import { useNavigate } from "react-router-dom";
 import { journeyService } from "../../services/journeyService";
+import JourneyCard from "./components/JourneyCard";
+import JourneyProgress from "./components/JourneyProgress";
+import TodaysFocus from "./components/TodaysFocus";
+import QuickAccess from "./components/QuickAccess";
 import "./index.css";
 
 function Home() {
@@ -35,157 +39,29 @@ function Home() {
 
             <div className="home-grid">
 
-                <div className="home-card">
-                   {primaryGoal ? (
-                        <>
-                            <h2>Current Career Journey</h2>
+                <JourneyCard
+                    primaryGoal={primaryGoal}
+                    secondaryGoals={secondaryGoals}
+                    completedSecondaryGoals={completedSecondaryGoals}
+                    overallProgress={overallProgress}
+                    journeyStep={journeyStep}
+                    onContinue={handleContinueJourney}
+                />
 
-                            <h3>{primaryGoal.title}</h3>
+                <JourneyProgress
+                    primaryGoal={primaryGoal}
+                    secondaryGoals={secondaryGoals}
+                    skills={skills}
+                    resources={resources}
+                    applications={applications}
+                />
 
-                            <p className="journey-message">
-                                <strong>Next Step:</strong>{" "}
-                                {journeyStep.title}
-                            </p>
-
-                            <p className="journey-description">
-                                {journeyStep.description}
-                            </p>
-
-                            <div className="journey-summary">
-
-                                <div className="summary-item">
-                                    <span>Progress</span>
-                                    <strong>{overallProgress}%</strong>
-                                </div>
-
-                                <div className="summary-item">
-                                    <span>Secondary Goals</span>
-                                    <strong>
-                                        {completedSecondaryGoals} / {secondaryGoals.length}
-                                    </strong>
-                                </div>
-
-                            </div>
-
-                            <button onClick={handleContinueJourney}>
-                                Continue Journey
-                            </button>
-                        </>
-                    ) : (
-                        <>
-                            <h2>Welcome to Career Companion</h2>
-
-                            <p>
-                                You haven't started your career journey yet.
-                                Create your primary goal to begin planning your career.
-                            </p>
-
-                            <button onClick={handleContinueJourney}>
-                                Create Primary Goal
-                            </button>
-                        </>
-                    )}
-                </div>
-
-                <div className="home-card">
-
-                    <h2>Journey Progress</h2>
-
-                    <div className="journey-progress">
-
-                        <div
-                            className={`journey-step ${
-                                primaryGoal ? "completed" : ""
-                            }`}
-                        >
-                            {primaryGoal ? "✓ " : ""}
-                            Primary Goal
-                        </div>
-
-                        <div
-                            className={`journey-step ${
-                                secondaryGoals.length > 0 ? "completed" : ""
-                            }`}
-                        >
-                            {secondaryGoals.length > 0 ? "✓ " : ""}
-                            Secondary Goals
-                        </div>
-
-                        <div
-                            className={`journey-step ${
-                                skills.length > 0 ? "completed" : ""
-                            }`}
-                        >
-                            {skills.length > 0 ? "✓ " : ""}
-                            Skills
-                        </div>
-
-                        <div
-                            className={`journey-step ${
-                                resources.length > 0 ? "completed" : ""
-                            }`}
-                        >
-                            {resources.length > 0 ? "✓ " : ""}
-                            Resources
-                        </div>
-
-                        <div
-                            className={`journey-step ${
-                                applications.length > 0 ? "completed" : ""
-                            }`}
-                        >
-                            {applications.length > 0 ? "✓ " : ""}
-                            Applications
-                        </div>
-                    </div>
-
-                </div>
-
-                <div className="home-card">
-                    <h2>Today's Focus</h2>
-
-                    {todaysFocus ? (
-                        <>
-                            <h3>{todaysFocus.title}</h3>
-
-                            <p>
-                                Progress: {todaysFocus.progress}%
-                            </p>
-                        </>
-                    ) : primaryGoal ? (
-                        <p>
-                            All secondary goals are completed.
-                        </p>
-                    ) : (
-                        <p>
-                            Create a primary goal to get started.
-                        </p>
-                    )}
-                </div>
-
-                <div className="home-card">
-                    <h2>Quick Access</h2>
-
-                    <div className="quick-links">
-
-                        <button onClick={() => navigate("/goals")}>
-                            Goals
-                        </button>
-
-                        <button onClick={() => navigate("/skills")}>
-                            Skills
-                        </button>
-
-                        <button onClick={() => navigate("/resources")}>
-                            Resources
-                        </button>
-
-                        <button onClick={() => navigate("/applications")}>
-                            Applications
-                        </button>
-
-                    </div>
-                </div>
+                <TodaysFocus
+                    todaysFocus={todaysFocus}
+                    primaryGoal={primaryGoal}
+                />
+                
+                <QuickAccess onNavigate={navigate} />
 
             </div>
 
