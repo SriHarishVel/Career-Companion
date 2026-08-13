@@ -1,8 +1,14 @@
-# API Documentation
+# Career Companion API Documentation
+
+## Overview
+
+The Career Companion API provides backend services for authentication, user profiles, career goals, job applications, and dashboard statistics.
+
+---
 
 ## Base URL
 
-```
+```text
 /api
 ```
 
@@ -12,19 +18,21 @@
 
 Protected endpoints require the following request header:
 
-```
+```text
 Authorization: Bearer <JWT_TOKEN>
 ```
 
 ---
 
-# Authentication
+# Authentication API
 
 ## Register User
 
+Creates a new Career Companion user account.
+
 ### Endpoint
 
-```
+```http
 POST /auth/register
 ```
 
@@ -67,9 +75,11 @@ Not Required
 
 ## Login
 
+Authenticates an existing user and returns a JWT token.
+
 ### Endpoint
 
-```
+```http
 POST /auth/login
 ```
 
@@ -111,9 +121,11 @@ Not Required
 
 ## Get Profile
 
+Returns the authenticated user's profile.
+
 ### Endpoint
 
-```
+```http
 GET /auth/profile
 ```
 
@@ -129,9 +141,11 @@ Returns the authenticated user's profile.
 
 ## Update Profile
 
+Updates the authenticated user's profile.
+
 ### Endpoint
 
-```
+```http
 PUT /auth/profile
 ```
 
@@ -163,9 +177,11 @@ Returns the updated user document.
 
 ## Change Password
 
+Changes the authenticated user's password.
+
 ### Endpoint
 
-```
+```http
 PUT /auth/change-password
 ```
 
@@ -205,9 +221,9 @@ Bearer Token Required
 
 ---
 
-# Jobs
+# Applications API
 
-## Job Model
+## Application Model
 
 ### Status Values
 
@@ -217,21 +233,14 @@ Bearer Token Required
 - Rejected
 - Accepted
 
-### Job Type Values
-
-- Full-time
-- Part-time
-- Internship
-- Remote
-
 ---
 
-## Create Job
+## Create Application
 
 ### Endpoint
 
-```
-POST /jobs
+```http
+POST /Applications
 ```
 
 ### Authentication
@@ -246,7 +255,7 @@ Bearer Token Required
 | company | String | Yes |
 | location | String | No |
 | status | String | No |
-| jobType | String | No |
+| ApplicationType | String | No |
 | salary | Number | No |
 | notes | String | No |
 
@@ -258,7 +267,7 @@ Bearer Token Required
     "company": "Google",
     "location": "Bangalore",
     "status": "Applied",
-    "jobType": "Internship",
+    "ApplicationType": "Internship",
     "salary": 30000,
     "notes": "Applied through careers page"
 }
@@ -266,16 +275,16 @@ Bearer Token Required
 
 ### Success Response (201)
 
-Returns the created job document.
+Returns the created Application document.
 
 ---
 
-## Get Jobs
+## Get Applications
 
 ### Endpoint
 
-```
-GET /jobs
+```http
+GET /Applications
 ```
 
 ### Authentication
@@ -287,8 +296,8 @@ Bearer Token Required
 | Parameter | Description |
 |----------|-------------|
 | search | Search by title or company |
-| status | Filter by status |
-| jobType | Filter by job type |
+| status | Filter by application status |
+| ApplicationType | Filter by application type |
 | sort | newest, oldest, company-asc, company-desc |
 | page | Page number |
 | limit | Number of records per page |
@@ -297,8 +306,8 @@ Bearer Token Required
 
 ```json
 {
-    "jobs": [],
-    "totalJobs": 0,
+    "Applications": [],
+    "totalApplications": 0,
     "totalPages": 0,
     "currentPage": 1
 }
@@ -306,12 +315,12 @@ Bearer Token Required
 
 ---
 
-## Get Job
+## Get Application
 
 ### Endpoint
 
-```
-GET /jobs/:id
+```http
+GET /Applications/:id
 ```
 
 ### Authentication
@@ -320,16 +329,16 @@ Bearer Token Required
 
 ### Success Response (200)
 
-Returns the requested job document.
+Returns the requested Application document.
 
 ---
 
-## Update Job
+## Update Application
 
 ### Endpoint
 
-```
-PUT /jobs/:id
+```http
+PUT /Applications/:id
 ```
 
 ### Authentication
@@ -338,20 +347,20 @@ Bearer Token Required
 
 ### Request Body
 
-Any job fields may be updated.
+Any Application fields may be updated.
 
 ### Success Response (200)
 
-Returns the updated job document.
+Returns the updated Application document.
 
 ---
 
-## Delete Job
+## Delete Application
 
 ### Endpoint
 
-```
-DELETE /jobs/:id
+```http
+DELETE /Applications/:id
 ```
 
 ### Authentication
@@ -362,13 +371,13 @@ Bearer Token Required
 
 ```json
 {
-    "message": "Job deleted successfully"
+    "message": "Application deleted successfully"
 }
 ```
 
 ---
 
-# Goals
+# Goals API
 
 ## Goal Model
 
@@ -401,7 +410,7 @@ Bearer Token Required
 
 ### Endpoint
 
-```
+```http
 POST /goals
 ```
 
@@ -428,7 +437,7 @@ Secondary goals must include a valid `parentGoal`.
 
 Primary goals automatically store:
 
-```
+```text
 parentGoal = null
 ```
 
@@ -456,7 +465,7 @@ Returns the created goal document.
 
 ### Endpoint
 
-```
+```http
 GET /goals
 ```
 
@@ -485,7 +494,7 @@ Returns an array of goals.
 
 ### Endpoint
 
-```
+```http
 GET /goals/:id
 ```
 
@@ -503,7 +512,7 @@ Returns the requested goal document.
 
 ### Endpoint
 
-```
+```http
 PUT /goals/:id
 ```
 
@@ -529,7 +538,7 @@ Returns the updated goal document.
 
 ### Endpoint
 
-```
+```http
 DELETE /goals/:id
 ```
 
@@ -547,13 +556,13 @@ Bearer Token Required
 
 ---
 
-# Dashboard
+# Dashboard API
 
 ## Get Statistics
 
 ### Endpoint
 
-```
+```http
 GET /dashboard/stats
 ```
 
@@ -565,7 +574,7 @@ Bearer Token Required
 
 ```json
 {
-    "totalJobs": 5,
+    "totalApplications": 5,
     "applied": 1,
     "interview": 2,
     "offer": 1,
@@ -583,12 +592,12 @@ Bearer Token Required
 
 | Field | Description |
 |------|-------------|
-| totalJobs | Total jobs created by the authenticated user |
-| applied | Number of jobs with Applied status |
-| interview | Number of jobs with Interview status |
-| offer | Number of jobs with Offer status |
-| rejected | Number of jobs with Rejected status |
-| monthlyStats | Monthly job application statistics |
+| totalApplications | Total applications created by the authenticated user |
+| applied | Number of applications with Applied status |
+| interview | Number of applications with Interview status |
+| offer | Number of applications with Offer status |
+| rejected | Number of applications with Rejected status |
+| monthlyStats | Monthly application statistics |
 
 ---
 
@@ -603,3 +612,4 @@ Bearer Token Required
 | 403 | Forbidden |
 | 404 | Resource Not Found |
 | 500 | Internal Server Error |
+```
