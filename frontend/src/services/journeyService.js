@@ -1,10 +1,18 @@
-import { storageService } from "./storageService";
+import { getGoals } from "./goalService";
+import { getSkills } from "./skillService";
+import { getResources } from "./resourceService";
+import { getApplications } from "./applicationService";
 
 export const journeyService = {
 
-    getGoalsData() {
+    async getGoalsData() {
 
-        const goals = storageService.getGoals();
+        const response = await getGoals();
+
+        const goals =
+            response?.goals ||
+            response ||
+            [];
 
         const primaryGoal = goals.find(
             goal => goal.goalType === "Primary"
@@ -13,65 +21,166 @@ export const journeyService = {
         const secondaryGoals = goals.filter(
             goal =>
                 goal.goalType === "Secondary" &&
-                goal.parentGoalId === primaryGoal?.id
+                goal.parentGoal?._id === primaryGoal?._id
         );
 
         return {
             primaryGoal,
             secondaryGoals
         };
-
     },
 
-    getJourneyOverview() {
+
+    async getJourneyOverview() {
+
         const {
             primaryGoal,
             secondaryGoals
-        } = this.getGoalsData();
+        } = await this.getGoalsData();
 
-        const skills = storageService.getSkills();
-        const resources = storageService.getResources();
-        const applications = storageService.getApplications();
+        const [
+            skillsResponse,
+            resourcesResponse,
+            applicationsResponse
+        ] = await Promise.all([
+            getSkills(),
+            getResources(),
+            getApplications()
+        ]);
+
+        const skills =
+            skillsResponse?.skills ||
+            skillsResponse ||
+            [];
+
+        const resources =
+            resourcesResponse?.resources ||
+            resourcesResponse ||
+            [];
+
+        const applications =
+            Array.isArray(applicationsResponse)
+                ? applicationsResponse
+                : applicationsResponse?.Applications ||
+                applicationsResponse?.applications ||
+                [];
 
         const completedSecondaryGoals =
             secondaryGoals.filter(
                 goal => goal.completed
             ).length;
 
+
         const overallProgress =
             secondaryGoals.length > 0
                 ? Math.round(
                     secondaryGoals.reduce(
-                        (total, goal) => total + goal.progress,
+                        (total, goal) =>
+                            total + (goal.progress || 0),
                         0
                     ) / secondaryGoals.length
                 )
                 : 0;
+
+
+        //Connect skills to their secondary goals.
+
+        const secondaryGoalsWithSkills =
+            secondaryGoals.map(goal => {
+
+                const goalSkills = skills.filter(
+                    skill =>
+                        skill.secondaryGoal?._id === goal._id
+                );
+
+                return {
+                    ...goal,
+                    skills: goalSkills
+                };
+
+            });
+
+
+        //Connect resources to their skills.
+
+        const skillsWithResources =
+            skills.map(skill => {
+
+                const skillResources =
+                    resources.filter(
+                        resource =>
+                            resource.skill?._id === skill._id
+                    );
+
+                return {
+                    ...skill,
+                    resources: skillResources
+                };
+
+            });
+
+
+        //Connect applications to the primary goal.
+
+        const journeyApplications = applications;
+
+
+        //Find the first incomplete secondary goal.
+        
         const todaysFocus =
-            secondaryGoals.find(
+            secondaryGoalsWithSkills.find(
                 goal => !goal.completed
             );
+
         return {
             primaryGoal,
-            secondaryGoals,
-            skills,
+
+            secondaryGoals:
+                secondaryGoalsWithSkills,
+
+            skills:
+                skillsWithResources,
+
             resources,
-            applications,
+
+            applications:
+                journeyApplications,
+
             completedSecondaryGoals,
+
             overallProgress,
+
             todaysFocus
         };
     },
 
-    getNextStep() {
+
+    async getNextStep() {
 
         const {
             primaryGoal,
             secondaryGoals
-        } = this.getGoalsData();
+        } = await this.getGoalsData();
 
-        const skills = storageService.getSkills();
-        const applications = storageService.getApplications();
+        const [
+            skillsResponse,
+            applicationsResponse
+        ] = await Promise.all([
+            getSkills(),
+            getApplications()
+        ]);
+
+        const skills =
+            skillsResponse?.skills ||
+            skillsResponse ||
+            [];
+
+        const applications =
+            Array.isArray(applicationsResponse)
+                ? applicationsResponse
+                : applicationsResponse?.Applications ||
+                applicationsResponse?.applications ||
+                [];
 
         if (!primaryGoal) {
             return {
@@ -120,7 +229,6 @@ export const journeyService = {
             description:
                 "Monitor your overall career journey."
         };
-
     }
 
 };
