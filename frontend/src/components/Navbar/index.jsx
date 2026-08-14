@@ -1,5 +1,6 @@
-import { NavLink, useNavigate } from "react-router-dom";
-import { logout } from "../../services/authService";
+import { useState } from "react";
+import { NavLink } from "react-router-dom";
+
 import {
     FaHome,
     FaBullseye,
@@ -7,132 +8,141 @@ import {
     FaBook,
     FaChartLine,
     FaBriefcase,
+    FaBars,
+    FaTimes,
     FaUser,
-    FaSignOutAlt,
 } from "react-icons/fa";
 
 import "./index.css";
 
 function Navbar() {
 
-    const navigate = useNavigate();
+    const [menuOpen, setMenuOpen] = useState(false);
 
     const token = localStorage.getItem("token");
-    const currentUser = JSON.parse(
-        localStorage.getItem("user")
-    );
 
-    function handleLogout() {
-        logout();
-        navigate("/login");
+    function closeMenu() {
+        setMenuOpen(false);
     }
 
-    // Hide navbar on login/signup pages
-    if (!token || !currentUser) {
+    // Hide navbar when user is not authenticated
+    if (!token) {
         return null;
     }
 
     return (
         <nav className="navbar">
 
-            <div className="logo">
-                Career Companion
-            </div>
+            <div className="navbar-header">
 
-            <div className="nav-links">
-
-                <NavLink
-                    to="/"
-                    end
-                    className={({ isActive }) =>
-                        isActive ? "active" : ""
-                    }
-                >
-                    <FaHome />
-                    <span>Home</span>
-                </NavLink>
-
-                <NavLink
-                    to="/goals"
-                    className={({ isActive }) =>
-                        isActive ? "active" : ""
-                    }
-                >
-                    <FaBullseye />
-                    <span>Goals</span>
-                </NavLink>
-
-                <NavLink
-                    to="/skills"
-                    className={({ isActive }) =>
-                        isActive ? "active" : ""
-                    }
-                >
-                    <FaLaptopCode />
-                    <span>Skills</span>
-                </NavLink>
-
-                <NavLink
-                    to="/resources"
-                    className={({ isActive }) =>
-                        isActive ? "active" : ""
-                    }
-                >
-                    <FaBook />
-                    <span>Resources</span>
-                </NavLink>
-
-                <NavLink
-                    to="/dashboard"
-                    className={({ isActive }) =>
-                        isActive ? "active" : ""
-                    }
-                >
-                    <FaChartLine />
-                    <span>Dashboard</span>
-                </NavLink>
-
-                <NavLink
-                    to="/applications"
-                    className={({ isActive }) =>
-                        isActive ? "active" : ""
-                    }
-                >
-                    <FaBriefcase />
-                    <span>Applications</span>
-                </NavLink>
-
-            </div>
-
-            <div className="user-section">
-
-                <span className="welcome">
-                    Hi, {currentUser.fullName.split(" ")[0]} 👋
-                </span>
-
-                <NavLink
-                    to="/profile"
-                    className={({ isActive }) =>
-                        isActive ? "active" : ""
-                    }
-                >
-                    <FaUser />
-                    <span>Profile</span>
-                </NavLink>
+                <div className="logo">
+                    Career Companion
+                </div>
 
                 <button
-                    className="logout-btn"
-                    onClick={handleLogout}
+                    className="menu-toggle"
+                    onClick={() => setMenuOpen(!menuOpen)}
+                    aria-label="Toggle navigation menu"
+                    aria-expanded={menuOpen}
                 >
-                    <FaSignOutAlt />
-                    <span>Logout</span>
+                    {menuOpen ? <FaTimes /> : <FaBars />}
                 </button>
+
+            </div>
+
+
+            <div
+                className={`navbar-menu ${
+                    menuOpen ? "open" : ""
+                }`}
+            >
+
+                <div className="nav-links">
+
+                    <NavLink
+                        to="/"
+                        end
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaHome />
+                        <span>Home</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/goals"
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaBullseye />
+                        <span>Goals</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/skills"
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaLaptopCode />
+                        <span>Skills</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/resources"
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaBook />
+                        <span>Resources</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/dashboard"
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaChartLine />
+                        <span>Dashboard</span>
+                    </NavLink>
+
+                    <NavLink
+                        to="/applications"
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaBriefcase />
+                        <span>Applications</span>
+                    </NavLink>
+                    
+                    <NavLink
+                        to="/profile"
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaUser />
+                        <span>Profile</span>
+                    </NavLink>
+
+                </div>
 
             </div>
 
         </nav>
     );
-
 }
 
 export default Navbar;
