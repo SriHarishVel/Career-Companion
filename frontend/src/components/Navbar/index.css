@@ -110,9 +110,9 @@
 }
 
 
-/* Mobile */
+/* Mobile and Tablet*/
 
-@media (max-width: 700px) {
+@media (max-width: 900px) {
 
     .navbar {
         display: block;
@@ -120,6 +120,8 @@
     }
 
     .navbar-header {
+        display: flex;
+        align-items: center;
         justify-content: space-between;
     }
 
@@ -154,7 +156,9 @@
 
     .nav-links a {
         width: 100%;
+
         padding: 12px 14px;
+
         border-radius: 9px;
     }
 

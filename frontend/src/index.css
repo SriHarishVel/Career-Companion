@@ -6,10 +6,12 @@
     box-sizing: border-box;
 }
 
+
 /* Global */
 
 body {
     font-family: Arial, Helvetica, sans-serif;
+
     background:
         linear-gradient(
             180deg,
@@ -17,9 +19,12 @@ body {
             #f7f9fc 42%,
             #f3f4f6 100%
         );
+
     color: #1f2937;
+
     line-height: 1.6;
 }
+
 
 /* Root */
 
@@ -48,61 +53,13 @@ body {
 
 .container > h1 {
     color: #111827;
+
     font-size: clamp(2rem, 4vw, 3rem);
+
     line-height: 1.1;
-    letter-spacing: 0;
 }
 
-.container input,
-.container textarea,
-.container select {
-    background-color: #ffffff;
-    color: #111827;
-    border: 1px solid #cbd5e1;
-    outline: none;
-    transition:
-        border-color 0.2s ease,
-        box-shadow 0.2s ease,
-        background-color 0.2s ease;
-}
 
-.container input:focus,
-.container textarea:focus,
-.container select:focus {
-    border-color: #2563eb;
-    box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
-}
-
-.container input::placeholder,
-.container textarea::placeholder {
-    color: #94a3b8;
-}
-
-@media (max-width: 700px) {
-    .container {
-        width: calc(100% - 24px);
-        margin: 16px auto;
-        padding: 20px;
-        border-radius: 12px;
-    }
-
-    .container > h1 {
-        font-size: 2rem;
-    }
-    body {
-        line-height: 1.5;
-    }
-
-    button {
-        min-height: 42px;
-    }
-
-    input,
-    textarea,
-    select {
-        max-width: 100%;
-    }
-}
 /* Links */
 
 a {
@@ -110,18 +67,41 @@ a {
     color: inherit;
 }
 
+
 /* Buttons */
 
 button {
     font: inherit;
     cursor: pointer;
+
+    transition:
+        background-color 0.2s ease,
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        transform 0.1s ease;
 }
+
+button:active {
+    transform: translateY(1px);
+}
+
+button:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
 .container button {
     background-color: #2563eb;
+
     color: white;
+
     border: none;
+
     padding: 10px 16px;
+
     border-radius: 6px;
+
     cursor: pointer;
 }
 
@@ -129,14 +109,24 @@ button {
     background-color: #1d4ed8;
 }
 
+
+/* Button Focus */
+
+button:focus-visible,
+a:focus-visible {
+    outline: 3px solid rgba(37, 99, 235, 0.25);
+    outline-offset: 2px;
+}
+
+
 /* Button Variants */
 
 .edit-btn {
-    background: #475569  !important;
+    background: #475569 !important;
 }
 
 .edit-btn:hover {
-    background: #334155  !important;
+    background: #334155 !important;
 }
 
 .delete-btn {
@@ -164,13 +154,66 @@ button {
     background: #15803d !important;
 }
 
-/* Inputs */
+
+/* Form Controls */
 
 input,
 textarea,
 select {
     font: inherit;
+
+    width: 100%;
+    max-width: 100%;
 }
+
+.container input,
+.container textarea,
+.container select {
+    background-color: #ffffff;
+
+    color: #111827;
+
+    border: 1px solid #cbd5e1;
+
+    transition:
+        border-color 0.2s ease,
+        box-shadow 0.2s ease,
+        background-color 0.2s ease;
+}
+
+.container input:focus,
+.container textarea:focus,
+.container select:focus {
+    border-color: #2563eb;
+
+    box-shadow:
+        0 0 0 4px
+        rgba(37, 99, 235, 0.14);
+}
+
+.container input::placeholder,
+.container textarea::placeholder {
+    color: #94a3b8;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+    outline: none;
+}
+
+textarea {
+    min-height: 100px;
+    resize: vertical;
+
+    line-height: 1.5;
+}
+
+input,
+select {
+    min-height: 42px;
+}
+
 
 /* Images */
 
@@ -179,6 +222,7 @@ img {
     display: block;
 }
 
+
 /* Lists */
 
 ul,
@@ -186,19 +230,61 @@ ol {
     list-style: none;
 }
 
+
 /* Progress Bar */
 
 .progress-bar {
     width: 100%;
     height: 12px;
+
     background-color: #e5e7eb;
+
     border-radius: 10px;
+
     overflow: hidden;
+
     margin-bottom: 15px;
 }
 
 .progress-fill {
     height: 100%;
+
     background-color: #2563eb;
-    transition: width 0.3s ease;
+
+    transition:
+        width 0.3s ease;
+}
+
+
+/* Mobile */
+
+@media (max-width: 700px) {
+
+    body {
+        line-height: 1.5;
+    }
+
+    .container {
+        width: calc(100% - 24px);
+
+        margin: 16px auto;
+        padding: 20px;
+
+        border-radius: 12px;
+    }
+
+    .container > h1 {
+        font-size: 2rem;
+    }
+
+    button {
+        min-height: 42px;
+    }
+
+    input,
+    textarea,
+    select {
+        max-width: 100%;
+        font-size: 16px;
+    }
 }
