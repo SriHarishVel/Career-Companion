@@ -9,6 +9,7 @@ import Skills from "./pages/Skills";
 import Resources from "./pages/Resources";
 import Applications from "./pages/Applications";
 import Profile from "./pages/Profile";
+import NotFound from "./pages/NotFound";
 
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRoute from "./components/PublicRoute";
@@ -39,7 +40,8 @@ function App() {
                     <Route path="/applications" element={<Applications />} />
                     <Route path="/profile" element={<Profile />} />
                 </Route>
-
+                
+                <Route path="*" element={<NotFound />} />
             </Routes>
 
             {/* Footer shown on every page */}
