@@ -54,8 +54,6 @@
         const navigate = useNavigate();
         const location = useLocation();
         const journeyAction = location.state?.action;
-        const journeyStep = journeyService.getNextStep();
-        const { primaryGoal } = journeyService.getJourneyOverview();
         const isGuidedSetup =
             journeyAction === "createPrimaryGoal" ||
             journeyAction === "createSecondaryGoal";
@@ -83,6 +81,8 @@
         const [goals, setGoals] = useState([]);
         const [completedGoal, setCompletedGoal] = useState(null);
         const [editingGoalId, setEditingGoalId] = useState(null);
+        const [journeyStep, setJourneyStep] = useState(null);
+        const [primaryGoal, setPrimaryGoal] = useState(null);
 
         const goalFormRef = useRef(null);
 
@@ -92,41 +92,61 @@
 
                 try {
 
-                    const goals = await getGoals({
-                        search: searchGoal || undefined,
+                    const [
+                        goals,
+                        journeyOverview,
+                        nextStep
+                    ] = await Promise.all([
+                        getGoals({
+                            search: searchGoal || undefined,
 
-                        category:
-                            categoryFilter === "All"
-                                ? undefined
-                                : categoryFilter,
+                            category:
+                                categoryFilter === "All"
+                                    ? undefined
+                                    : categoryFilter,
 
-                        priority:
-                            priorityFilter === "All"
-                                ? undefined
-                                : priorityFilter,
+                            priority:
+                                priorityFilter === "All"
+                                    ? undefined
+                                    : priorityFilter,
 
-                        goalType:
-                            goalTypeFilter === "All"
-                                ? undefined
-                                : goalTypeFilter,
+                            goalType:
+                                goalTypeFilter === "All"
+                                    ? undefined
+                                    : goalTypeFilter,
 
-                        status:
-                            statusFilter === "All"
-                                ? undefined
-                                : statusFilter,
+                            status:
+                                statusFilter === "All"
+                                    ? undefined
+                                    : statusFilter,
 
-                        sort:
-                            sortOption === "default"
-                                ? undefined
-                                : sortOption,
-                    });
+                            sort:
+                                sortOption === "default"
+                                    ? undefined
+                                    : sortOption,
+                        }),
 
-                    setGoals(
-                        syncPrimaryGoalProgress(goals)
-                    );
+                        journeyService.getJourneyOverview(),
+                        journeyService.getNextStep()
+                    ]);
+
+                    setGoals(syncPrimaryGoalProgress(goals));
+
+                    setPrimaryGoal(journeyOverview.primaryGoal);
+
+                    if (isGuidedSetup) {
+                        setJourneyStep(nextStep);
+                    } else {
+                        setJourneyStep(null);
+                    }
 
                 } catch (error) {
-                    console.error(error);
+
+                    console.error(
+                        "Failed to load goals:",
+                        error
+                    );
+
                 }
 
             }
@@ -183,13 +203,14 @@
 
         function goToNextStep() {
 
-            const nextStep =
-                journeyService.getNextStep();
+            if (!journeyStep) {
+                return;
+            }
 
-            navigate(nextStep.page, {
+            navigate(journeyStep.page, {
                 state: {
                     fromJourney: true,
-                    action: nextStep.action
+                    action: journeyStep.action
                 }
             });
 

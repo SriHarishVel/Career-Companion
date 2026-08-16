@@ -13,36 +13,70 @@ function GoalFilters({
     setStatusFilter
 }) {
 
+    const hasActiveFilters =
+        searchGoal ||
+        sortOption !== "default" ||
+        categoryFilter !== "All" ||
+        priorityFilter !== "All" ||
+        goalTypeFilter !== "All" ||
+        statusFilter !== "All";
+
+    function clearFilters() {
+        setSearchGoal("");
+        setSortOption("default");
+        setCategoryFilter("All");
+        setPriorityFilter("All");
+        setGoalTypeFilter("All");
+        setStatusFilter("All");
+    }
+
     return (
-        <div className="filters-GoalCard">
-            <h3>Filters</h3>
+        <div className="filters-card">
+
+            <div className="filters-header">
+
+                <div>
+                    <h3>Find a Goal</h3>
+
+                    <p className="filters-description">
+                        Search, filter, or sort your goals.
+                    </p>
+                </div>
+
+                {hasActiveFilters && (
+                    <button
+                        type="button"
+                        className="clear-filters-btn"
+                        onClick={clearFilters}
+                    >
+                        Clear Filters
+                    </button>
+                )}
+
+            </div>
 
             <div className="filters-toolbar">
 
-                <div className="filter-group">
+                <div className="filter-group search-group">
                     <label>Search</label>
 
                     <input
                         type="search"
-                        placeholder="Search Goals"
+                        placeholder="Search goals..."
                         value={searchGoal}
                         onChange={(e) =>
-                            setSearchGoal(
-                        e.target.value
-                            )
+                            setSearchGoal(e.target.value)
                         }
                     />
                 </div>
-                
+
                 <div className="filter-group">
                     <label>Sort By</label>
 
                     <select
                         value={sortOption}
                         onChange={(e) =>
-                            setSortOption(
-                        e.target.value
-                            )
+                            setSortOption(e.target.value)
                         }
                     >
                         <option value="default">
@@ -76,8 +110,8 @@ function GoalFilters({
                         <option value="recent">
                             Recently Updated
                         </option>
-                            </select>
-                        </div>
+                    </select>
+                </div>
 
                 <div className="filter-group">
                     <label>Category</label>
@@ -85,11 +119,9 @@ function GoalFilters({
                     <select
                         value={categoryFilter}
                         onChange={(e) =>
-                            setCategoryFilter(
-                                e.target.value
-                            )
+                            setCategoryFilter(e.target.value)
                         }
-                            >
+                    >
                         <option value="All">
                             All Categories
                         </option>
@@ -118,11 +150,9 @@ function GoalFilters({
                     <select
                         value={priorityFilter}
                         onChange={(e) =>
-                            setPriorityFilter(
-                                e.target.value
-                            )
+                            setPriorityFilter(e.target.value)
                         }
-                            >
+                    >
                         <option value="All">
                             All Priorities
                         </option>
@@ -140,18 +170,16 @@ function GoalFilters({
                         </option>
                     </select>
                 </div>
-                        
+
                 <div className="filter-group">
                     <label>Goal Type</label>
 
                     <select
                         value={goalTypeFilter}
                         onChange={(e) =>
-                            setGoalTypeFilter(
-                                e.target.value
-                            )
+                            setGoalTypeFilter(e.target.value)
                         }
-                            >
+                    >
                         <option value="All">
                             All Types
                         </option>
@@ -172,11 +200,9 @@ function GoalFilters({
                     <select
                         value={statusFilter}
                         onChange={(e) =>
-                            setStatusFilter(
-                                e.target.value
-                            )
+                            setStatusFilter(e.target.value)
                         }
-                            >
+                    >
                         <option value="All">
                             All Goals
                         </option>
@@ -195,7 +221,6 @@ function GoalFilters({
 
         </div>
     );
-
 }
 
 export default GoalFilters;

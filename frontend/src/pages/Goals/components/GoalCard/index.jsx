@@ -31,67 +31,93 @@ function GoalCard({
         );
     }
 
+    const deadlineStatus =
+        daysLeft < 0
+            ? "overdue"
+            : daysLeft === 0
+                ? "today"
+                : "upcoming";
+
     return (
-        <div
+        <article
             className={`card ${
                 completed
                     ? "completed-card"
                     : ""
             }`}
         >
+
             <div className="card-header">
-                <h2>{title}</h2>
 
-                {completed && (
-                    <span className="completed-badge">
-                        ✓ Completed
-                    </span>
-                )}
+                <div className="card-title-row">
+
+                    <h2>{title}</h2>
+
+                    {completed && (
+                        <span className="completed-badge">
+                            ✓ Completed
+                        </span>
+                    )}
+
+                </div>
+
+                <div className="badges-row">
+
+                    {category && (
+                        <span className="category-badge">
+                            {category}
+                        </span>
+                    )}
+
+                    {goalType && (
+                        <span
+                            className={`goal-type-badge ${goalType.toLowerCase()}`}
+                        >
+                            {goalType}
+                        </span>
+                    )}
+
+                    {priority && (
+                        <span
+                            className={`priority-badge ${priority.toLowerCase()}`}
+                        >
+                            {priority}
+                        </span>
+                    )}
+
+                </div>
+
             </div>
 
-            <div className="badges-row">
-                {category && (
-                    <span className="category-badge">
-                        {category}
-                    </span>
-                )}
-
-                {goalType && (
-                    <span
-                        className={`goal-type-badge ${goalType.toLowerCase()}`}
-                    >
-                        {goalType}
-                    </span>
-                )}
-
-                {priority && (
-                    <span
-                        className={`priority-badge ${priority.toLowerCase()}`}
-                    >
-                        {priority}
-                    </span>
-                )}
-            </div>
 
             {childGoals.length > 0 && (
                 <div className="child-goals">
+
                     <div className="child-goals-label">
                         Supporting Goals
                     </div>
 
-                    {childGoals.map(goal => (
-                        <div
-                            key={goal._id}
-                            className="child-goal-item"
-                        >
-                            • {goal.title}
-                        </div>
-                    ))}
+                    <div className="child-goals-list">
+
+                        {childGoals.map(goal => (
+                            <div
+                                key={goal._id}
+                                className="child-goal-item"
+                            >
+                                <span>•</span>
+                                {goal.title}
+                            </div>
+                        ))}
+
+                    </div>
+
                 </div>
             )}
 
+
             {parentGoalTitle && (
                 <div className="parent-goal-card">
+
                     <div className="parent-goal-label">
                         Primary Goal
                     </div>
@@ -99,63 +125,87 @@ function GoalCard({
                     <div className="parent-goal-title">
                         {parentGoalTitle}
                     </div>
+
                 </div>
             )}
 
-            {deadline && (
-                <>
-                    <p>
-                        Deadline:{" "}
-                        {new Date(deadline).toLocaleDateString(
-                            "en-GB",
-                            {
-                                day: "numeric",
-                                month: "short",
-                                year: "numeric",
-                            }
-                        )}
-                    </p>
 
-                    <p>
+            <div className="goal-progress-section">
+
+                <div className="progress-header">
+
+                    <span>Progress</span>
+
+                    <strong>
+                        {progress}%
+                    </strong>
+
+                </div>
+
+                <div className="progress-bar">
+
+                    <div
+                        className="progress-fill"
+                        style={{
+                            width: `${progress}%`
+                        }}
+                    />
+
+                </div>
+
+            </div>
+
+
+            {deadline && (
+                <div className="deadline-info">
+
+                    <div>
+                        <span className="deadline-label">
+                            Deadline
+                        </span>
+
+                        <strong>
+                            {new Date(
+                                deadline
+                            ).toLocaleDateString(
+                                "en-GB",
+                                {
+                                    day: "numeric",
+                                    month: "short",
+                                    year: "numeric"
+                                }
+                            )}
+                        </strong>
+                    </div>
+
+                    <span
+                        className={`deadline-status ${deadlineStatus}`}
+                    >
                         {daysLeft > 0
                             ? `${daysLeft} days left`
                             : daysLeft === 0
                                 ? "Due today"
                                 : "Overdue"}
-                    </p>
-                </>
+                    </span>
+
+                </div>
             )}
 
-            {!completed && (
-                <p>
-                    Progress:
-                    {" "}
-                    {progress}%
-                </p>
-            )}
-
-            <div className="progress-bar">
-                <div
-                    className="progress-fill"
-                    style={{
-                        width: `${progress}%`
-                    }}
-                />
-            </div>
 
             <div className="card-actions">
+
                 {onProgress && (
                     <button
+                        type="button"
                         onClick={() => onProgress(id)}
                         disabled={completed}
                     >
-                        {completed
-                            ? "Completed"
-                            : "Update Progress"}
+                        Update Progress
                     </button>
                 )}
 
                 <button
+                    type="button"
                     className="edit-btn"
                     onClick={() => onEdit(id)}
                 >
@@ -163,13 +213,16 @@ function GoalCard({
                 </button>
 
                 <button
+                    type="button"
                     className="delete-btn"
                     onClick={() => onDelete(id)}
                 >
                     Delete
                 </button>
+
             </div>
-        </div>
+
+        </article>
     );
 }
 

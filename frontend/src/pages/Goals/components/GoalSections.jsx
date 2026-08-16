@@ -17,95 +17,145 @@ function GoalSections({
     setSelectedGoalId
 }) {
 
+    function handleDelete(goalId) {
+        setSelectedGoalId(goalId);
+        setShowDeleteModal(true);
+    }
+
     return (
         <>
+
+            <div className="goal-summary">
+
+                <span>
+                    {goals.length}{" "}
+                    {goals.length === 1
+                        ? "goal"
+                        : "goals"}
+                </span>
+
+                <span>
+                    {primaryGoals.length} primary
+                </span>
+
+                <span>
+                    {secondaryGoals.length} secondary
+                </span>
+
+            </div>
+
             {goals.length > 0 ? (
                 <>
+
                     {primaryGoals.length > 0 && (
-                        <>
+                        <section className="goal-section">
+
                             <h2 className="goal-section-title">
                                 Primary Goals
                             </h2>
 
                             <div className="goals-grid">
+
                                 {primaryGoals.map(goal => (
+
                                     <GoalCard
                                         key={goal._id}
                                         id={goal._id}
                                         title={goal.title}
                                         progress={goal.progress}
                                         category={goal.category}
-                                        onProgress={null}
                                         priority={goal.priority}
                                         goalType={goal.goalType}
-                                        childGoals={getChildGoals(goal._id)}
-                                        onDelete={(goalId) => {
-                                            setSelectedGoalId(goalId);
-                                            setShowDeleteModal(true);
-                                        }}
-                                        onEdit={editGoal}
+                                        childGoals={
+                                            getChildGoals(
+                                                goal._id
+                                            )
+                                        }
                                         deadline={goal.deadline}
                                         completed={goal.completed}
+                                        onProgress={null}
+                                        onEdit={editGoal}
+                                        onDelete={handleDelete}
                                     />
+
                                 ))}
+
                             </div>
-                        </>
+
+                        </section>
                     )}
 
                     {secondaryGoals.length > 0 && (
-                        <>
+                        <section className="goal-section">
+
                             <h2 className="goal-section-title">
                                 Secondary Goals
                             </h2>
 
                             <div className="goals-grid">
+
                                 {secondaryGoals.map(goal => (
+
                                     <GoalCard
                                         key={goal._id}
                                         id={goal._id}
                                         title={goal.title}
                                         progress={goal.progress}
                                         category={goal.category}
-                                        onProgress={handleProgress}
                                         priority={goal.priority}
                                         goalType={goal.goalType}
-                                        onDelete={(goalId) => {
-                                            setSelectedGoalId(goalId);
-                                            setShowDeleteModal(true);
-                                        }}
                                         parentGoalTitle={
                                             getParentGoalTitle(
                                                 goal.parentGoal?._id
                                             )
                                         }
-                                        onEdit={editGoal}
                                         deadline={goal.deadline}
                                         completed={goal.completed}
+                                        onProgress={handleProgress}
+                                        onEdit={editGoal}
+                                        onDelete={handleDelete}
                                     />
+
                                 ))}
+
                             </div>
-                        </>
+
+                        </section>
                     )}
+
                 </>
             ) : (
                 <div className="empty-state">
-                    <h3>No Goals found</h3>
+
+                    <h3>
+                        No goals found
+                    </h3>
 
                     <p>
-                        Add a Goal or adjust
-                        your filters.
+                        Try adjusting your filters or
+                        create your first goal above.
                     </p>
+
                 </div>
             )}
 
             {completedGoal && (
                 <div className="success-banner">
-                    🎉 Congratulations! You completed "{completedGoal}".
+
+                    <span>
+                        🎉 Congratulations! You completed{" "}
+                        <strong>"{completedGoal}"</strong>.
+                    </span>
+
                     <button
-                        onClick={() => setCompletedGoal(null)}
+                        type="button"
+                        onClick={() =>
+                            setCompletedGoal(null)
+                        }
                     >
                         Dismiss
                     </button>
+
                 </div>
             )}
 
@@ -119,9 +169,9 @@ function GoalSections({
                     setSelectedGoalId(null);
                 }}
             />
+
         </>
     );
-
 }
 
 export default GoalSections;

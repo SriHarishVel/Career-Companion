@@ -22,60 +22,107 @@ function GoalForm({
     setErrorMsg,
     addGoal,
     navigate,
-    handleCancelEdit,
-    goals,
-    primaryGoals,
-    secondaryGoals
+    handleCancelEdit
 }) {
 
     useEffect(() => {
+
         if (
             (newGoalType === "Secondary" ||
-                journeyStep.action === "createSecondaryGoal") &&
+                journeyStep?.action === "createSecondaryGoal") &&
             primaryGoalOptions.length === 1
         ) {
-            setParentGoalId(primaryGoalOptions[0]._id);
+            setParentGoalId(
+                primaryGoalOptions[0]._id
+            );
         }
+
     }, [
         newGoalType,
-        journeyStep.action,
+        journeyStep?.action,
         primaryGoalOptions,
-        setParentGoalId,
+        setParentGoalId
     ]);
 
-    return (
-        <div className="add-goal-GoalCard" ref={goalFormRef}>
-            <h3>
-                {editingGoalId
-                    ? "Edit Goal"
-                    : journeyStep.action === "createPrimaryGoal"
-                        ? "Create Primary Goal"
-                        : journeyStep.action === "createSecondaryGoal"
-                            ? "Create Secondary Goal"
-                            : "Add Goal"}
-            </h3>
+    const isCreatingPrimary =
+        journeyStep?.action === "createPrimaryGoal";
 
-            <input
-                type="text"
-                placeholder={
-                    editingGoalId
-                        ? "Edit Goal Title"
-                        : "Goal Title"
-                }
-                value={newGoal}
-                onChange={(e) => {
-                    setNewGoal(e.target.value);
-                    setErrorMsg("");
-                }}
-            />
+    const isCreatingSecondary =
+        journeyStep?.action === "createSecondaryGoal";
+
+    const formTitle = editingGoalId
+        ? "Edit Goal"
+        : isCreatingPrimary
+            ? "Create Primary Goal"
+            : isCreatingSecondary
+                ? "Create Secondary Goal"
+                : "Add Goal";
+
+    const submitLabel = editingGoalId
+        ? "Update Goal"
+        : isCreatingPrimary
+            ? "Create Primary Goal"
+            : isCreatingSecondary
+                ? "Create Secondary Goal"
+                : "Add Goal";
+
+    const requiresParentGoal =
+        newGoalType === "Secondary" ||
+        isCreatingSecondary;
+
+    return (
+        <div
+            className="add-goal-card"
+            ref={goalFormRef}
+        >
+
+            <div className="goal-form-header">
+
+                <div>
+                    <h3>{formTitle}</h3>
+
+                    {!editingGoalId && !isGuidedSetup && (
+                        <p className="goal-form-description">
+                            Add a goal and define how you want to track it.
+                        </p>
+                    )}
+                </div>
+
+            </div>
+
+            <div className="filter-group">
+
+                <label htmlFor="goal-title">
+                    Goal Title
+                </label>
+
+                <input
+                    id="goal-title"
+                    type="text"
+                    placeholder={
+                        editingGoalId
+                            ? "Edit goal title"
+                            : "Enter your goal"
+                    }
+                    value={newGoal}
+                    onChange={(e) => {
+                        setNewGoal(e.target.value);
+                        setErrorMsg("");
+                    }}
+                />
+
+            </div>
 
             <div className="goal-options">
 
                 <div className="filter-group">
 
-                    <label>Category</label>
+                    <label htmlFor="goal-category">
+                        Category
+                    </label>
 
                     <select
+                        id="goal-category"
                         value={newCategory}
                         onChange={(e) =>
                             setNewCategory(e.target.value)
@@ -102,9 +149,12 @@ function GoalForm({
 
                 <div className="filter-group">
 
-                    <label>Priority</label>
+                    <label htmlFor="goal-priority">
+                        Priority
+                    </label>
 
                     <select
+                        id="goal-priority"
                         value={newPriority}
                         onChange={(e) =>
                             setNewPriority(e.target.value)
@@ -128,9 +178,12 @@ function GoalForm({
                 {!isGuidedSetup && (
                     <div className="filter-group">
 
-                        <label>Goal Type</label>
+                        <label htmlFor="goal-type">
+                            Goal Type
+                        </label>
 
                         <select
+                            id="goal-type"
                             value={newGoalType}
                             onChange={handleGoalTypeChange}
                         >
@@ -151,24 +204,21 @@ function GoalForm({
                     </div>
                 )}
 
-                {primaryGoalOptions.length === 0 && (
-                    <small className="helper-text">
-                        Create a primary goal first to unlock secondary goals.
-                    </small>
-                )}
-
-                {(newGoalType === "Secondary" ||
-                    journeyStep.action === "createSecondaryGoal") && (
-
+                {requiresParentGoal && (
                     primaryGoalOptions.length === 1 ? (
 
                         <div className="filter-group">
 
-                            <label>Parent Goal</label>
+                            <label htmlFor="parent-goal">
+                                Parent Goal
+                            </label>
 
                             <input
+                                id="parent-goal"
                                 type="text"
-                                value={primaryGoalOptions[0].title}
+                                value={
+                                    primaryGoalOptions[0].title
+                                }
                                 readOnly
                             />
 
@@ -178,12 +228,17 @@ function GoalForm({
 
                         <div className="filter-group">
 
-                            <label>Parent Goal</label>
+                            <label htmlFor="parent-goal">
+                                Parent Goal
+                            </label>
 
                             <select
+                                id="parent-goal"
                                 value={parentGoalId}
                                 onChange={(e) =>
-                                    setParentGoalId(e.target.value)
+                                    setParentGoalId(
+                                        e.target.value
+                                    )
                                 }
                             >
                                 <option value="">
@@ -202,15 +257,17 @@ function GoalForm({
                             </select>
 
                         </div>
-
                     )
                 )}
 
                 <div className="filter-group">
 
-                    <label>Deadline</label>
+                    <label htmlFor="goal-deadline">
+                        Deadline
+                    </label>
 
                     <input
+                        id="goal-deadline"
                         type="date"
                         value={newDeadline}
                         onChange={(e) =>
@@ -222,6 +279,12 @@ function GoalForm({
 
             </div>
 
+            {primaryGoalOptions.length === 0 && (
+                <p className="helper-text">
+                    Create a primary goal first to unlock secondary goals.
+                </p>
+            )}
+
             {errorMsg && (
                 <p className="error">
                     {errorMsg}
@@ -230,22 +293,19 @@ function GoalForm({
 
             <div className="goal-form-actions">
 
-                <button onClick={addGoal}>
-                    {editingGoalId
-                        ? "Update Goal"
-                        : journeyStep.action === "createPrimaryGoal"
-                            ? "Create Primary Goal"
-                            : journeyStep.action === "createSecondaryGoal"
-                                ? "Create Secondary Goal"
-                                : "Add Goal"}
+                <button
+                    type="button"
+                    onClick={addGoal}
+                >
+                    {submitLabel}
                 </button>
 
                 {isGuidedSetup &&
-                    journeyStep.action === "createSecondaryGoal" && (
+                    isCreatingSecondary && (
                         <button
                             type="button"
                             className="secondary-btn"
-                            onClick={() => navigate("/home")}
+                            onClick={() => navigate("/")}
                         >
                             Finish Setup
                         </button>
@@ -253,6 +313,7 @@ function GoalForm({
 
                 {editingGoalId && (
                     <button
+                        type="button"
                         className="cancel-btn"
                         onClick={handleCancelEdit}
                     >
@@ -261,18 +322,6 @@ function GoalForm({
                 )}
 
             </div>
-
-            <p className="goal-counter">
-                Showing {goals.length} goals
-            </p>
-
-            <p className="goal-counter">
-                Primary Goals: {primaryGoals.length}
-            </p>
-
-            <p className="goal-counter">
-                Secondary Goals: {secondaryGoals.length}
-            </p>
 
         </div>
     );
