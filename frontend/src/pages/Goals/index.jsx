@@ -159,7 +159,8 @@
             priorityFilter,
             goalTypeFilter,
             statusFilter,
-            sortOption
+            sortOption,
+            isGuidedSetup
         ]);
 
         async function handleProgress(goalId) {
