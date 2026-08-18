@@ -103,18 +103,7 @@ function Navbar() {
                         <FaBook />
                         <span>Resources</span>
                     </NavLink>
-
-                    <NavLink
-                        to="/dashboard"
-                        onClick={closeMenu}
-                        className={({ isActive }) =>
-                            isActive ? "active" : ""
-                        }
-                    >
-                        <FaChartLine />
-                        <span>Dashboard</span>
-                    </NavLink>
-
+                    
                     <NavLink
                         to="/applications"
                         onClick={closeMenu}
@@ -124,6 +113,17 @@ function Navbar() {
                     >
                         <FaBriefcase />
                         <span>Applications</span>
+                    </NavLink>
+                    
+                    <NavLink
+                        to="/dashboard"
+                        onClick={closeMenu}
+                        className={({ isActive }) =>
+                            isActive ? "active" : ""
+                        }
+                    >
+                        <FaChartLine />
+                        <span>Dashboard</span>
                     </NavLink>
                     
                     <NavLink

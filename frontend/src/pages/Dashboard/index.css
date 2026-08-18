@@ -1,142 +1,862 @@
+/* Dashboard */
+
 .dashboard-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-    gap: 20px;
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+
+  gap: 16px;
 }
 
+/* Dashboard Sections */
+
 .dashboard-section {
-    background: white;
-    border-radius: 12px;
-    padding: 20px;
-    margin-top: 20px;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+  padding: 20px;
+
+  margin-top: 16px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+
+  background: #ffffff;
+
+  box-shadow: 0 3px 10px rgba(0, 0, 0, 0.05);
 }
 
 .dashboard-section h2 {
-    margin-bottom: 20px;
-    font-size: 1.3rem;
+  margin: 0 0 16px;
+
+  color: #1f2937;
+
+  font-size: 1.2rem;
 }
 
+/* Career Pipeline */
+
 .pipeline-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
-    gap: 20px;
+  display: grid;
+
+  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+
+  gap: 12px;
 }
 
 .pipeline-card {
-    background: #f8f9fa;
-    border-radius: 10px;
-    padding: 20px;
-    text-align: center;
-    border: 1px solid #e5e5e5;
+  padding: 16px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 10px;
+
+  background: #f8fafc;
+
+  text-align: center;
+
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.pipeline-card:hover {
+  transform: translateY(-2px);
+
+  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.07);
 }
 
 .pipeline-card h3 {
-    margin-bottom: 10px;
-    font-size: 1rem;
+  margin: 0 0 6px;
+
+  color: #475569;
+
+  font-size: 0.9rem;
 }
 
 .pipeline-card p {
-    font-size: 2rem;
-    font-weight: bold;
-    margin: 0;
+  margin: 0;
+
+  color: #1f2937;
+
+  font-size: 1.7rem;
+  font-weight: 700;
+}
+
+/* Progress Overview */
+
+/* Progress Overview */
+
+.progress-overview {
+  padding: 20px;
+}
+
+.progress-overview-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
+}
+
+.progress-overview-header h2 {
+  margin: 0;
+
+  color: #1e293b;
+
+  font-size: 1.2rem;
+}
+
+.progress-overview-header span {
+  color: #64748b;
+
+  font-size: 0.8rem;
+}
+
+.progress-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 16px;
 }
 
 .progress-item {
-    margin-bottom: 20px;
+  margin: 0;
 }
 
-.progress-item p {
-    margin-bottom: 8px;
-    font-weight: 600;
+.progress-info {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  margin-bottom: 7px;
+}
+
+.progress-info span {
+  color: #334155;
+
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.progress-info strong {
+  color: #2563eb;
+
+  font-size: 0.85rem;
 }
 
 .progress-bar {
-    width: 100%;
-    height: 10px;
-    background: #e5e7eb;
-    border-radius: 999px;
-    overflow: hidden;
+  width: 100%;
+  height: 8px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #e2e8f0;
 }
 
 .progress-fill {
-    height: 100%;
-    background: #3b82f6;
-    border-radius: inherit;
-    transition: width 0.3s ease;
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: #3b82f6;
+
+  transition: width 0.4s ease;
 }
 
-.progress-item span {
-    display: inline-block;
-    margin-top: 8px;
-    font-weight: bold;
+/* Recent Activity */
+
+.recent-activity-header {
+  display: flex;
+  justify-content: space-between;
+
+  margin-bottom: 18px;
 }
 
-.activity-grid {
-    display: grid;
-    grid-template-columns: repeat(
-        auto-fit,
-        minmax(220px, 1fr)
-    );
-    gap: 20px;
+.recent-activity-header h2 {
+  margin: 0;
+
+  color: #1e293b;
+
+  font-size: 1.2rem;
 }
+
+.recent-activity-header p {
+  margin: 4px 0 0;
+
+  color: #64748b;
+
+  font-size: 0.82rem;
+}
+
+/* Timeline */
+
+.activity-timeline {
+  display: grid;
+
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+
+  gap: 0;
+}
+
+.activity-entry {
+  position: relative;
+
+  min-width: 0;
+}
+
+/* Activity card */
 
 .activity-card {
-    background: #f8f9fa;
-    border: 1px solid #e5e7eb;
-    border-radius: 12px;
-    padding: 18px;
-    transition: 0.2s ease;
+  position: relative;
+
+  margin: 8px 6px 0;
+
+  padding: 12px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  background: #f8fafc;
+
+  transition:
+    transform 0.2s ease,
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .activity-card:hover {
-    transform: translateY(-2px);
-    box-shadow: 0 6px 18px rgba(0,0,0,.08);
+  transform: translateY(-2px);
+
+  border-color: #bfdbfe;
+
+  box-shadow: 0 5px 14px rgba(37, 99, 235, 0.08);
 }
 
+/* Header */
+
+.activity-card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 6px;
+
+  margin-bottom: 8px;
+}
+
+.activity-card-header small {
+  color: #94a3b8;
+
+  font-size: 0.7rem;
+}
+
+/* Type */
+
 .activity-type {
-    display: inline-block;
-    font-size: 0.8rem;
-    font-weight: 600;
-    color: #666;
-    text-transform: uppercase;
-    margin-bottom: 10px;
+  display: inline-block;
+
+  padding: 3px 7px;
+
+  border-radius: 999px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-size: 0.65rem;
+  font-weight: 700;
+
+  text-transform: uppercase;
 }
 
 .activity-card h3 {
-    margin: 0;
-    font-size: 1rem;
-    word-break: break-word;
+  margin: 0;
+
+  color: #1e293b;
+
+  font-size: 0.85rem;
+  line-height: 1.35;
+
+  overflow-wrap: anywhere;
 }
 
+/* Upcoming Deadlines */
+
 .deadline-list {
-    display: flex;
-    flex-direction: column;
-    gap: 12px;
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
 }
 
 .deadline-item {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 14px 18px;
-    border: 1px solid #e5e7eb;
-    border-radius: 10px;
-    background: #f8f9fa;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 16px;
+
+  padding: 12px 14px;
+
+  border: 1px solid #e5e7eb;
+  border-radius: 9px;
+
+  background: #f8fafc;
 }
 
 .deadline-item h3 {
-    margin: 0;
-    font-size: 1rem;
+  margin: 0;
+
+  color: #1f2937;
+
+  font-size: 0.95rem;
+
+  overflow-wrap: anywhere;
 }
 
 .deadline-item p {
-    margin: 4px 0 0;
-    color: #666;
-    font-size: 0.9rem;
+  margin: 3px 0 0;
+
+  color: #64748b;
+
+  font-size: 0.8rem;
 }
 
-.deadline-item span {
-    font-weight: 600;
-    color: #2563eb;
+.deadline-item > span {
+  flex-shrink: 0;
+
+  color: #2563eb;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Career Journey */
+
+/* Career Journey */
+
+.career-journey {
+  padding: 22px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 16px;
+
+  background: #ffffff;
+
+  box-shadow: 0 4px 16px rgba(15, 23, 42, 0.05);
+}
+
+/* Header */
+
+.career-journey-header {
+  margin-bottom: 18px;
+}
+
+.career-journey-header h2 {
+  margin: 0;
+
+  color: #1e293b;
+
+  font-size: 1.2rem;
+}
+
+.career-journey-header p {
+  margin: 4px 0 0;
+
+  color: #64748b;
+
+  font-size: 0.82rem;
+}
+
+/* Journey */
+
+.journey-stages {
+  display: grid;
+
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+
+  gap: 0;
+
+  position: relative;
+}
+
+/* Connector line */
+
+.journey-stages::before {
+  content: "";
+
+  position: absolute;
+
+  top: 20px;
+  left: 7%;
+  right: 7%;
+
+  height: 2px;
+
+  background: #e2e8f0;
+
+  z-index: 0;
+}
+
+/* Stage wrapper */
+
+.journey-stage-wrapper {
+  position: relative;
+
+  display: flex;
+  justify-content: center;
+
+  min-width: 0;
+
+  z-index: 1;
+}
+
+/* Remove old arrow */
+
+.journey-connector {
+  display: none;
+}
+
+/* Stage */
+
+.journey-stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  width: 100%;
+
+  padding: 0 10px;
+
+  border: none !important;
+
+  border-radius: 0 !important;
+
+  background: transparent !important;
+
+  color: #64748b !important;
+
+  cursor: pointer;
+
+  text-align: center;
+
+  box-shadow: none !important;
+
+  transform: none !important;
+
+  transition: color 0.2s ease;
+}
+
+/* Number */
+
+.journey-stage-number {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 40px;
+  height: 40px;
+
+  margin: 0 0 8px;
+
+  border: 3px solid #e2e8f0;
+  border-radius: 50%;
+
+  background: #ffffff;
+  color: #64748b;
+
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  box-shadow: 0 0 0 4px #ffffff;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease,
+    transform 0.2s ease;
+}
+
+/* Stage text */
+
+.journey-stage-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+
+  min-width: 0;
+}
+
+.journey-stage-content strong {
+  color: #334155;
+
+  font-size: 0.85rem;
+
+  transition: color 0.2s ease;
+}
+
+.journey-stage-content small {
+  margin-top: 3px;
+
+  color: #94a3b8;
+
+  font-size: 0.7rem;
+}
+
+/* Count */
+
+.journey-stage-count {
+  margin-top: 5px;
+
+  color: #64748b;
+
+  font-size: 0.75rem;
+  font-weight: 700;
+}
+
+/* Hover */
+
+.journey-stage:hover .journey-stage-number {
+  border-color: #93c5fd;
+
+  color: #2563eb;
+
+  transform: scale(1.05);
+}
+
+.journey-stage:hover .journey-stage-content strong {
+  color: #2563eb;
+}
+
+/* Active stage */
+
+.journey-stage.active {
+  background: transparent !important;
+
+  color: #2563eb !important;
+}
+
+.journey-stage.active .journey-stage-number {
+  border-color: #2563eb;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  transform: scale(1.05);
+
+  box-shadow:
+    0 0 0 4px #ffffff,
+    0 4px 10px rgba(37, 99, 235, 0.2);
+}
+
+.journey-stage.active .journey-stage-content strong {
+  color: #2563eb;
+}
+
+.journey-stage.active .journey-stage-count {
+  color: #2563eb;
+}
+
+/* Details */
+
+.journey-details {
+  margin-top: 22px;
+
+  padding: 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+
+  background: #f8fafc;
+
+  animation: journeyDetailsIn 0.2s ease;
+}
+
+@keyframes journeyDetailsIn {
+  from {
+    opacity: 0;
+    transform: translateY(-5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Detail header */
+
+.journey-detail-header {
+  margin-bottom: 10px;
+}
+
+.journey-detail-header div {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.journey-detail-header span {
+  color: #64748b;
+
+  font-size: 0.78rem;
+  font-weight: 600;
+}
+
+.journey-detail-header strong {
+  color: #2563eb;
+
+  font-size: 0.9rem;
+}
+
+/* Progress */
+
+.journey-progress-bar {
+  width: 100%;
+  height: 7px;
+
+  overflow: hidden;
+
+  border-radius: 999px;
+
+  background: #e2e8f0;
+}
+
+.journey-progress-fill {
+  height: 100%;
+
+  border-radius: inherit;
+
+  background: #2563eb;
+
+  transition: width 0.5s ease;
+}
+
+/* Items */
+
+.journey-items {
+  display: grid;
+
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+
+  gap: 8px;
+
+  margin-top: 12px;
+}
+
+.journey-item {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  min-width: 0;
+
+  gap: 8px;
+
+  padding: 9px 11px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+
+  background: #ffffff;
+}
+
+.journey-item span {
+  min-width: 0;
+
+  overflow: hidden;
+
+  color: #334155;
+
+  font-size: 0.78rem;
+
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.journey-item strong {
+  flex-shrink: 0;
+
+  color: #2563eb;
+
+  font-size: 0.72rem;
+}
+
+/* Application statistics */
+
+.journey-application-stats {
+  display: grid;
+
+  grid-template-columns: repeat(3, 1fr);
+
+  gap: 10px;
+}
+
+.journey-application-stats > div {
+  padding: 12px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 9px;
+
+  background: #ffffff;
+
+  text-align: center;
+}
+
+.journey-application-stats span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  color: #64748b;
+
+  font-size: 0.72rem;
+  font-weight: 600;
+}
+
+.journey-application-stats strong {
+  color: #1e293b;
+
+  font-size: 1.15rem;
+}
+
+/* Responsive Layout */
+
+@media (max-width: 900px) {
+  .journey-stages {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 16px 0;
+  }
+
+  .journey-stages::before {
+    display: none;
+  }
+
+  .journey-items {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .activity-timeline {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    row-gap: 18px;
+  }
+
+  .activity-entry:nth-child(3)::after {
+    display: none;
+  }
+}
+
+
+@media (max-width: 700px) {
+  .dashboard-section {
+    padding: 18px;
+    margin-top: 14px;
+    border-radius: 12px;
+  }
+
+  .journey-stages {
+    grid-template-columns: 1fr;
+    gap: 8px;
+  }
+
+  .journey-stage {
+    flex-direction: row;
+    justify-content: flex-start;
+
+    padding: 11px;
+
+    border: 1px solid #e2e8f0 !important;
+    border-radius: 10px !important;
+
+    background: #ffffff !important;
+
+    text-align: left;
+  }
+
+  .journey-stage-number {
+    width: 34px;
+    height: 34px;
+
+    margin: 0 10px 0 0;
+
+    box-shadow: none;
+  }
+
+  .journey-stage-content {
+    align-items: flex-start;
+  }
+
+  .journey-stage-count {
+    margin-top: 0;
+    margin-left: auto;
+  }
+
+  .journey-stage.active {
+    border-color: #2563eb !important;
+    background: #eff6ff !important;
+  }
+
+  .journey-stage.active .journey-stage-number {
+    box-shadow: none;
+  }
+
+  .journey-items,
+  .journey-application-stats {
+    grid-template-columns: 1fr;
+  }
+
+  .dashboard-grid,
+  .pipeline-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .deadline-item {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .activity-timeline {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .activity-entry:nth-child(3)::after {
+    display: block;
+  }
+
+  .activity-entry:nth-child(even)::after {
+    display: none;
+  }
+}
+
+
+@media (max-width: 420px) {
+  .dashboard-section {
+    padding: 16px;
+  }
+
+  .career-journey {
+    padding: 16px;
+  }
+
+  .career-journey-header h2 {
+    font-size: 1.1rem;
+  }
+
+  .summary-card,
+  .pipeline-card,
+  .activity-card {
+    padding: 14px;
+  }
+
+  .activity-timeline {
+    grid-template-columns: 1fr;
+  }
+
+  .activity-entry::after {
+    display: none !important;
+  }
+
+  .activity-card {
+    margin-left: 0;
+    margin-right: 0;
+  }
 }

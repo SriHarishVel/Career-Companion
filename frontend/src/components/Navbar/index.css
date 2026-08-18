@@ -1,3 +1,5 @@
+/* Navbar */
+
 .navbar {
     position: sticky;
     top: 0;
@@ -5,15 +7,21 @@
 
     display: flex;
     align-items: center;
-    gap: 24px;
+    justify-content: space-between;
 
-    padding: 16px 40px;
+    min-height: 68px;
 
-    background: white;
+    padding: 10px 32px;
+
+    border-bottom: 1px solid #e5e7eb;
+
+    background: #ffffff;
 
     box-shadow:
-        0 3px 12px rgba(0, 0, 0, 0.08);
+        0 2px 8px rgba(15, 23, 42, 0.04);
 }
+
+/* Brand */
 
 .navbar-header {
     display: flex;
@@ -23,52 +31,85 @@
 .logo {
     flex-shrink: 0;
 
-    font-size: 24px;
-    font-weight: 700;
-
     color: #2563eb;
+
+    font-size: 1.25rem;
+    font-weight: 750;
+
+    letter-spacing: -0.3px;
+
+    white-space: nowrap;
 }
 
+
+/* Navigation */
 .navbar-menu {
     display: flex;
     align-items: center;
-
-    flex: 1;
 }
 
 .nav-links {
     display: flex;
     align-items: center;
-    gap: 8px;
+
+    gap: 4px;
 }
 
 .nav-links a {
     display: flex;
     align-items: center;
+
     gap: 8px;
 
-    padding: 10px 14px;
+    padding: 9px 12px;
 
-    border-radius: 12px;
+    border-radius: 9px;
+
+    color: #64748b;
+
+    font-size: 0.88rem;
+    font-weight: 600;
 
     text-decoration: none;
 
-    color: #555;
-
     transition:
-        background 0.2s ease,
-        color 0.2s ease;
+        color 0.18s ease,
+        background-color 0.18s ease;
+}
+
+.nav-links a svg {
+    color: #64748b;
+
+    font-size: 0.9rem;
+
+    transition: color 0.18s ease;
 }
 
 .nav-links a:hover {
-    background: #eff6ff;
+    background: #f8fafc;
+
     color: #2563eb;
 }
 
-.nav-links a.active {
-    background: #2563eb;
-    color: white;
+.nav-links a:hover svg {
+    color: #2563eb;
 }
+
+
+/* Active */
+
+.nav-links a.active {
+    background: #eff6ff;
+
+    color: #2563eb;
+}
+
+.nav-links a.active svg {
+    color: #2563eb;
+}
+
+
+/* Mobile Toggle */
 
 .menu-toggle {
     display: none;
@@ -76,18 +117,33 @@
     align-items: center;
     justify-content: center;
 
-    width: 42px;
-    height: 42px;
+    width: 38px;
+    height: 38px;
 
-    border: none;
-    border-radius: 10px;
+    padding: 0;
 
-    background: #eff6ff;
-    color: #2563eb;
+    border: 1px solid #e2e8f0;
+    border-radius: 9px;
+
+    background: #f8fafc;
+    color: #475569;
 
     cursor: pointer;
 
-    font-size: 20px;
+    font-size: 1rem;
+
+    transition:
+        background-color 0.18s ease,
+        color 0.18s ease,
+        border-color 0.18s ease;
+}
+
+.menu-toggle:hover {
+    border-color: #bfdbfe;
+
+    background: #eff6ff;
+
+    color: #2563eb;
 }
 
 
@@ -96,27 +152,40 @@
 @media (max-width: 1100px) {
 
     .navbar {
-        padding: 14px 24px;
+        padding: 10px 22px;
+    }
+
+    .navbar-menu {
+        margin-left: 24px;
     }
 
     .nav-links {
-        gap: 4px;
+        gap: 2px;
     }
 
     .nav-links a {
-        padding: 9px 10px;
+        padding: 8px 9px;
+
+        font-size: 0.82rem;
+    }
+
+    .nav-links a {
+        gap: 6px;
     }
 
 }
 
 
-/* Mobile and Tablet*/
+/* Mobile */
 
 @media (max-width: 900px) {
 
     .navbar {
         display: block;
-        padding: 12px 16px;
+
+        min-height: auto;
+
+        padding: 10px 16px;
     }
 
     .navbar-header {
@@ -126,7 +195,7 @@
     }
 
     .logo {
-        font-size: 20px;
+        font-size: 1.1rem;
     }
 
     .menu-toggle {
@@ -138,7 +207,9 @@
 
         width: 100%;
 
-        padding-top: 14px;
+        margin-left: 0;
+
+        padding-top: 10px;
     }
 
     .navbar-menu.open {
@@ -151,15 +222,44 @@
         align-items: stretch;
 
         width: 100%;
-        gap: 4px;
+
+        gap: 3px;
+
+        padding: 6px;
+
+        border: 1px solid #e5e7eb;
+        border-radius: 12px;
+
+        background: #f8fafc;
     }
 
     .nav-links a {
         width: 100%;
 
-        padding: 12px 14px;
+        padding: 11px 12px;
 
-        border-radius: 9px;
+        border-radius: 8px;
+
+        font-size: 0.88rem;
+    }
+
+    .nav-links a.active {
+        background: #eff6ff;
+    }
+
+}
+
+
+/* Small Screens */
+
+@media (max-width: 420px) {
+
+    .navbar {
+        padding: 9px 12px;
+    }
+
+    .logo {
+        font-size: 1rem;
     }
 
 }
