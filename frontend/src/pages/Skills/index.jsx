@@ -17,11 +17,13 @@ import {
   updateSkill,
   deleteSkill,
 } from "../../services/skillService";
+import LoadingState from "../../components/LoadingState";
 import "./index.css";
 
 function Skills() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const journeyAction = location.state?.action;
   const journeyTitle = location.state?.title;
   const journeyDescription = location.state?.description;
@@ -29,40 +31,58 @@ function Skills() {
   const isGuidedSetup = journeyAction === "createSkill";
 
   const [newSkill, setNewSkill] = useState("");
-  const [errorMsg, setErrorMsg] = useState("");
-  const [searchSkill, setSearchSkill] = useState("");
-  const [sortOption, setSortOption] = useState("default");
   const [newCategory, setNewCategory] = useState("Programming");
-  const [categoryFilter, setCategoryFilter] = useState("All");
-  const [levelFilter, setLevelFilter] = useState("All");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedSkillId, setSelectedSkillId] = useState(null);
+
   const [secondaryGoalId, setSecondaryGoalId] = useState("");
-  const [skills, setSkills] = useState([]);
-  const [goals, setGoals] = useState([]);
-  const [editingSkillId, setEditingSkillId] = useState(null);
+
   const [newResource, setNewResource] = useState("");
   const [resourceId, setResourceId] = useState(null);
+
+  const [searchSkill, setSearchSkill] = useState("");
+  const [sortOption, setSortOption] = useState("default");
+
+  const [categoryFilter, setCategoryFilter] = useState("All");
+  const [levelFilter, setLevelFilter] = useState("All");
+
+  const [skills, setSkills] = useState([]);
+  const [goals, setGoals] = useState([]);
+
+  const [editingSkillId, setEditingSkillId] = useState(null);
+  const [selectedSkillId, setSelectedSkillId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   const skillFormRef = useRef(null);
 
   useEffect(() => {
     async function fetchSkills() {
       try {
+        setLoading(true);
+
         const [skills, goals] = await Promise.all([
           getSkills({
             search: searchSkill,
+
             category: categoryFilter === "All" ? undefined : categoryFilter,
+
             level: levelFilter === "All" ? undefined : levelFilter,
+
             sort: sortOption === "default" ? undefined : sortOption,
           }),
+
           getGoals(),
         ]);
 
         setSkills(skills);
         setGoals(goals);
       } catch (error) {
-        console.error(error);
+        console.error("Failed to load skills:", error);
+
+        setErrorMsg("Unable to load your skills. Please try again.");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -261,6 +281,16 @@ function Skills() {
   const secondaryGoalOptions = goals.filter(
     (goal) => goal.goalType === "Secondary",
   );
+
+  if (loading) {
+    return (
+      <div className="container">
+        <h1>Skills</h1>
+
+        <LoadingState message="Loading your skills..." />
+      </div>
+    );
+  }
 
   return (
     <div className="container">

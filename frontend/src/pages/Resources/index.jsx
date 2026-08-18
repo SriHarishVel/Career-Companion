@@ -11,6 +11,7 @@ import {
   deleteResource,
 } from "../../services/resourceService";
 import { getSkills } from "../../services/skillService";
+import LoadingState from "../../components/LoadingState";
 import "./index.css";
 
 function Resources() {
@@ -19,42 +20,58 @@ function Resources() {
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newType, setNewType] = useState("Documentation");
-  const [errorMsg, setErrorMsg] = useState("");
+
+  const [skillId, setSkillId] = useState(location.state?.skillId || "");
+
   const [searchResource, setSearchResource] = useState("");
   const [sortOption, setSortOption] = useState("default");
   const [filterOption, setFilterOption] = useState("All");
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedResourceId, setSelectedResourceId] = useState(null);
-  const [resources, setResources] = useState([]);
-  const [skillId, setSkillId] = useState(location.state?.skillId || "");
   const [skillFilter, setSkillFilter] = useState(
     location.state?.skillId || "All",
   );
 
+  const [resources, setResources] = useState([]);
   const [skills, setSkills] = useState([]);
+
   const [editingResourceId, setEditingResourceId] = useState(null);
+  const [selectedResourceId, setSelectedResourceId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  const [loading, setLoading] = useState(true);
+  const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
     async function fetchData() {
       try {
+        setLoading(true);
+
         const [resources, skills] = await Promise.all([
           getResources({
             search: searchResource,
+
             type:
               filterOption === "All" || filterOption === "Favorites"
                 ? undefined
                 : filterOption,
+
             favorite: filterOption === "Favorites" ? true : undefined,
+
             skill: skillFilter === "All" ? undefined : skillFilter,
+
             sort: sortOption === "default" ? undefined : sortOption,
           }),
+
           getSkills(),
         ]);
 
         setResources(resources);
         setSkills(skills);
       } catch (error) {
-        console.error(error);
+        console.error("Failed to load resources:", error);
+
+        setErrorMsg("Unable to load your resources. Please try again.");
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -200,6 +217,16 @@ function Resources() {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="container">
+        <h1>Resources</h1>
+
+        <LoadingState message="Loading your resources..." />
+      </div>
+    );
   }
 
   return (

@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ConfirmModal from "../../components/ConfirmModal";
 import EditModal from "../../components/EditModal";
+import LoadingState from "../../components/LoadingState";
 import { journeyService } from "../../services/journeyService";
 import { getGoals } from "../../services/goalService";
 import {
@@ -67,9 +68,13 @@ function Applications() {
   const [editPrimaryGoalId, setEditPrimaryGoalId] = useState("");
   const [goalFilter, setGoalFilter] = useState("All");
 
+  const [loading, setLoading] = useState(true);
+
   useEffect(() => {
     async function fetchData() {
       try {
+        setLoading(true);
+
         const [applications, goals] = await Promise.all([
           getApplications({
             search: searchTerm || undefined,
@@ -97,6 +102,8 @@ function Applications() {
         setGoals(goals);
       } catch (error) {
         console.error(error);
+      } finally {
+        setLoading(false);
       }
     }
 
@@ -313,6 +320,16 @@ function Applications() {
     } catch (error) {
       console.error(error);
     }
+  }
+
+  if (loading) {
+    return (
+      <div className="container">
+        <h1>Applications</h1>
+
+        <LoadingState message="Loading your applications..." />
+      </div>
+    );
   }
 
   return (
