@@ -16,36 +16,6 @@ import {
 import LoadingState from "../../components/LoadingState";
 import "./index.css";
 
-function syncPrimaryGoalProgress(goals) {
-  return goals.map((goal) => {
-    if (goal.goalType !== "Primary") {
-      return goal;
-    }
-
-    const childGoals = goals.filter(
-      (child) => child.parentGoal?._id === goal._id,
-    );
-
-    if (childGoals.length === 0) {
-      return {
-        ...goal,
-        progress: 0,
-        completed: false,
-      };
-    }
-    const averageProgress = Math.round(
-      childGoals.reduce((total, child) => total + child.progress, 0) /
-        childGoals.length,
-    );
-
-    return {
-      ...goal,
-      progress: averageProgress,
-      completed: averageProgress === 100,
-    };
-  });
-}
-
 function Goals() {
     
   const navigate = useNavigate();
@@ -114,7 +84,7 @@ function Goals() {
           journeyService.getNextStep(),
         ]);
 
-        setGoals(syncPrimaryGoalProgress(goals));
+        setGoals(goals);
 
         setPrimaryGoal(journeyOverview.primaryGoal);
 
@@ -162,7 +132,7 @@ function Goals() {
 
       const updatedGoals = await getGoals();
 
-      setGoals(syncPrimaryGoalProgress(updatedGoals));
+      setGoals(updatedGoals);
     } catch (error) {
       console.error(error);
     }
@@ -216,7 +186,7 @@ function Goals() {
 
       const updatedGoals = await getGoals();
 
-      setGoals(syncPrimaryGoalProgress(updatedGoals));
+      setGoals(updatedGoals);
     } catch (error) {
       console.error(error);
     }
@@ -278,7 +248,7 @@ function Goals() {
 
         const goals = await getGoals();
 
-        setGoals(syncPrimaryGoalProgress(goals));
+        setGoals(goals);
       } catch (error) {
         console.error(error);
       }
@@ -311,7 +281,7 @@ function Goals() {
         deadline: newDeadline,
       });
       const goals = await getGoals();
-      setGoals(syncPrimaryGoalProgress(goals));
+      setGoals(goals);
     } catch (error) {
       console.error(error);
     }
