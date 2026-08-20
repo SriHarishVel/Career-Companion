@@ -31,137 +31,6 @@
   font-size: 1.2rem;
 }
 
-/* Career Pipeline */
-
-.pipeline-grid {
-  display: grid;
-
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-
-  gap: 12px;
-}
-
-.pipeline-card {
-  padding: 16px;
-
-  border: 1px solid #e5e7eb;
-  border-radius: 10px;
-
-  background: #f8fafc;
-
-  text-align: center;
-
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.pipeline-card:hover {
-  transform: translateY(-2px);
-
-  box-shadow: 0 5px 12px rgba(0, 0, 0, 0.07);
-}
-
-.pipeline-card h3 {
-  margin: 0 0 6px;
-
-  color: #475569;
-
-  font-size: 0.9rem;
-}
-
-.pipeline-card p {
-  margin: 0;
-
-  color: #1f2937;
-
-  font-size: 1.7rem;
-  font-weight: 700;
-}
-
-/* Progress Overview */
-
-/* Progress Overview */
-
-.progress-overview {
-  padding: 20px;
-}
-
-.progress-overview-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 18px;
-}
-
-.progress-overview-header h2 {
-  margin: 0;
-
-  color: #1e293b;
-
-  font-size: 1.2rem;
-}
-
-.progress-overview-header span {
-  color: #64748b;
-
-  font-size: 0.8rem;
-}
-
-.progress-list {
-  display: flex;
-  flex-direction: column;
-
-  gap: 16px;
-}
-
-.progress-item {
-  margin: 0;
-}
-
-.progress-info {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-
-  margin-bottom: 7px;
-}
-
-.progress-info span {
-  color: #334155;
-
-  font-size: 0.85rem;
-  font-weight: 600;
-}
-
-.progress-info strong {
-  color: #2563eb;
-
-  font-size: 0.85rem;
-}
-
-.progress-bar {
-  width: 100%;
-  height: 8px;
-
-  overflow: hidden;
-
-  border-radius: 999px;
-
-  background: #e2e8f0;
-}
-
-.progress-fill {
-  height: 100%;
-
-  border-radius: inherit;
-
-  background: #3b82f6;
-
-  transition: width 0.4s ease;
-}
-
 /* Recent Activity */
 
 .recent-activity-header {
@@ -803,8 +672,7 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-grid,
-  .pipeline-grid {
+  .dashboard-grid{
     grid-template-columns: 1fr;
   }
 

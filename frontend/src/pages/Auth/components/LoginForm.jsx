@@ -1,5 +1,4 @@
 import { useState } from "react";
-import { Link } from "react-router-dom";
 
 function LoginForm({ onSubmit, error }) {
   const [formData, setFormData] = useState({
@@ -9,6 +8,7 @@ function LoginForm({ onSubmit, error }) {
 
   const [showPassword, setShowPassword] = useState(false);
 
+  // Handle input changes
   const handleChange = (e) => {
     const { name, value } = e.target;
 
@@ -19,8 +19,9 @@ function LoginForm({ onSubmit, error }) {
   };
 
   return (
-    <form className="login-form" onSubmit={(e) => onSubmit(e, formData)}>
-      <div className="form-group">
+    <form className="auth-form" onSubmit={(e) => onSubmit(e, formData)}>
+      {/* Email */}
+      <div className="auth-form-group">
         <label htmlFor="login-email">Email</label>
 
         <input
@@ -35,14 +36,17 @@ function LoginForm({ onSubmit, error }) {
         />
       </div>
 
-      <div className="form-group">
-        <div className="password-label">
+      {/* Password */}
+      <div className="auth-form-group">
+        <div className="auth-password-label">
           <label htmlFor="login-password">Password</label>
 
-          <Link to="/forgot-password">Forgot password?</Link>
+          <button type="button" className="auth-forgot-password">
+            Forgot password?
+          </button>
         </div>
 
-        <div className="password-field">
+        <div className="auth-password-field">
           <input
             id="login-password"
             type={showPassword ? "text" : "password"}
@@ -56,7 +60,7 @@ function LoginForm({ onSubmit, error }) {
 
           <button
             type="button"
-            className="toggle-password"
+            className="auth-toggle-password"
             onClick={() => setShowPassword((previous) => !previous)}
           >
             {showPassword ? "Hide" : "Show"}
@@ -64,15 +68,13 @@ function LoginForm({ onSubmit, error }) {
         </div>
       </div>
 
-      {error && <div className="login-error">{error}</div>}
+      {/* Server error */}
+      {error && <div className="auth-error">{error}</div>}
 
-      <button type="submit" className="login-btn">
+      {/* Submit */}
+      <button type="submit" className="auth-submit">
         Continue to dashboard →
       </button>
-
-      <p className="login-create">
-        Don't have an account? <Link to="/signup">Create one</Link>
-      </p>
     </form>
   );
 }

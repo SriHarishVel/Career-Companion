@@ -1,58 +1,62 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+
 import { register } from "../../services/authService";
+
+import SignupHeader from "./components/SignupHeader";
+import SignupHero from "./components/SignupHero";
 import SignupForm from "./components/SignupForm";
+
 import "./index.css";
 
 function Signup() {
+  const [error, setError] = useState("");
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const [error, setError] = useState("");
+  const handleSubmit = async (e, formData) => {
+    try {
+      setError("");
 
-    const handleSubmit = async (e, formData) => {
+      await register({
+        fullName: formData.fullName,
+        email: formData.email,
+        password: formData.password,
+      });
 
-        try {
+      navigate("/login");
+    } catch (error) {
+      setError(error.response?.data?.message || "Registration failed");
+    }
+  };
 
-            setError("");
+  return (
+    <div className="signup-page">
+      <SignupHeader />
 
-            await register({
-                fullName: formData.fullName,
-                email: formData.email,
-                password: formData.password
-            });
+      <main className="signup-main">
+        <SignupHero />
 
-            alert("Account created successfully!");
+        <section className="signup-panel">
+          <div className="signup-panel-inner">
+            <div className="signup-heading">
+              <span>Create your account</span>
 
-            navigate("/login");
+              <h2>
+                Build your
+                <br />
+                career companion.
+              </h2>
 
-        } catch (error) {
-
-            setError(
-                error.response?.data?.message ||
-                "Registration failed"
-            );
-
-        }
-    };
-
-    return (
-        <div className="signup-container">
-
-            <div className="signup-card">
-
-                <h1>Career Companion</h1>
-                <h2>Create Account</h2>
-
-                <SignupForm
-                    onSubmit={handleSubmit}
-                    error={error}
-                />
-
+              <p>Start organizing your career journey in one place.</p>
             </div>
 
-        </div>
-    );
+            <SignupForm onSubmit={handleSubmit} error={error} />
+          </div>
+        </section>
+      </main>
+    </div>
+  );
 }
 
 export default Signup;

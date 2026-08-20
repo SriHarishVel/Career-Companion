@@ -8,7 +8,6 @@ import { getApplications } from "../../services/applicationService";
 import LoadingState from "../../components/LoadingState";
 
 import CareerJourney from "./components/CareerJourney";
-import ProgressOverview from "./components/ProgressOverview";
 import RecentActivity from "./components/RecentActivity";
 import UpcomingDeadlines from "./components/UpcomingDeadlines";
 
@@ -52,10 +51,13 @@ function Dashboard() {
     fetchDashboard();
   }, []);
 
+  const primaryGoals = goals.filter((goal) => goal.goalType === "Primary");
+
   const averageGoalProgress =
-    goals.length > 0
+    primaryGoals.length > 0
       ? Math.round(
-          goals.reduce((sum, goal) => sum + goal.progress, 0) / goals.length,
+          primaryGoals.reduce((sum, goal) => sum + goal.progress, 0) /
+            primaryGoals.length,
         )
       : 0;
 
@@ -119,11 +121,6 @@ function Dashboard() {
         skills={skills}
         resources={resources}
         applications={applications}
-        averageGoalProgress={averageGoalProgress}
-        averageSkillProgress={averageSkillProgress}
-      />
-
-      <ProgressOverview
         averageGoalProgress={averageGoalProgress}
         averageSkillProgress={averageSkillProgress}
       />

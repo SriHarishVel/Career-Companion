@@ -1,7 +1,6 @@
-import { Routes, Route } from "react-router-dom";
+import { Routes, Route, useLocation } from "react-router-dom";
 
-import Login from "./pages/Login";
-import Signup from "./pages/Signup";
+import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
@@ -18,36 +17,37 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 
 function App() {
-    return (
-        <>
-            {/* Navigation shown on every page */}
-            <Navbar />
+  const location = useLocation();
 
-            {/* Page routes */}
-            <Routes>
+  const isAuthPage =
+    location.pathname === "/login" || location.pathname === "/signup";
 
-                <Route element={<PublicRoute />}>
-                    <Route path="/login" element={<Login />} />
-                    <Route path="/signup" element={<Signup />} />
-                </Route>
+  return (
+    <>
+      {!isAuthPage && <Navbar />}
 
-                <Route element={<ProtectedRoute />}>
-                    <Route path="/" element={<Home />} />
-                    <Route path="/dashboard" element={<Dashboard />} />
-                    <Route path="/goals" element={<Goals />} />
-                    <Route path="/skills" element={<Skills />} />
-                    <Route path="/resources" element={<Resources />} />
-                    <Route path="/applications" element={<Applications />} />
-                    <Route path="/profile" element={<Profile />} />
-                </Route>
-                
-                <Route path="*" element={<NotFound />} />
-            </Routes>
+      <Routes>
+        <Route element={<PublicRoute />}>
+          <Route path="/login" element={<Auth />} />
+          <Route path="/signup" element={<Auth />} />
+        </Route>
 
-            {/* Footer shown on every page */}
-            <Footer />
-        </>
-    );
+        <Route element={<ProtectedRoute />}>
+          <Route path="/" element={<Home />} />
+          <Route path="/dashboard" element={<Dashboard />} />
+          <Route path="/goals" element={<Goals />} />   
+          <Route path="/skills" element={<Skills />} />
+          <Route path="/resources" element={<Resources />} />
+          <Route path="/applications" element={<Applications />} />
+          <Route path="/profile" element={<Profile />} />
+        </Route>
+
+        <Route path="*" element={<NotFound />} />
+      </Routes>
+
+      {!isAuthPage && <Footer />}
+    </>
+  );
 }
 
 export default App;

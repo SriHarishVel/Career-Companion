@@ -28,7 +28,7 @@ function SignupForm({ onSubmit, error }) {
     }));
   };
 
-  // Validate fields
+  // Validate form
   const validateForm = () => {
     const newErrors = {};
 
@@ -71,50 +71,52 @@ function SignupForm({ onSubmit, error }) {
   };
 
   return (
-    <form className="signup-form" onSubmit={handleSubmit}>
-      {/* Name */}
-      <div className="form-group">
-        <label htmlFor="fullName">Full Name</label>
+    <form className="auth-form" onSubmit={handleSubmit}>
+      {/* Full name */}
+      <div className="auth-form-group">
+        <label htmlFor="signup-fullName">Full Name</label>
 
         <input
-          id="fullName"
-          name="fullName"
+          id="signup-fullName"
           type="text"
+          name="fullName"
           placeholder="Your full name"
           value={formData.fullName}
           onChange={handleChange}
           autoComplete="name"
         />
 
-        {errors.fullName && <p className="error-message">{errors.fullName}</p>}
+        {errors.fullName && (
+          <p className="auth-error-message">{errors.fullName}</p>
+        )}
       </div>
 
       {/* Email */}
-      <div className="form-group">
-        <label htmlFor="email">Email</label>
+      <div className="auth-form-group">
+        <label htmlFor="signup-email">Email</label>
 
         <input
-          id="email"
-          name="email"
+          id="signup-email"
           type="email"
+          name="email"
           placeholder="you@example.com"
           value={formData.email}
           onChange={handleChange}
           autoComplete="email"
         />
 
-        {errors.email && <p className="error-message">{errors.email}</p>}
+        {errors.email && <p className="auth-error-message">{errors.email}</p>}
       </div>
 
       {/* Password */}
-      <div className="form-group">
-        <label htmlFor="password">Password</label>
+      <div className="auth-form-group">
+        <label htmlFor="signup-password">Password</label>
 
-        <div className="password-field">
+        <div className="auth-password-field">
           <input
-            id="password"
-            name="password"
+            id="signup-password"
             type={showPassword ? "text" : "password"}
+            name="password"
             placeholder="Create a password"
             value={formData.password}
             onChange={handleChange}
@@ -123,25 +125,27 @@ function SignupForm({ onSubmit, error }) {
 
           <button
             type="button"
-            className="toggle-password"
+            className="auth-toggle-password"
             onClick={() => setShowPassword((previous) => !previous)}
           >
             {showPassword ? "Hide" : "Show"}
           </button>
         </div>
 
-        {errors.password && <p className="error-message">{errors.password}</p>}
+        {errors.password && (
+          <p className="auth-error-message">{errors.password}</p>
+        )}
       </div>
 
       {/* Confirm password */}
-      <div className="form-group">
-        <label htmlFor="confirmPassword">Confirm Password</label>
+      <div className="auth-form-group">
+        <label htmlFor="signup-confirmPassword">Confirm Password</label>
 
-        <div className="password-field">
+        <div className="auth-password-field">
           <input
-            id="confirmPassword"
-            name="confirmPassword"
+            id="signup-confirmPassword"
             type={showConfirmPassword ? "text" : "password"}
+            name="confirmPassword"
             placeholder="Repeat your password"
             value={formData.confirmPassword}
             onChange={handleChange}
@@ -150,7 +154,7 @@ function SignupForm({ onSubmit, error }) {
 
           <button
             type="button"
-            className="toggle-password"
+            className="auth-toggle-password"
             onClick={() => setShowConfirmPassword((previous) => !previous)}
           >
             {showConfirmPassword ? "Hide" : "Show"}
@@ -158,14 +162,15 @@ function SignupForm({ onSubmit, error }) {
         </div>
 
         {errors.confirmPassword && (
-          <p className="error-message">{errors.confirmPassword}</p>
+          <p className="auth-error-message">{errors.confirmPassword}</p>
         )}
       </div>
 
       {/* Server error */}
-      {error && <div className="signup-server-error">{error}</div>}
+      {error && <div className="auth-error">{error}</div>}
 
-      <button type="submit" className="signup-btn">
+      {/* Submit */}
+      <button type="submit" className="auth-submit">
         Create my account →
       </button>
     </form>
