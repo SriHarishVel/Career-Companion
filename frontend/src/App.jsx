@@ -4,6 +4,7 @@ import Auth from "./pages/Auth";
 import Home from "./pages/Home";
 import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
+import GoalDetail from "./pages/GoalDetail";
 import Skills from "./pages/Skills";
 import Resources from "./pages/Resources";
 import Applications from "./pages/Applications";
@@ -35,7 +36,8 @@ function App() {
         <Route element={<ProtectedRoute />}>
           <Route path="/" element={<Home />} />
           <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/goals" element={<Goals />} />   
+          <Route path="/goals" element={<Goals />} />
+          <Route path="/goals/:goalId" element={<GoalDetail />} />
           <Route path="/skills" element={<Skills />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/applications" element={<Applications />} />
