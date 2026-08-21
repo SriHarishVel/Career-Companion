@@ -1,63 +1,71 @@
-# Career Companion
+**# Career Companion**
 
-## Purpose
+**## Purpose**
 
 Career Companion is a personal career management system that helps me track my learning, job applications, and career progress without losing context or momentum.
 
-## Target User
+**## Target User**
 
 Initially, the application is built for myself.
 
-## Problem Statement
+**## Problem Statement**
 
 I often lose track of my learning resources, job applications, and overall progress. After taking breaks, it becomes difficult to remember where I stopped and what I should do next.
 
-## Version 1 Features
+**## Version 1 Features**
 
-* User Authentication
-* Primary and Secondary Goal Management
-* Job Application Tracker
-* Dashboard Analytics
-* Learning Tracker
-* Resource Organizer
-* Interview Round Tracker
-* Dashboard showing current progress and next steps
+- User Authentication
+- Primary and Secondary Goal Management
+- Goal Details and Goal Relationships
+- Skill Management
+- Job Application Tracker
+- Dashboard Analytics
+- Learning Tracker
+- Resource Organizer
+- Interview Round Tracker
+- Dashboard showing current progress and next steps
 
-## What the Application Will NOT Do
+**## What the Application Will NOT Do**
 
-* Teach programming
-* Host courses or videos
-* Replace learning platforms
-* Depend on AI
-* Become a social media platform
+- Teach programming
+- Host courses or videos
+- Replace learning platforms
+- Depend on AI
+- Become a social media platform
 
-## Core Principles
+**## Core Principles**
 
-* Progress should never be lost.
-* AI is a tool, not a crutch.
-* Never punish users for inactivity.
-* Preserve history.
-* Help users understand where they are and what comes next.
+- Progress should never be lost.
+- AI is a tool, not a crutch.
+- Never punish users for inactivity.
+- Preserve history.
+- Help users understand where they are and what comes next.
 
-## Design Principles
+**## Design Principles**
 
 Every feature in Career Companion should follow these principles:
 
-* Guide the user through a structured career journey instead of presenting disconnected modules.
-* Encourage progress without forcing users into rigid workflows.
-* Allow users to skip optional setup steps and return to them later.
-* Preserve relationships between goals, skills, resources, and applications.
-* Minimize duplicated information by linking related entities whenever possible.
-* Keep the interface simple, consistent, and focused on the user's next action.
-* Build reusable components and maintain a consistent design system across the application.
-* Prioritize maintainability and scalability when introducing new features.
+- Guide the user through a structured career journey instead of presenting disconnected modules.
+- Encourage progress without forcing users into rigid workflows.
+- Allow users to skip optional setup steps and return to them later.
+- Preserve relationships between goals, skills, resources, and applications.
+- Minimize duplicated information by linking related entities whenever possible.
+- Keep the interface simple, consistent, and focused on the user's next action.
+- Build reusable components and maintain a consistent design system across the application.
+- Prioritize maintainability and scalability when introducing new features.
 
-## Why I Am Building This
+**## Why I Am Building This**
 
 I want to build a meaningful full-stack project for my resume while learning professional software engineering practices. I also want a tool that I would personally use to organize my own career journey.
 
-## Future Vision
+**## Future Vision**
 
 Career Companion should eventually help users create structured career plans by breaking large goals into smaller goals, skills, resources, applications, and selection stages.
+
+The system should preserve the relationships between goals, skills, and resources so that users can understand how their learning and skill development contribute to their larger career goals.
+
+Resources should remain external learning references rather than becoming hosted learning content. Simply saving or attaching a resource should not automatically count as progress.
+
+Over time, evidence from learning activities and completed work should help determine skill progress. Skill progress can then contribute to related Secondary Goals, while Secondary Goal progress can contribute to Primary Goal progress.
 
 The system should guide planning while keeping the user in control of all decisions.
