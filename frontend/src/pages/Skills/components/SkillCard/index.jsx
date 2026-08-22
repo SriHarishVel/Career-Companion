@@ -7,13 +7,21 @@ function SkillCard({
   category,
   level,
   relatedGoalTitle,
-  onProgress,
-  onDelete,
-  onEdit,
-  onResources,
+  onDetails,
 }) {
   return (
-    <div className="skill-card">
+    <div
+      className="skill-card"
+      onClick={() => onDetails(id)}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          onDetails(id);
+        }
+      }}
+    >
       <div className="skill-card-header">
         <h2>{name}</h2>
       </div>
@@ -49,22 +57,6 @@ function SkillCard({
             }}
           />
         </div>
-      </div>
-
-      <div className="skill-card-actions">
-        <button onClick={() => onProgress(id)}>Update Progress</button>
-
-        <button className="edit-btn" onClick={() => onEdit(id)}>
-          Edit
-        </button>
-
-        <button className="resource-btn" onClick={() => onResources(id)}>
-          Resources
-        </button>
-
-        <button className="delete-btn" onClick={() => onDelete(id)}>
-          Delete
-        </button>
       </div>
     </div>
   );

@@ -6,6 +6,7 @@ import Dashboard from "./pages/Dashboard";
 import Goals from "./pages/Goals";
 import GoalDetail from "./pages/GoalDetail";
 import Skills from "./pages/Skills";
+import SkillDetail from "./pages/SkillDetail";
 import Resources from "./pages/Resources";
 import Applications from "./pages/Applications";
 import Profile from "./pages/Profile";
@@ -39,6 +40,7 @@ function App() {
           <Route path="/goals" element={<Goals />} />
           <Route path="/goals/:goalId" element={<GoalDetail />} />
           <Route path="/skills" element={<Skills />} />
+          <Route path="/skills/:skillId" element={<SkillDetail />} />
           <Route path="/resources" element={<Resources />} />
           <Route path="/applications" element={<Applications />} />
           <Route path="/profile" element={<Profile />} />

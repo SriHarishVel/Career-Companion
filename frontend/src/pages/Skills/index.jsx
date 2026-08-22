@@ -351,6 +351,7 @@ function Skills() {
                 setShowDeleteModal(true);
               }}
               onEdit={handleEditSkill}
+              onDetails={(skillId) => navigate(`/skills/${skillId}`)}
               onResources={(skillId) =>
                 navigate("/resources", {
                   state: { skillId },
