@@ -11,18 +11,27 @@ function ApplicationFilters({
 }) {
   return (
     <div className="filters-card">
-      <h3>Filters</h3>
-
-      <div className="filters-toolbar">
+      <div className="application-filters-grid">
         <div className="filter-group">
           <label>Search</label>
 
           <input
-            type="text"
-            placeholder="Search applications"
+            type="search"
+            placeholder="Search applications..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
+        </div>
+
+        <div className="filter-group">
+          <label>Sort By</label>
+
+          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
+            <option value="Last Updated">Last Updated</option>
+            <option value="Applied Date">Applied Date</option>
+            <option value="Company">Company</option>
+            <option value="Role">Role</option>
+          </select>
         </div>
 
         <div className="filter-group">
@@ -33,15 +42,10 @@ function ApplicationFilters({
             onChange={(e) => setStatusFilter(e.target.value)}
           >
             <option value="All">All Statuses</option>
-
             <option value="Applied">Applied</option>
-
             <option value="In Progress">In Progress</option>
-
             <option value="Offer">Offer</option>
-
             <option value="Rejected">Rejected</option>
-
             <option value="Withdrawn">Withdrawn</option>
           </select>
         </div>
@@ -60,20 +64,6 @@ function ApplicationFilters({
                 {goal.title}
               </option>
             ))}
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>Sort By</label>
-
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="Last Updated">Last Updated</option>
-
-            <option value="Applied Date">Applied Date</option>
-
-            <option value="Company">Company</option>
-
-            <option value="Role">Role</option>
           </select>
         </div>
       </div>

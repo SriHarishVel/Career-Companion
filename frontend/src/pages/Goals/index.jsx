@@ -1,100 +1,76 @@
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import { useRef } from "react";
-import JourneyBanner from "./components/JourneyBanner";
-import GoalSections from "./components/GoalSections";
+import { useEffect, useState } from "react";
+import { useLocation } from "react-router-dom";
+
 import GoalFilters from "./components/GoalFilters";
 import GoalForm from "./components/GoalForm";
+import GoalSections from "./components/GoalSections";
+import JourneyBanner from "./components/JourneyBanner";
 import JourneyMessage from "./components/JourneyMessage";
-import { journeyService } from "../../services/journeyService";
+
+import FormDialog from "../../components/FormDialog";
+import LoadingState from "../../components/LoadingState";
+
 import {
   getGoals,
   createGoal,
   updateGoal,
   deleteGoal,
 } from "../../services/goalService";
-import LoadingState from "../../components/LoadingState";
+
 import "./index.css";
 
 function Goals() {
-    
-  const navigate = useNavigate();
   const location = useLocation();
 
-  const journeyAction = location.state?.action;
+  const journeyStep = location.state?.journeyStep || null;
+  const isGuidedSetup = Boolean(journeyStep);
 
-  const isGuidedSetup =
-    journeyAction === "createPrimaryGoal" ||
-    journeyAction === "createSecondaryGoal";
-
-  const [newGoal, setNewGoal] = useState("");
-  const [newDeadline, setNewDeadline] = useState("");
-  const [newCategory, setNewCategory] = useState("Learning");
-  const [newPriority, setNewPriority] = useState("Medium");
-  const [newGoalType, setNewGoalType] = useState(() => {
-    return journeyAction === "createSecondaryGoal"
-      ? "Secondary"
-      : "Primary";
-  });
-  const [parentGoalId, setParentGoalId] = useState("");
+  const [goals, setGoals] = useState([]);
 
   const [searchGoal, setSearchGoal] = useState("");
   const [sortOption, setSortOption] = useState("default");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [priorityFilter, setPriorityFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
   const [goalTypeFilter, setGoalTypeFilter] = useState("All");
+  const [statusFilter, setStatusFilter] = useState("All");
 
-  const [goals, setGoals] = useState([]);
-  const [primaryGoal, setPrimaryGoal] = useState(null);
+  const [newGoal, setNewGoal] = useState("");
+  const [newCategory, setNewCategory] = useState("Learning");
+  const [newPriority, setNewPriority] = useState("Medium");
+  const [newGoalType, setNewGoalType] = useState("Primary");
+  const [parentGoalId, setParentGoalId] = useState("");
+  const [newDeadline, setNewDeadline] = useState("");
 
-  const [journeyStep, setJourneyStep] = useState(null);
+  const [editingGoalId, setEditingGoalId] = useState(null);
+  const [showGoalForm, setShowGoalForm] = useState(false);
+
+  const [selectedGoalId, setSelectedGoalId] = useState(null);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [completedGoal, setCompletedGoal] = useState(null);
-  const [editingGoalId, setEditingGoalId] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-  const [selectedGoalId, setSelectedGoalId] = useState(null);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-
-  const goalFormRef = useRef(null);
 
   useEffect(() => {
     async function fetchGoals() {
       try {
         setLoading(true);
 
-        const [goals, journeyOverview, nextStep] = await Promise.all([
-          getGoals({
-            search: searchGoal || undefined,
+        const data = await getGoals({
+          search: searchGoal,
+          category: categoryFilter === "All" ? undefined : categoryFilter,
+          priority: priorityFilter === "All" ? undefined : priorityFilter,
+          goalType: goalTypeFilter === "All" ? undefined : goalTypeFilter,
+          status: statusFilter === "All" ? undefined : statusFilter,
+          sort: sortOption === "default" ? undefined : sortOption,
+        });
 
-            category: categoryFilter === "All" ? undefined : categoryFilter,
-
-            priority: priorityFilter === "All" ? undefined : priorityFilter,
-
-            goalType: goalTypeFilter === "All" ? undefined : goalTypeFilter,
-
-            status: statusFilter === "All" ? undefined : statusFilter,
-
-            sort: sortOption === "default" ? undefined : sortOption,
-          }),
-
-          journeyService.getJourneyOverview(),
-          journeyService.getNextStep(),
-        ]);
-
-        setGoals(goals);
-
-        setPrimaryGoal(journeyOverview.primaryGoal);
-
-        if (isGuidedSetup) {
-          setJourneyStep(nextStep);
-        } else {
-          setJourneyStep(null);
-        }
+        setGoals(data);
       } catch (error) {
         console.error("Failed to load goals:", error);
+
+        setErrorMsg("Unable to load your goals. Please try again.");
       } finally {
         setLoading(false);
       }
@@ -103,234 +79,13 @@ function Goals() {
     fetchGoals();
   }, [
     searchGoal,
+    sortOption,
     categoryFilter,
     priorityFilter,
     goalTypeFilter,
     statusFilter,
-    sortOption,
-    isGuidedSetup,
   ]);
 
-  async function handleProgress(goalId) {
-    try {
-      const goal = goals.find((goal) => goal._id === goalId);
-
-      if (!goal) {
-        return;
-      }
-
-      const newProgress = Math.min(goal.progress + 10, 100);
-
-      await updateGoal(goalId, {
-        progress: newProgress,
-        completed: newProgress === 100,
-      });
-
-      if (newProgress === 100 && !goal.completed) {
-        setCompletedGoal(goal.title);
-      }
-
-      const updatedGoals = await getGoals();
-
-      setGoals(updatedGoals);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  function goToNextStep() {
-    if (!journeyStep) {
-      return;
-    }
-
-    navigate(journeyStep.page, {
-      state: {
-        fromJourney: true,
-        action: journeyStep.action,
-      },
-    });
-  }
-
-  function handleCancelEdit() {
-    setEditingGoalId(null);
-    setNewGoal("");
-    setNewDeadline("");
-    setNewCategory("Learning");
-    setNewPriority("Medium");
-    setNewGoalType("Primary");
-    setParentGoalId("");
-    setErrorMsg("");
-  }
-
-  async function confirmDeleteGoal() {
-    const goalToDelete = goals.find((goal) => goal._id === selectedGoalId);
-
-    const childGoals = goals.filter(
-      (goal) => goal.parentGoal?._id === selectedGoalId,
-    );
-
-    if (goalToDelete?.goalType === "Primary" && childGoals.length > 0) {
-      const confirmed = window.confirm(
-        `This will also delete ${childGoals.length} secondary goal(s). Continue?`,
-      );
-
-      if (!confirmed) {
-        setShowDeleteModal(false);
-        setSelectedGoalId(null);
-        return;
-      }
-    }
-
-    try {
-      await deleteGoal(selectedGoalId);
-
-      const updatedGoals = await getGoals();
-
-      setGoals(updatedGoals);
-    } catch (error) {
-      console.error(error);
-    }
-
-    setShowDeleteModal(false);
-    setSelectedGoalId(null);
-  }
-
-  async function addGoal() {
-    // Stop empty goals from being added to the tracker.
-    if (newGoal.trim().length < 3) {
-      setErrorMsg("Goal title must be at least 3 characters.");
-      return;
-    }
-    setErrorMsg("");
-
-    if (newGoalType === "Secondary" && !parentGoalId) {
-      setErrorMsg("Please select a parent goal.");
-      return;
-    }
-
-    if (newGoalType === "Secondary" && primaryGoalOptions.length === 0) {
-      setErrorMsg("Create a primary goal before adding secondary goals.");
-      return;
-    }
-
-    const normalizedTitle = newGoal.trim().toLowerCase();
-
-    const duplicateGoal = goals.some((goal) => {
-      if (goal.goalType !== newGoalType) {
-        return false;
-      }
-
-      if (goal.goalType === "Primary") {
-        return goal.title.toLowerCase() === normalizedTitle;
-      }
-
-      return (
-        goal.title.toLowerCase() === normalizedTitle &&
-        goal.parentGoal?._id === parentGoalId
-      );
-    });
-
-    if (duplicateGoal) {
-      setErrorMsg(`${newGoalType} goal already exists.`);
-      return;
-    }
-
-    if (editingGoalId) {
-      try {
-        await updateGoal(editingGoalId, {
-          title: newGoal.trim(),
-          category: newCategory,
-          priority: newPriority,
-          deadline: newDeadline,
-          goalType: newGoalType,
-          parentGoal: newGoalType === "Secondary" ? parentGoalId : null,
-        });
-
-        const goals = await getGoals();
-
-        setGoals(goals);
-      } catch (error) {
-        console.error(error);
-      }
-
-      setEditingGoalId(null);
-      setNewGoal("");
-      setNewDeadline("");
-      setNewCategory("Learning");
-      setNewPriority("Medium");
-      setNewGoalType("Primary");
-      setParentGoalId("");
-
-      if (isGuidedSetup) {
-        goToNextStep();
-      }
-
-      return;
-    }
-
-    // Add the new goal with the current category, priority, and deadline.
-    try {
-      await createGoal({
-        title: newGoal.trim(),
-        category: newCategory,
-        priority: newPriority,
-        goalType: newGoalType,
-        parentGoal: newGoalType === "Secondary" ? parentGoalId : null,
-        progress: 0,
-        completed: false,
-        deadline: newDeadline,
-      });
-      const goals = await getGoals();
-      setGoals(goals);
-    } catch (error) {
-      console.error(error);
-    }
-
-    setNewGoal("");
-    setNewDeadline("");
-    setNewCategory("Learning");
-    setNewPriority("Medium");
-    setNewGoalType("Primary");
-    setParentGoalId("");
-  }
-
-  function editGoal(goalId) {
-    const goal = goals.find((goal) => goal._id === goalId);
-
-    if (!goal) {
-      return;
-    }
-
-    setEditingGoalId(goal._id);
-    setNewGoal(goal.title);
-    setNewCategory(goal.category);
-    setNewPriority(goal.priority);
-    setNewDeadline(goal.deadline);
-    setNewGoalType(goal.goalType);
-    setParentGoalId(goal.parentGoal?._id ?? "");
-    setErrorMsg("");
-
-    goalFormRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
-  }
-
-  function handleGoalTypeChange(event) {
-    setErrorMsg("");
-
-    const value = event.target.value;
-
-    setNewGoalType(value);
-
-    if (value === "Secondary" && primaryGoalOptions.length === 1) {
-      setParentGoalId(primaryGoalOptions[0]._id);
-    } else {
-      setParentGoalId("");
-    }
-  }
-
-  // Build the visible list from the current search, category, and sort choices.
   const primaryGoals = goals.filter((goal) => goal.goalType === "Primary");
 
   const secondaryGoals = goals.filter((goal) => goal.goalType === "Secondary");
@@ -339,15 +94,197 @@ function Goals() {
     (goal) => goal.goalType === "Primary",
   );
 
-  function getParentGoalTitle(parentGoalId) {
-    const parentGoal = goals.find((goal) => goal._id === parentGoalId);
-
-    return parentGoal ? parentGoal.title : null;
+  function getChildGoals(primaryGoalId) {
+    return secondaryGoals.filter(
+      (goal) => goal.parentGoal?._id === primaryGoalId,
+    );
   }
 
-  function getChildGoals(parentId) {
-    return goals.filter((goal) => goal.parentGoal?._id === parentId);
+  function getParentGoalTitle(parentId) {
+    const parent = primaryGoals.find((goal) => goal._id === parentId);
+
+    return parent ? parent.title : "";
   }
+
+  function resetGoalForm() {
+    setNewGoal("");
+    setNewCategory("Learning");
+    setNewPriority("Medium");
+    setNewGoalType("Primary");
+    setParentGoalId("");
+    setNewDeadline("");
+    setErrorMsg("");
+    setEditingGoalId(null);
+  }
+
+  function openAddGoal() {
+    resetGoalForm();
+
+    if (journeyStep?.action === "createPrimaryGoal") {
+      setNewGoalType("Primary");
+    }
+
+    if (journeyStep?.action === "createSecondaryGoal") {
+      setNewGoalType("Secondary");
+
+      if (primaryGoalOptions.length === 1) {
+        setParentGoalId(primaryGoalOptions[0]._id);
+      }
+    }
+
+    setShowGoalForm(true);
+  }
+
+  function closeGoalForm() {
+    resetGoalForm();
+    setShowGoalForm(false);
+  }
+
+  function editGoal(goal) {
+    setEditingGoalId(goal._id);
+
+    setNewGoal(goal.title);
+    setNewCategory(goal.category);
+    setNewPriority(goal.priority);
+    setNewGoalType(goal.goalType);
+    setParentGoalId(goal.parentGoal?._id || "");
+
+    setNewDeadline(
+      goal.deadline ? new Date(goal.deadline).toISOString().split("T")[0] : "",
+    );
+
+    setErrorMsg("");
+    setShowGoalForm(true);
+  }
+
+  function handleGoalTypeChange(event) {
+    const value = event.target.value;
+
+    setNewGoalType(value);
+
+    if (value === "Primary") {
+      setParentGoalId("");
+    }
+
+    if (value === "Secondary" && primaryGoalOptions.length === 1) {
+      setParentGoalId(primaryGoalOptions[0]._id);
+    }
+  }
+
+  async function refreshGoals() {
+    const data = await getGoals({
+      search: searchGoal,
+      category: categoryFilter === "All" ? undefined : categoryFilter,
+      priority: priorityFilter === "All" ? undefined : priorityFilter,
+      goalType: goalTypeFilter === "All" ? undefined : goalTypeFilter,
+      status: statusFilter === "All" ? undefined : statusFilter,
+      sort: sortOption === "default" ? undefined : sortOption,
+    });
+
+    setGoals(data);
+  }
+
+  async function addGoal() {
+    if (!newGoal.trim()) {
+      setErrorMsg("Goal title cannot be empty.");
+      return;
+    }
+
+    if (newGoalType === "Secondary" && !parentGoalId) {
+      setErrorMsg("Please select a parent goal.");
+      return;
+    }
+
+    try {
+      setErrorMsg("");
+
+      const goalData = {
+        title: newGoal.trim(),
+        category: newCategory,
+        priority: newPriority,
+        goalType: newGoalType,
+        parentGoal: newGoalType === "Secondary" ? parentGoalId : null,
+        deadline: newDeadline || null,
+      };
+
+      if (editingGoalId) {
+        await updateGoal(editingGoalId, goalData);
+      } else {
+        await createGoal(goalData);
+      }
+
+      await refreshGoals();
+
+      closeGoalForm();
+    } catch (error) {
+      console.error("Failed to save goal:", error);
+
+      setErrorMsg("Unable to save the goal. Please try again.");
+    }
+  }
+
+  async function handleProgress(goalId, progress) {
+    try {
+      const goal = goals.find((item) => item._id === goalId);
+
+      if (!goal) {
+        return;
+      }
+
+      const updatedProgress = Math.max(0, Math.min(100, progress));
+
+      const wasCompleted = goal.completed;
+      const isNowCompleted = updatedProgress >= 100;
+
+      await updateGoal(goalId, {
+        progress: updatedProgress,
+        completed: isNowCompleted,
+      });
+
+      await refreshGoals();
+
+      if (!wasCompleted && isNowCompleted) {
+        setCompletedGoal(goal.title);
+      }
+    } catch (error) {
+      console.error("Failed to update goal progress:", error);
+    }
+  }
+
+  async function confirmDeleteGoal() {
+    if (!selectedGoalId) {
+      return;
+    }
+
+    try {
+      await deleteGoal(selectedGoalId);
+
+      await refreshGoals();
+    } catch (error) {
+      console.error("Failed to delete goal:", error);
+
+      setErrorMsg("Unable to delete the goal. Please try again.");
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedGoalId(null);
+    }
+  }
+
+  const dialogTitle = editingGoalId
+    ? "Edit Goal"
+    : journeyStep?.action === "createPrimaryGoal"
+      ? "Create Primary Goal"
+      : journeyStep?.action === "createSecondaryGoal"
+        ? "Create Secondary Goal"
+        : "Add Goal";
+
+  const dialogSaveText = editingGoalId
+    ? "Update Goal"
+    : journeyStep?.action === "createPrimaryGoal"
+      ? "Create Primary Goal"
+      : journeyStep?.action === "createSecondaryGoal"
+        ? "Create Secondary Goal"
+        : "Add Goal";
 
   if (loading) {
     return (
@@ -361,28 +298,7 @@ function Goals() {
 
   return (
     <div className="container">
-      {/* Page Title */}
       <h1>Goals</h1>
-
-      <JourneyMessage journeyStep={journeyStep} primaryGoal={primaryGoal} />
-
-      {/* Filters GoalCard */}
-      {!isGuidedSetup && (
-        <GoalFilters
-          searchGoal={searchGoal}
-          setSearchGoal={setSearchGoal}
-          sortOption={sortOption}
-          setSortOption={setSortOption}
-          categoryFilter={categoryFilter}
-          setCategoryFilter={setCategoryFilter}
-          priorityFilter={priorityFilter}
-          setPriorityFilter={setPriorityFilter}
-          goalTypeFilter={goalTypeFilter}
-          setGoalTypeFilter={setGoalTypeFilter}
-          statusFilter={statusFilter}
-          setStatusFilter={setStatusFilter}
-        />
-      )}
 
       <JourneyBanner
         isGuidedSetup={isGuidedSetup}
@@ -390,53 +306,88 @@ function Goals() {
         secondaryGoals={secondaryGoals}
       />
 
-      {/* Add Goal GoalCard */}
-      <GoalForm
-        goalFormRef={goalFormRef}
-        editingGoalId={editingGoalId}
-        journeyStep={journeyStep}
-        newGoal={newGoal}
-        setNewGoal={setNewGoal}
-        newCategory={newCategory}
-        setNewCategory={setNewCategory}
-        newPriority={newPriority}
-        setNewPriority={setNewPriority}
-        isGuidedSetup={isGuidedSetup}
-        newGoalType={newGoalType}
-        handleGoalTypeChange={handleGoalTypeChange}
-        primaryGoalOptions={primaryGoalOptions}
-        parentGoalId={parentGoalId}
-        setParentGoalId={setParentGoalId}
-        newDeadline={newDeadline}
-        setNewDeadline={setNewDeadline}
-        errorMsg={errorMsg}
-        setErrorMsg={setErrorMsg}
-        addGoal={addGoal}
-        navigate={navigate}
-        handleCancelEdit={handleCancelEdit}
+      <JourneyMessage journeyStep={journeyStep} primaryGoal={primaryGoals[0]} />
+
+      <div className="goal-page-actions">
+        <button type="button" className="add-goal-btn" onClick={openAddGoal}>
+          + Add Goal
+        </button>
+      </div>
+
+      <GoalFilters
+        searchGoal={searchGoal}
+        setSearchGoal={setSearchGoal}
+        sortOption={sortOption}
+        setSortOption={setSortOption}
+        categoryFilter={categoryFilter}
+        setCategoryFilter={setCategoryFilter}
+        priorityFilter={priorityFilter}
+        setPriorityFilter={setPriorityFilter}
+        goalTypeFilter={goalTypeFilter}
+        setGoalTypeFilter={setGoalTypeFilter}
+        statusFilter={statusFilter}
+        setStatusFilter={setStatusFilter}
+      />
+
+      {errorMsg && !showGoalForm && <p className="error">{errorMsg}</p>}
+
+      <GoalSections
         goals={goals}
         primaryGoals={primaryGoals}
         secondaryGoals={secondaryGoals}
+        getChildGoals={getChildGoals}
+        getParentGoalTitle={getParentGoalTitle}
+        handleProgress={handleProgress}
+        editGoal={editGoal}
+        completedGoal={completedGoal}
+        setCompletedGoal={setCompletedGoal}
+        showDeleteModal={showDeleteModal}
+        confirmDeleteGoal={confirmDeleteGoal}
+        setShowDeleteModal={setShowDeleteModal}
+        setSelectedGoalId={setSelectedGoalId}
       />
 
-      {/* Goal Sections */}
-      {!isGuidedSetup && (
-        <GoalSections
-          goals={goals}
-          primaryGoals={primaryGoals}
-          secondaryGoals={secondaryGoals}
-          getChildGoals={getChildGoals}
-          getParentGoalTitle={getParentGoalTitle}
-          handleProgress={handleProgress}
-          editGoal={editGoal}
-          completedGoal={completedGoal}
-          setCompletedGoal={setCompletedGoal}
-          showDeleteModal={showDeleteModal}
-          confirmDeleteGoal={confirmDeleteGoal}
-          setShowDeleteModal={setShowDeleteModal}
-          setSelectedGoalId={setSelectedGoalId}
+      <FormDialog
+        isOpen={showGoalForm}
+        title={dialogTitle}
+        onClose={closeGoalForm}
+        footer={
+          <>
+            <button
+              type="button"
+              className="cancel-btn"
+              onClick={closeGoalForm}
+            >
+              Cancel
+            </button>
+
+            <button type="button" className="save-btn" onClick={addGoal}>
+              {dialogSaveText}
+            </button>
+          </>
+        }
+      >
+        <GoalForm
+          editingGoalId={editingGoalId}
+          journeyStep={journeyStep}
+          newGoal={newGoal}
+          setNewGoal={setNewGoal}
+          newCategory={newCategory}
+          setNewCategory={setNewCategory}
+          newPriority={newPriority}
+          setNewPriority={setNewPriority}
+          isGuidedSetup={isGuidedSetup}
+          newGoalType={newGoalType}
+          handleGoalTypeChange={handleGoalTypeChange}
+          primaryGoalOptions={primaryGoalOptions}
+          parentGoalId={parentGoalId}
+          setParentGoalId={setParentGoalId}
+          newDeadline={newDeadline}
+          setNewDeadline={setNewDeadline}
+          errorMsg={errorMsg}
+          setErrorMsg={setErrorMsg}
         />
-      )}
+      </FormDialog>
     </div>
   );
 }

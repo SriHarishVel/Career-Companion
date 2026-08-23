@@ -1,4 +1,4 @@
-import EditModal from "../../../components/EditModal";
+import FormDialog from "../../../components/FormDialog";
 
 function SecuritySection({
   currentPassword,
@@ -46,7 +46,7 @@ function SecuritySection({
         </button>
       </div>
 
-      <EditModal
+      <FormDialog
         isOpen={showPasswordModal}
         title="Change Password"
         saveButtonText="Update Password"
@@ -69,7 +69,7 @@ function SecuritySection({
           onChange={(e) => setNewPassword(e.target.value)}
           placeholder="New Password"
         />
-      </EditModal>
+      </FormDialog>
     </section>
   );
 }

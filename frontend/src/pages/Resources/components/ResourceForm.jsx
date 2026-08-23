@@ -12,14 +12,20 @@ function ResourceForm({
   errorMsg,
   addResource,
 }) {
+  const isEditing = Boolean(editingResourceId);
+
   return (
-    <div className="add-resource-card">
+    <section className="add-resource-card">
       <div className="resource-form-header">
         <div>
-          <h3>{editingResourceId ? "Edit Resource" : "Add a Resource"}</h3>
+          <span className="resource-section-label">
+            {isEditing ? "Edit Resource" : "New Resource"}
+          </span>
+
+          <h3>{isEditing ? "Update Resource" : "Add a Resource"}</h3>
 
           <p>
-            {editingResourceId
+            {isEditing
               ? "Update your resource details."
               : "Save a useful learning resource for your career journey."}
           </p>
@@ -28,48 +34,55 @@ function ResourceForm({
 
       <div className="resource-form-fields">
         <div className="filter-group">
-          <label>Resource Type</label>
+          <label htmlFor="resource-type">Resource Type</label>
 
-          <select value={newType} onChange={(e) => setNewType(e.target.value)}>
+          <select
+            id="resource-type"
+            value={newType}
+            onChange={(event) => setNewType(event.target.value)}
+          >
             <option value="Documentation">Documentation</option>
-
             <option value="Course">Course</option>
-
             <option value="Video">Video</option>
-
             <option value="Article">Article</option>
           </select>
         </div>
 
         <div className="filter-group">
-          <label>Resource Title</label>
+          <label htmlFor="resource-title">Resource Title</label>
 
           <input
+            id="resource-title"
             type="text"
             placeholder="e.g. React Documentation"
             value={newTitle}
-            onChange={(e) => setNewTitle(e.target.value)}
+            onChange={(event) => setNewTitle(event.target.value)}
           />
         </div>
 
         <div className="filter-group">
-          <label>Resource URL</label>
+          <label htmlFor="resource-url">Resource URL</label>
 
           <input
+            id="resource-url"
             type="url"
             placeholder="https://..."
             value={newUrl}
-            onChange={(e) => setNewUrl(e.target.value)}
+            onChange={(event) => setNewUrl(event.target.value)}
           />
         </div>
 
         <div className="filter-group">
-          <label>
+          <label htmlFor="resource-skill">
             Related Skill
             <span className="optional-label">Optional</span>
           </label>
 
-          <select value={skillId} onChange={(e) => setSkillId(e.target.value)}>
+          <select
+            id="resource-skill"
+            value={skillId}
+            onChange={(event) => setSkillId(event.target.value)}
+          >
             <option value="">No Related Skill</option>
 
             {skills.map((skill) => (
@@ -81,14 +94,18 @@ function ResourceForm({
         </div>
       </div>
 
-      {errorMsg && <p className="error">{errorMsg}</p>}
+      {errorMsg && (
+        <p className="error" role="alert">
+          {errorMsg}
+        </p>
+      )}
 
       <div className="resource-form-actions">
-        <button onClick={addResource}>
-          {editingResourceId ? "Update Resource" : "Add Resource"}
+        <button type="button" onClick={addResource}>
+          {isEditing ? "Update Resource" : "Add Resource"}
         </button>
       </div>
-    </div>
+    </section>
   );
 }
 

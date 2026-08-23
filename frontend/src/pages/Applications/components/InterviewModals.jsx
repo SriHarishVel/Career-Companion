@@ -1,4 +1,4 @@
-import EditModal from "../../../components/EditModal";
+import FormDialog from "../../../components/FormDialog";
 import ConfirmModal from "../../../components/ConfirmModal";
 
 function InterviewModals({
@@ -26,54 +26,64 @@ function InterviewModals({
   roundDate,
   setRoundDate,
 }) {
-  const resetRoundForm = () => {
+  function resetRoundForm() {
     setRoundTitle("");
     setRoundStatus("Pending");
     setRoundDate("");
-  };
+  }
 
-  const closeAddRoundModal = () => {
+  function closeAddRoundDialog() {
     setShowRoundModal(false);
     resetRoundForm();
     setRoundApplicationId(null);
-  };
+  }
 
-  const closeEditRoundModal = () => {
+  function closeEditRoundDialog() {
     setShowEditRoundModal(false);
     setSelectedRound(null);
     resetRoundForm();
     setRoundApplicationId(null);
-  };
+  }
 
-  const closeDeleteRoundModal = () => {
+  function closeDeleteRoundModal() {
     setShowDeleteRoundModal(false);
     setSelectedRound(null);
     setRoundApplicationId(null);
-  };
+  }
 
-  const handleSaveEditedRound = () => {
+  function handleSaveEditedRound() {
     if (!selectedRound || !roundApplicationId) {
       return;
     }
 
     saveEditedRound();
-  };
+  }
 
-  const handleConfirmDeleteRound = () => {
+  function handleConfirmDeleteRound() {
     if (!selectedRound || !roundApplicationId) {
       return;
     }
 
     confirmDeleteRound();
-  };
+  }
 
   return (
     <>
-      <EditModal
+      <FormDialog
         isOpen={showRoundModal}
         title="Add Interview Round"
-        onSave={addRound}
-        onCancel={closeAddRoundModal}
+        onClose={closeAddRoundDialog}
+        footer={
+          <>
+            <button type="button" onClick={addRound}>
+              Add Round
+            </button>
+
+            <button type="button" onClick={closeAddRoundDialog}>
+              Cancel
+            </button>
+          </>
+        }
       >
         <div className="interview-form-fields">
           <div className="filter-group">
@@ -95,9 +105,7 @@ function InterviewModals({
               onChange={(e) => setRoundStatus(e.target.value)}
             >
               <option value="Pending">Pending</option>
-
               <option value="Completed">Completed</option>
-
               <option value="Failed">Failed</option>
             </select>
           </div>
@@ -112,15 +120,25 @@ function InterviewModals({
             />
           </div>
         </div>
-      </EditModal>
+      </FormDialog>
 
-      <EditModal
+      <FormDialog
         isOpen={showEditRoundModal}
         title={
           selectedRound ? `Edit ${selectedRound.title}` : "Edit Interview Round"
         }
-        onSave={handleSaveEditedRound}
-        onCancel={closeEditRoundModal}
+        onClose={closeEditRoundDialog}
+        footer={
+          <>
+            <button type="button" onClick={handleSaveEditedRound}>
+              Save
+            </button>
+
+            <button type="button" onClick={closeEditRoundDialog}>
+              Cancel
+            </button>
+          </>
+        }
       >
         <div className="interview-form-fields">
           <div className="filter-group">
@@ -142,9 +160,7 @@ function InterviewModals({
               onChange={(e) => setRoundStatus(e.target.value)}
             >
               <option value="Pending">Pending</option>
-
               <option value="Completed">Completed</option>
-
               <option value="Failed">Failed</option>
             </select>
           </div>
@@ -159,7 +175,7 @@ function InterviewModals({
             />
           </div>
         </div>
-      </EditModal>
+      </FormDialog>
 
       <ConfirmModal
         isOpen={showDeleteRoundModal}

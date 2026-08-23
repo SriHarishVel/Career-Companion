@@ -1,7 +1,7 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 import ConfirmModal from "../../components/ConfirmModal";
-import EditModal from "../../components/EditModal";
+import FormDialog from "../../components/FormDialog";
 import LoadingState from "../../components/LoadingState";
 import { journeyService } from "../../services/journeyService";
 import { getGoals } from "../../services/goalService";
@@ -23,9 +23,9 @@ import "./index.css";
 function Applications() {
   const navigate = useNavigate();
   const location = useLocation();
+
   const journeyAction = location.state?.action;
   const journeyStep = journeyService.getNextStep();
-  const applicationFormRef = useRef(null);
 
   const [company, setCompany] = useState("");
   const [role, setRole] = useState("");
@@ -38,9 +38,14 @@ function Applications() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
   const [sortBy, setSortBy] = useState("Last Updated");
+  const [goalFilter, setGoalFilter] = useState("All");
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [applicationToDeleteId, setApplicationToDeleteId] = useState(null);
+
+  const [showApplicationForm, setShowApplicationForm] = useState(
+    journeyAction === "addApplication",
+  );
 
   const [showEditModal, setShowEditModal] = useState(false);
   const [selectedApplication, setSelectedApplication] = useState(null);
@@ -66,7 +71,6 @@ function Applications() {
   const [goals, setGoals] = useState([]);
   const [primaryGoalId, setPrimaryGoalId] = useState("");
   const [editPrimaryGoalId, setEditPrimaryGoalId] = useState("");
-  const [goalFilter, setGoalFilter] = useState("All");
 
   const [loading, setLoading] = useState(true);
 
@@ -109,15 +113,6 @@ function Applications() {
 
     fetchData();
   }, [searchTerm, statusFilter, goalFilter, sortBy]);
-
-  useEffect(() => {
-    if (journeyAction === "addApplication") {
-      applicationFormRef.current?.scrollIntoView({
-        behavior: "smooth",
-        block: "start",
-      });
-    }
-  }, [journeyAction]);
 
   const primaryGoalOptions = goals.filter(
     (goal) => goal.goalType === "Primary",
@@ -163,6 +158,21 @@ function Applications() {
     });
   }
 
+  function openApplicationForm() {
+    setShowApplicationForm(true);
+  }
+
+  function closeApplicationForm() {
+    setShowApplicationForm(false);
+
+    setCompany("");
+    setRole("");
+    setStatus("Applied");
+    setAppliedDate("");
+    setApplicationUrl("");
+    setPrimaryGoalId("");
+  }
+
   function openEditModal(application) {
     setSelectedApplication(application);
 
@@ -171,14 +181,15 @@ function Applications() {
     setEditStatus(application.status);
     setEditAppliedDate(application.appliedDate);
     setEditApplicationUrl(application.applicationUrl);
+    setEditPrimaryGoalId(application.primaryGoal?._id || "");
 
     setShowEditModal(true);
-    setEditPrimaryGoalId(application.primaryGoal?._id || "");
   }
 
   function closeEditModal() {
     setShowEditModal(false);
     setSelectedApplication(null);
+
     setEditCompany("");
     setEditRole("");
     setEditStatus("Applied");
@@ -235,16 +246,18 @@ function Applications() {
 
       await refreshApplications();
 
-      if (journeyAction === "addApplication") {
-        goToNextStep();
-      }
-
       setCompany("");
       setRole("");
       setStatus("Applied");
       setAppliedDate("");
       setApplicationUrl("");
       setPrimaryGoalId("");
+
+      setShowApplicationForm(false);
+
+      if (journeyAction === "addApplication") {
+        goToNextStep();
+      }
     } catch (error) {
       console.error(error);
     }
@@ -334,37 +347,26 @@ function Applications() {
 
   return (
     <div className="container">
-      <>
-        <h1>
-          {journeyAction
-            ? journeyStep.title
-            : goalFilter === "All"
-              ? "Applications"
-              : `Applications for ${getGoalTitle(goalFilter)}`}
-        </h1>
+      <h1>
+        {journeyAction
+          ? journeyStep.title
+          : goalFilter === "All"
+            ? "Applications"
+            : `Applications for ${getGoalTitle(goalFilter)}`}
+      </h1>
 
-        {journeyAction && (
-          <p className="journey-message">{journeyStep.description}</p>
-        )}
-      </>
+      {journeyAction && (
+        <p className="journey-message">{journeyStep.description}</p>
+      )}
 
-      <div ref={applicationFormRef}>
-        <ApplicationForm
-          company={company}
-          setCompany={setCompany}
-          role={role}
-          setRole={setRole}
-          applicationUrl={applicationUrl}
-          setApplicationUrl={setApplicationUrl}
-          status={status}
-          setStatus={setStatus}
-          primaryGoalId={primaryGoalId}
-          setPrimaryGoalId={setPrimaryGoalId}
-          appliedDate={appliedDate}
-          setAppliedDate={setAppliedDate}
-          primaryGoalOptions={primaryGoalOptions}
-          addApplication={addApplication}
-        />
+      <div className="application-page-actions">
+        <button
+          type="button"
+          className="add-application-btn"
+          onClick={openApplicationForm}
+        >
+          + Add Application
+        </button>
       </div>
 
       <ApplicationFilters
@@ -391,11 +393,54 @@ function Applications() {
         setShowDeleteModal={setShowDeleteModal}
       />
 
-      <EditModal
+      <FormDialog
+        isOpen={showApplicationForm}
+        title="Add Application"
+        onClose={closeApplicationForm}
+        footer={
+          <>
+            <button type="button" onClick={addApplication}>
+              Add Application
+            </button>
+
+            <button type="button" onClick={closeApplicationForm}>
+              Cancel
+            </button>
+          </>
+        }
+      >
+        <ApplicationForm
+          company={company}
+          setCompany={setCompany}
+          role={role}
+          setRole={setRole}
+          applicationUrl={applicationUrl}
+          setApplicationUrl={setApplicationUrl}
+          status={status}
+          setStatus={setStatus}
+          primaryGoalId={primaryGoalId}
+          setPrimaryGoalId={setPrimaryGoalId}
+          appliedDate={appliedDate}
+          setAppliedDate={setAppliedDate}
+          primaryGoalOptions={primaryGoalOptions}
+        />
+      </FormDialog>
+
+      <FormDialog
         isOpen={showEditModal}
         title="Edit Application"
-        onSave={saveApplication}
-        onCancel={closeEditModal}
+        onClose={closeEditModal}
+        footer={
+          <>
+            <button type="button" onClick={saveApplication}>
+              Save
+            </button>
+
+            <button type="button" onClick={closeEditModal}>
+              Cancel
+            </button>
+          </>
+        }
       >
         <div className="application-form-fields">
           <div className="filter-group">
@@ -439,13 +484,9 @@ function Applications() {
               onChange={(e) => setEditStatus(e.target.value)}
             >
               <option value="Applied">Applied</option>
-
               <option value="In Progress">In Progress</option>
-
               <option value="Offer">Offer</option>
-
               <option value="Rejected">Rejected</option>
-
               <option value="Withdrawn">Withdrawn</option>
             </select>
           </div>
@@ -480,7 +521,7 @@ function Applications() {
             />
           </div>
         </div>
-      </EditModal>
+      </FormDialog>
 
       <ConfirmModal
         isOpen={showDeleteModal}

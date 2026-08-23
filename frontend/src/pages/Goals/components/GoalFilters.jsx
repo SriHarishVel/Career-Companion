@@ -1,226 +1,155 @@
+import SearchFilterBar from "../../../components/SearchFilterBar";
+
 function GoalFilters({
-    searchGoal,
-    setSearchGoal,
-    sortOption,
-    setSortOption,
-    categoryFilter,
-    setCategoryFilter,
-    priorityFilter,
-    setPriorityFilter,
-    goalTypeFilter,
-    setGoalTypeFilter,
-    statusFilter,
-    setStatusFilter
+  searchGoal,
+  setSearchGoal,
+  sortOption,
+  setSortOption,
+  categoryFilter,
+  setCategoryFilter,
+  priorityFilter,
+  setPriorityFilter,
+  goalTypeFilter,
+  setGoalTypeFilter,
+  statusFilter,
+  setStatusFilter,
 }) {
+  function clearFilters() {
+    setSearchGoal("");
+    setSortOption("default");
+    setCategoryFilter("All");
+    setPriorityFilter("All");
+    setGoalTypeFilter("All");
+    setStatusFilter("All");
+  }
 
-    const hasActiveFilters =
-        searchGoal ||
-        sortOption !== "default" ||
-        categoryFilter !== "All" ||
-        priorityFilter !== "All" ||
-        goalTypeFilter !== "All" ||
-        statusFilter !== "All";
+  const filters = [
+    {
+      label: "Category",
+      value: categoryFilter,
+      defaultValue: "All",
+      onChange: setCategoryFilter,
+      options: [
+        {
+          value: "All",
+          label: "All Categories",
+        },
+        {
+          value: "Learning",
+          label: "Learning",
+        },
+        {
+          value: "Career",
+          label: "Career",
+        },
+        {
+          value: "Personal",
+          label: "Personal",
+        },
+        {
+          value: "Health",
+          label: "Health",
+        },
+      ],
+    },
 
-    function clearFilters() {
-        setSearchGoal("");
-        setSortOption("default");
-        setCategoryFilter("All");
-        setPriorityFilter("All");
-        setGoalTypeFilter("All");
-        setStatusFilter("All");
-    }
+    {
+      label: "Priority",
+      value: priorityFilter,
+      defaultValue: "All",
+      onChange: setPriorityFilter,
+      options: [
+        {
+          value: "All",
+          label: "All Priorities",
+        },
+        {
+          value: "High",
+          label: "High",
+        },
+        {
+          value: "Medium",
+          label: "Medium",
+        },
+        {
+          value: "Low",
+          label: "Low",
+        },
+      ],
+    },
 
-    return (
-        <div className="filters-card">
+    {
+      label: "Goal Type",
+      value: goalTypeFilter,
+      defaultValue: "All",
+      onChange: setGoalTypeFilter,
+      options: [
+        {
+          value: "All",
+          label: "All Types",
+        },
+        {
+          value: "Primary",
+          label: "Primary Goals",
+        },
+        {
+          value: "Secondary",
+          label: "Secondary Goals",
+        },
+      ],
+    },
 
-            <div className="filters-header">
+    {
+      label: "Status",
+      value: statusFilter,
+      defaultValue: "All",
+      onChange: setStatusFilter,
+      options: [
+        {
+          value: "All",
+          label: "All Goals",
+        },
+        {
+          value: "Active",
+          label: "Active Goals",
+        },
+        {
+          value: "Completed",
+          label: "Completed Goals",
+        },
+      ],
+    },
+  ];
 
-                <div>
-                    <h3>Find a Goal</h3>
+  return (
+    <div className="filters-card">
+      <SearchFilterBar
+        searchValue={searchGoal}
+        onSearchChange={setSearchGoal}
+        sortValue={sortOption}
+        onSortChange={setSortOption}
+        searchPlaceholder="Search goals..."
+        filters={filters}
+        onClearFilters={clearFilters}
+      >
+        <option value="default">Default</option>
 
-                    <p className="filters-description">
-                        Search, filter, or sort your goals.
-                    </p>
-                </div>
+        <option value="az">A-Z</option>
 
-                {hasActiveFilters && (
-                    <button
-                        type="button"
-                        className="clear-filters-btn"
-                        onClick={clearFilters}
-                    >
-                        Clear Filters
-                    </button>
-                )}
+        <option value="za">Z-A</option>
 
-            </div>
+        <option value="priorityHigh">Priority High-Low</option>
 
-            <div className="filters-toolbar">
+        <option value="priorityLow">Priority Low-High</option>
 
-                <div className="filter-group search-group">
-                    <label>Search</label>
+        <option value="high">Highest Progress</option>
 
-                    <input
-                        type="search"
-                        placeholder="Search goals..."
-                        value={searchGoal}
-                        onChange={(e) =>
-                            setSearchGoal(e.target.value)
-                        }
-                    />
-                </div>
+        <option value="low">Lowest Progress</option>
 
-                <div className="filter-group">
-                    <label>Sort By</label>
-
-                    <select
-                        value={sortOption}
-                        onChange={(e) =>
-                            setSortOption(e.target.value)
-                        }
-                    >
-                        <option value="default">
-                            Default
-                        </option>
-
-                        <option value="az">
-                            A-Z
-                        </option>
-
-                        <option value="za">
-                            Z-A
-                        </option>
-
-                        <option value="priorityHigh">
-                            Priority High-Low
-                        </option>
-
-                        <option value="priorityLow">
-                            Priority Low-High
-                        </option>
-
-                        <option value="high">
-                            Highest Progress
-                        </option>
-
-                        <option value="low">
-                            Lowest Progress
-                        </option>
-
-                        <option value="recent">
-                            Recently Updated
-                        </option>
-                    </select>
-                </div>
-
-                <div className="filter-group">
-                    <label>Category</label>
-
-                    <select
-                        value={categoryFilter}
-                        onChange={(e) =>
-                            setCategoryFilter(e.target.value)
-                        }
-                    >
-                        <option value="All">
-                            All Categories
-                        </option>
-
-                        <option value="Learning">
-                            Learning
-                        </option>
-
-                        <option value="Career">
-                            Career
-                        </option>
-
-                        <option value="Personal">
-                            Personal
-                        </option>
-
-                        <option value="Health">
-                            Health
-                        </option>
-                    </select>
-                </div>
-
-                <div className="filter-group">
-                    <label>Priority</label>
-
-                    <select
-                        value={priorityFilter}
-                        onChange={(e) =>
-                            setPriorityFilter(e.target.value)
-                        }
-                    >
-                        <option value="All">
-                            All Priorities
-                        </option>
-
-                        <option value="High">
-                            High
-                        </option>
-
-                        <option value="Medium">
-                            Medium
-                        </option>
-
-                        <option value="Low">
-                            Low
-                        </option>
-                    </select>
-                </div>
-
-                <div className="filter-group">
-                    <label>Goal Type</label>
-
-                    <select
-                        value={goalTypeFilter}
-                        onChange={(e) =>
-                            setGoalTypeFilter(e.target.value)
-                        }
-                    >
-                        <option value="All">
-                            All Types
-                        </option>
-
-                        <option value="Primary">
-                            Primary Goals
-                        </option>
-
-                        <option value="Secondary">
-                            Secondary Goals
-                        </option>
-                    </select>
-                </div>
-
-                <div className="filter-group">
-                    <label>Status</label>
-
-                    <select
-                        value={statusFilter}
-                        onChange={(e) =>
-                            setStatusFilter(e.target.value)
-                        }
-                    >
-                        <option value="All">
-                            All Goals
-                        </option>
-
-                        <option value="Active">
-                            Active Goals
-                        </option>
-
-                        <option value="Completed">
-                            Completed Goals
-                        </option>
-                    </select>
-                </div>
-
-            </div>
-
-        </div>
-    );
+        <option value="recent">Recently Updated</option>
+      </SearchFilterBar>
+    </div>
+  );
 }
 
 export default GoalFilters;

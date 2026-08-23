@@ -1,4 +1,4 @@
-import EditModal from "../../../components/EditModal";
+import FormDialog from "../../../components/FormDialog";
 
 function ProfileInfo({
   profile,
@@ -7,7 +7,7 @@ function ProfileInfo({
   setFullName,
   setEmail,
   showEditModal,
-  setShowEditModal,
+  setshowEditModal,
   saveProfile,
 }) {
   return (
@@ -51,15 +51,15 @@ function ProfileInfo({
         </div>
       </div>
 
-      <EditModal
+      <FormDialog
         isOpen={showEditModal}
         title="Edit Profile"
         saveButtonText="Save Changes"
         onSave={async () => {
           await saveProfile();
-          setShowEditModal(false);
+          setshowEditModal(false);
         }}
-        onCancel={() => setShowEditModal(false)}
+        onCancel={() => setshowEditModal(false)}
       >
         <input
           type="text"
@@ -74,7 +74,7 @@ function ProfileInfo({
           onChange={(e) => setEmail(e.target.value)}
           placeholder="Email"
         />
-      </EditModal>
+      </FormDialog>
     </section>
   );
 }

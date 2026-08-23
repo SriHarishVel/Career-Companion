@@ -1,9 +1,9 @@
 function ResourceCard({ resource, onEdit, onDelete, onToggleFavorite }) {
   return (
-    <div className="resource-card">
+    <article className="resource-card">
       <div className="resource-card-header">
         <div className="resource-badges">
-          <span className="resource-type">{resource.type}</span>
+          <span className="resource-type">{resource.type || "Resource"}</span>
 
           {resource.favorite && (
             <span className="favorite-badge">★ Favorite</span>
@@ -26,22 +26,31 @@ function ResourceCard({ resource, onEdit, onDelete, onToggleFavorite }) {
           Open Resource
         </a>
 
-        <button className="edit-btn" onClick={() => onEdit(resource._id)}>
+        <button
+          type="button"
+          className="edit-btn"
+          onClick={() => onEdit(resource._id)}
+        >
           Edit
         </button>
 
         <button
+          type="button"
           className="favorite-btn"
           onClick={() => onToggleFavorite(resource._id)}
         >
           {resource.favorite ? "Unfavorite" : "Favorite"}
         </button>
 
-        <button className="delete-btn" onClick={() => onDelete(resource._id)}>
+        <button
+          type="button"
+          className="delete-btn"
+          onClick={() => onDelete(resource._id)}
+        >
           Delete
         </button>
       </div>
-    </div>
+    </article>
   );
 }
 

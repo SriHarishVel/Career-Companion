@@ -1,51 +1,71 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation } from "react-router-dom";
+
 import ConfirmModal from "../../components/ConfirmModal";
+import LoadingState from "../../components/LoadingState";
+
 import ResourceForm from "./components/ResourceForm";
 import ResourceFilters from "./components/ResourceFilters";
 import ResourceCard from "./components/ResourceCard";
+
 import {
   getResources,
   createResource,
   updateResource,
   deleteResource,
 } from "../../services/resourceService";
+
 import { getSkills } from "../../services/skillService";
-import LoadingState from "../../components/LoadingState";
+
 import "./index.css";
 
 function Resources() {
   const location = useLocation();
 
+  /* FORM STATE */
+
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newType, setNewType] = useState("Documentation");
-
   const [skillId, setSkillId] = useState(location.state?.skillId || "");
+
+  /* FILTER STATE */
 
   const [searchResource, setSearchResource] = useState("");
   const [sortOption, setSortOption] = useState("default");
   const [filterOption, setFilterOption] = useState("All");
+
   const [skillFilter, setSkillFilter] = useState(
     location.state?.skillId || "All",
   );
 
+  /* DATA STATE */
+
   const [resources, setResources] = useState([]);
   const [skills, setSkills] = useState([]);
 
+  /* EDIT / DELETE STATE */
+
   const [editingResourceId, setEditingResourceId] = useState(null);
+
   const [selectedResourceId, setSelectedResourceId] = useState(null);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  /* UI STATE */
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+
+  /* LOAD RESOURCES + SKILLS */
 
   useEffect(() => {
     async function fetchData() {
       try {
         setLoading(true);
+        setErrorMsg("");
 
-        const [resources, skills] = await Promise.all([
+        const [resourceData, skillData] = await Promise.all([
           getResources({
             search: searchResource,
 
@@ -64,8 +84,8 @@ function Resources() {
           getSkills(),
         ]);
 
-        setResources(resources);
-        setSkills(skills);
+        setResources(resourceData);
+        setSkills(skillData);
       } catch (error) {
         console.error("Failed to load resources:", error);
 
@@ -78,8 +98,10 @@ function Resources() {
     fetchData();
   }, [searchResource, filterOption, sortOption, skillFilter]);
 
-  function getSkillTitle(skillId) {
-    const skill = skills.find((skill) => skill._id === skillId);
+  /* HELPERS */
+
+  function getSkillTitle(id) {
+    const skill = skills.find((skillItem) => skillItem._id === id);
 
     return skill ? skill.name : null;
   }
@@ -92,25 +114,21 @@ function Resources() {
     return skill.secondaryGoal.title;
   }
 
-  function handleEditResource(resourceId) {
-    const resource = resources.find((resource) => resource._id === resourceId);
+  function resetResourceForm() {
+    setEditingResourceId(null);
 
-    if (!resource) {
-      return;
-    }
-
-    setEditingResourceId(resource._id);
-
-    setNewTitle(resource.title);
-    setNewUrl(resource.url);
-    setNewType(resource.type);
-    setSkillId(resource.skill?._id || "");
+    setNewTitle("");
+    setNewUrl("");
+    setNewType("Documentation");
+    setSkillId("");
 
     setErrorMsg("");
   }
 
+  /* REFRESH RESOURCES */
+
   async function refreshResources() {
-    const resources = await getResources({
+    const resourceData = await getResources({
       search: searchResource,
 
       type:
@@ -125,103 +143,144 @@ function Resources() {
       sort: sortOption === "default" ? undefined : sortOption,
     });
 
-    setResources(resources);
+    setResources(resourceData);
   }
 
+  /* EDIT RESOURCE */
+
+  function handleEditResource(resourceId) {
+    const resource = resources.find(
+      (resourceItem) => resourceItem._id === resourceId,
+    );
+
+    if (!resource) {
+      return;
+    }
+
+    setEditingResourceId(resource._id);
+
+    setNewTitle(resource.title || "");
+    setNewUrl(resource.url || "");
+    setNewType(resource.type || "Documentation");
+    setSkillId(resource.skill?._id || "");
+
+    setErrorMsg("");
+
+    window.scrollTo({
+      top: 0,
+      behavior: "smooth",
+    });
+  }
+
+  /* CREATE / UPDATE RESOURCE */
+
   async function addResource() {
-    if (newTitle.trim() === "" || newUrl.trim() === "") {
+    const title = newTitle.trim();
+    const url = newUrl.trim();
+
+    if (!title || !url) {
       setErrorMsg("Title and URL cannot be empty.");
       return;
     }
 
     setErrorMsg("");
 
-    const formattedUrl = newUrl.trim().startsWith("http")
-      ? newUrl.trim()
-      : `https://${newUrl.trim()}`;
+    const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
 
-    if (editingResourceId) {
-      try {
+    try {
+      if (editingResourceId) {
         await updateResource(editingResourceId, {
-          title: newTitle.trim(),
+          title,
           type: newType,
           url: formattedUrl,
           skill: skillId || null,
         });
-
-        await refreshResources();
-      } catch (error) {
-        console.error(error);
+      } else {
+        await createResource({
+          title,
+          type: newType,
+          url: formattedUrl,
+          description: "",
+          favorite: false,
+          completed: false,
+          skill: skillId || null,
+        });
       }
-
-      setEditingResourceId(null);
-      setNewTitle("");
-      setNewUrl("");
-      setNewType("Documentation");
-      setSkillId("");
-      setErrorMsg("");
-
-      return;
-    }
-
-    try {
-      await createResource({
-        title: newTitle.trim(),
-        type: newType,
-        url: formattedUrl,
-        description: "",
-        favorite: false,
-        completed: false,
-        skill: skillId || null,
-      });
 
       await refreshResources();
 
-      setNewTitle("");
-      setNewUrl("");
-      setNewType("Documentation");
-      setSkillId("");
+      resetResourceForm();
     } catch (error) {
-      console.error(error);
+      console.error("Failed to save resource:", error);
+
+      setErrorMsg(
+        editingResourceId
+          ? "Unable to update the resource. Please try again."
+          : "Unable to add the resource. Please try again.",
+      );
     }
   }
 
+  /* DELETE RESOURCE */
+
+  function handleDeleteResource(resourceId) {
+    setSelectedResourceId(resourceId);
+    setShowDeleteModal(true);
+  }
+
   async function confirmDeleteResource() {
+    if (!selectedResourceId) {
+      return;
+    }
+
     try {
       await deleteResource(selectedResourceId);
 
       await refreshResources();
     } catch (error) {
-      console.error(error);
-    }
+      console.error("Failed to delete resource:", error);
 
+      setErrorMsg("Unable to delete the resource. Please try again.");
+    } finally {
+      setShowDeleteModal(false);
+      setSelectedResourceId(null);
+    }
+  }
+
+  function cancelDeleteResource() {
     setShowDeleteModal(false);
     setSelectedResourceId(null);
   }
 
+  /* TOGGLE FAVORITE */
+
   async function toggleFavorite(resourceId) {
+    const resource = resources.find(
+      (resourceItem) => resourceItem._id === resourceId,
+    );
+
+    if (!resource) {
+      return;
+    }
+
     try {
-      const resource = resources.find(
-        (resource) => resource._id === resourceId,
-      );
-
-      if (!resource) {
-        return;
-      }
-
       await updateResource(resourceId, {
         favorite: !resource.favorite,
       });
 
       await refreshResources();
     } catch (error) {
-      console.error(error);
+      console.error("Failed to update favorite status:", error);
+
+      setErrorMsg("Unable to update the resource. Please try again.");
     }
   }
 
+  /* LOADING */
+
   if (loading) {
     return (
-      <div className="container">
+      <div className="container resources-page">
         <h1>Resources</h1>
 
         <LoadingState message="Loading your resources..." />
@@ -229,13 +288,21 @@ function Resources() {
     );
   }
 
+  /* PAGE */
+
   return (
-    <div className="container">
+    <div className="container resources-page">
       <h1>
         {skillFilter === "All"
           ? "Resources"
           : `Resources for ${getSkillTitle(skillFilter)}`}
       </h1>
+
+      {errorMsg && (
+        <p className="error" role="alert">
+          {errorMsg}
+        </p>
+      )}
 
       <ResourceFilters
         searchResource={searchResource}
@@ -260,7 +327,6 @@ function Resources() {
         </span>
       </div>
 
-      {/* Add Resource Form */}
       <ResourceForm
         editingResourceId={editingResourceId}
         newType={newType}
@@ -276,7 +342,6 @@ function Resources() {
         addResource={addResource}
       />
 
-      {/* Resource Cards */}
       <div className="resources-grid">
         {resources.length > 0 ? (
           resources.map((resource) => (
@@ -284,32 +349,26 @@ function Resources() {
               key={resource._id}
               resource={resource}
               onEdit={handleEditResource}
-              onDelete={(resourceId) => {
-                setSelectedResourceId(resourceId);
-                setShowDeleteModal(true);
-              }}
+              onDelete={handleDeleteResource}
               onToggleFavorite={toggleFavorite}
             />
           ))
         ) : (
           <div className="empty-state">
-            <h3>No Resources found</h3>
+            <h3>No Resources Found</h3>
 
             <p>Add a resource or adjust your filters.</p>
           </div>
         )}
-
-        <ConfirmModal
-          isOpen={showDeleteModal}
-          title="Delete Resource"
-          message="Are you sure you want to delete this resource?"
-          onConfirm={confirmDeleteResource}
-          onCancel={() => {
-            setShowDeleteModal(false);
-            setSelectedResourceId(null);
-          }}
-        />
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Resource"
+        message="Are you sure you want to delete this resource?"
+        onConfirm={confirmDeleteResource}
+        onCancel={cancelDeleteResource}
+      />
     </div>
   );
 }

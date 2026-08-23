@@ -1,4 +1,4 @@
-import SearchSortBar from "../../../components/SearchSortBar";
+import SearchSortBar from "../../../components/SearchFilterBar";
 
 function SkillFilters({
   searchSkill,
