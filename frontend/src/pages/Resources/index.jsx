@@ -47,13 +47,13 @@ function Resources() {
   /* EDIT / DELETE STATE */
 
   const [editingResourceId, setEditingResourceId] = useState(null);
-
   const [selectedResourceId, setSelectedResourceId] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   /* UI STATE */
 
+  const [showResourceForm, setShowResourceForm] = useState(false);
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -114,6 +114,8 @@ function Resources() {
     return skill.secondaryGoal.title;
   }
 
+  /* FORM */
+
   function resetResourceForm() {
     setEditingResourceId(null);
 
@@ -123,6 +125,16 @@ function Resources() {
     setSkillId("");
 
     setErrorMsg("");
+  }
+
+  function openAddResource() {
+    resetResourceForm();
+    setShowResourceForm(true);
+  }
+
+  function closeResourceForm() {
+    setShowResourceForm(false);
+    resetResourceForm();
   }
 
   /* REFRESH RESOURCES */
@@ -165,11 +177,7 @@ function Resources() {
     setSkillId(resource.skill?._id || "");
 
     setErrorMsg("");
-
-    window.scrollTo({
-      top: 0,
-      behavior: "smooth",
-    });
+    setShowResourceForm(true);
   }
 
   /* CREATE / UPDATE RESOURCE */
@@ -209,7 +217,7 @@ function Resources() {
 
       await refreshResources();
 
-      resetResourceForm();
+      closeResourceForm();
     } catch (error) {
       console.error("Failed to save resource:", error);
 
@@ -292,13 +300,23 @@ function Resources() {
 
   return (
     <div className="container resources-page">
-      <h1>
-        {skillFilter === "All"
-          ? "Resources"
-          : `Resources for ${getSkillTitle(skillFilter)}`}
-      </h1>
+      <div className="page-header">
+        <h1>
+          {skillFilter === "All"
+            ? "Resources"
+            : `Resources for ${getSkillTitle(skillFilter)}`}
+        </h1>
 
-      {errorMsg && (
+        <button
+          type="button"
+          className="add-resource-btn"
+          onClick={openAddResource}
+        >
+          + Add Resource
+        </button>
+      </div>
+
+      {errorMsg && !showResourceForm && (
         <p className="error" role="alert">
           {errorMsg}
         </p>
@@ -327,21 +345,6 @@ function Resources() {
         </span>
       </div>
 
-      <ResourceForm
-        editingResourceId={editingResourceId}
-        newType={newType}
-        setNewType={setNewType}
-        newTitle={newTitle}
-        setNewTitle={setNewTitle}
-        newUrl={newUrl}
-        setNewUrl={setNewUrl}
-        skillId={skillId}
-        setSkillId={setSkillId}
-        skills={skills}
-        errorMsg={errorMsg}
-        addResource={addResource}
-      />
-
       <div className="resources-grid">
         {resources.length > 0 ? (
           resources.map((resource) => (
@@ -361,6 +364,27 @@ function Resources() {
           </div>
         )}
       </div>
+
+      {/* ADD / EDIT RESOURCE */}
+
+      <ResourceForm
+        isOpen={showResourceForm}
+        onClose={closeResourceForm}
+        editingResourceId={editingResourceId}
+        newType={newType}
+        setNewType={setNewType}
+        newTitle={newTitle}
+        setNewTitle={setNewTitle}
+        newUrl={newUrl}
+        setNewUrl={setNewUrl}
+        skillId={skillId}
+        setSkillId={setSkillId}
+        skills={skills}
+        errorMsg={errorMsg}
+        addResource={addResource}
+      />
+
+      {/* DELETE CONFIRMATION */}
 
       <ConfirmModal
         isOpen={showDeleteModal}

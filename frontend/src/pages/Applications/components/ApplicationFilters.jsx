@@ -1,3 +1,5 @@
+import SearchFilterBar from "../../../components/SearchFilterBar";
+
 function ApplicationFilters({
   searchTerm,
   setSearchTerm,
@@ -9,64 +11,82 @@ function ApplicationFilters({
   setSortBy,
   primaryGoalOptions,
 }) {
+  const filters = [
+    {
+      label: "Status",
+      value: statusFilter,
+      defaultValue: "All",
+      onChange: setStatusFilter,
+      options: [
+        {
+          value: "All",
+          label: "All Statuses",
+        },
+        {
+          value: "Applied",
+          label: "Applied",
+        },
+        {
+          value: "In Progress",
+          label: "In Progress",
+        },
+        {
+          value: "Offer",
+          label: "Offer",
+        },
+        {
+          value: "Rejected",
+          label: "Rejected",
+        },
+        {
+          value: "Withdrawn",
+          label: "Withdrawn",
+        },
+      ],
+    },
+
+    {
+      label: "Career Goal",
+      value: goalFilter,
+      defaultValue: "All",
+      onChange: setGoalFilter,
+      options: [
+        {
+          value: "All",
+          label: "All Goals",
+        },
+
+        ...primaryGoalOptions.map((goal) => ({
+          value: goal._id,
+          label: goal.title,
+        })),
+      ],
+    },
+  ];
+
+  function clearFilters() {
+    setSearchTerm("");
+    setSortBy("Last Updated");
+    setStatusFilter("All");
+    setGoalFilter("All");
+  }
+
   return (
     <div className="filters-card">
-      <div className="application-filters-grid">
-        <div className="filter-group">
-          <label>Search</label>
-
-          <input
-            type="search"
-            placeholder="Search applications..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-        </div>
-
-        <div className="filter-group">
-          <label>Sort By</label>
-
-          <select value={sortBy} onChange={(e) => setSortBy(e.target.value)}>
-            <option value="Last Updated">Last Updated</option>
-            <option value="Applied Date">Applied Date</option>
-            <option value="Company">Company</option>
-            <option value="Role">Role</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>Status</label>
-
-          <select
-            value={statusFilter}
-            onChange={(e) => setStatusFilter(e.target.value)}
-          >
-            <option value="All">All Statuses</option>
-            <option value="Applied">Applied</option>
-            <option value="In Progress">In Progress</option>
-            <option value="Offer">Offer</option>
-            <option value="Rejected">Rejected</option>
-            <option value="Withdrawn">Withdrawn</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label>Career Goal</label>
-
-          <select
-            value={goalFilter}
-            onChange={(e) => setGoalFilter(e.target.value)}
-          >
-            <option value="All">All Goals</option>
-
-            {primaryGoalOptions.map((goal) => (
-              <option key={goal._id} value={goal._id}>
-                {goal.title}
-              </option>
-            ))}
-          </select>
-        </div>
-      </div>
+      <SearchFilterBar
+        searchValue={searchTerm}
+        onSearchChange={setSearchTerm}
+        sortValue={sortBy}
+        onSortChange={setSortBy}
+        searchPlaceholder="Search applications..."
+        filters={filters}
+        onClearFilters={clearFilters}
+      >
+        <option value="Last Updated">Last Updated</option>
+        <option value="Applied Date">Applied Date</option>
+        <option value="Company">Company</option>
+        <option value="Role">Role</option>
+      </SearchFilterBar>
     </div>
   );
 }

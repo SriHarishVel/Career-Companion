@@ -1,4 +1,8 @@
+import FormDialog from "../../../components/FormDialog";
+
 function ResourceForm({
+  isOpen,
+  onClose,
   editingResourceId,
   newType,
   setNewType,
@@ -15,23 +19,30 @@ function ResourceForm({
   const isEditing = Boolean(editingResourceId);
 
   return (
-    <section className="add-resource-card">
-      <div className="resource-form-header">
-        <div>
-          <span className="resource-section-label">
-            {isEditing ? "Edit Resource" : "New Resource"}
-          </span>
+    <FormDialog
+      isOpen={isOpen}
+      title={isEditing ? "Edit Resource" : "Add a Resource"}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="form-dialog-cancel"
+            onClick={onClose}
+          >
+            Cancel
+          </button>
 
-          <h3>{isEditing ? "Update Resource" : "Add a Resource"}</h3>
-
-          <p>
-            {isEditing
-              ? "Update your resource details."
-              : "Save a useful learning resource for your career journey."}
-          </p>
-        </div>
-      </div>
-
+          <button
+            type="button"
+            className="form-dialog-submit"
+            onClick={addResource}
+          >
+            {isEditing ? "Update Resource" : "Add Resource"}
+          </button>
+        </>
+      }
+    >
       <div className="resource-form-fields">
         <div className="filter-group">
           <label htmlFor="resource-type">Resource Type</label>
@@ -99,13 +110,7 @@ function ResourceForm({
           {errorMsg}
         </p>
       )}
-
-      <div className="resource-form-actions">
-        <button type="button" onClick={addResource}>
-          {isEditing ? "Update Resource" : "Add Resource"}
-        </button>
-      </div>
-    </section>
+    </FormDialog>
   );
 }
 

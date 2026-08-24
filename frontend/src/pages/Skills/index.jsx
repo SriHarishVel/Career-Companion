@@ -1,23 +1,30 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+
 import ConfirmModal from "../../components/ConfirmModal";
+import FormDialog from "../../components/FormDialog";
+import LoadingState from "../../components/LoadingState";
+
 import SkillCard from "./components/SkillCard";
 import SkillFilters from "./components/SkillFilters";
 import SkillForm from "./components/SkillForm";
+
 import { journeyService } from "../../services/journeyService";
 import { getGoals } from "../../services/goalService";
+
 import {
   createResource,
   updateResource,
   getResources,
 } from "../../services/resourceService";
+
 import {
   getSkills,
   createSkill,
   updateSkill,
   deleteSkill,
 } from "../../services/skillService";
-import LoadingState from "../../components/LoadingState";
+
 import "./index.css";
 
 function Skills() {
@@ -32,15 +39,12 @@ function Skills() {
 
   const [newSkill, setNewSkill] = useState("");
   const [newCategory, setNewCategory] = useState("Programming");
-
   const [secondaryGoalId, setSecondaryGoalId] = useState("");
-
   const [newResource, setNewResource] = useState("");
   const [resourceId, setResourceId] = useState(null);
 
   const [searchSkill, setSearchSkill] = useState("");
   const [sortOption, setSortOption] = useState("default");
-
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [levelFilter, setLevelFilter] = useState("All");
 
@@ -49,13 +53,21 @@ function Skills() {
 
   const [editingSkillId, setEditingSkillId] = useState(null);
   const [selectedSkillId, setSelectedSkillId] = useState(null);
+
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
+  /*
+   * Guided setup opens the dialog immediately.
+   * Normal Skills page starts with it closed.
+   */
+  const [showSkillForm, setShowSkillForm] = useState(isGuidedSetup);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const skillFormRef = useRef(null);
-
+  /*
+   * Load skills and goals.
+   */
   useEffect(() => {
     async function fetchSkills() {
       try {
@@ -64,14 +76,10 @@ function Skills() {
         const [skills, goals] = await Promise.all([
           getSkills({
             search: searchSkill,
-
             category: categoryFilter === "All" ? undefined : categoryFilter,
-
             level: levelFilter === "All" ? undefined : levelFilter,
-
             sort: sortOption === "default" ? undefined : sortOption,
           }),
-
           getGoals(),
         ]);
 
@@ -97,7 +105,7 @@ function Skills() {
         return;
       }
 
-      const newProgress = Math.min(skill.progress + 10, 100);
+      const newProgress = Math.min(Number(skill.progress || 0) + 10, 100);
 
       let newLevel = "Beginner";
 
@@ -116,12 +124,12 @@ function Skills() {
 
       setSkills(updatedSkills);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to update skill progress:", error);
     }
   }
 
-  async function goToNextStep() {
-    const nextStep = await journeyService.getNextStep();
+  function goToNextStep() {
+    const nextStep = journeyService.getNextStep();
 
     navigate(nextStep.page, {
       state: {
@@ -133,17 +141,18 @@ function Skills() {
     });
   }
 
-  async function confirmDeleteSkill() {
-    try {
-      await deleteSkill(selectedSkillId);
-      const skills = await getSkills();
-      setSkills(skills);
-    } catch (error) {
-      console.error(error);
-    }
+  function openAddSkill() {
+    setEditingSkillId(null);
 
-    setShowDeleteModal(false);
-    setSelectedSkillId(null);
+    setNewSkill("");
+    setNewCategory("Programming");
+    setSecondaryGoalId("");
+    setNewResource("");
+
+    setResourceId(null);
+    setErrorMsg("");
+
+    setShowSkillForm(true);
   }
 
   async function addSkill() {
@@ -177,16 +186,11 @@ function Skills() {
               skill: editingSkillId,
             });
           }
-        } else if (resourceId) {
-          await updateResource(resourceId, {
-            title: `${newSkill.trim()} Resource`,
-            url: "",
-          });
         }
 
-        const skills = await getSkills();
+        const updatedSkills = await getSkills();
 
-        setSkills(skills);
+        setSkills(updatedSkills);
 
         handleCancelEdit();
 
@@ -214,21 +218,29 @@ function Skills() {
         });
       }
 
-      const skills = await getSkills();
+      const updatedSkills = await getSkills();
 
-      setSkills(skills);
-
-      if (journeyAction === "createSkill") {
-        goToNextStep();
-      }
+      setSkills(updatedSkills);
 
       setNewSkill("");
       setNewCategory("Programming");
       setSecondaryGoalId("");
-      setErrorMsg("");
       setNewResource("");
+      setResourceId(null);
+      setErrorMsg("");
+
+      setShowSkillForm(false);
+
+      if (journeyAction === "createSkill") {
+        goToNextStep();
+      }
     } catch (error) {
-      console.error(error);
+      console.error("Failed to save skill:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to save the skill. Please try again.",
+      );
     }
   }
 
@@ -247,35 +259,58 @@ function Skills() {
 
     setErrorMsg("");
 
-    const resources = await getResources();
+    try {
+      const resources = await getResources();
 
-    const resource = resources.find(
-      (resource) => resource.skill && resource.skill._id.toString() === skillId,
-    );
+      const resource = resources.find(
+        (resource) =>
+          resource.skill && resource.skill._id.toString() === skillId,
+      );
 
-    if (resource) {
-      setResourceId(resource._id);
-      setNewResource(resource.url);
-    } else {
+      if (resource) {
+        setResourceId(resource._id);
+        setNewResource(resource.url);
+      } else {
+        setResourceId(null);
+        setNewResource("");
+      }
+    } catch (error) {
+      console.error("Failed to load skill resource:", error);
+
       setResourceId(null);
       setNewResource("");
     }
 
-    skillFormRef.current?.scrollIntoView({
-      behavior: "smooth",
-      block: "start",
-    });
+    setShowSkillForm(true);
   }
 
   function handleCancelEdit() {
     setEditingSkillId(null);
+
     setNewSkill("");
     setNewCategory("Programming");
     setSecondaryGoalId("");
     setNewResource("");
+
     setErrorMsg("");
     setResourceId(null);
-    setNewResource("");
+
+    setShowSkillForm(false);
+  }
+
+  async function confirmDeleteSkill() {
+    try {
+      await deleteSkill(selectedSkillId);
+
+      const updatedSkills = await getSkills();
+
+      setSkills(updatedSkills);
+    } catch (error) {
+      console.error("Failed to delete skill:", error);
+    }
+
+    setShowDeleteModal(false);
+    setSelectedSkillId(null);
   }
 
   const secondaryGoalOptions = goals.filter(
@@ -294,12 +329,22 @@ function Skills() {
 
   return (
     <div className="container">
-      {/* Page name */}
-      <h1>{isGuidedSetup ? journeyTitle : "Skills"}</h1>
+      <div className="page-header">
+        <h1>{isGuidedSetup ? journeyTitle : "Skills"}</h1>
+
+        {!isGuidedSetup && (
+          <button
+            type="button"
+            className="add-skill-btn"
+            onClick={openAddSkill}
+          >
+            + Add Skill
+          </button>
+        )}
+      </div>
 
       {isGuidedSetup && <p className="journey-message">{journeyDescription}</p>}
 
-      {/* Skill Filters */}
       <SkillFilters
         searchSkill={searchSkill}
         setSearchSkill={setSearchSkill}
@@ -312,28 +357,48 @@ function Skills() {
         skillCount={skills.length}
       />
 
-      {/* Add Skill SkillCard */}
-      <SkillForm
-        editingSkillId={editingSkillId}
-        newSkill={newSkill}
-        setNewSkill={(value) => {
-          setNewSkill(value);
-          setErrorMsg("");
-        }}
-        newCategory={newCategory}
-        setNewCategory={setNewCategory}
-        secondaryGoalId={secondaryGoalId}
-        setSecondaryGoalId={setSecondaryGoalId}
-        secondaryGoalOptions={secondaryGoalOptions}
-        newResource={newResource}
-        setNewResource={setNewResource}
-        errorMsg={errorMsg}
-        addSkill={addSkill}
-        handleCancelEdit={handleCancelEdit}
-        skillFormRef={skillFormRef}
-      />
+      <FormDialog
+        isOpen={showSkillForm}
+        title={editingSkillId ? "Edit Skill" : "Add a Skill"}
+        onClose={handleCancelEdit}
+        footer={
+          <>
+            <button
+              type="button"
+              className="form-dialog-cancel"
+              onClick={handleCancelEdit}
+            >
+              Cancel
+            </button>
 
-      {/* Skills Grid */}
+            <button
+              type="button"
+              className="form-dialog-submit"
+              onClick={addSkill}
+            >
+              {editingSkillId ? "Update Skill" : "Add Skill"}
+            </button>
+          </>
+        }
+      >
+        <SkillForm
+          editingSkillId={editingSkillId}
+          newSkill={newSkill}
+          setNewSkill={(value) => {
+            setNewSkill(value);
+            setErrorMsg("");
+          }}
+          newCategory={newCategory}
+          setNewCategory={setNewCategory}
+          secondaryGoalId={secondaryGoalId}
+          setSecondaryGoalId={setSecondaryGoalId}
+          secondaryGoalOptions={secondaryGoalOptions}
+          newResource={newResource}
+          setNewResource={setNewResource}
+          errorMsg={errorMsg}
+        />
+      </FormDialog>
+
       <div className="skills-grid">
         {skills.length > 0 ? (
           skills.map((skill) => (
@@ -351,7 +416,6 @@ function Skills() {
                 setShowDeleteModal(true);
               }}
               onEdit={handleEditSkill}
-              onDetails={(skillId) => navigate(`/skills/${skillId}`)}
               onResources={(skillId) =>
                 navigate("/resources", {
                   state: { skillId },
@@ -362,22 +426,21 @@ function Skills() {
         ) : (
           <div className="empty-state">
             <h3>No skills found</h3>
-
             <p>Add a skill or adjust your filters.</p>
           </div>
         )}
-
-        <ConfirmModal
-          isOpen={showDeleteModal}
-          title="Delete Skill"
-          message="Are you sure you want to delete this skill?"
-          onConfirm={confirmDeleteSkill}
-          onCancel={() => {
-            setShowDeleteModal(false);
-            setSelectedSkillId(null);
-          }}
-        />
       </div>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Skill"
+        message="Are you sure you want to delete this skill?"
+        onConfirm={confirmDeleteSkill}
+        onCancel={() => {
+          setShowDeleteModal(false);
+          setSelectedSkillId(null);
+        }}
+      />
     </div>
   );
 }

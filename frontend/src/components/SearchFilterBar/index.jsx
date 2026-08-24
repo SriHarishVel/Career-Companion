@@ -1,4 +1,5 @@
-import { useRef, useState } from "react";
+import { useState } from "react";
+import "./index.css";
 
 function SearchFilterBar({
   searchValue,
@@ -12,9 +13,8 @@ function SearchFilterBar({
 }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
   const [localSearch, setLocalSearch] = useState(searchValue);
-  const searchTimer = useRef(null);
 
-  const useFilterPopup = filters.length >= 4;
+  const useFilterPopup = filters.length >= 0;
 
   const hasActiveFilters = filters.some(
     (filter) =>
@@ -23,48 +23,43 @@ function SearchFilterBar({
       filter.value !== filter.defaultValue,
   );
 
-  function handleSearchChange(event) {
-    const value = event.target.value;
-
-    setLocalSearch(value);
-
-    if (searchTimer.current) {
-      clearTimeout(searchTimer.current);
-    }
-
-    searchTimer.current = setTimeout(() => {
-      onSearchChange(value);
-    }, 300);
+  function handleSearchSubmit(event) {
+    event.preventDefault();
+    onSearchChange(localSearch);
   }
 
   function handleClearFilters() {
-    if (searchTimer.current) {
-      clearTimeout(searchTimer.current);
-    }
-
     setLocalSearch("");
 
     if (onClearFilters) {
       onClearFilters();
+    } else {
+      onSearchChange("");
     }
-  }
-
-  function closeFilterPanel() {
-    setIsFilterOpen(false);
   }
 
   return (
     <>
-      <div className="search-sort-bar">
-        <input
-          type="search"
-          placeholder={searchPlaceholder}
-          value={localSearch}
-          onChange={handleSearchChange}
-          aria-label="Search"
-        />
+      <form className="search-sort-bar" onSubmit={handleSearchSubmit}>
+        <div className="search-input-wrapper">
+          <input
+            id="goal-search"
+            name="search"
+            type="search"
+            placeholder={searchPlaceholder}
+            value={localSearch}
+            onChange={(event) => setLocalSearch(event.target.value)}
+            aria-label="Search"
+          />
+
+          <button type="submit" className="search-submit-btn">
+            Search
+          </button>
+        </div>
 
         <select
+          id="goal-sort"
+          name="sort"
           value={sortValue}
           onChange={(event) => onSortChange(event.target.value)}
           aria-label="Sort"
@@ -89,14 +84,14 @@ function SearchFilterBar({
             {hasActiveFilters && <span className="filter-active-dot" />}
           </button>
         )}
-      </div>
+      </form>
 
       {useFilterPopup && isFilterOpen && (
         <div
           className="filter-panel-overlay"
           onMouseDown={(event) => {
             if (event.target === event.currentTarget) {
-              closeFilterPanel();
+              setIsFilterOpen(false);
             }
           }}
         >
@@ -107,16 +102,12 @@ function SearchFilterBar({
             aria-labelledby="filter-panel-title"
           >
             <div className="filter-panel-header">
-              <div>
-                <span className="filter-panel-label">Refine</span>
-
-                <h2 id="filter-panel-title">Filters</h2>
-              </div>
+              <h2 id="filter-panel-title">Filters</h2>
 
               <button
                 type="button"
                 className="filter-panel-close"
-                onClick={closeFilterPanel}
+                onClick={() => setIsFilterOpen(false)}
                 aria-label="Close filters"
               >
                 ×
@@ -163,7 +154,7 @@ function SearchFilterBar({
               <button
                 type="button"
                 className="filter-panel-apply"
-                onClick={closeFilterPanel}
+                onClick={() => setIsFilterOpen(false)}
               >
                 Apply Filters
               </button>

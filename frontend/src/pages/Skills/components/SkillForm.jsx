@@ -1,5 +1,4 @@
 function SkillForm({
-  editingSkillId,
   newSkill,
   setNewSkill,
   newCategory,
@@ -10,42 +9,27 @@ function SkillForm({
   newResource,
   setNewResource,
   errorMsg,
-  addSkill,
-  handleCancelEdit,
-  skillFormRef,
 }) {
   return (
-    <div className="add-skill-card" ref={skillFormRef}>
-      <div className="skill-form-header">
-        <div>
-          <h3>{editingSkillId ? "Edit Skill" : "Add a Skill"}</h3>
-
-          <p>
-            {editingSkillId
-              ? "Update your skill details."
-              : "Add a skill you want to develop."}
-          </p>
-        </div>
-      </div>
-
+    <div className="skill-form-content">
       <div className="skill-form-fields">
         <div className="filter-group">
-          <label>Skill Name</label>
+          <label htmlFor="skill-name">Skill Name</label>
 
           <input
+            id="skill-name"
             type="text"
             placeholder="e.g. React"
             value={newSkill}
-            onChange={(e) => {
-              setNewSkill(e.target.value);
-            }}
+            onChange={(e) => setNewSkill(e.target.value)}
           />
         </div>
 
         <div className="filter-group">
-          <label>Category</label>
+          <label htmlFor="skill-category">Category</label>
 
           <select
+            id="skill-category"
             value={newCategory}
             onChange={(e) => setNewCategory(e.target.value)}
           >
@@ -64,12 +48,13 @@ function SkillForm({
         </div>
 
         <div className="filter-group">
-          <label>
+          <label htmlFor="skill-goal">
             Related Goal
             <span className="optional-label">Optional</span>
           </label>
 
           <select
+            id="skill-goal"
             value={secondaryGoalId}
             onChange={(e) => setSecondaryGoalId(e.target.value)}
           >
@@ -84,12 +69,13 @@ function SkillForm({
         </div>
 
         <div className="filter-group">
-          <label>
+          <label htmlFor="skill-resource">
             Learning Resource
             <span className="optional-label">Optional</span>
           </label>
 
           <input
+            id="skill-resource"
             type="url"
             placeholder="https://..."
             value={newResource}
@@ -99,18 +85,6 @@ function SkillForm({
       </div>
 
       {errorMsg && <p className="error">{errorMsg}</p>}
-
-      <div className="skill-form-actions">
-        <button onClick={addSkill}>
-          {editingSkillId ? "Update Skill" : "Add Skill"}
-        </button>
-
-        {editingSkillId && (
-          <button className="cancel-btn" onClick={handleCancelEdit}>
-            Cancel Edit
-          </button>
-        )}
-      </div>
     </div>
   );
 }
