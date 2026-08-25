@@ -20,10 +20,6 @@ function SkillOverview({ skill }) {
 
           <h1>{skill.name}</h1>
 
-          <p>
-            Track your development of this skill and the learning resources
-            connected to it.
-          </p>
         </div>
 
         <div className="skill-detail-header-meta">
@@ -56,10 +52,6 @@ function SkillOverview({ skill }) {
             />
           </div>
 
-          <p className="skill-progress-note">
-            Your current progress toward mastering this skill. Keep building
-            knowledge and practical experience to move toward complete mastery.
-          </p>
         </section>
 
         <section className="skill-goal-section">

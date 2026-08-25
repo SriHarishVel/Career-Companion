@@ -1,4 +1,11 @@
+import FormDialog from "../../../components/FormDialog";
+
 function SkillForm({
+  isOpen,
+  onClose,
+  title = "Add Skill",
+  onSubmit,
+  submitLabel = "Add Skill",
   newSkill,
   setNewSkill,
   newCategory,
@@ -11,81 +18,105 @@ function SkillForm({
   errorMsg,
 }) {
   return (
-    <div className="skill-form-content">
-      <div className="skill-form-fields">
-        <div className="filter-group">
-          <label htmlFor="skill-name">Skill Name</label>
-
-          <input
-            id="skill-name"
-            type="text"
-            placeholder="e.g. React"
-            value={newSkill}
-            onChange={(e) => setNewSkill(e.target.value)}
-          />
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="skill-category">Category</label>
-
-          <select
-            id="skill-category"
-            value={newCategory}
-            onChange={(e) => setNewCategory(e.target.value)}
+    <FormDialog
+      isOpen={isOpen}
+      title={title}
+      onClose={onClose}
+      footer={
+        <>
+          <button
+            type="button"
+            className="skill-action-secondary"
+            onClick={onClose}
           >
-            <option value="Programming">Programming</option>
+            Cancel
+          </button>
 
-            <option value="Database">Database</option>
-
-            <option value="Framework">Framework</option>
-
-            <option value="Tools">Tools</option>
-
-            <option value="Soft Skills">Soft Skills</option>
-
-            <option value="Other">Other</option>
-          </select>
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="skill-goal">
-            Related Goal
-            <span className="optional-label">Optional</span>
-          </label>
-
-          <select
-            id="skill-goal"
-            value={secondaryGoalId}
-            onChange={(e) => setSecondaryGoalId(e.target.value)}
+          <button
+            type="button"
+            className="skill-action-primary"
+            onClick={onSubmit}
           >
-            <option value="">No Related Goal</option>
+            {submitLabel}
+          </button>
+        </>
+      }
+    >
+      <div className="skill-form-content">
+        <div className="skill-form-fields">
+          <div className="filter-group">
+            <label htmlFor="skill-name">Skill Name</label>
 
-            {secondaryGoalOptions.map((goal) => (
-              <option key={goal._id} value={goal._id}>
-                {goal.title}
-              </option>
-            ))}
-          </select>
+            <input
+              id="skill-name"
+              type="text"
+              placeholder="e.g. React"
+              value={newSkill}
+              onChange={(e) => setNewSkill(e.target.value)}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="skill-category">Category</label>
+
+            <select
+              id="skill-category"
+              value={newCategory}
+              onChange={(e) => setNewCategory(e.target.value)}
+            >
+              <option value="Programming">Programming</option>
+              <option value="Database">Database</option>
+              <option value="Framework">Framework</option>
+              <option value="Tools">Tools</option>
+              <option value="Soft Skills">Soft Skills</option>
+              <option value="Other">Other</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="skill-goal">
+              Related Goal
+              <span className="optional-label">Optional</span>
+            </label>
+
+            <select
+              id="skill-goal"
+              value={secondaryGoalId}
+              onChange={(e) => setSecondaryGoalId(e.target.value)}
+            >
+              <option value="">No Related Goal</option>
+
+              {secondaryGoalOptions.map((goal) => (
+                <option key={goal._id} value={goal._id}>
+                  {goal.title}
+                </option>
+              ))}
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="skill-resource">
+              Learning Resource
+              <span className="optional-label">Optional</span>
+            </label>
+
+            <input
+              id="skill-resource"
+              type="url"
+              placeholder="https://..."
+              value={newResource}
+              onChange={(e) => setNewResource(e.target.value)}
+            />
+          </div>
         </div>
 
-        <div className="filter-group">
-          <label htmlFor="skill-resource">
-            Learning Resource
-            <span className="optional-label">Optional</span>
-          </label>
-
-          <input
-            id="skill-resource"
-            type="url"
-            placeholder="https://..."
-            value={newResource}
-            onChange={(e) => setNewResource(e.target.value)}
-          />
-        </div>
+        {errorMsg && (
+          <p className="error" role="alert">
+            {errorMsg}
+          </p>
+        )}
       </div>
-
-      {errorMsg && <p className="error">{errorMsg}</p>}
-    </div>
+    </FormDialog>
   );
 }
 

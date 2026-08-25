@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import ConfirmModal from "../../components/ConfirmModal";
-import FormDialog from "../../components/FormDialog";
 import LoadingState from "../../components/LoadingState";
 
 import SkillCard from "./components/SkillCard";
@@ -56,18 +55,11 @@ function Skills() {
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  /*
-   * Guided setup opens the dialog immediately.
-   * Normal Skills page starts with it closed.
-   */
   const [showSkillForm, setShowSkillForm] = useState(isGuidedSetup);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  /*
-   * Load skills and goals.
-   */
   useEffect(() => {
     async function fetchSkills() {
       try {
@@ -357,47 +349,23 @@ function Skills() {
         skillCount={skills.length}
       />
 
-      <FormDialog
+      <SkillForm
         isOpen={showSkillForm}
-        title={editingSkillId ? "Edit Skill" : "Add a Skill"}
         onClose={handleCancelEdit}
-        footer={
-          <>
-            <button
-              type="button"
-              className="form-dialog-cancel"
-              onClick={handleCancelEdit}
-            >
-              Cancel
-            </button>
-
-            <button
-              type="button"
-              className="form-dialog-submit"
-              onClick={addSkill}
-            >
-              {editingSkillId ? "Update Skill" : "Add Skill"}
-            </button>
-          </>
-        }
-      >
-        <SkillForm
-          editingSkillId={editingSkillId}
-          newSkill={newSkill}
-          setNewSkill={(value) => {
-            setNewSkill(value);
-            setErrorMsg("");
-          }}
-          newCategory={newCategory}
-          setNewCategory={setNewCategory}
-          secondaryGoalId={secondaryGoalId}
-          setSecondaryGoalId={setSecondaryGoalId}
-          secondaryGoalOptions={secondaryGoalOptions}
-          newResource={newResource}
-          setNewResource={setNewResource}
-          errorMsg={errorMsg}
-        />
-      </FormDialog>
+        title={editingSkillId ? "Edit Skill" : "Add Skill"}
+        onSubmit={addSkill}
+        submitLabel={editingSkillId ? "Save Changes" : "Add Skill"}
+        newSkill={newSkill}
+        setNewSkill={setNewSkill}
+        newCategory={newCategory}
+        setNewCategory={setNewCategory}
+        secondaryGoalId={secondaryGoalId}
+        setSecondaryGoalId={setSecondaryGoalId}
+        secondaryGoalOptions={secondaryGoalOptions}
+        newResource={newResource}
+        setNewResource={setNewResource}
+        errorMsg={errorMsg}
+      />
 
       <div className="skills-grid">
         {skills.length > 0 ? (

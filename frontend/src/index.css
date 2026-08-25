@@ -384,8 +384,7 @@ ol {
 
   .container {
     width: calc(100% - 24px);
-
-    margin: 16px auto 0;
+    margin: auto;
     padding: 20px;
 
     border-radius: 12px 12px 0 0;

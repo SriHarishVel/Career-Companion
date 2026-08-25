@@ -1,24 +1,23 @@
+import { useNavigate } from "react-router-dom";
 import "./index.css";
 
-function SkillCard({
-  id,
-  name,
-  progress,
-  category,
-  level,
-  relatedGoalTitle,
-  onDetails,
-}) {
+function SkillCard({ id, name, progress, category, level, relatedGoalTitle }) {
+  const navigate = useNavigate();
+
+  function handleSkillDetails(skillId) {
+    navigate(`/skills/${skillId}`);
+  }
+
   return (
     <div
       className="skill-card"
-      onClick={() => onDetails(id)}
+      onClick={() => handleSkillDetails(id)}
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          onDetails(id);
+          handleSkillDetails(id);
         }
       }}
     >

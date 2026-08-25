@@ -1,13 +1,42 @@
-function ResourceCard({ resource, onEdit, onDelete, onToggleFavorite }) {
+import { useNavigate } from "react-router-dom";
+
+function ResourceCard({ resource, onToggleFavorite }) {
+  const navigate = useNavigate();
+
+  const handleCardClick = () => {
+    navigate(`/resources/${resource._id}`);
+  };
+
   return (
-    <article className="resource-card">
+    <article
+      className="resource-card"
+      onClick={handleCardClick}
+      role="button"
+      tabIndex={0}
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
+          handleCardClick();
+        }
+      }}
+    >
+      <button
+        type="button"
+        className={`favorite-star ${resource.favorite ? "active" : ""}`}
+        onClick={(event) => {
+          event.stopPropagation();
+          onToggleFavorite(resource._id);
+        }}
+        aria-label={
+          resource.favorite ? "Unfavorite resource" : "Favorite resource"
+        }
+      >
+        {resource.favorite ? "★" : "☆"}
+      </button>
+
       <div className="resource-card-header">
         <div className="resource-badges">
           <span className="resource-type">{resource.type || "Resource"}</span>
-
-          {resource.favorite && (
-            <span className="favorite-badge">★ Favorite</span>
-          )}
         </div>
 
         <h3>{resource.title}</h3>
@@ -22,33 +51,14 @@ function ResourceCard({ resource, onEdit, onDelete, onToggleFavorite }) {
       )}
 
       <div className="resource-actions">
-        <a href={resource.url} target="_blank" rel="noopener noreferrer">
+        <a
+          href={resource.url}
+          target="_blank"
+          rel="noopener noreferrer"
+          onClick={(event) => event.stopPropagation()}
+        >
           Open Resource
         </a>
-
-        <button
-          type="button"
-          className="edit-btn"
-          onClick={() => onEdit(resource._id)}
-        >
-          Edit
-        </button>
-
-        <button
-          type="button"
-          className="favorite-btn"
-          onClick={() => onToggleFavorite(resource._id)}
-        >
-          {resource.favorite ? "Unfavorite" : "Favorite"}
-        </button>
-
-        <button
-          type="button"
-          className="delete-btn"
-          onClick={() => onDelete(resource._id)}
-        >
-          Delete
-        </button>
       </div>
     </article>
   );

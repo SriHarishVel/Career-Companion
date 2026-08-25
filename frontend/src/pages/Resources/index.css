@@ -66,21 +66,6 @@
 
 /* Shared Search / Filter Component */
 
-/*
-  ResourceFilters uses the shared SearchFilterBar.
-
-  SearchFilterBar owns:
-  - Search input
-  - Search button
-  - Sort dropdown
-  - Filter button
-  - Filter popup
-
-  Do not add resource-specific .search-sort-bar rules here.
-*/
-
-/* Summary */
-
 .resource-summary {
   display: flex !important;
   flex-direction: row !important;
@@ -128,40 +113,65 @@
 
   gap: 18px;
 
-  align-items: start;
+  align-items: stretch;
 }
 
 /* Resource Card */
 
 .resource-card {
+  position: relative;
+
   display: flex;
   flex-direction: column;
 
   min-width: 0;
+  min-height: 220px;
 
   padding: 20px;
 
-  border: 1px solid #e5e7eb;
-  border-top: 4px solid #2563eb;
+  border: 1px solid #e2e8f0;
   border-radius: 12px;
 
-  background: #f8fafc;
+  background: #ffffff;
 
   box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
 
+  cursor: pointer;
+
   transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .resource-card:hover {
-  transform: translateY(-2px);
+  border-color: #cbd5e1;
 
   box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+
+  transform: translateY(-2px);
 }
 
+.resource-card:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline-offset: 2px;
+}
+
+/* Header */
+
 .resource-card-header {
-  margin-bottom: 14px;
+  min-width: 0;
+}
+
+.resource-card-title-row {
+  display: flex;
+
+  align-items: center;
+  justify-content: space-between;
+
+  gap: 12px;
+
+  margin-bottom: 12px;
 }
 
 .resource-card-header h3 {
@@ -171,45 +181,168 @@
 
   font-size: 1.05rem;
   font-weight: 750;
-  line-height: 1.35;
+  line-height: 1.4;
 
   overflow-wrap: anywhere;
 }
 
-/* Badges */
+/* Resource Type */
 
 .resource-badges {
   display: flex;
-  flex-wrap: wrap;
 
-  gap: 7px;
-
-  margin-bottom: 10px;
-}
-
-.resource-type,
-.favorite-badge {
-  display: inline-flex;
   align-items: center;
 
-  width: fit-content;
+  min-width: 0;
+}
+
+.resource-type {
+  display: inline-flex;
+
+  align-items: center;
 
   padding: 5px 9px;
 
   border-radius: 999px;
 
-  font-size: 0.7rem;
-  font-weight: 750;
-}
-
-.resource-type {
   background: #eef2ff;
   color: #4338ca;
+
+  font-size: 0.7rem;
+  font-weight: 750;
+
+  white-space: nowrap;
 }
 
-.favorite-badge {
-  background: #fef3c7;
-  color: #92400e;
+/* Favorite Star */
+
+.favorite-star {
+  position: absolute;
+  top: 16px;
+  right: 16px;
+
+  width: auto;
+  height: auto;
+  padding: 0;
+  margin: 0;
+
+  border: none;
+  background: transparent;
+
+  color: #94a3b8;
+  font-size: 1.35rem;
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color 0.2s ease,
+    transform 0.15s ease;
+}
+
+.favorite-star:hover {
+  border: none;
+  background: transparent;
+  color: #f59e0b;
+  transform: scale(1.1);
+}
+
+.favorite-star.active {
+  border: none;
+  background: transparent;
+  color: #f59e0b;
+}
+
+.favorite-star:active {
+  transform: scale(0.95);
+}
+
+.favorite-star:focus-visible {
+  outline: 2px solid #2563eb;
+  outline-offset: 3px;
+}
+
+/* Related Skill */
+
+.related-skill {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  margin-top: 18px;
+  padding: 10px 12px;
+
+  border-left: 3px solid #2563eb;
+  border-radius: 8px;
+
+  background: #eff6ff;
+}
+
+.related-skill-label {
+  color: #64748b;
+
+  font-size: 0.66rem;
+  font-weight: 800;
+
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.related-skill-title {
+  color: #1e293b;
+
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.4;
+
+  overflow-wrap: anywhere;
+}
+
+/* Card Footer */
+
+.resource-card-footer {
+  margin-top: auto;
+
+  padding-top: 20px;
+}
+
+/* Open Resource */
+
+.open-resource-btn {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 100%;
+  min-height: 40px;
+
+  box-sizing: border-box;
+
+  padding: 9px 14px;
+
+  border: 1px solid #2563eb;
+  border-radius: 7px;
+
+  background: #2563eb;
+  color: #ffffff;
+
+  font-family: inherit;
+  font-size: 0.8rem;
+  font-weight: 700;
+
+  text-decoration: none;
+
+  transition:
+    background-color 0.18s ease,
+    border-color 0.18s ease;
+}
+
+.open-resource-btn:hover {
+  border-color: #1d4ed8;
+
+  background: #1d4ed8;
 }
 
 /* Related Skill */
@@ -253,31 +386,34 @@
 
 .resource-actions {
   display: flex;
-  flex-wrap: wrap;
+  flex-direction: column;
 
-  gap: 7px;
+  gap: 9px;
 
   margin-top: auto;
-  padding-top: 13px;
+  padding-top: 16px;
 
   border-top: 1px solid #e2e8f0;
 }
 
+/* All action controls */
+
 .resource-actions button,
 .resource-actions a {
   display: inline-flex;
+
   align-items: center;
   justify-content: center;
 
-  min-height: 35px;
+  min-height: 38px;
 
   margin: 0;
-  padding: 7px 11px;
+  padding: 8px 12px;
 
   border-radius: 7px;
 
   font-family: inherit;
-  font-size: 0.72rem;
+  font-size: 0.78rem;
   font-weight: 700;
 
   line-height: 1;
@@ -286,64 +422,96 @@
   text-decoration: none;
 
   transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease;
+    background-color 0.18s ease,
+    border-color 0.18s ease,
+    color 0.18s ease;
 }
 
-/* Open */
+/* View Details */
 
-.resource-actions a {
+.resource-details-btn {
+  width: 100%;
+
   border: 1px solid #2563eb;
 
   background: #2563eb;
   color: #ffffff;
 }
 
-.resource-actions a:hover {
+.resource-details-btn:hover {
   border-color: #1d4ed8;
+
   background: #1d4ed8;
+}
+
+/* Open Resource */
+
+.open-resource-btn {
+  width: 100%;
+
+  border: 1px solid #cbd5e1;
+
+  background: #ffffff;
+  color: #334155;
+}
+
+.open-resource-btn:hover {
+  border-color: #94a3b8;
+
+  background: #f8fafc;
+}
+
+/* Edit + Delete */
+
+.resource-secondary-actions {
+  display: grid;
+
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  gap: 9px;
+}
+
+.resource-secondary-actions .edit-btn,
+.resource-secondary-actions .delete-btn {
+  width: 100%;
+
+  min-height: 38px;
+
+  padding: 8px 12px;
+
+  border-radius: 7px;
+
+  font-size: 0.78rem;
+  font-weight: 600;
 }
 
 /* Edit */
 
-.resource-actions .edit-btn {
+.resource-secondary-actions .edit-btn {
   border: 1px solid #cbd5e1;
 
   background: #ffffff;
   color: #334155;
 }
 
-.resource-actions .edit-btn:hover {
+.resource-secondary-actions .edit-btn:hover {
   border-color: #94a3b8;
-  background: #f8fafc;
-}
 
-/* Favorite */
-
-.resource-actions .favorite-btn {
-  border: 1px solid #cbd5e1;
-
-  background: #ffffff;
-  color: #334155;
-}
-
-.resource-actions .favorite-btn:hover {
-  border-color: #94a3b8;
   background: #f8fafc;
 }
 
 /* Delete */
 
-.resource-actions .delete-btn {
+.resource-secondary-actions .delete-btn {
   border: 1px solid #fecaca;
 
   background: #ffffff;
   color: #b91c1c;
 }
 
-.resource-actions .delete-btn:hover {
+.resource-secondary-actions .delete-btn:hover {
   border-color: #fca5a5;
+
   background: #fef2f2;
 }
 
@@ -495,17 +663,8 @@
     grid-template-columns: 1fr;
   }
 
-  .resource-actions {
-    display: grid;
-
+  .resource-secondary-actions {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
-
-  .resource-actions button,
-  .resource-actions a {
-    width: 100%;
-
-    text-align: center;
   }
 }
 
@@ -515,6 +674,8 @@
   }
 
   .resource-card {
+    min-height: 200px;
+
     padding: 18px;
   }
 
@@ -526,14 +687,15 @@
     display: none;
   }
 
-  .resource-actions {
+  .resource-secondary-actions {
     grid-template-columns: 1fr;
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .add-resource-btn,
-  .resource-card {
+  .resource-card,
+  .resource-favorite-btn {
     transition: none;
   }
 }

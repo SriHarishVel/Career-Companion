@@ -15,6 +15,7 @@ import LoadingState from "../../components/LoadingState";
 import SkillOverview from "./components/SkillOverview";
 import SkillResources from "./components/SkillResources";
 import SkillActions from "./components/SkillActions";
+import SkillForm from "../Skills/components/SkillForm";
 
 import "./index.css";
 
@@ -22,13 +23,28 @@ function SkillDetail() {
   const { skillId } = useParams();
   const navigate = useNavigate();
 
+  /* DATA */
+
   const [skill, setSkill] = useState(null);
   const [resources, setResources] = useState([]);
   const [goals, setGoals] = useState([]);
 
+  /* PAGE STATE */
+
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  /* EDIT FORM STATE */
+
+  const [showSkillForm, setShowSkillForm] = useState(false);
+  const [saving, setSaving] = useState(false);
+
+  const [newSkill, setNewSkill] = useState("");
+  const [newCategory, setNewCategory] = useState("");
+  const [secondaryGoalId, setSecondaryGoalId] = useState("");
+
+  /* LOAD DETAIL */
 
   useEffect(() => {
     async function loadSkillDetail() {
@@ -38,9 +54,11 @@ function SkillDetail() {
 
         const [skillData, resourceData, goalData] = await Promise.all([
           getSkill(skillId),
+
           getResources({
             skill: skillId,
           }),
+
           getGoals({
             goalType: "Secondary",
           }),
@@ -66,6 +84,8 @@ function SkillDetail() {
     }
   }, [skillId]);
 
+  /* REFRESH SKILL */
+
   const handleSkillUpdated = async (updatedSkill) => {
     try {
       setErrorMsg("");
@@ -79,6 +99,8 @@ function SkillDetail() {
       setSkill(updatedSkill);
     }
   };
+
+  /* PROGRESS */
 
   const handleUpdateProgress = async () => {
     if (!skill) {
@@ -110,6 +132,68 @@ function SkillDetail() {
     }
   };
 
+  /* OPEN EDIT FORM */
+
+  const handleEdit = () => {
+    if (!skill) {
+      return;
+    }
+
+    setNewSkill(skill.name || "");
+    setNewCategory(skill.category || "");
+    setSecondaryGoalId(skill.secondaryGoal?._id || "");
+
+    setErrorMsg("");
+    setShowSkillForm(true);
+  };
+
+  /* CLOSE EDIT FORM */
+
+  const closeSkillForm = () => {
+    if (saving) {
+      return;
+    }
+
+    setShowSkillForm(false);
+    setErrorMsg("");
+  };
+
+  /* UPDATE SKILL */
+
+  const handleUpdateSkill = async (event) => {
+    event.preventDefault();
+
+    const name = newSkill.trim();
+
+    if (!name) {
+      setErrorMsg("Skill name is required.");
+      return;
+    }
+
+    try {
+      setSaving(true);
+      setErrorMsg("");
+
+      const updatedSkill = await updateSkill(skill._id, {
+        name,
+        category: newCategory,
+        secondaryGoal: secondaryGoalId || null,
+      });
+
+      await handleSkillUpdated(updatedSkill);
+
+      setShowSkillForm(false);
+    } catch (error) {
+      console.error("Failed to update skill:", error);
+
+      setErrorMsg(error.response?.data?.message || "Failed to update skill.");
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* DELETE */
+
   const handleDelete = async () => {
     if (!skill || deleting) {
       return;
@@ -139,6 +223,8 @@ function SkillDetail() {
     }
   };
 
+  /* MANAGE RESOURCES */
+
   const handleManageResources = () => {
     if (!skill) {
       return;
@@ -151,6 +237,8 @@ function SkillDetail() {
     });
   };
 
+  /* LOADING */
+
   if (loading) {
     return (
       <div className="container skill-detail-page">
@@ -159,15 +247,20 @@ function SkillDetail() {
     );
   }
 
+  /* ERROR */
+
   if (errorMsg && !skill) {
     return (
       <div className="container skill-detail-page">
         <div className="skill-detail-topbar">
           <button
+            type="button"
             className="skill-detail-back-btn"
             onClick={() => navigate("/skills")}
           >
-            Back to Skills
+            <span className="back-chevron">‹</span>
+
+            <span>Skills</span>
           </button>
         </div>
 
@@ -177,6 +270,7 @@ function SkillDetail() {
           <p>{errorMsg}</p>
 
           <button
+            type="button"
             className="skill-action-secondary"
             onClick={() => navigate("/skills")}
           >
@@ -191,6 +285,8 @@ function SkillDetail() {
     return null;
   }
 
+  /* RESOURCE PROGRESS */
+
   const completedResources = resources.filter(
     (resource) => resource.completed,
   ).length;
@@ -199,19 +295,33 @@ function SkillDetail() {
     ? Math.round((completedResources / resources.length) * 100)
     : 0;
 
+  /* PAGE */
+
   return (
     <div className="container skill-detail-page">
+      {/* TOP NAVIGATION */}
+
       <div className="skill-detail-topbar">
         <button
+          type="button"
           className="skill-detail-back-btn"
           onClick={() => navigate("/skills")}
         >
           <span className="back-chevron">‹</span>
+
           <span>Skills</span>
         </button>
       </div>
 
-      {errorMsg && <div className="skill-detail-error-message">{errorMsg}</div>}
+      {/* ERROR */}
+
+      {errorMsg && (
+        <div className="skill-detail-error-message" role="alert">
+          {errorMsg}
+        </div>
+      )}
+
+      {/* CONTENT */}
 
       <main className="skill-detail-content">
         <SkillOverview skill={skill} />
@@ -226,13 +336,30 @@ function SkillDetail() {
 
         <SkillActions
           skill={skill}
-          goals={goals}
-          onSkillUpdated={handleSkillUpdated}
           onUpdateProgress={handleUpdateProgress}
+          onEdit={handleEdit}
           onDelete={handleDelete}
           deleting={deleting}
         />
       </main>
+
+      {/* EDIT SKILL */}
+
+      <SkillForm
+        isOpen={showSkillForm}
+        onClose={closeSkillForm}
+        title="Edit Skill"
+        onSubmit={handleUpdateSkill}
+        submitLabel={saving ? "Saving..." : "Save Changes"}
+        newSkill={newSkill}
+        setNewSkill={setNewSkill}
+        newCategory={newCategory}
+        setNewCategory={setNewCategory}
+        secondaryGoalId={secondaryGoalId}
+        setSecondaryGoalId={setSecondaryGoalId}
+        secondaryGoalOptions={goals}
+        errorMsg={errorMsg}
+      />
     </div>
   );
 }
