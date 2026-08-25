@@ -78,7 +78,7 @@ function SkillFilters({
   }
 
   return (
-    <div className="filters-card">
+    <div className="skill-filters">
       <SearchFilterBar
         searchValue={searchSkill}
         onSearchChange={setSearchSkill}

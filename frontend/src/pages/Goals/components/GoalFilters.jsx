@@ -122,7 +122,7 @@ function GoalFilters({
   ];
 
   return (
-    <div className="filters-card">
+    <div className="goal-filters">
       <SearchFilterBar
         searchValue={searchGoal}
         onSearchChange={setSearchGoal}

@@ -14,7 +14,6 @@ body {
   background: linear-gradient(180deg, #eef2f7 0%, #f7f9fc 42%, #f3f4f6 100%);
 
   color: #1f2937;
-
   line-height: 1.6;
 }
 
@@ -25,289 +24,38 @@ body {
 }
 
 /* Main Page Container */
+/* Main Page Container */
 
 .container {
-  width: calc(100% - 48px);
-  max-width: 1700px;
+  width: 100%;
+  max-width: none;
 
-  margin: 24px auto;
+  margin: 0;
   padding: 32px;
 
   background: #ffffff;
 
-  border-radius: 16px;
+  border: none;
+  border-radius: 0;
 
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  box-shadow: none;
 }
 
 .container > h1 {
   color: #111827;
 
   font-size: clamp(2rem, 4vw, 3rem);
-
   line-height: 1.1;
 }
 
 /* Links */
 
 a {
-  text-decoration: none;
-
   color: inherit;
+  text-decoration: none;
 }
 
 /* Buttons */
-
-button {
-  font: inherit;
-
-  cursor: pointer;
-
-  transition:
-    background-color 0.2s ease,
-    border-color 0.2s ease,
-    color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.1s ease;
-}
-
-button:active {
-  transform: translateY(1px);
-}
-
-button:disabled {
-  opacity: 0.6;
-
-  cursor: not-allowed;
-
-  transform: none;
-}
-
-/* Button Focus */
-
-button:focus-visible,
-a:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.25);
-
-  outline-offset: 2px;
-}
-
-/* Button Variants */
-
-/* Edit */
-
-.edit-btn {
-  background: #475569;
-
-  color: #ffffff;
-
-  border: 1px solid #475569;
-
-  padding: 10px 16px;
-
-  border-radius: 6px;
-}
-
-.edit-btn:hover {
-  background: #334155;
-
-  border-color: #334155;
-}
-
-/* Delete */
-
-.delete-btn {
-  background: #dc2626;
-
-  color: #ffffff;
-
-  border: 1px solid #dc2626;
-
-  padding: 10px 16px;
-
-  border-radius: 6px;
-}
-
-.delete-btn:hover {
-  background: #b91c1c;
-
-  border-color: #b91c1c;
-}
-
-/* Cancel */
-
-.cancel-btn {
-  background: #b7b8bb;
-
-  color: #06090f;
-
-  border: 1px solid #b7b8bb;
-
-  padding: 10px 16px;
-
-  border-radius: 6px;
-}
-
-.cancel-btn:hover {
-  background: #8d8f92;
-
-  border-color: #8d8f92;
-}
-
-/* Favorite */
-
-.favorite-btn {
-  background: #16a34a;
-
-  color: #ffffff;
-
-  border: 1px solid #16a34a;
-
-  padding: 10px 16px;
-
-  border-radius: 6px;
-}
-
-.favorite-btn:hover {
-  background: #15803d;
-
-  border-color: #15803d;
-}
-
-/* Form Controls */
-
-input,
-textarea,
-select {
-  font: inherit;
-
-  width: 100%;
-  max-width: 100%;
-}
-
-.container input,
-.container textarea,
-.container select {
-  background-color: #ffffff;
-
-  color: #111827;
-
-  border: 1px solid #cbd5e1;
-
-  transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    background-color 0.2s ease;
-}
-
-.container input:focus,
-.container textarea:focus,
-.container select:focus {
-  border-color: #2563eb;
-
-  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
-}
-
-.container input::placeholder,
-.container textarea::placeholder {
-  color: #94a3b8;
-}
-
-input:focus-visible,
-textarea:focus-visible,
-select:focus-visible {
-  outline: none;
-}
-
-textarea {
-  min-height: 100px;
-
-  resize: vertical;
-
-  line-height: 1.5;
-}
-
-input,
-select {
-  min-height: 42px;
-}
-
-/* Images */
-
-img {
-  max-width: 100%;
-
-  display: block;
-}
-
-/* Lists */
-
-ul,
-ol {
-  list-style: none;
-}
-
-/* Progress Bar */
-
-.progress-bar {
-  width: 100%;
-
-  height: 12px;
-
-  background-color: #e5e7eb;
-
-  border-radius: 10px;
-
-  overflow: hidden;
-
-  margin-bottom: 15px;
-}
-
-.progress-fill {
-  height: 100%;
-
-  background-color: #2563eb;
-
-  transition: width 0.3s ease;
-}
-
-/* Mobile */
-
-@media (max-width: 700px) {
-  body {
-    line-height: 1.5;
-  }
-
-  .container {
-    width: calc(100% - 24px);
-
-    margin: 16px auto;
-
-    padding: 20px;
-
-    border-radius: 12px;
-  }
-
-  .container > h1 {
-    font-size: 2rem;
-  }
-
-  button {
-    min-height: 42px;
-  }
-
-  input,
-  textarea,
-  select {
-    max-width: 100%;
-
-    font-size: 16px;
-  }
-}
-
-/* -------------------------------------------------- */
-/* Button Base */
-/* -------------------------------------------------- */
 
 button {
   display: inline-flex;
@@ -339,10 +87,169 @@ button:disabled {
   transform: none;
 }
 
+/* Button Focus */
 
-/* -------------------------------------------------- */
+button:focus-visible,
+a:focus-visible {
+  outline: 3px solid rgba(37, 99, 235, 0.25);
+  outline-offset: 2px;
+}
+
+/* Button Variants */
+
+.edit-btn {
+  padding: 10px 16px;
+
+  border: 1px solid #475569;
+  border-radius: 6px;
+
+  background: #475569;
+  color: #ffffff;
+}
+
+.edit-btn:hover {
+  background: #334155;
+  border-color: #334155;
+}
+
+.delete-btn {
+  padding: 10px 16px;
+
+  border: 1px solid #dc2626;
+  border-radius: 6px;
+
+  background: #dc2626;
+  color: #ffffff;
+}
+
+.delete-btn:hover {
+  background: #b91c1c;
+  border-color: #b91c1c;
+}
+
+.cancel-btn {
+  padding: 10px 16px;
+
+  border: 1px solid #b7b8bb;
+  border-radius: 6px;
+
+  background: #b7b8bb;
+  color: #06090f;
+}
+
+.cancel-btn:hover {
+  background: #8d8f92;
+  border-color: #8d8f92;
+}
+
+.favorite-btn {
+  padding: 10px 16px;
+
+  border: 1px solid #16a34a;
+  border-radius: 6px;
+
+  background: #16a34a;
+  color: #ffffff;
+}
+
+.favorite-btn:hover {
+  background: #15803d;
+  border-color: #15803d;
+}
+
+/* Form Controls */
+
+input,
+textarea,
+select {
+  width: 100%;
+  max-width: 100%;
+
+  font: inherit;
+}
+
+.container input,
+.container textarea,
+.container select {
+  background-color: #ffffff;
+  color: #111827;
+
+  border: 1px solid #cbd5e1;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    background-color 0.2s ease;
+}
+
+.container input:focus,
+.container textarea:focus,
+.container select:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.14);
+}
+
+.container input::placeholder,
+.container textarea::placeholder {
+  color: #94a3b8;
+}
+
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: none;
+}
+
+textarea {
+  min-height: 100px;
+  resize: vertical;
+  line-height: 1.5;
+}
+
+input,
+select {
+  min-height: 42px;
+}
+
+/* Images */
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+/* Lists */
+
+ul,
+ol {
+  list-style: none;
+}
+
+/* Progress Bar */
+
+.progress-bar {
+  width: 100%;
+  height: 12px;
+
+  margin-bottom: 15px;
+
+  overflow: hidden;
+
+  border-radius: 10px;
+
+  background-color: #e5e7eb;
+}
+
+.progress-fill {
+  height: 100%;
+
+  background-color: #2563eb;
+
+  transition: width 0.3s ease;
+}
+
 /* Primary Button */
-/* -------------------------------------------------- */
 
 .btn-primary {
   padding: 10px 16px;
@@ -361,14 +268,10 @@ button:disabled {
   background: #1d4ed8;
   border-color: #1d4ed8;
 
-  box-shadow:
-    0 4px 10px rgba(37, 99, 235, 0.18);
+  box-shadow: 0 4px 10px rgba(37, 99, 235, 0.18);
 }
 
-
-/* -------------------------------------------------- */
 /* Secondary Button */
-/* -------------------------------------------------- */
 
 .btn-secondary {
   padding: 10px 16px;
@@ -385,14 +288,10 @@ button:disabled {
 
 .btn-secondary:hover {
   border-color: #94a3b8;
-
   background: #f8fafc;
 }
 
-
-/* -------------------------------------------------- */
 /* Danger Button */
-/* -------------------------------------------------- */
 
 .btn-danger {
   padding: 10px 16px;
@@ -411,14 +310,10 @@ button:disabled {
   background: #b91c1c;
   border-color: #b91c1c;
 
-  box-shadow:
-    0 4px 10px rgba(220, 38, 38, 0.16);
+  box-shadow: 0 4px 10px rgba(220, 38, 38, 0.16);
 }
 
-
-/* -------------------------------------------------- */
 /* Danger Outline Button */
-/* -------------------------------------------------- */
 
 .btn-danger-outline {
   padding: 10px 16px;
@@ -435,14 +330,10 @@ button:disabled {
 
 .btn-danger-outline:hover {
   border-color: #dc2626;
-
   background: #fef2f2;
 }
 
-
-/* -------------------------------------------------- */
 /* Ghost Button */
-/* -------------------------------------------------- */
 
 .btn-ghost {
   padding: 8px 12px;
@@ -462,10 +353,7 @@ button:disabled {
   color: #1e293b;
 }
 
-
-/* -------------------------------------------------- */
 /* Success Button */
-/* -------------------------------------------------- */
 
 .btn-success {
   padding: 10px 16px;
@@ -484,6 +372,38 @@ button:disabled {
   background: #15803d;
   border-color: #15803d;
 
-  box-shadow:
-    0 4px 10px rgba(22, 163, 74, 0.16);
+  box-shadow: 0 4px 10px rgba(22, 163, 74, 0.16);
+}
+
+/* Mobile */
+
+@media (max-width: 700px) {
+  body {
+    line-height: 1.5;
+  }
+
+  .container {
+    width: calc(100% - 24px);
+
+    margin: 16px auto 0;
+    padding: 20px;
+
+    border-radius: 12px 12px 0 0;
+    border-bottom-width: 3px;
+  }
+
+  .container > h1 {
+    font-size: 2rem;
+  }
+
+  button {
+    min-height: 42px;
+  }
+
+  input,
+  textarea,
+  select {
+    max-width: 100%;
+    font-size: 16px;
+  }
 }

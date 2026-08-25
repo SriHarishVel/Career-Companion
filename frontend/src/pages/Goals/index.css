@@ -1,8 +1,15 @@
 /* Goals Page */
 
-.container h1 {
+.goals-page {
+  width: 100%;
+  max-width: none;
+}
+
+.goals-page > h1 {
   margin: 0 0 24px;
+
   color: #1f2937;
+
   font-size: 2.5rem;
   line-height: 1.1;
 }
@@ -11,22 +18,30 @@
 
 .goal-page-actions {
   display: flex;
+
   justify-content: flex-end;
+
   margin-top: -62px;
   margin-bottom: 30px;
 }
 
 .add-goal-btn {
   min-height: 40px;
+
   padding: 9px 15px;
+
   border: none;
   border-radius: 8px;
+
   background: #2563eb;
   color: #ffffff;
+
   font-family: inherit;
   font-size: 0.82rem;
   font-weight: 700;
+
   cursor: pointer;
+
   transition:
     background-color 0.2s ease,
     transform 0.15s ease;
@@ -34,15 +49,22 @@
 
 .add-goal-btn:hover {
   background: #1d4ed8;
+
   transform: translateY(-1px);
 }
 
-/* Goal Filters Container */
+.add-goal-btn:active {
+  transform: translateY(0);
+}
 
-.filters-card {
+/* Goal Filters */
+
+.goal-filters {
   width: 100%;
+
   margin: 0 0 22px;
   padding: 0;
+
   box-sizing: border-box;
 }
 
@@ -50,10 +72,15 @@
 
 .goal-summary {
   display: flex;
+
   flex-wrap: wrap;
+
   gap: 8px 18px;
+
   margin: 8px 0 20px;
+
   color: #64748b;
+
   font-size: 0.85rem;
   font-weight: 500;
 }
@@ -64,8 +91,11 @@
 
 .goal-summary span:not(:last-child)::after {
   content: "•";
+
   position: absolute;
+
   right: -12px;
+
   color: #cbd5e1;
 }
 
@@ -77,9 +107,13 @@
 
 .goal-section-title {
   margin: 0 0 15px;
+
   padding-bottom: 8px;
+
   border-bottom: 1px solid #e5e7eb;
+
   color: #1f2937;
+
   font-size: 1.15rem;
   line-height: 1.3;
 }
@@ -88,8 +122,11 @@
 
 .goals-grid {
   display: grid;
+
   grid-template-columns: repeat(3, minmax(0, 1fr));
+
   gap: 18px;
+
   align-items: start;
 }
 
@@ -97,18 +134,23 @@
 
 .goal-form-content {
   display: flex;
+
   flex-direction: column;
+
   gap: 14px;
 }
 
 .goal-field {
   display: flex;
+
   flex-direction: column;
+
   gap: 6px;
 }
 
 .goal-field label {
   color: #475569;
+
   font-size: 0.75rem;
   font-weight: 700;
 }
@@ -116,21 +158,29 @@
 .goal-field input,
 .goal-field select {
   width: 100%;
+
   min-height: 40px;
+
   box-sizing: border-box;
+
   padding: 8px 11px;
+
   border: 1px solid #cbd5e1;
   border-radius: 8px;
+
   background: #ffffff;
   color: #1e293b;
+
   font-family: inherit;
   font-size: 0.84rem;
+
   outline: none;
 }
 
 .goal-field input:focus,
 .goal-field select:focus {
   border-color: #2563eb;
+
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.08);
 }
 
@@ -140,13 +190,17 @@
 
 .goal-options {
   display: grid;
+
   grid-template-columns: repeat(4, minmax(0, 1fr));
+
   gap: 12px;
 }
 
 .helper-text {
   margin: 0;
+
   color: #64748b;
+
   font-size: 0.8rem;
 }
 
@@ -154,11 +208,15 @@
 
 .error {
   margin: 12px 0;
+
   padding: 10px 12px;
+
   border: 1px solid #fecaca;
   border-radius: 8px;
+
   background: #fef2f2;
   color: #b91c1c;
+
   font-size: 0.84rem;
 }
 
@@ -166,22 +224,30 @@
 
 .empty-state {
   width: 100%;
+
   box-sizing: border-box;
+
   padding: 40px 20px;
+
   border: 1px dashed #cbd5e1;
   border-radius: 12px;
+
   background: #f8fafc;
+
   text-align: center;
 }
 
 .empty-state h3 {
   margin: 0 0 8px;
+
   color: #334155;
 }
 
 .empty-state p {
   margin: 0;
+
   color: #64748b;
+
   font-size: 0.84rem;
 }
 
@@ -189,47 +255,66 @@
 
 .journey-banner {
   margin-bottom: 20px;
+
   padding: 18px 20px;
+
   border: 1px solid #dbeafe;
   border-radius: 12px;
+
   background: #f8fbff;
 }
 
 .journey-progress-header {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 12px;
+
   color: #475569;
+
   font-size: 0.8rem;
   font-weight: 600;
 }
 
 .journey-banner h3 {
   margin: 0 0 6px;
+
   color: #1e293b;
+
   font-size: 1.1rem;
 }
 
 .journey-banner p {
   margin: 0;
+
   color: #475569;
+
   font-size: 0.88rem;
 }
 
 .setup-progress {
   width: 100%;
+
   height: 7px;
+
   margin: 10px 0 16px;
+
   overflow: hidden;
+
   border-radius: 999px;
+
   background: #e5e7eb;
 }
 
 .setup-progress-fill {
   height: 100%;
+
   border-radius: inherit;
+
   background: #2563eb;
+
   transition: width 0.3s ease;
 }
 
@@ -243,20 +328,27 @@
 
 .journey-hint {
   margin-top: 9px !important;
+
   color: #64748b !important;
+
   font-size: 0.82rem !important;
 }
 
 .journey-secondary-summary {
   display: flex;
+
   align-items: baseline;
+
   gap: 6px;
+
   margin-top: 13px;
+
   color: #475569;
 }
 
 .journey-secondary-summary strong {
   color: #2563eb;
+
   font-size: 1.2rem;
 }
 
@@ -264,30 +356,41 @@
 
 .journey-message {
   margin-bottom: 18px;
+
   padding: 14px 16px;
+
   border-left: 3px solid #2563eb;
   border-radius: 7px;
+
   background: #eff6ff;
 }
 
 .journey-message-text {
   margin: 0;
+
   color: #334155;
+
   font-size: 0.88rem;
 }
 
 .journey-current-goal {
   display: flex;
+
   flex-direction: column;
+
   gap: 3px;
+
   margin-top: 10px;
 }
 
 .journey-current-goal-label {
   color: #64748b;
+
   font-size: 0.7rem;
   font-weight: 700;
+
   letter-spacing: 0.5px;
+
   text-transform: uppercase;
 }
 
@@ -299,27 +402,39 @@
 
 .success-banner {
   display: flex;
+
   align-items: center;
   justify-content: space-between;
+
   gap: 16px;
+
   margin-top: 22px;
+
   padding: 13px 15px;
+
   border: 1px solid #bbf7d0;
   border-radius: 9px;
+
   background: #f0fdf4;
   color: #166534;
+
   font-size: 0.85rem;
 }
 
 .success-banner button {
   flex-shrink: 0;
+
   padding: 6px 10px;
+
   border: none;
   border-radius: 6px;
+
   background: transparent;
   color: #166534;
+
   font-size: 0.8rem;
   font-weight: 600;
+
   cursor: pointer;
 }
 
@@ -336,13 +451,15 @@
 }
 
 @media (max-width: 700px) {
-  .container h1 {
+  .goals-page > h1 {
     margin-bottom: 16px;
+
     font-size: 2rem;
   }
 
   .goal-page-actions {
     justify-content: stretch;
+
     margin-top: 0;
     margin-bottom: 18px;
   }
@@ -351,12 +468,13 @@
     width: 100%;
   }
 
-  .filters-card {
+  .goal-filters{
     margin-bottom: 16px;
   }
 
   .goals-grid {
     grid-template-columns: 1fr;
+
     gap: 14px;
   }
 
@@ -366,6 +484,7 @@
 
   .success-banner {
     align-items: flex-start;
+
     flex-direction: column;
   }
 }

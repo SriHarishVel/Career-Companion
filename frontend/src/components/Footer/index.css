@@ -1,98 +1,101 @@
 /* Footer */
 
 .footer {
-    width: 100%;
-    margin-top: 40px;
+  width: 100%;
 
-    background: #1f2937;
-    color: white;
+  background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+
+  color: #ffffff;
+
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 -4px 16px rgba(15, 23, 42, 0.08);
 }
 
 .footer-main {
-    width: calc(100% - 48px);
-    max-width: 1700px;
+  width: calc(100% - 48px);
+  max-width: 1700px;
 
-    margin: 0 auto;
+  margin: 0 auto;
 
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
 
-    padding: 22px 0 18px;
+  padding: 22px 0 18px;
 }
 
 .footer-brand {
-    font-size: 18px;
-    font-weight: 700;
+  font-size: 18px;
+  font-weight: 700;
+  letter-spacing: -0.2px;
 }
 
 .footer-message {
-    text-align: right;
+  text-align: right;
 }
 
 .footer-message p {
-    margin: 0;
+  margin: 0;
 
-    color: #cbd5e1;
+  color: #cbd5e1;
 
-    font-size: 13px;
-    line-height: 1.4;
+  font-size: 13px;
+  line-height: 1.4;
 }
 
 .footer-bottom {
-    width: calc(100% - 48px);
-    max-width: 1700px;
+  width: calc(100% - 48px);
+  max-width: 1700px;
 
-    margin: 0 auto;
+  margin: 0 auto;
 
-    padding: 10px 0 12px;
+  padding: 10px 0 12px;
 
-    border-top: 1px solid #374151;
+  border-top: 1px solid rgba(148, 163, 184, 0.2);
 
-    color: #94a3b8;
+  color: #94a3b8;
 
-    text-align: center;
+  text-align: center;
 
-    font-size: 12px;
+  font-size: 12px;
 }
-
 
 /* Mobile */
 
 @media (max-width: 700px) {
+  .footer {
+    margin-top: 0;
+  }
 
-    .footer {
-        margin-top: 32px;
-    }
+  .footer-main {
+    width: calc(100% - 32px);
 
-    .footer-main {
-        width: calc(100% - 32px);
+    align-items: flex-start;
+    flex-direction: column;
 
-        align-items: flex-start;
-        flex-direction: column;
+    gap: 10px;
 
-        gap: 10px;
+    padding: 20px 0 14px;
+  }
 
-        padding: 20px 0 14px;
-    }
+  .footer-brand {
+    font-size: 17px;
+  }
 
-    .footer-brand {
-        font-size: 17px;
-    }
+  .footer-message {
+    text-align: left;
+  }
 
-    .footer-message {
-        text-align: left;
-    }
+  .footer-message p {
+    font-size: 12px;
+  }
 
-    .footer-message p {
-        font-size: 12px;
-    }
+  .footer-bottom {
+    width: calc(100% - 32px);
 
-    .footer-bottom {
-        width: calc(100% - 32px);
+    padding: 9px 0 11px;
 
-        padding: 9px 0 11px;
-
-        font-size: 11px;
-    }
+    font-size: 11px;
+  }
 }
