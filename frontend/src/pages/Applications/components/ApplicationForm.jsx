@@ -12,35 +12,46 @@ function ApplicationForm({
   appliedDate,
   setAppliedDate,
   primaryGoalOptions,
+  errorMsg,
+  onSubmit,
 }) {
   return (
-    <div className="application-form-fields">
+    <form
+      id="application-form"
+      className="application-form-fields"
+      onSubmit={onSubmit}
+    >
       <div className="filter-group">
-        <label>Company</label>
+        <label htmlFor="application-company">Company</label>
 
         <input
+          id="application-company"
           type="text"
           placeholder="e.g. Google"
           value={company}
           onChange={(e) => setCompany(e.target.value)}
+          required
         />
       </div>
 
       <div className="filter-group">
-        <label>Role</label>
+        <label htmlFor="application-role">Role</label>
 
         <input
+          id="application-role"
           type="text"
           placeholder="e.g. Software Engineer"
           value={role}
           onChange={(e) => setRole(e.target.value)}
+          required
         />
       </div>
 
       <div className="filter-group">
-        <label>Application URL</label>
+        <label htmlFor="application-url">Application URL</label>
 
         <input
+          id="application-url"
           type="url"
           placeholder="https://..."
           value={applicationUrl}
@@ -49,9 +60,13 @@ function ApplicationForm({
       </div>
 
       <div className="filter-group">
-        <label>Status</label>
+        <label htmlFor="application-status">Status</label>
 
-        <select value={status} onChange={(e) => setStatus(e.target.value)}>
+        <select
+          id="application-status"
+          value={status}
+          onChange={(e) => setStatus(e.target.value)}
+        >
           <option value="Applied">Applied</option>
           <option value="In Progress">In Progress</option>
           <option value="Offer">Offer</option>
@@ -61,12 +76,13 @@ function ApplicationForm({
       </div>
 
       <div className="filter-group">
-        <label>
+        <label htmlFor="application-goal">
           Career Goal
           <span className="optional-label">Optional</span>
         </label>
 
         <select
+          id="application-goal"
           value={primaryGoalId}
           onChange={(e) => setPrimaryGoalId(e.target.value)}
         >
@@ -81,15 +97,22 @@ function ApplicationForm({
       </div>
 
       <div className="filter-group">
-        <label>Applied Date</label>
+        <label htmlFor="application-date">Applied Date</label>
 
         <input
+          id="application-date"
           type="date"
           value={appliedDate}
           onChange={(e) => setAppliedDate(e.target.value)}
         />
       </div>
-    </div>
+
+      {errorMsg && (
+        <p className="error" role="alert">
+          {errorMsg}
+        </p>
+      )}
+    </form>
   );
 }
 

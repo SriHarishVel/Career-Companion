@@ -15,7 +15,6 @@ import LoadingState from "../../components/LoadingState";
 import SkillOverview from "./components/SkillOverview";
 import SkillResources from "./components/SkillResources";
 import SkillActions from "./components/SkillActions";
-import SkillForm from "../Skills/components/SkillForm";
 
 import "./index.css";
 
@@ -34,15 +33,6 @@ function SkillDetail() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
-
-  /* EDIT FORM STATE */
-
-  const [showSkillForm, setShowSkillForm] = useState(false);
-  const [saving, setSaving] = useState(false);
-
-  const [newSkill, setNewSkill] = useState("");
-  const [newCategory, setNewCategory] = useState("");
-  const [secondaryGoalId, setSecondaryGoalId] = useState("");
 
   /* LOAD DETAIL */
 
@@ -100,6 +90,27 @@ function SkillDetail() {
     }
   };
 
+  /* REFRESH RESOURCES */
+
+  const handleResourceAdded = async () => {
+    try {
+      setErrorMsg("");
+
+      const updatedResources = await getResources({
+        skill: skillId,
+      });
+
+      setResources(updatedResources);
+    } catch (error) {
+      console.error("Failed to refresh resources:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Resource was added, but the resource list could not be refreshed.",
+      );
+    }
+  };
+
   /* PROGRESS */
 
   const handleUpdateProgress = async () => {
@@ -129,66 +140,6 @@ function SkillDetail() {
       setErrorMsg(
         error.response?.data?.message || "Failed to update skill progress.",
       );
-    }
-  };
-
-  /* OPEN EDIT FORM */
-
-  const handleEdit = () => {
-    if (!skill) {
-      return;
-    }
-
-    setNewSkill(skill.name || "");
-    setNewCategory(skill.category || "");
-    setSecondaryGoalId(skill.secondaryGoal?._id || "");
-
-    setErrorMsg("");
-    setShowSkillForm(true);
-  };
-
-  /* CLOSE EDIT FORM */
-
-  const closeSkillForm = () => {
-    if (saving) {
-      return;
-    }
-
-    setShowSkillForm(false);
-    setErrorMsg("");
-  };
-
-  /* UPDATE SKILL */
-
-  const handleUpdateSkill = async (event) => {
-    event.preventDefault();
-
-    const name = newSkill.trim();
-
-    if (!name) {
-      setErrorMsg("Skill name is required.");
-      return;
-    }
-
-    try {
-      setSaving(true);
-      setErrorMsg("");
-
-      const updatedSkill = await updateSkill(skill._id, {
-        name,
-        category: newCategory,
-        secondaryGoal: secondaryGoalId || null,
-      });
-
-      await handleSkillUpdated(updatedSkill);
-
-      setShowSkillForm(false);
-    } catch (error) {
-      console.error("Failed to update skill:", error);
-
-      setErrorMsg(error.response?.data?.message || "Failed to update skill.");
-    } finally {
-      setSaving(false);
     }
   };
 
@@ -336,30 +287,15 @@ function SkillDetail() {
 
         <SkillActions
           skill={skill}
+          resources={resources}
+          goals={goals}
+          onSkillUpdated={handleSkillUpdated}
           onUpdateProgress={handleUpdateProgress}
-          onEdit={handleEdit}
           onDelete={handleDelete}
           deleting={deleting}
+          onResourceAdded={handleResourceAdded}
         />
       </main>
-
-      {/* EDIT SKILL */}
-
-      <SkillForm
-        isOpen={showSkillForm}
-        onClose={closeSkillForm}
-        title="Edit Skill"
-        onSubmit={handleUpdateSkill}
-        submitLabel={saving ? "Saving..." : "Save Changes"}
-        newSkill={newSkill}
-        setNewSkill={setNewSkill}
-        newCategory={newCategory}
-        setNewCategory={setNewCategory}
-        secondaryGoalId={secondaryGoalId}
-        setSecondaryGoalId={setSecondaryGoalId}
-        secondaryGoalOptions={goals}
-        errorMsg={errorMsg}
-      />
     </div>
   );
 }

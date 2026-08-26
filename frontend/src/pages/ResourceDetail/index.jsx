@@ -11,7 +11,6 @@ import { getSkills } from "../../services/skillService";
 
 import LoadingState from "../../components/LoadingState";
 
-import ResourceForm from "../Resources/components/ResourceForm";
 import ResourceOverview from "./components/ResourceOverview";
 import ResourceSkill from "./components/ResourceSkill";
 import ResourceActions from "./components/ResourceActions";
@@ -26,15 +25,6 @@ function ResourceDetail() {
 
   const [resource, setResource] = useState(null);
   const [skills, setSkills] = useState([]);
-
-  /* EDIT FORM */
-
-  const [showResourceForm, setShowResourceForm] = useState(false);
-
-  const [newTitle, setNewTitle] = useState("");
-  const [newUrl, setNewUrl] = useState("");
-  const [newType, setNewType] = useState("Documentation");
-  const [skillId, setSkillId] = useState("");
 
   /* UI */
 
@@ -118,75 +108,19 @@ function ResourceDetail() {
     }
   };
 
-  /* OPEN EDIT */
+  /* RESOURCE UPDATED */
 
-  const handleEdit = () => {
-    if (!resource) {
-      return;
-    }
-
-    setNewTitle(resource.title || "");
-    setNewUrl(resource.url || "");
-    setNewType(resource.type || "Documentation");
-    setSkillId(resource.skill?._id || "");
-
-    setErrorMsg("");
-    setShowResourceForm(true);
-  };
-
-  /* CLOSE EDIT */
-
-  const handleCloseEdit = () => {
-    setShowResourceForm(false);
-
-    setNewTitle("");
-    setNewUrl("");
-    setNewType("Documentation");
-    setSkillId("");
-
-    setErrorMsg("");
-  };
-
-  /* UPDATE RESOURCE */
-
-  const handleUpdateResource = async () => {
-    const title = newTitle.trim();
-    const url = newUrl.trim();
-
-    if (!title || !url) {
-      setErrorMsg("Title and URL cannot be empty.");
-      return;
-    }
-
+  const handleResourceUpdated = async (updatedResource) => {
     try {
       setErrorMsg("");
 
-      const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+      const freshResource = await getResource(updatedResource._id);
 
-      await updateResource(resource._id, {
-        title,
-        type: newType,
-        url: formattedUrl,
-        skill: skillId || null,
-      });
-
-      const freshResource = await getResource(resource._id);
-
-      setResource(freshResource);
-
-      setShowResourceForm(false);
-
-      setNewTitle("");
-      setNewUrl("");
-      setNewType("Documentation");
-      setSkillId("");
+      setResource(freshResource || updatedResource);
     } catch (error) {
-      console.error("Failed to update resource:", error);
+      console.error("Failed to refresh resource:", error);
 
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to update the resource. Please try again.",
-      );
+      setResource(updatedResource);
     }
   };
 
@@ -245,6 +179,7 @@ function ResourceDetail() {
             onClick={handleBack}
           >
             <span className="back-chevron">‹</span>
+
             <span>Resources</span>
           </button>
         </div>
@@ -281,6 +216,7 @@ function ResourceDetail() {
           onClick={handleBack}
         >
           <span className="back-chevron">‹</span>
+
           <span>Resources</span>
         </button>
       </div>
@@ -313,31 +249,14 @@ function ResourceDetail() {
         />
 
         <ResourceActions
+          resource={resource}
+          skills={skills}
           onOpenResource={handleOpenResource}
-          onEdit={handleEdit}
+          onResourceUpdated={handleResourceUpdated}
           onDelete={handleDelete}
           deleting={deleting}
         />
       </main>
-
-      {/* EDIT RESOURCE */}
-
-      <ResourceForm
-        isOpen={showResourceForm}
-        onClose={handleCloseEdit}
-        editingResourceId={resource._id}
-        newType={newType}
-        setNewType={setNewType}
-        newTitle={newTitle}
-        setNewTitle={setNewTitle}
-        newUrl={newUrl}
-        setNewUrl={setNewUrl}
-        skillId={skillId}
-        setSkillId={setSkillId}
-        skills={skills}
-        errorMsg={errorMsg}
-        addResource={handleUpdateResource}
-      />
     </div>
   );
 }
