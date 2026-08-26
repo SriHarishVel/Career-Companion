@@ -18,10 +18,10 @@ function ApplicationForm({
   return (
     <form
       id="application-form"
-      className="application-form-fields"
+      className="application-form"
       onSubmit={onSubmit}
     >
-      <div className="filter-group">
+      <div className="application-form-field">
         <label htmlFor="application-company">Company</label>
 
         <input
@@ -29,12 +29,12 @@ function ApplicationForm({
           type="text"
           placeholder="e.g. Google"
           value={company}
-          onChange={(e) => setCompany(e.target.value)}
+          onChange={(event) => setCompany(event.target.value)}
           required
         />
       </div>
 
-      <div className="filter-group">
+      <div className="application-form-field">
         <label htmlFor="application-role">Role</label>
 
         <input
@@ -42,12 +42,12 @@ function ApplicationForm({
           type="text"
           placeholder="e.g. Software Engineer"
           value={role}
-          onChange={(e) => setRole(e.target.value)}
+          onChange={(event) => setRole(event.target.value)}
           required
         />
       </div>
 
-      <div className="filter-group">
+      <div className="application-form-field">
         <label htmlFor="application-url">Application URL</label>
 
         <input
@@ -55,36 +55,49 @@ function ApplicationForm({
           type="url"
           placeholder="https://..."
           value={applicationUrl}
-          onChange={(e) => setApplicationUrl(e.target.value)}
+          onChange={(event) => setApplicationUrl(event.target.value)}
         />
       </div>
 
-      <div className="filter-group">
-        <label htmlFor="application-status">Status</label>
+      <div className="application-form-grid">
+        <div className="application-form-field">
+          <label htmlFor="application-status">Status</label>
 
-        <select
-          id="application-status"
-          value={status}
-          onChange={(e) => setStatus(e.target.value)}
-        >
-          <option value="Applied">Applied</option>
-          <option value="In Progress">In Progress</option>
-          <option value="Offer">Offer</option>
-          <option value="Rejected">Rejected</option>
-          <option value="Withdrawn">Withdrawn</option>
-        </select>
+          <select
+            id="application-status"
+            value={status}
+            onChange={(event) => setStatus(event.target.value)}
+          >
+            <option value="Applied">Applied</option>
+            <option value="In Progress">In Progress</option>
+            <option value="Offer">Offer</option>
+            <option value="Rejected">Rejected</option>
+            <option value="Withdrawn">Withdrawn</option>
+          </select>
+        </div>
+
+        <div className="application-form-field">
+          <label htmlFor="application-date">Applied Date</label>
+
+          <input
+            id="application-date"
+            type="date"
+            value={appliedDate}
+            onChange={(event) => setAppliedDate(event.target.value)}
+          />
+        </div>
       </div>
 
-      <div className="filter-group">
+      <div className="application-form-field">
         <label htmlFor="application-goal">
           Career Goal
-          <span className="optional-label">Optional</span>
+          <span className="application-form-optional">Optional</span>
         </label>
 
         <select
           id="application-goal"
           value={primaryGoalId}
-          onChange={(e) => setPrimaryGoalId(e.target.value)}
+          onChange={(event) => setPrimaryGoalId(event.target.value)}
         >
           <option value="">No Career Goal</option>
 
@@ -96,19 +109,8 @@ function ApplicationForm({
         </select>
       </div>
 
-      <div className="filter-group">
-        <label htmlFor="application-date">Applied Date</label>
-
-        <input
-          id="application-date"
-          type="date"
-          value={appliedDate}
-          onChange={(e) => setAppliedDate(e.target.value)}
-        />
-      </div>
-
       {errorMsg && (
-        <p className="error" role="alert">
+        <p className="application-form-error" role="alert">
           {errorMsg}
         </p>
       )}

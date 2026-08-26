@@ -1,373 +1,319 @@
-import { useState, useEffect } from "react";
-import { useLocation, useNavigate } from "react-router-dom";
-import ConfirmModal from "../../components/ConfirmModal";
-import FormDialog from "../../components/FormDialog";
-import LoadingState from "../../components/LoadingState";
-import { journeyService } from "../../services/journeyService";
-import { getGoals } from "../../services/goalService";
+import { useEffect, useMemo, useState } from "react";
+
 import {
   getApplications,
   createApplication,
   updateApplication,
   deleteApplication,
-  addInterviewRound,
-  updateInterviewRound,
-  deleteInterviewRound,
 } from "../../services/applicationService";
-import ApplicationForm from "./components/ApplicationForm";
+
+import { getGoals } from "../../services/goalService";
+
+import LoadingState from "../../components/LoadingState";
+import FormDialog from "../../components/FormDialog";
+import ConfirmModal from "../../components/ConfirmModal";
+
 import ApplicationFilters from "./components/ApplicationFilters";
-import ApplicationList from "./components/ApplicationList";
-import InterviewModals from "./components/InterviewModals";
+import ApplicationForm from "./components/ApplicationForm";
+import ApplicationCard from "./components/ApplicationCard";
+
 import "./index.css";
 
 function Applications() {
-  const navigate = useNavigate();
-  const location = useLocation();
-
-  const journeyAction = location.state?.action;
-  const journeyStep = journeyService.getNextStep();
-
-  const [company, setCompany] = useState("");
-  const [role, setRole] = useState("");
-  const [status, setStatus] = useState("Applied");
-  const [appliedDate, setAppliedDate] = useState("");
-  const [applicationUrl, setApplicationUrl] = useState("");
+  /* Data */
 
   const [applications, setApplications] = useState([]);
+  const [primaryGoalOptions, setPrimaryGoalOptions] = useState([]);
+
+  /* Filters */
 
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState("All");
-  const [sortBy, setSortBy] = useState("Last Updated");
   const [goalFilter, setGoalFilter] = useState("All");
+  const [sortBy, setSortBy] = useState("Last Updated");
+
+  /* Application form */
+
+  const [showApplicationForm, setShowApplicationForm] = useState(false);
+
+  const [editingApplicationId, setEditingApplicationId] = useState(null);
+
+  const [company, setCompany] = useState("");
+  const [role, setRole] = useState("");
+  const [applicationUrl, setApplicationUrl] = useState("");
+  const [status, setStatus] = useState("Applied");
+  const [primaryGoalId, setPrimaryGoalId] = useState("");
+  const [appliedDate, setAppliedDate] = useState("");
+
+  /* Delete */
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [applicationToDeleteId, setApplicationToDeleteId] = useState(null);
 
-  const [showApplicationForm, setShowApplicationForm] = useState(
-    journeyAction === "addApplication",
-  );
-
-  const [showEditModal, setShowEditModal] = useState(false);
-  const [selectedApplication, setSelectedApplication] = useState(null);
-
-  const [editCompany, setEditCompany] = useState("");
-  const [editRole, setEditRole] = useState("");
-  const [editStatus, setEditStatus] = useState("Applied");
-  const [editAppliedDate, setEditAppliedDate] = useState("");
-  const [editApplicationUrl, setEditApplicationUrl] = useState("");
-
-  const [showRoundModal, setShowRoundModal] = useState(false);
-  const [roundApplicationId, setRoundApplicationId] = useState(null);
-
-  const [roundTitle, setRoundTitle] = useState("");
-  const [roundStatus, setRoundStatus] = useState("Pending");
-  const [roundDate, setRoundDate] = useState("");
-
-  const [showEditRoundModal, setShowEditRoundModal] = useState(false);
-  const [selectedRound, setSelectedRound] = useState(null);
-
-  const [showDeleteRoundModal, setShowDeleteRoundModal] = useState(false);
-
-  const [goals, setGoals] = useState([]);
-  const [primaryGoalId, setPrimaryGoalId] = useState("");
-  const [editPrimaryGoalId, setEditPrimaryGoalId] = useState("");
+  /* UI */
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  /* Load applications */
 
   useEffect(() => {
-    async function fetchData() {
+    let cancelled = false;
+
+    async function loadApplications() {
       try {
-        setLoading(true);
-
-        const [applications, goals] = await Promise.all([
-          getApplications({
-            search: searchTerm || undefined,
-
-            status: statusFilter === "All" ? undefined : statusFilter,
-
-            primaryGoal: goalFilter === "All" ? undefined : goalFilter,
-
-            sort:
-              sortBy === "Last Updated"
-                ? undefined
-                : sortBy === "Applied Date"
-                  ? "appliedDate"
-                  : sortBy === "Company"
-                    ? "company"
-                    : sortBy === "Role"
-                      ? "role"
-                      : undefined,
+        const [applicationData, goalData] = await Promise.all([
+          getApplications(),
+          getGoals({
+            goalType: "Primary",
           }),
-
-          getGoals(),
         ]);
 
-        setApplications(applications);
-        setGoals(goals);
+        if (cancelled) {
+          return;
+        }
+
+        setApplications(applicationData);
+        setPrimaryGoalOptions(goalData);
+        setErrorMsg("");
+        setLoading(false);
       } catch (error) {
-        console.error(error);
-      } finally {
+        if (cancelled) {
+          return;
+        }
+
+        console.error("Failed to load applications:", error);
+
+        setErrorMsg(
+          error.response?.data?.message ||
+            "Unable to load applications. Please try again.",
+        );
+
         setLoading(false);
       }
     }
 
-    fetchData();
-  }, [searchTerm, statusFilter, goalFilter, sortBy]);
+    loadApplications();
 
-  const primaryGoalOptions = goals.filter(
-    (goal) => goal.goalType === "Primary",
-  );
+    return () => {
+      cancelled = true;
+    };
+  }, []);
 
-  async function refreshApplications() {
-    const applications = await getApplications({
-      search: searchTerm || undefined,
+  /* Filter applications */
 
-      status: statusFilter === "All" ? undefined : statusFilter,
+  const filteredApplications = useMemo(() => {
+    const search = searchTerm.trim().toLowerCase();
 
-      primaryGoal: goalFilter === "All" ? undefined : goalFilter,
+    const filtered = applications.filter((application) => {
+      const matchesSearch =
+        !search ||
+        application.company?.toLowerCase().includes(search) ||
+        application.role?.toLowerCase().includes(search);
 
-      sort:
-        sortBy === "Last Updated"
-          ? undefined
-          : sortBy === "Applied Date"
-            ? "appliedDate"
-            : sortBy === "Company"
-              ? "company"
-              : sortBy === "Role"
-                ? "role"
-                : undefined,
+      const matchesStatus =
+        statusFilter === "All" || application.status === statusFilter;
+
+      const matchesGoal =
+        goalFilter === "All" ||
+        application.primaryGoal?._id === goalFilter ||
+        application.primaryGoal === goalFilter;
+
+      return matchesSearch && matchesStatus && matchesGoal;
     });
 
-    setApplications(applications);
-  }
+    return [...filtered].sort((a, b) => {
+      if (sortBy === "Applied Date") {
+        return new Date(b.appliedDate || 0) - new Date(a.appliedDate || 0);
+      }
 
-  function getGoalTitle(goalId) {
-    const goal = goals.find((goal) => goal._id === goalId);
+      if (sortBy === "Company") {
+        return (a.company || "").localeCompare(b.company || "");
+      }
 
-    return goal ? goal.title : null;
-  }
+      if (sortBy === "Role") {
+        return (a.role || "").localeCompare(b.role || "");
+      }
 
-  function goToNextStep() {
-    const nextStep = journeyService.getNextStep();
-
-    navigate(nextStep.page, {
-      state: {
-        fromJourney: true,
-        action: nextStep.action,
-      },
+      return new Date(b.updatedAt || 0) - new Date(a.updatedAt || 0);
     });
-  }
+  }, [applications, searchTerm, statusFilter, goalFilter, sortBy]);
 
-  function openApplicationForm() {
-    setShowApplicationForm(true);
-  }
+  /* Reset form */
 
-  function closeApplicationForm() {
-    setShowApplicationForm(false);
-
+  const resetApplicationForm = () => {
     setCompany("");
     setRole("");
-    setStatus("Applied");
-    setAppliedDate("");
     setApplicationUrl("");
+    setStatus("Applied");
     setPrimaryGoalId("");
-  }
+    setAppliedDate("");
+    setEditingApplicationId(null);
+  };
 
-  function openEditModal(application) {
-    setSelectedApplication(application);
+  /* Open create */
 
-    setEditCompany(application.company);
-    setEditRole(application.role);
-    setEditStatus(application.status);
-    setEditAppliedDate(application.appliedDate);
-    setEditApplicationUrl(application.applicationUrl);
-    setEditPrimaryGoalId(application.primaryGoal?._id || "");
+  const openCreateModal = () => {
+    resetApplicationForm();
+    setErrorMsg("");
+    setShowApplicationForm(true);
+  };
 
-    setShowEditModal(true);
-  }
+  /* Open edit */
 
-  function closeEditModal() {
-    setShowEditModal(false);
-    setSelectedApplication(null);
+  const openEditModal = (application) => {
+    setEditingApplicationId(application._id);
 
-    setEditCompany("");
-    setEditRole("");
-    setEditStatus("Applied");
-    setEditAppliedDate("");
-    setEditApplicationUrl("");
-    setEditPrimaryGoalId("");
-  }
+    setCompany(application.company || "");
+    setRole(application.role || "");
+    setApplicationUrl(application.applicationUrl || "");
+    setStatus(application.status || "Applied");
 
-  function openEditRoundModal(applicationId, round) {
-    setRoundApplicationId(applicationId);
+    setPrimaryGoalId(application.primaryGoal?._id || "");
 
-    setSelectedRound(round);
+    setAppliedDate(
+      application.appliedDate
+        ? new Date(application.appliedDate).toISOString().split("T")[0]
+        : "",
+    );
 
-    setRoundTitle(round.title);
-    setRoundStatus(round.status);
-    setRoundDate(round.date || "");
+    setErrorMsg("");
+    setShowApplicationForm(true);
+  };
 
-    setShowEditRoundModal(true);
-  }
+  /* Close form */
 
-  async function saveApplication() {
-    try {
-      await updateApplication(selectedApplication._id, {
-        company: editCompany,
-        role: editRole,
-        status: editStatus,
-        appliedDate: editAppliedDate,
-        applicationUrl: editApplicationUrl,
-        primaryGoal: editPrimaryGoalId || null,
-      });
-
-      await refreshApplications();
-
-      closeEditModal();
-    } catch (error) {
-      console.error(error);
+  const closeApplicationForm = () => {
+    if (saving) {
+      return;
     }
-  }
 
-  async function addApplication() {
+    setShowApplicationForm(false);
+    resetApplicationForm();
+    setErrorMsg("");
+  };
+
+  /* Save application */
+
+  const handleApplicationSubmit = async (event) => {
+    event.preventDefault();
+
     if (!company.trim() || !role.trim()) {
+      setErrorMsg("Company and role are required.");
       return;
     }
 
     try {
-      await createApplication({
+      setSaving(true);
+      setErrorMsg("");
+
+      const payload = {
         company: company.trim(),
         role: role.trim(),
+        applicationUrl: applicationUrl.trim(),
         status,
-        appliedDate,
-        applicationUrl,
         primaryGoal: primaryGoalId || null,
-      });
+        appliedDate: appliedDate || null,
+      };
 
-      await refreshApplications();
+      if (editingApplicationId) {
+        const updatedApplication = await updateApplication(
+          editingApplicationId,
+          payload,
+        );
 
-      setCompany("");
-      setRole("");
-      setStatus("Applied");
-      setAppliedDate("");
-      setApplicationUrl("");
-      setPrimaryGoalId("");
+        setApplications((current) =>
+          current.map((application) =>
+            application._id === editingApplicationId
+              ? updatedApplication
+              : application,
+          ),
+        );
+      } else {
+        const newApplication = await createApplication(payload);
+
+        setApplications((current) => [newApplication, ...current]);
+      }
 
       setShowApplicationForm(false);
-
-      if (journeyAction === "addApplication") {
-        goToNextStep();
-      }
+      resetApplicationForm();
     } catch (error) {
-      console.error(error);
-    }
-  }
+      console.error("Failed to save application:", error);
 
-  async function confirmDeleteApplication() {
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to save the application. Please try again.",
+      );
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  /* Delete application */
+
+  const handleDeleteApplication = async () => {
+    if (!applicationToDeleteId) {
+      return;
+    }
+
     try {
+      setErrorMsg("");
+
       await deleteApplication(applicationToDeleteId);
 
-      await refreshApplications();
+      setApplications((current) =>
+        current.filter(
+          (application) => application._id !== applicationToDeleteId,
+        ),
+      );
 
       setShowDeleteModal(false);
       setApplicationToDeleteId(null);
     } catch (error) {
-      console.error(error);
+      console.error("Failed to delete application:", error);
+
+      setErrorMsg(
+        error.response?.data?.message || "Unable to delete the application.",
+      );
     }
-  }
+  };
 
-  async function addRound() {
-    if (!roundTitle.trim()) {
-      return;
-    }
-
-    try {
-      await addInterviewRound(roundApplicationId, {
-        title: roundTitle,
-        status: roundStatus,
-        date: roundDate,
-      });
-
-      await refreshApplications();
-
-      setRoundTitle("");
-      setRoundStatus("Pending");
-      setRoundApplicationId(null);
-      setShowRoundModal(false);
-      setRoundDate("");
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function saveEditedRound() {
-    try {
-      await updateInterviewRound(roundApplicationId, selectedRound._id, {
-        title: roundTitle,
-        status: roundStatus,
-        date: roundDate,
-      });
-
-      await refreshApplications();
-
-      setShowEditRoundModal(false);
-      setSelectedRound(null);
-      setRoundTitle("");
-      setRoundStatus("Pending");
-      setRoundDate("");
-      setRoundApplicationId(null);
-    } catch (error) {
-      console.error(error);
-    }
-  }
-
-  async function confirmDeleteRound() {
-    try {
-      await deleteInterviewRound(roundApplicationId, selectedRound._id);
-
-      await refreshApplications();
-
-      setShowDeleteRoundModal(false);
-      setSelectedRound(null);
-      setRoundApplicationId(null);
-    } catch (error) {
-      console.error(error);
-    }
-  }
+  /* Loading */
 
   if (loading) {
     return (
-      <div className="container">
-        <h1>Applications</h1>
-
-        <LoadingState message="Loading your applications..." />
+      <div className="container applications-page">
+        <LoadingState message="Loading applications..." />
       </div>
     );
   }
 
   return (
-    <div className="container">
-      <h1>
-        {journeyAction
-          ? journeyStep.title
-          : goalFilter === "All"
-            ? "Applications"
-            : `Applications for ${getGoalTitle(goalFilter)}`}
-      </h1>
+    <div className="container applications-page">
+      <header className="applications-page-header">
+        <div>
+          <span className="section-label">Career Tracking</span>
 
-      {journeyAction && (
-        <p className="journey-message">{journeyStep.description}</p>
-      )}
+          <h1>Applications</h1>
 
-      <div className="application-page-actions">
+        </div>
+
         <button
           type="button"
-          className="add-application-btn"
-          onClick={openApplicationForm}
+          className="application-action-primary"
+          onClick={openCreateModal}
         >
-          + Add Application
+          Add Application
         </button>
-      </div>
+      </header>
+
+      {errorMsg && (
+        <div className="application-detail-error-message" role="alert">
+          {errorMsg}
+        </div>
+      )}
 
       <ApplicationFilters
         searchTerm={searchTerm}
@@ -381,30 +327,60 @@ function Applications() {
         primaryGoalOptions={primaryGoalOptions}
       />
 
-      <ApplicationList
-        applications={applications}
-        openEditRoundModal={openEditRoundModal}
-        setRoundApplicationId={setRoundApplicationId}
-        setSelectedRound={setSelectedRound}
-        setShowDeleteRoundModal={setShowDeleteRoundModal}
-        setShowRoundModal={setShowRoundModal}
-        openEditModal={openEditModal}
-        setApplicationToDeleteId={setApplicationToDeleteId}
-        setShowDeleteModal={setShowDeleteModal}
-      />
+      {filteredApplications.length > 0 ? (
+        <div className="applications-grid">
+          {filteredApplications.map((application) => (
+            <ApplicationCard
+              key={application._id}
+              application={application}
+              openEditModal={openEditModal}
+              setApplicationToDeleteId={setApplicationToDeleteId}
+              setShowDeleteModal={setShowDeleteModal}
+            />
+          ))}
+        </div>
+      ) : (
+        <div className="applications-empty">
+          <h2>No applications found</h2>
+
+          <p>Try changing your filters or add your first application.</p>
+
+          <button
+            type="button"
+            className="application-action-primary"
+            onClick={openCreateModal}
+          >
+            Add Application
+          </button>
+        </div>
+      )}
 
       <FormDialog
         isOpen={showApplicationForm}
-        title="Add Application"
+        title={editingApplicationId ? "Edit Application" : "Add Application"}
         onClose={closeApplicationForm}
         footer={
           <>
-            <button type="button" onClick={addApplication}>
-              Add Application
+            <button
+              type="button"
+              className="application-action-secondary"
+              onClick={closeApplicationForm}
+              disabled={saving}
+            >
+              Cancel
             </button>
 
-            <button type="button" onClick={closeApplicationForm}>
-              Cancel
+            <button
+              type="submit"
+              form="application-form"
+              className="application-action-primary"
+              disabled={saving}
+            >
+              {saving
+                ? "Saving..."
+                : editingApplicationId
+                  ? "Save Changes"
+                  : "Add Application"}
             </button>
           </>
         }
@@ -423,137 +399,20 @@ function Applications() {
           appliedDate={appliedDate}
           setAppliedDate={setAppliedDate}
           primaryGoalOptions={primaryGoalOptions}
+          errorMsg={errorMsg}
+          onSubmit={handleApplicationSubmit}
         />
-      </FormDialog>
-
-      <FormDialog
-        isOpen={showEditModal}
-        title="Edit Application"
-        onClose={closeEditModal}
-        footer={
-          <>
-            <button type="button" onClick={saveApplication}>
-              Save
-            </button>
-
-            <button type="button" onClick={closeEditModal}>
-              Cancel
-            </button>
-          </>
-        }
-      >
-        <div className="application-form-fields">
-          <div className="filter-group">
-            <label>Company</label>
-
-            <input
-              type="text"
-              placeholder="e.g. Google"
-              value={editCompany}
-              onChange={(e) => setEditCompany(e.target.value)}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label>Role</label>
-
-            <input
-              type="text"
-              placeholder="e.g. Software Engineer"
-              value={editRole}
-              onChange={(e) => setEditRole(e.target.value)}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label>Application URL</label>
-
-            <input
-              type="url"
-              placeholder="https://..."
-              value={editApplicationUrl}
-              onChange={(e) => setEditApplicationUrl(e.target.value)}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label>Status</label>
-
-            <select
-              value={editStatus}
-              onChange={(e) => setEditStatus(e.target.value)}
-            >
-              <option value="Applied">Applied</option>
-              <option value="In Progress">In Progress</option>
-              <option value="Offer">Offer</option>
-              <option value="Rejected">Rejected</option>
-              <option value="Withdrawn">Withdrawn</option>
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>
-              Career Goal
-              <span className="optional-label">Optional</span>
-            </label>
-
-            <select
-              value={editPrimaryGoalId}
-              onChange={(e) => setEditPrimaryGoalId(e.target.value)}
-            >
-              <option value="">No Career Goal</option>
-
-              {primaryGoalOptions.map((goal) => (
-                <option key={goal._id} value={goal._id}>
-                  {goal.title}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label>Applied Date</label>
-
-            <input
-              type="date"
-              value={editAppliedDate}
-              onChange={(e) => setEditAppliedDate(e.target.value)}
-            />
-          </div>
-        </div>
       </FormDialog>
 
       <ConfirmModal
         isOpen={showDeleteModal}
         title="Delete Application"
-        message="Are you sure you want to delete this application?"
-        onConfirm={confirmDeleteApplication}
+        message="Are you sure you want to delete this application? This action cannot be undone."
+        onConfirm={handleDeleteApplication}
         onCancel={() => {
           setShowDeleteModal(false);
           setApplicationToDeleteId(null);
         }}
-      />
-
-      <InterviewModals
-        showRoundModal={showRoundModal}
-        setShowRoundModal={setShowRoundModal}
-        addRound={addRound}
-        showEditRoundModal={showEditRoundModal}
-        setShowEditRoundModal={setShowEditRoundModal}
-        saveEditedRound={saveEditedRound}
-        showDeleteRoundModal={showDeleteRoundModal}
-        setShowDeleteRoundModal={setShowDeleteRoundModal}
-        confirmDeleteRound={confirmDeleteRound}
-        selectedRound={selectedRound}
-        setSelectedRound={setSelectedRound}
-        roundApplicationId={roundApplicationId}
-        setRoundApplicationId={setRoundApplicationId}
-        roundTitle={roundTitle}
-        setRoundTitle={setRoundTitle}
-        roundStatus={roundStatus}
-        setRoundStatus={setRoundStatus}
-        roundDate={roundDate}
-        setRoundDate={setRoundDate}
       />
     </div>
   );

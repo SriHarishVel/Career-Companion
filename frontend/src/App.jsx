@@ -10,6 +10,7 @@ import SkillDetail from "./pages/SkillDetail";
 import Resources from "./pages/Resources";
 import ResourceDetail from "./pages/ResourceDetail";
 import Applications from "./pages/Applications";
+import ApplicationDetail from "./pages/ApplicationDetail";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -45,6 +46,7 @@ function App() {
           <Route path="/resources" element={<Resources />} />
           <Route path="/resources/:resourceId" element={<ResourceDetail />} />
           <Route path="/applications" element={<Applications />} />
+          <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
           <Route path="/profile" element={<Profile />} />
         </Route>
 
