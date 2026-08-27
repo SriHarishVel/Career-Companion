@@ -38,7 +38,6 @@ export const createApplication = async (req, res) => {
 };
 
 // Get all applications for the logged-in user.
-// Get all applications for the logged-in user.
 export const getApplications = async (req, res) => {
     try {
 
@@ -76,7 +75,7 @@ export const getApplications = async (req, res) => {
 
         // Sorting
         let sortOption = {
-            lastUpdated: -1,
+            updatedAt: -1,
         };
 
         if (req.query.sort === "appliedDate") {

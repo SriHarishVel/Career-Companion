@@ -6,7 +6,7 @@ Stores account information.
 
 Fields:
 
-- \_id
+- _id
 - fullName
 - email
 - password

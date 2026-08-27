@@ -68,7 +68,7 @@ function ApplicationOverview({ application }) {
         <div className="application-detail-url">
           <div className="application-detail-url-content">
             <span className="application-detail-url-label">
-              Application Link
+              Application Link:{" "}
             </span>
 
             <a

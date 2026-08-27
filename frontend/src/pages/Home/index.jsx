@@ -21,25 +21,27 @@ function Home() {
 
   useEffect(() => {
     const loadJourney = async () => {
-      try {
-        setLoading(true);
+        try {
+            setLoading(true);
 
-        const [journeyOverview, nextStep] = await Promise.all([
-          journeyService.getJourneyOverview(),
-          journeyService.getNextStep(),
-        ]);
+            const journeyData =
+                await journeyService.getJourney();
 
-        setJourney(journeyOverview);
-        setJourneyStep(nextStep);
-      } catch (error) {
-        console.error("Failed to load career journey:", error);
-      } finally {
-        setLoading(false);
-      }
+            setJourney(journeyData);
+            setJourneyStep(journeyData.nextStep);
+
+        } catch (error) {
+            console.error(
+                "Failed to load career journey:",
+                error
+            );
+        } finally {
+            setLoading(false);
+        }
     };
 
     loadJourney();
-  }, []);
+}, []);
 
   if (loading) {
     return (

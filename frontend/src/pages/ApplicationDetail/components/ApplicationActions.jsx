@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { updateApplication } from "../../../services/applicationService";
+import { getGoals } from "../../../services/goalService";
 
 import FormDialog from "../../../components/FormDialog";
 import ConfirmModal from "../../../components/ConfirmModal";
@@ -14,15 +15,20 @@ function ApplicationActions({
   const [showEditModal, setShowEditModal] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
+  const [careerGoals, setCareerGoals] = useState([]);
+  const [loadingGoals, setLoadingGoals] = useState(false);
+
   const [company, setCompany] = useState(application.company || "");
   const [role, setRole] = useState(application.role || "");
   const [applicationUrl, setApplicationUrl] = useState(
     application.applicationUrl || "",
   );
   const [status, setStatus] = useState(application.status || "Applied");
+
   const [primaryGoalId, setPrimaryGoalId] = useState(
-    application.primaryGoal?._id || "",
+    application.primaryGoal?._id || application.primaryGoal || "",
   );
+
   const [appliedDate, setAppliedDate] = useState(
     application.appliedDate
       ? new Date(application.appliedDate).toISOString().split("T")[0]
@@ -32,12 +38,42 @@ function ApplicationActions({
   const [errorMsg, setErrorMsg] = useState("");
   const [saving, setSaving] = useState(false);
 
+  useEffect(() => {
+    async function loadCareerGoals() {
+      try {
+        setLoadingGoals(true);
+
+        const goals = await getGoals();
+
+        setCareerGoals(Array.isArray(goals) ? goals : []);
+      } catch (error) {
+        console.error("Failed to load career goals:", error);
+      } finally {
+        setLoadingGoals(false);
+      }
+    }
+
+    loadCareerGoals();
+  }, []);
+
+  function getPrimaryGoalId() {
+    if (!application.primaryGoal) {
+      return "";
+    }
+
+    if (typeof application.primaryGoal === "object") {
+      return application.primaryGoal._id || "";
+    }
+
+    return application.primaryGoal;
+  }
+
   function openEditModal() {
     setCompany(application.company || "");
     setRole(application.role || "");
     setApplicationUrl(application.applicationUrl || "");
     setStatus(application.status || "Applied");
-    setPrimaryGoalId(application.primaryGoal?._id || "");
+    setPrimaryGoalId(getPrimaryGoalId());
 
     setAppliedDate(
       application.appliedDate
@@ -207,8 +243,19 @@ function ApplicationActions({
               id="application-edit-goal"
               value={primaryGoalId}
               onChange={(event) => setPrimaryGoalId(event.target.value)}
+              disabled={loadingGoals}
             >
-              <option value="">No Career Goal</option>
+              <option value="">
+                {loadingGoals ? "Loading career goals..." : "No Career Goal"}
+              </option>
+
+              {careerGoals
+                .filter((goal) => goal.goalType === "Primary")
+                .map((goal) => (
+                  <option key={goal._id} value={goal._id}>
+                    {goal.title}
+                  </option>
+                ))}
             </select>
           </div>
 

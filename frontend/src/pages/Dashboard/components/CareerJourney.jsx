@@ -148,6 +148,16 @@ function CareerJourney({
                   {applications.filter((app) => app.status === "Offer").length}
                 </strong>
               </div>
+
+              <div>
+                <span>Rejected</span>
+                <strong>
+                  {
+                    applications.filter((app) => app.status === "Rejected")
+                      .length
+                  }
+                </strong>
+              </div>
             </div>
           </div>
         );

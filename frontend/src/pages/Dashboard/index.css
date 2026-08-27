@@ -554,7 +554,7 @@
 .journey-application-stats {
   display: grid;
 
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(4, 1fr);
 
   gap: 10px;
 }
@@ -612,7 +612,6 @@
     display: none;
   }
 }
-
 
 @media (max-width: 700px) {
   .dashboard-section {
@@ -672,7 +671,7 @@
     grid-template-columns: 1fr;
   }
 
-  .dashboard-grid{
+  .dashboard-grid {
     grid-template-columns: 1fr;
   }
 
@@ -694,7 +693,6 @@
     display: none;
   }
 }
-
 
 @media (max-width: 420px) {
   .dashboard-section {

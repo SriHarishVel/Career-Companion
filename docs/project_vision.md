@@ -1,18 +1,18 @@
-**# Career Companion**
+# Career Companion
 
-**## Purpose**
+## Purpose
 
 Career Companion is a personal career management system that helps me track my learning, job applications, and career progress without losing context or momentum.
 
-**## Target User**
+## Target User
 
 Initially, the application is built for myself.
 
-**## Problem Statement**
+## Problem Statement
 
 I often lose track of my learning resources, job applications, and overall progress. After taking breaks, it becomes difficult to remember where I stopped and what I should do next.
 
-**## Version 1 Features**
+## Version 1 Features
 
 - User Authentication
 - Primary and Secondary Goal Management
@@ -25,7 +25,7 @@ I often lose track of my learning resources, job applications, and overall progr
 - Interview Round Tracker
 - Dashboard showing current progress and next steps
 
-**## What the Application Will NOT Do**
+## What the Application Will NOT Do
 
 - Teach programming
 - Host courses or videos
@@ -33,7 +33,7 @@ I often lose track of my learning resources, job applications, and overall progr
 - Depend on AI
 - Become a social media platform
 
-**## Core Principles**
+## Core Principles
 
 - Progress should never be lost.
 - AI is a tool, not a crutch.
@@ -41,7 +41,7 @@ I often lose track of my learning resources, job applications, and overall progr
 - Preserve history.
 - Help users understand where they are and what comes next.
 
-**## Design Principles**
+## Design Principles
 
 Every feature in Career Companion should follow these principles:
 
@@ -54,11 +54,11 @@ Every feature in Career Companion should follow these principles:
 - Build reusable components and maintain a consistent design system across the application.
 - Prioritize maintainability and scalability when introducing new features.
 
-**## Why I Am Building This**
+## Why I Am Building This
 
 I want to build a meaningful full-stack project for my resume while learning professional software engineering practices. I also want a tool that I would personally use to organize my own career journey.
 
-**## Future Vision**
+## Future Vision
 
 Career Companion should eventually help users create structured career plans by breaking large goals into smaller goals, skills, resources, applications, and selection stages.
 

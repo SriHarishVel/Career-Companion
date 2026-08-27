@@ -123,10 +123,16 @@ export const updateSkill = async (req, res) => {
     }
 
     skill.name = req.body.name ?? skill.name;
+
     skill.category = req.body.category ?? skill.category;
+
     skill.level = req.body.level ?? skill.level;
+
     skill.progress = req.body.progress ?? skill.progress;
-    skill.secondaryGoal = req.body.secondaryGoal ?? skill.secondaryGoal;
+
+    if (Object.prototype.hasOwnProperty.call(req.body, "secondaryGoal")) {
+      skill.secondaryGoal = req.body.secondaryGoal;
+    }
 
     const updatedSkill = await skill.save();
 
