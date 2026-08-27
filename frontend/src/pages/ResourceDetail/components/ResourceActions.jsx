@@ -3,33 +3,41 @@ import { useState } from "react";
 import { updateResource } from "../../../services/resourceService";
 
 import FormDialog from "../../../components/FormDialog";
+import ConfirmModal from "../../../components/ConfirmModal";
 
 function ResourceActions({
   resource,
   skills = [],
-  onOpenResource,
   onResourceUpdated,
   onDelete,
   deleting,
 }) {
   const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
+
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   const [editForm, setEditForm] = useState({
     title: resource.title || "",
+    type: resource.type || "Other",
     url: resource.url || "",
-    type: resource.type || "Documentation",
+    description: resource.description || "",
     skillId: resource.skill?._id || "",
   });
 
   const formId = `edit-resource-form-${resource._id}`;
 
+  /*====
+     EDIT
+    ==== */
+
   const handleOpenEdit = () => {
     setEditForm({
       title: resource.title || "",
+      type: resource.type || "Other",
       url: resource.url || "",
-      type: resource.type || "Documentation",
+      description: resource.description || "",
       skillId: resource.skill?._id || "",
     });
 
@@ -60,9 +68,10 @@ function ResourceActions({
 
     const title = editForm.title.trim();
     const url = editForm.url.trim();
+    const description = editForm.description.trim();
 
-    if (!title || !url) {
-      setError("Title and URL cannot be empty.");
+    if (!title) {
+      setError("Resource title cannot be empty.");
       return;
     }
 
@@ -70,12 +79,17 @@ function ResourceActions({
       setSaving(true);
       setError("");
 
-      const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
+      const formattedUrl = url
+        ? url.startsWith("http")
+          ? url
+          : `https://${url}`
+        : "";
 
       const updatedResource = await updateResource(resource._id, {
         title,
         type: editForm.type,
         url: formattedUrl,
+        description,
         skill: editForm.skillId || null,
       });
 
@@ -96,17 +110,41 @@ function ResourceActions({
     }
   };
 
+  /*====
+     DELETE
+    ==== */
+
+  const handleOpenDelete = () => {
+    if (deleting) {
+      return;
+    }
+
+    setShowDeleteModal(true);
+  };
+
+  const handleCancelDelete = () => {
+    if (deleting) {
+      return;
+    }
+
+    setShowDeleteModal(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (deleting) {
+      return;
+    }
+
+    await onDelete();
+
+    setShowDeleteModal(false);
+  };
+
   return (
     <>
-      <section className="resource-detail-actions">
-        <button
-          type="button"
-          className="resource-action-primary"
-          onClick={onOpenResource}
-        >
-          Open Resource
-        </button>
+      {/* RESOURCE ACTIONS */}
 
+      <section className="resource-detail-actions">
         <button
           type="button"
           className="resource-action-secondary"
@@ -118,12 +156,14 @@ function ResourceActions({
         <button
           type="button"
           className="resource-action-danger"
-          onClick={onDelete}
+          onClick={handleOpenDelete}
           disabled={deleting}
         >
           {deleting ? "Deleting..." : "Delete Resource"}
         </button>
       </section>
+
+      {/* EDIT MODAL */}
 
       <FormDialog
         isOpen={showEditModal}
@@ -152,6 +192,8 @@ function ResourceActions({
         }
       >
         <form id={formId} className="resource-edit-form" onSubmit={handleSave}>
+          {/* TITLE */}
+
           <div className="resource-edit-field">
             <label htmlFor="edit-resource-title">Resource Title</label>
 
@@ -160,22 +202,12 @@ function ResourceActions({
               type="text"
               value={editForm.title}
               onChange={(event) => handleChange("title", event.target.value)}
+              placeholder="Enter resource title"
               required
             />
           </div>
 
-          <div className="resource-edit-field">
-            <label htmlFor="edit-resource-url">Resource URL</label>
-
-            <input
-              id="edit-resource-url"
-              type="url"
-              value={editForm.url}
-              onChange={(event) => handleChange("url", event.target.value)}
-              placeholder="https://..."
-              required
-            />
-          </div>
+          {/* TYPE */}
 
           <div className="resource-edit-field">
             <label htmlFor="edit-resource-type">Type</label>
@@ -185,19 +217,51 @@ function ResourceActions({
               value={editForm.type}
               onChange={(event) => handleChange("type", event.target.value)}
             >
-              <option value="Documentation">Documentation</option>
-
               <option value="Course">Course</option>
-
-              <option value="Tutorial">Tutorial</option>
-
               <option value="Video">Video</option>
-
               <option value="Article">Article</option>
-
+              <option value="Book">Book</option>
+              <option value="Documentation">Documentation</option>
+              <option value="Practice">Practice</option>
               <option value="Other">Other</option>
             </select>
           </div>
+
+          {/* URL */}
+
+          <div className="resource-edit-field">
+            <label htmlFor="edit-resource-url">Resource URL</label>
+
+            <input
+              id="edit-resource-url"
+              type="url"
+              value={editForm.url}
+              onChange={(event) => handleChange("url", event.target.value)}
+              placeholder="https://... (optional)"
+            />
+
+            <small>Leave empty if this resource does not have a URL.</small>
+          </div>
+
+          {/* DESCRIPTION */}
+
+          <div className="resource-edit-field">
+            <label htmlFor="edit-resource-description">
+              Description / Notes
+            </label>
+
+            <textarea
+              id="edit-resource-description"
+              value={editForm.description}
+              onChange={(event) =>
+                handleChange("description", event.target.value)
+              }
+              placeholder="Add notes, summary, purpose, topics covered, or anything useful about this resource..."
+              rows={5}
+            />
+          </div>
+
+          {/* RELATED SKILL */}
 
           <div className="resource-edit-field">
             <label htmlFor="edit-resource-skill">Related Skill</label>
@@ -217,6 +281,8 @@ function ResourceActions({
             </select>
           </div>
 
+          {/* ERROR */}
+
           {error && (
             <div className="resource-edit-form-error" role="alert">
               {error}
@@ -224,6 +290,16 @@ function ResourceActions({
           )}
         </form>
       </FormDialog>
+
+      {/* DELETE CONFIRMATION */}
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Resource?"
+        message={`Are you sure you want to delete "${resource.title}"? This action cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </>
   );
 }

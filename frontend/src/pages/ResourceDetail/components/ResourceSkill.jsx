@@ -7,7 +7,7 @@ function ResourceSkill({ skill, onSkillClick }) {
         <h2>Skill Connection</h2>
       </div>
 
-      {skill ? (
+      {skill && skill._id ? (
         <button
           type="button"
           className="resource-skill-card"

@@ -12,6 +12,7 @@ import { getSkills } from "../../services/skillService";
 import LoadingState from "../../components/LoadingState";
 
 import ResourceOverview from "./components/ResourceOverview";
+import ResourceDescription from "./components/ResourceDescription";
 import ResourceSkill from "./components/ResourceSkill";
 import ResourceActions from "./components/ResourceActions";
 
@@ -46,7 +47,7 @@ function ResourceDetail() {
         ]);
 
         setResource(resourceData);
-        setSkills(skillData);
+        setSkills(skillData?.skills || skillData || []);
       } catch (error) {
         console.error("Failed to load resource details:", error);
 
@@ -104,6 +105,31 @@ function ResourceDetail() {
 
       setErrorMsg(
         error.response?.data?.message || "Unable to update favorite status.",
+      );
+    }
+  };
+
+  /* COMPLETION */
+
+  const handleToggleCompleted = async () => {
+    if (!resource) {
+      return;
+    }
+
+    try {
+      setErrorMsg("");
+
+      const updatedResource = await updateResource(resource._id, {
+        completed: !resource.completed,
+      });
+
+      setResource(updatedResource);
+    } catch (error) {
+      console.error("Failed to update resource completion:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to update resource completion.",
       );
     }
   };
@@ -237,9 +263,13 @@ function ResourceDetail() {
           type={resource.type}
           url={resource.url}
           favorite={resource.favorite}
+          completed={resource.completed}
           onOpenResource={handleOpenResource}
           onToggleFavorite={handleToggleFavorite}
+          onToggleCompleted={handleToggleCompleted}
         />
+
+        <ResourceDescription description={resource.description} />
 
         <ResourceSkill
           skill={resource.skill}
@@ -251,7 +281,6 @@ function ResourceDetail() {
         <ResourceActions
           resource={resource}
           skills={skills}
-          onOpenResource={handleOpenResource}
           onResourceUpdated={handleResourceUpdated}
           onDelete={handleDelete}
           deleting={deleting}
