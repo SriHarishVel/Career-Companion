@@ -1,15 +1,13 @@
 import api from "../api/axios";
 
-export const getSkills = async (params = {}) => {
-  const response = await api.get("/skills", {
-    params,
-  });
+export const getSkills = async () => {
+  const response = await api.get("/skills");
 
   return response.data;
 };
 
-export const getSkill = async (id) => {
-  const response = await api.get(`/skills/${id}`);
+export const getSkill = async (skillId) => {
+  const response = await api.get(`/skills/${skillId}`);
 
   return response.data;
 };
@@ -20,14 +18,14 @@ export const createSkill = async (skillData) => {
   return response.data;
 };
 
-export const updateSkill = async (id, skillData) => {
-  const response = await api.put(`/skills/${id}`, skillData);
+export const updateSkill = async (skillId, skillData) => {
+  const response = await api.put(`/skills/${skillId}`, skillData);
 
   return response.data;
 };
 
-export const deleteSkill = async (id) => {
-  const response = await api.delete(`/skills/${id}`);
+export const deleteSkill = async (skillId) => {
+  const response = await api.delete(`/skills/${skillId}`);
 
   return response.data;
 };

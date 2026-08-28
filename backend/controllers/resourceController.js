@@ -1,9 +1,23 @@
 import Resource from "../models/Resource.js";
+import Skill from "../models/Skill.js";
 
 export const createResource = async (req, res) => {
   try {
     const { title, type, url, description, favorite, completed, skill } =
       req.body;
+
+    if (skill) {
+      const relatedSkill = await Skill.findOne({
+        _id: skill,
+        user: req.user._id,
+      });
+
+      if (!relatedSkill) {
+        return res.status(400).json({
+          message: "Invalid related skill.",
+        });
+      }
+    }
 
     const resource = await Resource.create({
       title,
@@ -12,7 +26,7 @@ export const createResource = async (req, res) => {
       description,
       favorite,
       completed,
-      skill,
+      skill: skill || null,
       user: req.user._id,
     });
 
@@ -145,8 +159,22 @@ export const updateResource = async (req, res) => {
 
     resource.completed = req.body.completed ?? resource.completed;
 
-    resource.skill = req.body.skill ?? resource.skill;
+    if (Object.prototype.hasOwnProperty.call(req.body, "skill")) {
+      if (req.body.skill) {
+        const relatedSkill = await Skill.findOne({
+          _id: req.body.skill,
+          user: req.user._id,
+        });
 
+        if (!relatedSkill) {
+          return res.status(400).json({
+            message: "Invalid related skill.",
+          });
+        }
+      }
+
+      resource.skill = req.body.skill || null;
+    }
     const updatedResource = await resource.save();
 
     const populatedResource = await Resource.findById(

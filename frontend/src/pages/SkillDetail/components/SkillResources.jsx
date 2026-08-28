@@ -25,7 +25,11 @@ function SkillResources({
             <span>completed</span>
           </div>
 
-          <button className="skill-resource-action" onClick={onManageResources}>
+          <button
+            type="button"
+            className="skill-resource-action"
+            onClick={onManageResources}
+          >
             Manage Resources
           </button>
         </div>
@@ -42,7 +46,7 @@ function SkillResources({
             />
           </div>
 
-          <span>{resourceProgress}% resource completion</span>
+          <span>{resourceProgress}% of tracked resources completed</span>
         </div>
       )}
 
@@ -70,9 +74,14 @@ function SkillResources({
               {resource.url && (
                 <a
                   className="resource-open-btn"
-                  href={resource.url}
+                  href={
+                    resource.url.startsWith("http://") ||
+                    resource.url.startsWith("https://")
+                      ? resource.url
+                      : `https://${resource.url}`
+                  }
                   target="_blank"
-                  rel="noreferrer"
+                  rel="noopener noreferrer"
                 >
                   Open
                 </a>
@@ -86,7 +95,11 @@ function SkillResources({
 
           <p>Add learning resources for this skill from the Resources page.</p>
 
-          <button className="skill-resource-action" onClick={onManageResources}>
+          <button
+            type="button"
+            className="skill-resource-action"
+            onClick={onManageResources}
+          >
             Add Resources
           </button>
         </div>

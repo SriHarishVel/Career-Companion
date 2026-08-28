@@ -2,18 +2,36 @@ import Skill from "../models/Skill.js";
 
 export const createSkill = async (req, res) => {
   try {
-    const { name, category, level, progress, secondaryGoal } = req.body;
+    const {
+      name,
+      category,
+      level,
+      progress,
+      developmentStatus,
+      learningAreas,
+      practicalRequirements,
+      secondaryGoal,
+    } = req.body;
 
     const skill = await Skill.create({
       name,
       category,
       level,
       progress,
-      secondaryGoal,
+      developmentStatus,
+      learningAreas: Array.isArray(learningAreas) ? learningAreas : [],
+      practicalRequirements: Array.isArray(practicalRequirements)
+        ? practicalRequirements
+        : [],
+      secondaryGoal: secondaryGoal || null,
       user: req.user._id,
     });
 
-    res.status(201).json(skill);
+    const populatedSkill = await Skill.findById(skill._id).populate(
+      "secondaryGoal",
+    );
+
+    res.status(201).json(populatedSkill);
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -130,13 +148,28 @@ export const updateSkill = async (req, res) => {
 
     skill.progress = req.body.progress ?? skill.progress;
 
+    skill.developmentStatus =
+      req.body.developmentStatus ?? skill.developmentStatus;
+
+    if (Array.isArray(req.body.learningAreas)) {
+      skill.learningAreas = req.body.learningAreas;
+    }
+
+    if (Array.isArray(req.body.practicalRequirements)) {
+      skill.practicalRequirements = req.body.practicalRequirements;
+    }
+
     if (Object.prototype.hasOwnProperty.call(req.body, "secondaryGoal")) {
-      skill.secondaryGoal = req.body.secondaryGoal;
+      skill.secondaryGoal = req.body.secondaryGoal || null;
     }
 
     const updatedSkill = await skill.save();
 
-    res.status(200).json(updatedSkill);
+    const populatedSkill = await Skill.findById(updatedSkill._id).populate(
+      "secondaryGoal",
+    );
+
+    res.status(200).json(populatedSkill);
   } catch (error) {
     res.status(500).json({
       message: error.message,

@@ -83,7 +83,7 @@
 .skill-form-content {
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 20px;
 }
 
 .skill-form-fields {
@@ -149,6 +149,206 @@
 
   font-size: 0.75rem;
   font-weight: 400;
+}
+
+/* Skill Requirements */
+
+.skill-requirements-section {
+  display: flex;
+  flex-direction: column;
+
+  gap: 12px;
+
+  grid-column: 1 / -1;
+
+  padding: 16px;
+
+  border: 1px solid #e2e8f0;
+  border-radius: 10px;
+
+  background: #f8fafc;
+}
+
+.skill-requirements-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+
+  gap: 16px;
+}
+
+.skill-requirements-header > div {
+  display: flex;
+  flex-direction: column;
+
+  gap: 4px;
+
+  min-width: 0;
+}
+
+.skill-requirements-header label {
+  color: #334155;
+
+  font-size: 0.82rem;
+  font-weight: 700;
+}
+
+.skill-requirements-header small {
+  color: #64748b;
+
+  font-size: 0.75rem;
+  line-height: 1.45;
+}
+
+.skill-add-item-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  flex-shrink: 0;
+
+  min-height: 34px;
+  padding: 7px 11px;
+
+  border: 1px solid #bfdbfe;
+  border-radius: 7px;
+
+  background: #eff6ff;
+  color: #2563eb;
+
+  font-family: inherit;
+  font-size: 0.75rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease;
+}
+
+.skill-add-item-btn:hover {
+  background: #dbeafe;
+  border-color: #93c5fd;
+}
+
+.skill-requirements-list {
+  display: flex;
+  flex-direction: column;
+
+  gap: 8px;
+}
+
+.skill-requirement-row {
+  display: grid;
+
+  grid-template-columns: minmax(0, 1fr) auto auto;
+
+  align-items: center;
+
+  gap: 8px;
+}
+
+.skill-requirement-row input {
+  width: 100%;
+  min-width: 0;
+  min-height: 38px;
+
+  box-sizing: border-box;
+
+  padding: 8px 10px;
+
+  border: 1px solid #cbd5e1;
+  border-radius: 8px;
+
+  background: #ffffff;
+  color: #1e293b;
+
+  font-family: inherit;
+  font-size: 0.82rem;
+
+  outline: none;
+
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
+}
+
+.skill-requirement-row input:focus {
+  border-color: #2563eb;
+
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+}
+
+.skill-requirement-status,
+.skill-remove-item-btn {
+  min-height: 38px;
+
+  padding: 7px 10px;
+
+  border-radius: 8px;
+
+  font-family: inherit;
+  font-size: 0.74rem;
+  font-weight: 700;
+
+  cursor: pointer;
+
+  white-space: nowrap;
+
+  transition:
+    background-color 0.2s ease,
+    border-color 0.2s ease,
+    color 0.2s ease;
+}
+
+.skill-requirement-status {
+  border: 1px solid #cbd5e1;
+
+  background: #ffffff;
+  color: #64748b;
+}
+
+.skill-requirement-status:hover {
+  background: #f1f5f9;
+}
+
+.skill-requirement-status.completed {
+  border-color: #bbf7d0;
+
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+.skill-requirement-status.completed:hover {
+  background: #dcfce7;
+}
+
+.skill-remove-item-btn {
+  border: 1px solid #fecaca;
+
+  background: #ffffff;
+  color: #dc2626;
+}
+
+.skill-remove-item-btn:hover {
+  background: #fef2f2;
+  border-color: #fca5a5;
+}
+
+.skill-requirements-empty {
+  margin: 0;
+
+  padding: 12px;
+
+  border: 1px dashed #cbd5e1;
+  border-radius: 8px;
+
+  color: #64748b;
+
+  font-size: 0.78rem;
+
+  text-align: center;
 }
 
 /* Error */
@@ -222,7 +422,6 @@
   border-radius: 8px;
 
   background: #eff6ff;
-
   color: #334155;
 }
 
@@ -268,6 +467,28 @@
     grid-template-columns: 1fr;
   }
 
+  .skill-requirements-section {
+    grid-column: auto;
+  }
+
+  .skill-requirements-header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .skill-add-item-btn {
+    width: 100%;
+  }
+
+  .skill-requirement-row {
+    grid-template-columns: 1fr;
+  }
+
+  .skill-requirement-status,
+  .skill-remove-item-btn {
+    width: 100%;
+  }
+
   .skills-grid {
     grid-template-columns: 1fr;
   }
@@ -277,10 +498,17 @@
   .container > .page-header h1 {
     font-size: 1.8rem;
   }
+
+  .skill-requirements-section {
+    padding: 12px;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .add-skill-btn {
+  .add-skill-btn,
+  .skill-add-item-btn,
+  .skill-requirement-status,
+  .skill-remove-item-btn {
     transition: none;
   }
 }

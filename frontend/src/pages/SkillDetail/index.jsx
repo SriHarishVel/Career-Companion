@@ -14,7 +14,10 @@ import LoadingState from "../../components/LoadingState";
 
 import SkillOverview from "./components/SkillOverview";
 import SkillResources from "./components/SkillResources";
+import SkillRequirements from "./components/SkillRequirements";
 import SkillActions from "./components/SkillActions";
+
+import ConfirmModal from "../../components/ConfirmModal";
 
 import "./index.css";
 
@@ -33,6 +36,9 @@ function SkillDetail() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
+  const [updatingRequirement, setUpdatingRequirement] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   /* LOAD DETAIL */
 
@@ -90,6 +96,60 @@ function SkillDetail() {
     }
   };
 
+  /* REQUIREMENT UPDATE */
+
+  const handleRequirementUpdate = async (type, index) => {
+    if (!skill || updatingRequirement) {
+      return;
+    }
+
+    const learningAreas = [...(skill.learningAreas || [])];
+
+    const practicalRequirements = [...(skill.practicalRequirements || [])];
+
+    if (type === "learning") {
+      if (!learningAreas[index]) {
+        return;
+      }
+
+      learningAreas[index] = {
+        ...learningAreas[index],
+        completed: !learningAreas[index].completed,
+      };
+    }
+
+    if (type === "practical") {
+      if (!practicalRequirements[index]) {
+        return;
+      }
+
+      practicalRequirements[index] = {
+        ...practicalRequirements[index],
+        completed: !practicalRequirements[index].completed,
+      };
+    }
+
+    try {
+      setUpdatingRequirement(true);
+      setErrorMsg("");
+
+      const updatedSkill = await updateSkill(skill._id, {
+        learningAreas,
+        practicalRequirements,
+      });
+
+      setSkill(updatedSkill);
+    } catch (error) {
+      console.error("Failed to update requirement:", error);
+
+      setErrorMsg(
+        error.response?.data?.message || "Unable to update the requirement.",
+      );
+    } finally {
+      setUpdatingRequirement(false);
+    }
+  };
+
   /* REFRESH RESOURCES */
 
   const handleResourceAdded = async () => {
@@ -111,50 +171,10 @@ function SkillDetail() {
     }
   };
 
-  /* PROGRESS */
-
-  const handleUpdateProgress = async () => {
-    if (!skill) {
-      return;
-    }
-
-    const currentProgress = Number(skill.progress) || 0;
-
-    if (currentProgress >= 100) {
-      return;
-    }
-
-    const newProgress = Math.min(currentProgress + 10, 100);
-
-    try {
-      setErrorMsg("");
-
-      const updatedSkill = await updateSkill(skill._id, {
-        progress: newProgress,
-      });
-
-      setSkill(updatedSkill);
-    } catch (error) {
-      console.error("Failed to update skill progress:", error);
-
-      setErrorMsg(
-        error.response?.data?.message || "Failed to update skill progress.",
-      );
-    }
-  };
-
   /* DELETE */
 
   const handleDelete = async () => {
     if (!skill || deleting) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${skill.name}"? This action cannot be undone.`,
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -171,6 +191,7 @@ function SkillDetail() {
       setErrorMsg(error.response?.data?.message || "Failed to delete skill.");
 
       setDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -246,6 +267,30 @@ function SkillDetail() {
     ? Math.round((completedResources / resources.length) * 100)
     : 0;
 
+  /* REQUIREMENT PROGRESS */
+
+  const learningAreas = skill.learningAreas || [];
+
+  const practicalRequirements = skill.practicalRequirements || [];
+
+  const completedLearningAreas = learningAreas.filter(
+    (area) => area.completed,
+  ).length;
+
+  const completedPracticalRequirements = practicalRequirements.filter(
+    (requirement) => requirement.completed,
+  ).length;
+
+  const learningProgress = learningAreas.length
+    ? Math.round((completedLearningAreas / learningAreas.length) * 100)
+    : 0;
+
+  const practicalProgress = practicalRequirements.length
+    ? Math.round(
+        (completedPracticalRequirements / practicalRequirements.length) * 100,
+      )
+    : 0;
+
   /* PAGE */
 
   return (
@@ -285,17 +330,40 @@ function SkillDetail() {
           onManageResources={handleManageResources}
         />
 
+        <SkillRequirements
+          learningAreas={learningAreas}
+          practicalRequirements={practicalRequirements}
+          completedLearningAreas={completedLearningAreas}
+          completedPracticalRequirements={completedPracticalRequirements}
+          learningProgress={learningProgress}
+          practicalProgress={practicalProgress}
+          updatingRequirement={updatingRequirement}
+          onToggleLearningArea={(index) =>
+            handleRequirementUpdate("learning", index)
+          }
+          onTogglePracticalRequirement={(index) =>
+            handleRequirementUpdate("practical", index)
+          }
+        />
+
         <SkillActions
           skill={skill}
           resources={resources}
           goals={goals}
           onSkillUpdated={handleSkillUpdated}
-          onUpdateProgress={handleUpdateProgress}
-          onDelete={handleDelete}
+          onDelete={() => setShowDeleteModal(true)}
           deleting={deleting}
           onResourceAdded={handleResourceAdded}
         />
       </main>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Skill"
+        message={`Are you sure you want to delete "${skill.name}"? This action cannot be undone.`}
+        onConfirm={handleDelete}
+        onCancel={() => setShowDeleteModal(false)}
+      />
     </div>
   );
 }

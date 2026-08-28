@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import ConfirmModal from "../../components/ConfirmModal";
@@ -36,26 +36,38 @@ function Skills() {
 
   const isGuidedSetup = journeyAction === "createSkill";
 
+  /* FORM STATE */
+
   const [newSkill, setNewSkill] = useState("");
   const [newCategory, setNewCategory] = useState("Programming");
   const [secondaryGoalId, setSecondaryGoalId] = useState("");
   const [newResource, setNewResource] = useState("");
   const [resourceId, setResourceId] = useState(null);
 
+  const [learningAreas, setLearningAreas] = useState([]);
+  const [practicalRequirements, setPracticalRequirements] = useState([]);
+
+  /* FILTER STATE */
+
   const [searchSkill, setSearchSkill] = useState("");
   const [sortOption, setSortOption] = useState("default");
   const [categoryFilter, setCategoryFilter] = useState("All");
   const [levelFilter, setLevelFilter] = useState("All");
 
+  /* DATA */
+
   const [skills, setSkills] = useState([]);
   const [goals, setGoals] = useState([]);
+
+  /* EDIT / DELETE */
 
   const [editingSkillId, setEditingSkillId] = useState(null);
   const [selectedSkillId, setSelectedSkillId] = useState(null);
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const [showSkillForm, setShowSkillForm] = useState(isGuidedSetup);
+
+  /* REQUEST STATE */
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -89,6 +101,8 @@ function Skills() {
     fetchSkills();
   }, [searchSkill, categoryFilter, levelFilter, sortOption]);
 
+  /* MANUAL PROGRESS */
+
   async function handleProgress(skillId) {
     try {
       const skill = skills.find((skill) => skill._id === skillId);
@@ -120,6 +134,8 @@ function Skills() {
     }
   }
 
+  /* JOURNEY */
+
   function goToNextStep() {
     const nextStep = journeyService.getNextStep();
 
@@ -133,6 +149,8 @@ function Skills() {
     });
   }
 
+  /* OPEN ADD FORM */
+
   function openAddSkill() {
     setEditingSkillId(null);
 
@@ -141,11 +159,16 @@ function Skills() {
     setSecondaryGoalId("");
     setNewResource("");
 
+    setLearningAreas([]);
+    setPracticalRequirements([]);
+
     setResourceId(null);
     setErrorMsg("");
 
     setShowSkillForm(true);
   }
+
+  /* SAVE SKILL */
 
   async function addSkill() {
     if (newSkill.trim() === "") {
@@ -156,11 +179,15 @@ function Skills() {
     setErrorMsg("");
 
     try {
+      /* EDIT */
+
       if (editingSkillId) {
         await updateSkill(editingSkillId, {
           name: newSkill.trim(),
           category: newCategory,
           secondaryGoal: secondaryGoalId || null,
+          learningAreas,
+          practicalRequirements,
         });
 
         if (newResource.trim()) {
@@ -193,13 +220,20 @@ function Skills() {
         return;
       }
 
+      /* CREATE */
+
       const createdSkill = await createSkill({
         name: newSkill.trim(),
         category: newCategory,
         level: "Beginner",
         progress: 0,
+        developmentStatus: "In Progress",
+        learningAreas,
+        practicalRequirements,
         secondaryGoal: secondaryGoalId || null,
       });
+
+      /* OPTIONAL RESOURCE */
 
       if (newResource.trim()) {
         await createResource({
@@ -218,6 +252,10 @@ function Skills() {
       setNewCategory("Programming");
       setSecondaryGoalId("");
       setNewResource("");
+
+      setLearningAreas([]);
+      setPracticalRequirements([]);
+
       setResourceId(null);
       setErrorMsg("");
 
@@ -236,6 +274,8 @@ function Skills() {
     }
   }
 
+  /* EDIT SKILL */
+
   async function handleEditSkill(skillId) {
     const skill = skills.find((skill) => skill._id === skillId);
 
@@ -249,6 +289,9 @@ function Skills() {
     setNewCategory(skill.category);
     setSecondaryGoalId(skill.secondaryGoal?._id || "");
 
+    setLearningAreas(skill.learningAreas || []);
+    setPracticalRequirements(skill.practicalRequirements || []);
+
     setErrorMsg("");
 
     try {
@@ -261,7 +304,7 @@ function Skills() {
 
       if (resource) {
         setResourceId(resource._id);
-        setNewResource(resource.url);
+        setNewResource(resource.url || "");
       } else {
         setResourceId(null);
         setNewResource("");
@@ -276,6 +319,8 @@ function Skills() {
     setShowSkillForm(true);
   }
 
+  /* CANCEL */
+
   function handleCancelEdit() {
     setEditingSkillId(null);
 
@@ -284,11 +329,16 @@ function Skills() {
     setSecondaryGoalId("");
     setNewResource("");
 
+    setLearningAreas([]);
+    setPracticalRequirements([]);
+
     setErrorMsg("");
     setResourceId(null);
 
     setShowSkillForm(false);
   }
+
+  /* DELETE */
 
   async function confirmDeleteSkill() {
     try {
@@ -308,6 +358,8 @@ function Skills() {
   const secondaryGoalOptions = goals.filter(
     (goal) => goal.goalType === "Secondary",
   );
+
+  /* LOADING */
 
   if (loading) {
     return (
@@ -364,6 +416,10 @@ function Skills() {
         secondaryGoalOptions={secondaryGoalOptions}
         newResource={newResource}
         setNewResource={setNewResource}
+        learningAreas={learningAreas}
+        setLearningAreas={setLearningAreas}
+        practicalRequirements={practicalRequirements}
+        setPracticalRequirements={setPracticalRequirements}
         errorMsg={errorMsg}
       />
 
@@ -394,6 +450,7 @@ function Skills() {
         ) : (
           <div className="empty-state">
             <h3>No skills found</h3>
+
             <p>Add a skill or adjust your filters.</p>
           </div>
         )}

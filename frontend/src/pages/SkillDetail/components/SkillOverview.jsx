@@ -19,7 +19,6 @@ function SkillOverview({ skill }) {
           <span className="skill-detail-label">Skill</span>
 
           <h1>{skill.name}</h1>
-
         </div>
 
         <div className="skill-detail-header-meta">
@@ -28,6 +27,10 @@ function SkillOverview({ skill }) {
           </span>
 
           <span className="skill-level">{skill.level || "Beginner"}</span>
+
+          <span className="skill-development-status">
+            {skill.developmentStatus || "In Progress"}
+          </span>
         </div>
       </div>
 
@@ -52,6 +55,10 @@ function SkillOverview({ skill }) {
             />
           </div>
 
+          <p className="skill-development-note">
+            Progress reflects the development of this skill based on the tracked
+            work associated with it.
+          </p>
         </section>
 
         <section className="skill-goal-section">
@@ -64,6 +71,7 @@ function SkillOverview({ skill }) {
               <p>This skill contributes toward the supporting career goal.</p>
 
               <button
+                type="button"
                 className="skill-goal-link"
                 onClick={() => navigate(`/goals/${skill.secondaryGoal._id}`)}
               >
