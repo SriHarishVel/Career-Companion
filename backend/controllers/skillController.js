@@ -1,4 +1,7 @@
 import Skill from "../models/Skill.js";
+import Resource from "../models/Resource.js";
+
+import { syncSkillProgress } from "../utils/syncSkillProgress.js";
 
 export const createSkill = async (req, res) => {
   try {
@@ -6,8 +9,6 @@ export const createSkill = async (req, res) => {
       name,
       category,
       level,
-      progress,
-      developmentStatus,
       learningAreas,
       practicalRequirements,
       secondaryGoal,
@@ -17,8 +18,6 @@ export const createSkill = async (req, res) => {
       name,
       category,
       level,
-      progress,
-      developmentStatus,
       learningAreas: Array.isArray(learningAreas) ? learningAreas : [],
       practicalRequirements: Array.isArray(practicalRequirements)
         ? practicalRequirements
@@ -146,11 +145,6 @@ export const updateSkill = async (req, res) => {
 
     skill.level = req.body.level ?? skill.level;
 
-    skill.progress = req.body.progress ?? skill.progress;
-
-    skill.developmentStatus =
-      req.body.developmentStatus ?? skill.developmentStatus;
-
     if (Array.isArray(req.body.learningAreas)) {
       skill.learningAreas = req.body.learningAreas;
     }
@@ -162,6 +156,17 @@ export const updateSkill = async (req, res) => {
     if (Object.prototype.hasOwnProperty.call(req.body, "secondaryGoal")) {
       skill.secondaryGoal = req.body.secondaryGoal || null;
     }
+
+    const resources = await Resource.find({
+      skill: skill._id,
+      user: req.user._id,
+    });
+
+    const syncedSkill = syncSkillProgress(skill.toObject(), resources);
+
+    skill.progress = syncedSkill.progress;
+
+    skill.developmentStatus = syncedSkill.developmentStatus;
 
     const updatedSkill = await skill.save();
 

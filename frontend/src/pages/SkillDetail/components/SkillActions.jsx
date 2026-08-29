@@ -544,7 +544,7 @@ function SkillActions({
                   <strong>{resource.title}</strong>
 
                   <input
-                    type="url"
+                    type="text"
                     value={resourceUrls[resource._id] || ""}
                     onChange={(event) =>
                       handleResourceUrlChange(resource._id, event.target.value)

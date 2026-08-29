@@ -152,36 +152,28 @@ function ResourceDetail() {
 
   /* DELETE */
 
-  const handleDelete = async () => {
-    if (!resource || deleting) {
-      return;
-    }
+const handleDelete = async () => {
+  if (!resource || deleting) {
+    return;
+  }
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${resource.title}"?`,
+  try {
+    setDeleting(true);
+    setErrorMsg("");
+
+    await deleteResource(resource._id);
+
+    navigate("/resources");
+  } catch (error) {
+    console.error("Failed to delete resource:", error);
+
+    setErrorMsg(
+      error.response?.data?.message || "Failed to delete resource.",
     );
 
-    if (!confirmed) {
-      return;
-    }
-
-    try {
-      setDeleting(true);
-      setErrorMsg("");
-
-      await deleteResource(resource._id);
-
-      navigate("/resources");
-    } catch (error) {
-      console.error("Failed to delete resource:", error);
-
-      setErrorMsg(
-        error.response?.data?.message || "Unable to delete this resource.",
-      );
-
-      setDeleting(false);
-    }
-  };
+    setDeleting(false);
+  }
+};
 
   /* LOADING */
 

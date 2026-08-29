@@ -70,6 +70,7 @@ function Skills() {
   /* REQUEST STATE */
 
   const [loading, setLoading] = useState(true);
+  const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
@@ -168,15 +169,20 @@ function Skills() {
     setShowSkillForm(true);
   }
 
-  /* SAVE SKILL */
+  /* ADD SKILL */
 
   async function addSkill() {
+    if (saving) {
+      return;
+    }
+
     if (newSkill.trim() === "") {
       setErrorMsg("Skill cannot be empty.");
       return;
     }
 
     setErrorMsg("");
+    setSaving(true);
 
     try {
       /* EDIT */
@@ -226,8 +232,6 @@ function Skills() {
         name: newSkill.trim(),
         category: newCategory,
         level: "Beginner",
-        progress: 0,
-        developmentStatus: "In Progress",
         learningAreas,
         practicalRequirements,
         secondaryGoal: secondaryGoalId || null,
@@ -271,6 +275,8 @@ function Skills() {
         error.response?.data?.message ||
           "Unable to save the skill. Please try again.",
       );
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -421,6 +427,7 @@ function Skills() {
         practicalRequirements={practicalRequirements}
         setPracticalRequirements={setPracticalRequirements}
         errorMsg={errorMsg}
+        saving={saving}
       />
 
       <div className="skills-grid">

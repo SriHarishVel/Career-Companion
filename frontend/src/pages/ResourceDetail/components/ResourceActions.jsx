@@ -28,9 +28,7 @@ function ResourceActions({
 
   const formId = `edit-resource-form-${resource._id}`;
 
-  /*====
-     EDIT
-    ==== */
+  /* EDIT */
 
   const handleOpenEdit = () => {
     setEditForm({
@@ -110,9 +108,7 @@ function ResourceActions({
     }
   };
 
-  /*====
-     DELETE
-    ==== */
+  /* DELETE */
 
   const handleOpenDelete = () => {
     if (deleting) {

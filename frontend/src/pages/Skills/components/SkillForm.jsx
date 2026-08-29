@@ -20,6 +20,7 @@ function SkillForm({
   practicalRequirements = [],
   setPracticalRequirements,
   errorMsg,
+  saving,
 }) {
   function addLearningArea() {
     setLearningAreas((previous) => [
@@ -90,6 +91,7 @@ function SkillForm({
             type="button"
             className="skill-action-secondary"
             onClick={onClose}
+            disabled={saving}
           >
             Cancel
           </button>
@@ -98,8 +100,9 @@ function SkillForm({
             type="button"
             className="skill-action-primary"
             onClick={onSubmit}
+            disabled={saving}
           >
-            {submitLabel}
+            {saving ? "Saving..." : submitLabel}
           </button>
         </>
       }
@@ -117,6 +120,7 @@ function SkillForm({
               placeholder="e.g. React"
               value={newSkill}
               onChange={(e) => setNewSkill(e.target.value)}
+              disabled={saving}
             />
           </div>
 
@@ -129,6 +133,7 @@ function SkillForm({
               id="skill-category"
               value={newCategory}
               onChange={(e) => setNewCategory(e.target.value)}
+              disabled={saving}
             >
               <option value="Programming">Programming</option>
               <option value="Database">Database</option>
@@ -151,6 +156,7 @@ function SkillForm({
               id="skill-goal"
               value={secondaryGoalId}
               onChange={(e) => setSecondaryGoalId(e.target.value)}
+              disabled={saving}
             >
               <option value="">No Related Goal</option>
 
@@ -176,6 +182,7 @@ function SkillForm({
               placeholder="https://..."
               value={newResource}
               onChange={(e) => setNewResource(e.target.value)}
+              disabled={saving}
             />
           </div>
 
@@ -195,6 +202,7 @@ function SkillForm({
                 type="button"
                 className="skill-add-item-btn"
                 onClick={addLearningArea}
+                disabled={saving}
               >
                 + Add Area
               </button>
@@ -211,6 +219,7 @@ function SkillForm({
                       onChange={(event) =>
                         updateLearningArea(index, "name", event.target.value)
                       }
+                      disabled={saving}
                     />
 
                     <button
@@ -221,6 +230,7 @@ function SkillForm({
                       onClick={() =>
                         updateLearningArea(index, "completed", !area.completed)
                       }
+                      disabled={saving}
                     >
                       {area.completed ? "Covered" : "Not Covered"}
                     </button>
@@ -229,6 +239,7 @@ function SkillForm({
                       type="button"
                       className="skill-remove-item-btn"
                       onClick={() => removeLearningArea(index)}
+                      disabled={saving}
                     >
                       Remove
                     </button>
@@ -259,6 +270,7 @@ function SkillForm({
                 type="button"
                 className="skill-add-item-btn"
                 onClick={addPracticalRequirement}
+                disabled={saving}
               >
                 + Add Requirement
               </button>
@@ -279,6 +291,7 @@ function SkillForm({
                           event.target.value,
                         )
                       }
+                      disabled={saving}
                     />
 
                     <button
@@ -293,6 +306,7 @@ function SkillForm({
                           !requirement.completed,
                         )
                       }
+                      disabled={saving}
                     >
                       {requirement.completed ? "Completed" : "Not Completed"}
                     </button>
@@ -301,6 +315,7 @@ function SkillForm({
                       type="button"
                       className="skill-remove-item-btn"
                       onClick={() => removePracticalRequirement(index)}
+                      disabled={saving}
                     >
                       Remove
                     </button>
