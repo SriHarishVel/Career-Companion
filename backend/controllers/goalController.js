@@ -1,21 +1,16 @@
 import Goal from "../models/Goal.js";
+import Skill from "../models/Skill.js";
 
+import { syncSecondaryGoalProgress } from "../utils/syncSecondaryGoalProgress.js";
 import { syncPrimaryGoalProgress } from "../utils/syncPrimaryGoalProgress.js";
 
 export const createGoal = async (req, res) => {
   try {
-    const {
-      title,
-      category,
-      priority,
-      goalType,
-      parentGoal,
-      progress,
-      completed,
-      deadline,
-    } = req.body;
+    const { title, category, priority, goalType, parentGoal, deadline } =
+      req.body;
 
-    // Secondary goals must have a parent
+    /* Secondary goals must have a parent */
+
     if (goalType === "Secondary" && !parentGoal) {
       return res.status(400).json({
         message: "Secondary goal requires a parent goal.",
@@ -28,8 +23,8 @@ export const createGoal = async (req, res) => {
       priority,
       goalType,
       parentGoal: goalType === "Secondary" ? parentGoal : null,
-      progress,
-      completed,
+      progress: 0,
+      completed: false,
       deadline,
       lastUpdated: Date.now(),
       user: req.user._id,
@@ -49,18 +44,27 @@ export const getGoals = async (req, res) => {
       user: req.user._id,
     };
 
-    // Fetch all goals first.
-    // Primary progress depends on its Secondary goals.
-    const goals = await Goal.find(query).populate("parentGoal", "title");
+    const [goals, skills] = await Promise.all([
+      Goal.find(query).populate("parentGoal", "title"),
+      Skill.find({
+        user: req.user._id,
+      }),
+    ]);
 
-    // Calculate derived Primary goal progress.
-    const syncedGoals = syncPrimaryGoalProgress(
-      goals.map((goal) => goal.toObject()),
-    );
+    const goalObjects = goals.map((goal) => goal.toObject());
+
+    /* Calculate Secondary Goal progress from related Skills */
+
+    const secondarySyncedGoals = syncSecondaryGoalProgress(goalObjects, skills);
+
+    /* Calculate Primary Goal progress from Secondary Goals */
+
+    const syncedGoals = syncPrimaryGoalProgress(secondarySyncedGoals);
 
     let filteredGoals = syncedGoals;
 
-    // Search
+    /* Search */
+
     if (req.query.search) {
       const search = req.query.search.toLowerCase();
 
@@ -69,35 +73,40 @@ export const getGoals = async (req, res) => {
       );
     }
 
-    // Category filter
+    /* Category filter */
+
     if (req.query.category) {
       filteredGoals = filteredGoals.filter(
         (goal) => goal.category === req.query.category,
       );
     }
 
-    // Priority filter
+    /* Priority filter */
+
     if (req.query.priority) {
       filteredGoals = filteredGoals.filter(
         (goal) => goal.priority === req.query.priority,
       );
     }
 
-    // Status filter
+    /* Status filter */
+
     if (req.query.status === "Completed") {
       filteredGoals = filteredGoals.filter((goal) => goal.completed === true);
     } else if (req.query.status === "Active") {
       filteredGoals = filteredGoals.filter((goal) => goal.completed === false);
     }
 
-    // Goal Type filter
+    /* Goal Type filter */
+
     if (req.query.goalType) {
       filteredGoals = filteredGoals.filter(
         (goal) => goal.goalType === req.query.goalType,
       );
     }
 
-    // Sorting
+    /* Sorting */
+
     const sort = req.query.sort;
 
     if (sort === "az") {
@@ -133,7 +142,8 @@ export const getGoals = async (req, res) => {
         (a, b) => priorityOrder[a.priority] - priorityOrder[b.priority],
       );
     } else {
-      // Default: newest first
+      /* Default: newest first */
+
       filteredGoals.sort(
         (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
       );
@@ -166,7 +176,35 @@ export const getGoal = async (req, res) => {
       });
     }
 
-    res.status(200).json(goal);
+    const [allGoals, skills] = await Promise.all([
+      Goal.find({
+        user: req.user._id,
+      }).populate("parentGoal", "title"),
+
+      Skill.find({
+        user: req.user._id,
+      }),
+    ]);
+
+    const goalObjects = allGoals.map((item) => item.toObject());
+
+    /* Calculate Secondary Goal progress from related Skills */
+
+    const secondarySyncedGoals = syncSecondaryGoalProgress(goalObjects, skills);
+
+    /* Calculate Primary Goal progress from Secondary Goals */
+
+    const syncedGoals = syncPrimaryGoalProgress(secondarySyncedGoals);
+
+    const syncedGoal = syncedGoals.find(
+      (item) => item._id.toString() === goal._id.toString(),
+    );
+
+    res.status(200).json({
+      ...goal.toObject(),
+      progress: syncedGoal?.progress ?? 0,
+      completed: syncedGoal?.completed ?? false,
+    });
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -195,8 +233,6 @@ export const updateGoal = async (req, res) => {
     goal.priority = req.body.priority ?? goal.priority;
     goal.goalType = req.body.goalType ?? goal.goalType;
     goal.parentGoal = req.body.parentGoal ?? goal.parentGoal;
-    goal.progress = req.body.progress ?? goal.progress;
-    goal.completed = req.body.completed ?? goal.completed;
     goal.deadline = req.body.deadline ?? goal.deadline;
 
     goal.lastUpdated = Date.now();

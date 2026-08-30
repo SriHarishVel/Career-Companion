@@ -6,7 +6,6 @@ import FormDialog from "../../../components/FormDialog";
 function GoalActions({
   goal,
   primaryGoals = [],
-  onProgressUpdated,
   onGoalUpdated,
   onDelete,
   deleting,
@@ -115,22 +114,9 @@ function GoalActions({
     }
   };
 
-  const progress = Number(goal.progress) || 0;
-
   return (
     <>
       <section className="goal-detail-actions">
-        <button
-          type="button"
-          className="goal-action-primary"
-          onClick={onProgressUpdated}
-          disabled={progress >= 100 || goal.completed}
-        >
-          {goal.completed || progress >= 100
-            ? "Progress Complete"
-            : "Update Progress"}
-        </button>
-
         <button
           type="button"
           className="goal-action-secondary"

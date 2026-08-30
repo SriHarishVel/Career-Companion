@@ -1,14 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 
-import {
-  getGoal,
-  getGoals,
-  updateGoal,
-  deleteGoal,
-} from "../../services/goalService";
+import { getGoal, getGoals, deleteGoal } from "../../services/goalService";
 
 import LoadingState from "../../components/LoadingState";
+import ConfirmModal from "../../components/ConfirmModal";
 
 import GoalOverview from "./components/GoalOverview";
 import GoalSupporting from "./components/GoalSupporting";
@@ -26,6 +22,8 @@ function GoalDetail() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
+
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     async function loadGoalDetail() {
@@ -138,31 +136,6 @@ function GoalDetail() {
           ? "urgent"
           : "on-track";
 
-  const handleProgressUpdated = async () => {
-    if (!goal || goal.completed || progress >= 100) {
-      return;
-    }
-
-    const newProgress = Math.min(progress + 10, 100);
-
-    try {
-      setErrorMsg("");
-
-      const updatedGoal = await updateGoal(goal._id, {
-        progress: newProgress,
-        completed: newProgress >= 100,
-      });
-
-      setGoal(updatedGoal);
-    } catch (error) {
-      console.error("Failed to update goal progress:", error);
-
-      setErrorMsg(
-        error.response?.data?.message || "Failed to update goal progress.",
-      );
-    }
-  };
-
   const handleGoalUpdated = (updatedGoal) => {
     setGoal(updatedGoal);
 
@@ -173,16 +146,24 @@ function GoalDetail() {
     );
   };
 
-  const handleDelete = async () => {
+  const handleDelete = () => {
     if (!goal || deleting) {
       return;
     }
 
-    const confirmed = window.confirm(
-      `Are you sure you want to delete "${goal.title}"? This action cannot be undone.`,
-    );
+    setShowDeleteModal(true);
+  };
 
-    if (!confirmed) {
+  const handleCancelDelete = () => {
+    if (deleting) {
+      return;
+    }
+
+    setShowDeleteModal(false);
+  };
+
+  const handleConfirmDelete = async () => {
+    if (!goal || deleting) {
       return;
     }
 
@@ -199,6 +180,7 @@ function GoalDetail() {
       setErrorMsg(error.response?.data?.message || "Failed to delete goal.");
 
       setDeleting(false);
+      setShowDeleteModal(false);
     }
   };
 
@@ -272,12 +254,19 @@ function GoalDetail() {
         <GoalActions
           goal={goal}
           primaryGoals={primaryGoals}
-          onProgressUpdated={handleProgressUpdated}
           onGoalUpdated={handleGoalUpdated}
           onDelete={handleDelete}
           deleting={deleting}
         />
       </main>
+
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Goal?"
+        message={`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`}
+        onConfirm={handleConfirmDelete}
+        onCancel={handleCancelDelete}
+      />
     </div>
   );
 }
