@@ -190,20 +190,31 @@ export const getGoal = async (req, res) => {
 
     /* Calculate Secondary Goal progress from related Skills */
 
-    const secondarySyncedGoals = syncSecondaryGoalProgress(goalObjects, skills);
+    const secondarySyncedGoals = syncSecondaryGoalProgress(
+      goalObjects,
+      skills,
+    );
 
     /* Calculate Primary Goal progress from Secondary Goals */
 
-    const syncedGoals = syncPrimaryGoalProgress(secondarySyncedGoals);
+    const syncedGoals = syncPrimaryGoalProgress(
+      secondarySyncedGoals,
+    );
 
     const syncedGoal = syncedGoals.find(
       (item) => item._id.toString() === goal._id.toString(),
     );
 
+    if (!syncedGoal) {
+      return res.status(404).json({
+        message: "Goal not found",
+      });
+    }
+
     res.status(200).json({
       ...goal.toObject(),
-      progress: syncedGoal?.progress ?? 0,
-      completed: syncedGoal?.completed ?? false,
+      progress: syncedGoal.progress,
+      completed: syncedGoal.completed,
     });
   } catch (error) {
     res.status(500).json({

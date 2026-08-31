@@ -1,10 +1,7 @@
 import Skill from "../models/Skill.js";
 import Resource from "../models/Resource.js";
-import Goal from "../models/Goal.js";
 
 import { syncSkillProgress } from "../utils/syncSkillProgress.js";
-import { syncSecondaryGoalProgress } from "../utils/syncSecondaryGoalProgress.js";
-import { syncPrimaryGoalProgress } from "../utils/syncPrimaryGoalProgress.js";
 
 export const createSkill = async (req, res) => {
   try {
@@ -17,7 +14,7 @@ export const createSkill = async (req, res) => {
       secondaryGoal,
     } = req.body;
 
-    const skill = await Skill.create({
+    const skillData = {
       name,
       category,
       level,
@@ -27,11 +24,15 @@ export const createSkill = async (req, res) => {
         : [],
       secondaryGoal: secondaryGoal || null,
       user: req.user._id,
-    });
+    };
 
-    if (skill.secondaryGoal) {
-      await syncRelatedGoalProgress(req.user._id, skill.secondaryGoal);
-    }
+    const syncedSkill = syncSkillProgress(skillData, []);
+
+    const skill = await Skill.create({
+      ...skillData,
+      progress: syncedSkill.progress,
+      developmentStatus: syncedSkill.developmentStatus,
+    });
 
     const populatedSkill = await Skill.findById(skill._id).populate(
       "secondaryGoal",
@@ -51,6 +52,8 @@ export const getSkills = async (req, res) => {
       user: req.user._id,
     };
 
+    /* Search */
+
     if (req.query.search) {
       query.name = {
         $regex: req.query.search,
@@ -58,45 +61,69 @@ export const getSkills = async (req, res) => {
       };
     }
 
+    /* Category filter */
+
     if (req.query.category) {
       query.category = req.query.category;
     }
+
+    /* Level filter */
 
     if (req.query.level) {
       query.level = req.query.level;
     }
 
+    /* Related goal filter */
+
     if (req.query.secondaryGoal) {
       query.secondaryGoal = req.query.secondaryGoal;
     }
 
-    let sortOption = {
-      createdAt: -1,
-    };
+    const [skills, resources] = await Promise.all([
+      Skill.find(query).populate("secondaryGoal"),
+      Resource.find({
+        user: req.user._id,
+      }),
+    ]);
 
-    if (req.query.sort === "az") {
-      sortOption = {
-        name: 1,
-      };
-    } else if (req.query.sort === "za") {
-      sortOption = {
-        name: -1,
-      };
-    } else if (req.query.sort === "progressHigh") {
-      sortOption = {
-        progress: -1,
-      };
-    } else if (req.query.sort === "progressLow") {
-      sortOption = {
-        progress: 1,
-      };
+    const skillObjects = skills.map((skill) => skill.toObject());
+
+    /* Calculate current Skill progress */
+
+    const syncedSkills = skillObjects.map((skill) => {
+      const skillResources = resources.filter(
+        (resource) =>
+          resource.skill && resource.skill.toString() === skill._id.toString(),
+      );
+
+      return syncSkillProgress(skill, skillResources);
+    });
+
+    /* Sorting */
+
+    const sort = req.query.sort;
+
+    if (sort === "az") {
+      syncedSkills.sort((a, b) => a.name.localeCompare(b.name));
+    } else if (sort === "za") {
+      syncedSkills.sort((a, b) => b.name.localeCompare(a.name));
+    } else if (sort === "progressHigh") {
+      syncedSkills.sort((a, b) => b.progress - a.progress);
+    } else if (sort === "progressLow") {
+      syncedSkills.sort((a, b) => a.progress - b.progress);
+    } else if (sort === "recent") {
+      syncedSkills.sort(
+        (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+      );
+    } else {
+      /* Default: newest first */
+
+      syncedSkills.sort(
+        (a, b) => new Date(b.createdAt) - new Date(a.createdAt),
+      );
     }
 
-    const skills = await Skill.find(query)
-      .populate("secondaryGoal")
-      .sort(sortOption);
-
-    res.status(200).json(skills);
+    res.status(200).json(syncedSkills);
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -120,7 +147,14 @@ export const getSkill = async (req, res) => {
       });
     }
 
-    res.status(200).json(skill);
+    const resources = await Resource.find({
+      skill: skill._id,
+      user: req.user._id,
+    });
+
+    const syncedSkill = syncSkillProgress(skill.toObject(), resources);
+
+    res.status(200).json(syncedSkill);
   } catch (error) {
     console.error("Get skill error:", error);
 
@@ -145,10 +179,6 @@ export const updateSkill = async (req, res) => {
         message: "Not authorized",
       });
     }
-
-    const previousSecondaryGoal = skill.secondaryGoal
-      ? skill.secondaryGoal.toString()
-      : null;
 
     skill.name = req.body.name ?? skill.name;
     skill.category = req.body.category ?? skill.category;
@@ -178,18 +208,6 @@ export const updateSkill = async (req, res) => {
 
     const updatedSkill = await skill.save();
 
-    const currentSecondaryGoal = updatedSkill.secondaryGoal
-      ? updatedSkill.secondaryGoal.toString()
-      : null;
-
-    const affectedGoals = [previousSecondaryGoal, currentSecondaryGoal].filter(
-      (goalId, index, goalIds) => goalId && goalIds.indexOf(goalId) === index,
-    );
-
-    for (const goalId of affectedGoals) {
-      await syncRelatedGoalProgress(req.user._id, goalId);
-    }
-
     const populatedSkill = await Skill.findById(updatedSkill._id).populate(
       "secondaryGoal",
     );
@@ -218,15 +236,7 @@ export const deleteSkill = async (req, res) => {
       });
     }
 
-    const secondaryGoal = skill.secondaryGoal
-      ? skill.secondaryGoal.toString()
-      : null;
-
     await skill.deleteOne();
-
-    if (secondaryGoal) {
-      await syncRelatedGoalProgress(req.user._id, secondaryGoal);
-    }
 
     res.status(200).json({
       message: "Skill deleted successfully",
@@ -237,47 +247,3 @@ export const deleteSkill = async (req, res) => {
     });
   }
 };
-
-async function syncRelatedGoalProgress(userId, secondaryGoalId) {
-  const [goals, skills] = await Promise.all([
-    Goal.find({
-      user: userId,
-    }).populate("parentGoal", "title"),
-
-    Skill.find({
-      user: userId,
-    }),
-  ]);
-
-  const goalObjects = goals.map((goal) => goal.toObject());
-
-  const secondarySyncedGoals = syncSecondaryGoalProgress(goalObjects, skills);
-
-  const syncedGoals = syncPrimaryGoalProgress(secondarySyncedGoals);
-
-  const affectedGoalIds = new Set();
-
-  const secondaryGoal = syncedGoals.find(
-    (goal) => goal._id.toString() === secondaryGoalId.toString(),
-  );
-
-  if (secondaryGoal) {
-    affectedGoalIds.add(secondaryGoal._id.toString());
-
-    const parentGoalId = secondaryGoal.parentGoal?._id;
-
-    if (parentGoalId) {
-      affectedGoalIds.add(parentGoalId.toString());
-    }
-  }
-
-  for (const goal of syncedGoals) {
-    if (affectedGoalIds.has(goal._id.toString())) {
-      await Goal.findByIdAndUpdate(goal._id, {
-        progress: goal.progress,
-        completed: goal.completed,
-        lastUpdated: Date.now(),
-      });
-    }
-  }
-}

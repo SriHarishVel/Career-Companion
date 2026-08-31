@@ -65,7 +65,6 @@ export function syncSkillProgress(skill, resources = []) {
 
   return {
     ...skill,
-
     progress,
     developmentStatus,
   };

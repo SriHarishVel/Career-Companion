@@ -47,8 +47,6 @@ function Goals() {
   const [selectedGoalId, setSelectedGoalId] = useState(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  const [completedGoal, setCompletedGoal] = useState(null);
-
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -223,34 +221,6 @@ function Goals() {
     }
   }
 
-  async function handleProgress(goalId, progress) {
-    try {
-      const goal = goals.find((item) => item._id === goalId);
-
-      if (!goal) {
-        return;
-      }
-
-      const updatedProgress = Math.max(0, Math.min(100, progress));
-
-      const wasCompleted = goal.completed;
-      const isNowCompleted = updatedProgress >= 100;
-
-      await updateGoal(goalId, {
-        progress: updatedProgress,
-        completed: isNowCompleted,
-      });
-
-      await refreshGoals();
-
-      if (!wasCompleted && isNowCompleted) {
-        setCompletedGoal(goal.title);
-      }
-    } catch (error) {
-      console.error("Failed to update goal progress:", error);
-    }
-  }
-
   async function confirmDeleteGoal() {
     if (!selectedGoalId) {
       return;
@@ -337,10 +307,7 @@ function Goals() {
         secondaryGoals={secondaryGoals}
         getChildGoals={getChildGoals}
         getParentGoalTitle={getParentGoalTitle}
-        handleProgress={handleProgress}
         editGoal={editGoal}
-        completedGoal={completedGoal}
-        setCompletedGoal={setCompletedGoal}
         showDeleteModal={showDeleteModal}
         confirmDeleteGoal={confirmDeleteGoal}
         setShowDeleteModal={setShowDeleteModal}
