@@ -284,6 +284,32 @@ function Resources() {
     }
   }
 
+  /* TOGGLE COMPLETION */
+
+  async function toggleCompleted(resourceId) {
+    const resource = resources.find(
+      (resourceItem) => resourceItem._id === resourceId,
+    );
+
+    if (!resource) {
+      return;
+    }
+
+    try {
+      await updateResource(resourceId, {
+        completed: !resource.completed,
+      });
+
+      await refreshResources();
+    } catch (error) {
+      console.error("Failed to update completion status:", error);
+
+      setErrorMsg(
+        "Unable to update the resource completion status. Please try again.",
+      );
+    }
+  }
+
   /* LOADING */
 
   if (loading) {
@@ -354,6 +380,7 @@ function Resources() {
               onEdit={handleEditResource}
               onDelete={handleDeleteResource}
               onToggleFavorite={toggleFavorite}
+              onToggleCompleted={toggleCompleted}
             />
           ))
         ) : (

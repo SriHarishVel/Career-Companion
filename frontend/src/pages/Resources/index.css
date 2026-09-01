@@ -1,11 +1,11 @@
-/* Resources Page */
+/* RESOURCES PAGE */
 
 .resources-page {
   width: 100%;
   max-width: none;
 }
 
-/* Page Header */
+/* PAGE HEADER */
 
 .resources-page .page-header {
   display: flex;
@@ -13,7 +13,7 @@
   justify-content: space-between;
 
   gap: 20px;
-  margin: 0 0 30px;
+  margin: 0 0 26px;
 }
 
 .resources-page .page-header h1 {
@@ -46,12 +46,10 @@
   font-size: 0.82rem;
   font-weight: 700;
 
-  line-height: 1;
-
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
+    background-color 0.18s ease,
     transform 0.15s ease;
 }
 
@@ -64,11 +62,10 @@
   transform: translateY(0);
 }
 
-/* Shared Search / Filter Component */
+/* RESOURCE SUMMARY */
 
 .resource-summary {
   display: flex !important;
-  flex-direction: row !important;
   align-items: center;
   justify-content: flex-start;
   flex-wrap: wrap;
@@ -77,12 +74,12 @@
 
   width: 100%;
 
-  margin: 8px 0 20px;
+  margin: 0 0 20px;
   padding: 0;
 
   color: #64748b;
 
-  font-size: 0.85rem;
+  font-size: 0.84rem;
   font-weight: 500;
 }
 
@@ -104,19 +101,19 @@
   color: #cbd5e1;
 }
 
-/* Resource Grid */
+/* RESOURCE GRID */
 
 .resources-grid {
   display: grid;
 
   grid-template-columns: repeat(3, minmax(0, 1fr));
 
-  gap: 18px;
+  gap: 20px;
 
   align-items: stretch;
 }
 
-/* Resource Card */
+/* RESOURCE CARD */
 
 .resource-card {
   position: relative;
@@ -125,104 +122,172 @@
   flex-direction: column;
 
   min-width: 0;
-  min-height: 220px;
+  min-height: 225px;
 
-  padding: 20px;
+  box-sizing: border-box;
+
+  padding: 20px 20px 18px 22px;
 
   border: 1px solid #e2e8f0;
+  border-left: 3px solid #2563eb;
   border-radius: 12px;
 
   background: #ffffff;
 
-  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.04);
 
   cursor: pointer;
 
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease,
-    transform 0.2s ease;
+    transform 0.18s ease,
+    box-shadow 0.18s ease,
+    border-color 0.18s ease,
+    background-color 0.18s ease;
 }
 
-.resource-card:hover {
-  border-color: #cbd5e1;
+/* UNFINISHED RESOURCE */
 
-  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.08);
+.resource-card:not(.resource-card-completed) {
+  border-left-color: #2563eb;
+}
+
+.resource-card:not(.resource-card-completed):hover {
+  border-color: #d3dce8;
+  border-left-color: #2563eb;
+
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.07);
+
+  transform: translateY(-2px);
+}
+
+/* COMPLETED RESOURCE */
+
+.resource-card-completed {
+  border-color: #dce9e1;
+  border-left-color: #22c55e;
+
+  /*
+   * Very subtle green tint.
+   * Do not turn the entire card green. */
+  background: #fcfefc;
+
+  box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
+}
+
+.resource-card-completed:hover {
+  border-color: #c8dfd0;
+  border-left-color: #22c55e;
+
+  background: #fbfefc;
+
+  box-shadow: 0 8px 20px rgba(15, 23, 42, 0.065);
 
   transform: translateY(-2px);
 }
 
 .resource-card:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.2);
+  outline: 3px solid rgba(37, 99, 235, 0.18);
   outline-offset: 2px;
 }
 
-/* Header */
+/* CARD HEADER */
 
 .resource-card-header {
   min-width: 0;
-}
 
-.resource-card-title-row {
-  display: flex;
-
-  align-items: center;
-  justify-content: space-between;
-
-  gap: 12px;
-
-  margin-bottom: 12px;
+  padding-right: 30px;
 }
 
 .resource-card-header h3 {
-  margin: 0;
+  margin: 10px 0 0;
 
   color: #172033;
 
   font-size: 1.05rem;
-  font-weight: 750;
+  font-weight: 700;
   line-height: 1.4;
 
   overflow-wrap: anywhere;
 }
 
-/* Resource Type */
+.resource-card-completed .resource-card-header h3 {
+  color: #1f2937;
+}
+
+/* BADGES */
 
 .resource-badges {
   display: flex;
-
   align-items: center;
+  flex-wrap: wrap;
 
-  min-width: 0;
+  gap: 7px;
 }
+
+/* Resource type */
 
 .resource-type {
   display: inline-flex;
-
   align-items: center;
+  justify-content: center;
 
-  padding: 5px 9px;
+  min-height: 25px;
+
+  box-sizing: border-box;
+
+  padding: 5px 10px;
 
   border-radius: 999px;
 
   background: #eef2ff;
   color: #4338ca;
 
-  font-size: 0.7rem;
-  font-weight: 750;
+  font-size: 0.69rem;
+  font-weight: 700;
+
+  line-height: 1;
 
   white-space: nowrap;
 }
 
-/* Favorite Star */
+/* Completed badge */
+
+.resource-completed-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  min-height: 25px;
+
+  box-sizing: border-box;
+
+  padding: 5px 10px;
+
+  border: 1px solid #a7e8c1;
+  border-radius: 999px;
+
+  background: #f3fcf6;
+  color: #15803d;
+
+  font-size: 0.69rem;
+  font-weight: 700;
+
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+/* FAVORITE */
 
 .favorite-star {
   position: absolute;
-  top: 16px;
-  right: 16px;
 
-  width: auto;
-  height: auto;
+  top: 17px;
+  right: 17px;
+
+  width: 24px;
+  height: 24px;
+
   padding: 0;
   margin: 0;
 
@@ -230,26 +295,27 @@
   background: transparent;
 
   color: #94a3b8;
-  font-size: 1.35rem;
-  line-height: 1;
+
+  font-size: 1.3rem;
+  line-height: 24px;
 
   cursor: pointer;
 
   transition:
-    color 0.2s ease,
+    color 0.15s ease,
     transform 0.15s ease;
 }
 
 .favorite-star:hover {
   border: none;
   background: transparent;
+
   color: #f59e0b;
-  transform: scale(1.1);
+
+  transform: scale(1.08);
 }
 
 .favorite-star.active {
-  border: none;
-  background: transparent;
   color: #f59e0b;
 }
 
@@ -262,110 +328,47 @@
   outline-offset: 3px;
 }
 
-/* Related Skill */
+/* RELATED SKILL */
 
 .related-skill {
   display: flex;
   flex-direction: column;
 
-  gap: 4px;
+  gap: 5px;
 
   margin-top: 18px;
-  padding: 10px 12px;
-
-  border-left: 3px solid #2563eb;
-  border-radius: 8px;
-
-  background: #eff6ff;
-}
-
-.related-skill-label {
-  color: #64748b;
-
-  font-size: 0.66rem;
-  font-weight: 800;
-
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-}
-
-.related-skill-title {
-  color: #1e293b;
-
-  font-size: 0.82rem;
-  font-weight: 600;
-  line-height: 1.4;
-
-  overflow-wrap: anywhere;
-}
-
-/* Card Footer */
-
-.resource-card-footer {
-  margin-top: auto;
-
-  padding-top: 20px;
-}
-
-/* Open Resource */
-
-.open-resource-btn {
-  display: inline-flex;
-
-  align-items: center;
-  justify-content: center;
-
-  width: 100%;
-  min-height: 40px;
-
-  box-sizing: border-box;
-
-  padding: 9px 14px;
-
-  border: 1px solid #2563eb;
-  border-radius: 7px;
-
-  background: #2563eb;
-  color: #ffffff;
-
-  font-family: inherit;
-  font-size: 0.8rem;
-  font-weight: 700;
-
-  text-decoration: none;
-
-  transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease;
-}
-
-.open-resource-btn:hover {
-  border-color: #1d4ed8;
-
-  background: #1d4ed8;
-}
-
-/* Related Skill */
-
-.related-skill {
-  display: flex;
-  flex-direction: column;
-
-  gap: 4px;
-
   margin-bottom: 15px;
-  padding: 10px 12px;
 
+  padding: 11px 13px;
+
+  border: 1px solid #e2e8f0;
   border-left: 3px solid #2563eb;
   border-radius: 8px;
 
-  background: #eff6ff;
+  background: #f8fafc;
+}
+
+/* Unfinished */
+
+.resource-card:not(.resource-card-completed) .related-skill {
+  border-left-color: #2563eb;
+
+  background: #f7faff;
+}
+
+/* Completed */
+
+.resource-card-completed .related-skill {
+  border-color: #e1ebe4;
+  border-left-color: #22c55e;
+
+  background: #f7fbf8;
 }
 
 .related-skill-label {
   color: #64748b;
 
-  font-size: 0.66rem;
+  font-size: 0.65rem;
   font-weight: 800;
 
   letter-spacing: 0.08em;
@@ -373,30 +376,30 @@
 }
 
 .related-skill-title {
-  color: #1e293b;
+  color: #334155;
 
   font-size: 0.82rem;
-  font-weight: 600;
-  line-height: 1.4;
+  font-weight: 650;
+  line-height: 1.35;
 
   overflow-wrap: anywhere;
 }
 
-/* Resource Actions */
+.resource-card-completed .related-skill-title {
+  color: #166534;
+}
+
+/* RESOURCE ACTIONS */
 
 .resource-actions {
   display: flex;
   flex-direction: column;
 
-  gap: 9px;
-
   margin-top: auto;
   padding-top: 16px;
 
-  border-top: 1px solid #e2e8f0;
+  border-top: 1px solid #e5eaf0;
 }
-
-/* All action controls */
 
 .resource-actions button,
 .resource-actions a {
@@ -405,7 +408,10 @@
   align-items: center;
   justify-content: center;
 
-  min-height: 38px;
+  width: 100%;
+  min-height: 39px;
+
+  box-sizing: border-box;
 
   margin: 0;
   padding: 8px 12px;
@@ -422,16 +428,48 @@
   text-decoration: none;
 
   transition:
-    background-color 0.18s ease,
-    border-color 0.18s ease,
-    color 0.18s ease;
+    background-color 0.16s ease,
+    border-color 0.16s ease,
+    color 0.16s ease;
 }
 
-/* View Details */
+/* OPEN RESOURCE */
+
+.open-resource-btn {
+  border: 1px solid #cbd5e1;
+
+  background: #ffffff;
+  color: #334155;
+}
+
+.open-resource-btn:hover {
+  border-color: #94a3b8;
+
+  background: #f8fafc;
+
+  color: #1e293b;
+}
+
+/* Completed */
+
+.resource-card-completed .open-resource-btn {
+  border-color: #c9e5d1;
+
+  background: #ffffff;
+  color: #166534;
+}
+
+.resource-card-completed .open-resource-btn:hover {
+  border-color: #9ed3ad;
+
+  background: #f5fbf6;
+
+  color: #14532d;
+}
+
+/* VIEW DETAILS */
 
 .resource-details-btn {
-  width: 100%;
-
   border: 1px solid #2563eb;
 
   background: #2563eb;
@@ -444,24 +482,7 @@
   background: #1d4ed8;
 }
 
-/* Open Resource */
-
-.open-resource-btn {
-  width: 100%;
-
-  border: 1px solid #cbd5e1;
-
-  background: #ffffff;
-  color: #334155;
-}
-
-.open-resource-btn:hover {
-  border-color: #94a3b8;
-
-  background: #f8fafc;
-}
-
-/* Edit + Delete */
+/* SECONDARY ACTIONS */
 
 .resource-secondary-actions {
   display: grid;
@@ -469,6 +490,8 @@
   grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 9px;
+
+  margin-top: 9px;
 }
 
 .resource-secondary-actions .edit-btn,
@@ -515,7 +538,7 @@
   background: #fef2f2;
 }
 
-/* Empty State */
+/* EMPTY STATE */
 
 .resources-grid .empty-state {
   grid-column: 1 / -1;
@@ -523,7 +546,7 @@
   width: 100%;
   box-sizing: border-box;
 
-  padding: 40px 20px;
+  padding: 44px 20px;
 
   border: 1px dashed #cbd5e1;
   border-radius: 12px;
@@ -537,6 +560,8 @@
   margin: 0 0 8px;
 
   color: #334155;
+
+  font-size: 1rem;
 }
 
 .resources-grid .empty-state p {
@@ -547,7 +572,7 @@
   font-size: 0.84rem;
 }
 
-/* Resource Form Dialog */
+/* RESOURCE FORM */
 
 .resource-form-fields {
   display: grid;
@@ -599,8 +624,8 @@
   outline: none;
 
   transition:
-    border-color 0.2s ease,
-    box-shadow 0.2s ease;
+    border-color 0.18s ease,
+    box-shadow 0.18s ease;
 }
 
 .resource-form-fields input:focus,
@@ -623,11 +648,23 @@
   font-weight: 500;
 }
 
-.resource-form-fields + .error {
-  margin-top: 16px;
+/* ERROR */
+
+.error {
+  margin: 12px 0;
+
+  padding: 10px 12px;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  background: #fef2f2;
+  color: #b91c1c;
+
+  font-size: 0.84rem;
 }
 
-/* Responsive */
+/* RESPONSIVE */
 
 @media (max-width: 1100px) {
   .resources-grid {
@@ -662,10 +699,6 @@
   .resource-form-fields {
     grid-template-columns: 1fr;
   }
-
-  .resource-secondary-actions {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 420px) {
@@ -674,7 +707,7 @@
   }
 
   .resource-card {
-    min-height: 200px;
+    min-height: 205px;
 
     padding: 18px;
   }
@@ -695,7 +728,7 @@
 @media (prefers-reduced-motion: reduce) {
   .add-resource-btn,
   .resource-card,
-  .resource-favorite-btn {
+  .favorite-star {
     transition: none;
   }
 }
