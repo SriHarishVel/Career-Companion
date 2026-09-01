@@ -93,7 +93,7 @@ function SkillFilters({
         <option value="za">Z-A</option>
         <option value="progressHigh">Highest Progress</option>
         <option value="progressLow">Lowest Progress</option>
-        <option value="recent">Recently Updated</option>
+        <option value="updatedAt">Recently Updated</option>
       </SearchFilterBar>
     </div>
   );

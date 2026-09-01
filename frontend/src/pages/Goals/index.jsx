@@ -7,7 +7,6 @@ import GoalSections from "./components/GoalSections";
 import JourneyBanner from "./components/JourneyBanner";
 import JourneyMessage from "./components/JourneyMessage";
 
-import FormDialog from "../../components/FormDialog";
 import LoadingState from "../../components/LoadingState";
 
 import {
@@ -314,47 +313,29 @@ function Goals() {
         setSelectedGoalId={setSelectedGoalId}
       />
 
-      <FormDialog
+      <GoalForm
         isOpen={showGoalForm}
-        title={dialogTitle}
         onClose={closeGoalForm}
-        footer={
-          <>
-            <button
-              type="button"
-              className="cancel-btn"
-              onClick={closeGoalForm}
-            >
-              Cancel
-            </button>
-
-            <button type="button" className="save-btn" onClick={addGoal}>
-              {dialogSaveText}
-            </button>
-          </>
-        }
-      >
-        <GoalForm
-          editingGoalId={editingGoalId}
-          journeyStep={journeyStep}
-          newGoal={newGoal}
-          setNewGoal={setNewGoal}
-          newCategory={newCategory}
-          setNewCategory={setNewCategory}
-          newPriority={newPriority}
-          setNewPriority={setNewPriority}
-          isGuidedSetup={isGuidedSetup}
-          newGoalType={newGoalType}
-          handleGoalTypeChange={handleGoalTypeChange}
-          primaryGoalOptions={primaryGoalOptions}
-          parentGoalId={parentGoalId}
-          setParentGoalId={setParentGoalId}
-          newDeadline={newDeadline}
-          setNewDeadline={setNewDeadline}
-          errorMsg={errorMsg}
-          setErrorMsg={setErrorMsg}
-        />
-      </FormDialog>
+        title={dialogTitle}
+        onSubmit={addGoal}
+        submitLabel={dialogSaveText}
+        newGoal={newGoal}
+        setNewGoal={setNewGoal}
+        newCategory={newCategory}
+        setNewCategory={setNewCategory}
+        newPriority={newPriority}
+        setNewPriority={setNewPriority}
+        isGuidedSetup={isGuidedSetup}
+        newGoalType={newGoalType}
+        handleGoalTypeChange={handleGoalTypeChange}
+        primaryGoalOptions={primaryGoalOptions}
+        parentGoalId={parentGoalId}
+        setParentGoalId={setParentGoalId}
+        newDeadline={newDeadline}
+        setNewDeadline={setNewDeadline}
+        errorMsg={errorMsg}
+        setErrorMsg={setErrorMsg}
+      />
     </div>
   );
 }

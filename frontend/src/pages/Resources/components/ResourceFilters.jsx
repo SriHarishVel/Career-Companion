@@ -88,7 +88,7 @@ function ResourceFilters({
       <option value="default">Default</option>
       <option value="az">A-Z</option>
       <option value="za">Z-A</option>
-      <option value="recent">Recently Updated</option>
+      <option value="updatedAt">Recently Updated</option>
     </SearchFilterBar>
   );
 }

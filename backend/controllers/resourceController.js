@@ -1,6 +1,36 @@
 import Resource from "../models/Resource.js";
 import Skill from "../models/Skill.js";
+
 import { syncSkillProgress } from "../utils/syncSkillProgress.js";
+
+/* Synchronize a Skill with its Resources */
+
+async function syncSkill(userId, skillId) {
+  if (!skillId) {
+    return;
+  }
+
+  const skill = await Skill.findOne({
+    _id: skillId,
+    user: userId,
+  });
+
+  if (!skill) {
+    return;
+  }
+
+  const resources = await Resource.find({
+    skill: skill._id,
+    user: userId,
+  });
+
+  const syncedSkill = syncSkillProgress(skill.toObject(), resources);
+
+  skill.progress = syncedSkill.progress;
+  skill.developmentStatus = syncedSkill.developmentStatus;
+
+  await skill.save();
+}
 
 export const createResource = async (req, res) => {
   try {
@@ -19,27 +49,7 @@ export const createResource = async (req, res) => {
 
     /* Synchronize related skill */
 
-    if (createdResource.skill) {
-      const skill = await Skill.findOne({
-        _id: createdResource.skill,
-        user: req.user._id,
-      });
-
-      if (skill) {
-        const resources = await Resource.find({
-          skill: skill._id,
-          user: req.user._id,
-        });
-
-        const syncedSkill = syncSkillProgress(skill.toObject(), resources);
-
-        skill.progress = syncedSkill.progress;
-
-        skill.developmentStatus = syncedSkill.developmentStatus;
-
-        await skill.save();
-      }
-    }
+    await syncSkill(req.user._id, createdResource.skill);
 
     const populatedResource = await Resource.findById(
       createdResource._id,
@@ -59,6 +69,8 @@ export const getResources = async (req, res) => {
       user: req.user._id,
     };
 
+    /* Search */
+
     if (req.query.search) {
       query.title = {
         $regex: req.query.search,
@@ -66,13 +78,19 @@ export const getResources = async (req, res) => {
       };
     }
 
+    /* Type filter */
+
     if (req.query.type) {
       query.type = req.query.type;
     }
 
+    /* Favorite filter */
+
     if (req.query.favorite === "true") {
       query.favorite = true;
     }
+
+    /* Completion filter */
 
     if (req.query.completed === "true") {
       query.completed = true;
@@ -80,9 +98,13 @@ export const getResources = async (req, res) => {
       query.completed = false;
     }
 
+    /* Skill filter */
+
     if (req.query.skill) {
       query.skill = req.query.skill;
     }
+
+    /* Sorting */
 
     let sortOption = {
       createdAt: -1,
@@ -157,70 +179,46 @@ export const updateResource = async (req, res) => {
       });
     }
 
-    /* Store the previous skill before updating */
+    /* Store previous skill */
 
     const previousSkillId = resource.skill ? resource.skill.toString() : null;
+
+    /* Update resource */
+
     resource.title = req.body.title ?? resource.title;
+
     resource.type = req.body.type ?? resource.type;
+
     resource.url = req.body.url ?? resource.url;
+
     resource.description = req.body.description ?? resource.description;
+
     resource.favorite = req.body.favorite ?? resource.favorite;
+
     resource.completed = req.body.completed ?? resource.completed;
+
     resource.skill = req.body.skill ?? resource.skill;
 
     const updatedResource = await resource.save();
 
-    /* Recalculate the previous skill */
+    /* Recalculate previous skill */
 
     if (previousSkillId) {
-      const previousSkill = await Skill.findOne({
-        _id: previousSkillId,
-        user: req.user._id,
-      });
-
-      if (previousSkill) {
-        const previousResources = await Resource.find({
-          skill: previousSkill._id,
-          user: req.user._id,
-        });
-
-        const syncedPreviousSkill = syncSkillProgress(
-          previousSkill.toObject(),
-          previousResources,
-        );
-
-        previousSkill.progress = syncedPreviousSkill.progress;
-
-        previousSkill.developmentStatus = syncedPreviousSkill.developmentStatus;
-
-        await previousSkill.save();
-      }
+      await syncSkill(req.user._id, previousSkillId);
     }
 
-    /* Recalculate the current skill */
+    /* Recalculate current skill */
 
     if (updatedResource.skill) {
-      const currentSkill = await Skill.findOne({
-        _id: updatedResource.skill,
-        user: req.user._id,
-      });
+      const currentSkillId = updatedResource.skill.toString();
 
-      if (currentSkill) {
-        const currentResources = await Resource.find({
-          skill: currentSkill._id,
-          user: req.user._id,
-        });
+      /*
+       * If the resource moved to another skill,
+       * recalculate the new skill as well.
+       */
 
-        const syncedCurrentSkill = syncSkillProgress(
-          currentSkill.toObject(),
-          currentResources,
-        );
-
-        currentSkill.progress = syncedCurrentSkill.progress;
-
-        currentSkill.developmentStatus = syncedCurrentSkill.developmentStatus;
-
-        await currentSkill.save();
+      if (currentSkillId !== previousSkillId) {
+        await syncSkill(req.user._id, currentSkillId);
       }
     }
 
@@ -252,33 +250,13 @@ export const deleteResource = async (req, res) => {
       });
     }
 
-    const skillId = resource.skill;
+    const skillId = resource.skill ? resource.skill.toString() : null;
 
     await resource.deleteOne();
 
-    /* Synchronize the related skill */
+    /* Synchronize related skill */
 
-    if (skillId) {
-      const skill = await Skill.findOne({
-        _id: skillId,
-        user: req.user._id,
-      });
-
-      if (skill) {
-        const resources = await Resource.find({
-          skill: skill._id,
-          user: req.user._id,
-        });
-
-        const syncedSkill = syncSkillProgress(skill.toObject(), resources);
-
-        skill.progress = syncedSkill.progress;
-
-        skill.developmentStatus = syncedSkill.developmentStatus;
-
-        await skill.save();
-      }
-    }
+    await syncSkill(req.user._id, skillId);
 
     res.status(200).json({
       message: "Resource deleted successfully",

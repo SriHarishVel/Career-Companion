@@ -1,5 +1,6 @@
 import Skill from "../models/Skill.js";
 import Resource from "../models/Resource.js";
+import Goal from "../models/Goal.js";
 
 import { syncSkillProgress } from "../utils/syncSkillProgress.js";
 
@@ -13,6 +14,22 @@ export const createSkill = async (req, res) => {
       practicalRequirements,
       secondaryGoal,
     } = req.body;
+
+    /* Validate Secondary Goal */
+
+    if (secondaryGoal) {
+      const goal = await Goal.findOne({
+        _id: secondaryGoal,
+        user: req.user._id,
+        goalType: "Secondary",
+      });
+
+      if (!goal) {
+        return res.status(400).json({
+          message: "Invalid secondary goal.",
+        });
+      }
+    }
 
     const skillData = {
       name,
@@ -192,8 +209,26 @@ export const updateSkill = async (req, res) => {
       skill.practicalRequirements = req.body.practicalRequirements;
     }
 
+    /* Validate Secondary Goal when changed */
+
     if (Object.prototype.hasOwnProperty.call(req.body, "secondaryGoal")) {
-      skill.secondaryGoal = req.body.secondaryGoal || null;
+      const secondaryGoal = req.body.secondaryGoal || null;
+
+      if (secondaryGoal) {
+        const goal = await Goal.findOne({
+          _id: secondaryGoal,
+          user: req.user._id,
+          goalType: "Secondary",
+        });
+
+        if (!goal) {
+          return res.status(400).json({
+            message: "Invalid secondary goal.",
+          });
+        }
+      }
+
+      skill.secondaryGoal = secondaryGoal;
     }
 
     const resources = await Resource.find({

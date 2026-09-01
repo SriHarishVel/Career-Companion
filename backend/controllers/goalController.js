@@ -17,6 +17,22 @@ export const createGoal = async (req, res) => {
       });
     }
 
+    /* Parent must be a Primary Goal owned by the user */
+
+    if (goalType === "Secondary" && parentGoal) {
+      const parent = await Goal.findOne({
+        _id: parentGoal,
+        user: req.user._id,
+        goalType: "Primary",
+      });
+
+      if (!parent) {
+        return res.status(400).json({
+          message: "Invalid parent goal.",
+        });
+      }
+    }
+
     const goal = await Goal.create({
       title,
       category,
@@ -190,16 +206,11 @@ export const getGoal = async (req, res) => {
 
     /* Calculate Secondary Goal progress from related Skills */
 
-    const secondarySyncedGoals = syncSecondaryGoalProgress(
-      goalObjects,
-      skills,
-    );
+    const secondarySyncedGoals = syncSecondaryGoalProgress(goalObjects, skills);
 
     /* Calculate Primary Goal progress from Secondary Goals */
 
-    const syncedGoals = syncPrimaryGoalProgress(
-      secondarySyncedGoals,
-    );
+    const syncedGoals = syncPrimaryGoalProgress(secondarySyncedGoals);
 
     const syncedGoal = syncedGoals.find(
       (item) => item._id.toString() === goal._id.toString(),
@@ -239,11 +250,43 @@ export const updateGoal = async (req, res) => {
       });
     }
 
+    const nextGoalType = req.body.goalType ?? goal.goalType;
+    const nextParentGoal = req.body.parentGoal ?? goal.parentGoal;
+
+    /* Validate Secondary Goal relationship */
+
+    if (nextGoalType === "Secondary" && !nextParentGoal) {
+      return res.status(400).json({
+        message: "Secondary goal requires a parent goal.",
+      });
+    }
+
+    if (nextGoalType === "Secondary" && nextParentGoal) {
+      const parent = await Goal.findOne({
+        _id: nextParentGoal,
+        user: req.user._id,
+        goalType: "Primary",
+      });
+
+      if (!parent) {
+        return res.status(400).json({
+          message: "Invalid parent goal.",
+        });
+      }
+    }
+
+    /* Primary Goals cannot have a parent */
+
+    if (nextGoalType === "Primary") {
+      goal.parentGoal = null;
+    } else {
+      goal.parentGoal = nextParentGoal;
+    }
+
     goal.title = req.body.title ?? goal.title;
     goal.category = req.body.category ?? goal.category;
     goal.priority = req.body.priority ?? goal.priority;
-    goal.goalType = req.body.goalType ?? goal.goalType;
-    goal.parentGoal = req.body.parentGoal ?? goal.parentGoal;
+    goal.goalType = nextGoalType;
     goal.deadline = req.body.deadline ?? goal.deadline;
 
     goal.lastUpdated = Date.now();
@@ -274,13 +317,66 @@ export const deleteGoal = async (req, res) => {
       });
     }
 
-    // If deleting a primary goal, delete all its secondary goals
+    /* Delete Primary Goal */
+
     if (goal.goalType === "Primary") {
-      await Goal.deleteMany({
+      const secondaryGoals = await Goal.find({
         parentGoal: goal._id,
         user: req.user._id,
-      });
+        goalType: "Secondary",
+      }).select("_id");
+
+      const secondaryGoalIds = secondaryGoals.map(
+        (secondaryGoal) => secondaryGoal._id,
+      );
+
+      /* Detach Skills from Secondary Goals */
+
+      if (secondaryGoalIds.length > 0) {
+        await Skill.updateMany(
+          {
+            secondaryGoal: {
+              $in: secondaryGoalIds,
+            },
+            user: req.user._id,
+          },
+          {
+            $set: {
+              secondaryGoal: null,
+            },
+          },
+        );
+
+        /* Delete Secondary Goals */
+
+        await Goal.deleteMany({
+          _id: {
+            $in: secondaryGoalIds,
+          },
+          user: req.user._id,
+        });
+      }
     }
+
+    /* Delete Secondary Goal */
+
+    if (goal.goalType === "Secondary") {
+      /* Detach related Skills */
+
+      await Skill.updateMany(
+        {
+          secondaryGoal: goal._id,
+          user: req.user._id,
+        },
+        {
+          $set: {
+            secondaryGoal: null,
+          },
+        },
+      );
+    }
+
+    /* Delete requested goal */
 
     await goal.deleteOne();
 
