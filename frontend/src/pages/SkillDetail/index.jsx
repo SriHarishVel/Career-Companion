@@ -50,11 +50,9 @@ function SkillDetail() {
 
         const [skillData, resourceData, goalData] = await Promise.all([
           getSkill(skillId),
-
           getResources({
             skill: skillId,
           }),
-
           getGoals({
             goalType: "Secondary",
           }),
@@ -80,19 +78,35 @@ function SkillDetail() {
     }
   }, [skillId]);
 
-  /* REFRESH SKILL */
+  /* REFRESH SKILL AND RESOURCES */
 
   const handleSkillUpdated = async (updatedSkill) => {
     try {
       setErrorMsg("");
 
-      const freshSkill = await getSkill(updatedSkill._id);
+      const [freshSkill, freshResources] = await Promise.all([
+        getSkill(updatedSkill._id),
+        getResources({
+          skill: updatedSkill._id,
+        }),
+      ]);
 
       setSkill(freshSkill || updatedSkill);
+      setResources(freshResources);
     } catch (error) {
-      console.error("Failed to refresh skill:", error);
+      console.error("Failed to refresh skill details:", error);
 
       setSkill(updatedSkill);
+
+      try {
+        const freshResources = await getResources({
+          skill: updatedSkill._id,
+        });
+
+        setResources(freshResources);
+      } catch (resourceError) {
+        console.error("Failed to refresh skill resources:", resourceError);
+      }
     }
   };
 
@@ -152,7 +166,7 @@ function SkillDetail() {
 
   /* REFRESH RESOURCES */
 
-  const handleResourceAdded = async () => {
+  const handleResourcesUpdated = async () => {
     try {
       setErrorMsg("");
 
@@ -166,7 +180,7 @@ function SkillDetail() {
 
       setErrorMsg(
         error.response?.data?.message ||
-          "Resource was added, but the resource list could not be refreshed.",
+          "Resources could not be refreshed. Please try again.",
       );
     }
   };
@@ -231,7 +245,6 @@ function SkillDetail() {
             onClick={() => navigate("/skills")}
           >
             <span className="back-chevron">‹</span>
-
             <span>Skills</span>
           </button>
         </div>
@@ -304,7 +317,6 @@ function SkillDetail() {
           onClick={() => navigate("/skills")}
         >
           <span className="back-chevron">‹</span>
-
           <span>Skills</span>
         </button>
       </div>
@@ -351,9 +363,10 @@ function SkillDetail() {
           resources={resources}
           goals={goals}
           onSkillUpdated={handleSkillUpdated}
+          onAddResource={handleManageResources}
           onDelete={() => setShowDeleteModal(true)}
           deleting={deleting}
-          onResourceAdded={handleResourceAdded}
+          onResourceAdded={handleResourcesUpdated}
         />
       </main>
 

@@ -113,6 +113,8 @@ function SkillActions({
           : area,
       ),
     }));
+
+    setError("");
   };
 
   const handleAddLearningArea = () => {
@@ -126,6 +128,8 @@ function SkillActions({
         },
       ],
     }));
+
+    setError("");
   };
 
   const handleRemoveLearningArea = (index) => {
@@ -135,6 +139,8 @@ function SkillActions({
         (_, areaIndex) => areaIndex !== index,
       ),
     }));
+
+    setError("");
   };
 
   /* Practical Requirements */
@@ -169,6 +175,8 @@ function SkillActions({
             : requirement,
       ),
     }));
+
+    setError("");
   };
 
   const handleAddPracticalRequirement = () => {
@@ -182,6 +190,8 @@ function SkillActions({
         },
       ],
     }));
+
+    setError("");
   };
 
   const handleRemovePracticalRequirement = (index) => {
@@ -191,6 +201,8 @@ function SkillActions({
         (_, requirementIndex) => requirementIndex !== index,
       ),
     }));
+
+    setError("");
   };
 
   /* Save */
@@ -224,7 +236,6 @@ function SkillActions({
 
       if (!url) {
         setError(`URL is required for "${resource.title}".`);
-
         return;
       }
     }
@@ -343,6 +354,7 @@ function SkillActions({
               type="text"
               value={editForm.name}
               onChange={(event) => handleChange("name", event.target.value)}
+              disabled={saving}
               required
             />
           </div>
@@ -354,19 +366,14 @@ function SkillActions({
               id="edit-skill-category"
               value={editForm.category}
               onChange={(event) => handleChange("category", event.target.value)}
+              disabled={saving}
             >
               <option value="">Select category</option>
-
               <option value="Programming">Programming</option>
-
               <option value="Database">Database</option>
-
               <option value="Framework">Framework</option>
-
               <option value="Tools">Tools</option>
-
               <option value="Soft Skills">Soft Skills</option>
-
               <option value="Other">Other</option>
             </select>
           </div>
@@ -383,6 +390,7 @@ function SkillActions({
               onChange={(event) =>
                 handleChange("secondaryGoal", event.target.value)
               }
+              disabled={saving}
             >
               <option value="">No Related Goal</option>
 

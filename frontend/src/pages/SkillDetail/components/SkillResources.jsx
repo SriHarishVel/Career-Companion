@@ -1,3 +1,5 @@
+import { useNavigate } from "react-router-dom";
+
 function SkillResources({
   skillName,
   resources,
@@ -5,6 +7,17 @@ function SkillResources({
   resourceProgress,
   onManageResources,
 }) {
+  const navigate = useNavigate();
+
+  const safeResourceProgress = Math.min(
+    Math.max(Number(resourceProgress) || 0, 0),
+    100,
+  );
+
+  const handleResourceDetails = (resourceId) => {
+    navigate(`/resources/${resourceId}`);
+  };
+
   return (
     <section className="skill-resources-section">
       <div className="skill-resources-header">
@@ -37,16 +50,23 @@ function SkillResources({
 
       {resources.length > 0 && (
         <div className="resource-progress-summary">
-          <div className="resource-progress-track">
+          <div
+            className="resource-progress-track"
+            role="progressbar"
+            aria-valuenow={safeResourceProgress}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label="Learning resource completion"
+          >
             <div
               className="resource-progress-fill"
               style={{
-                width: `${resourceProgress}%`,
+                width: `${safeResourceProgress}%`,
               }}
             />
           </div>
 
-          <span>{resourceProgress}% of tracked resources completed</span>
+          <span>{safeResourceProgress}% of tracked resources completed</span>
         </div>
       )}
 
@@ -59,17 +79,24 @@ function SkillResources({
               }`}
               key={resource._id}
             >
-              <div className="resource-status">
-                {resource.completed ? "✓" : "○"}
-              </div>
+              <button
+                type="button"
+                className="skill-resource-content-button"
+                onClick={() => handleResourceDetails(resource._id)}
+                aria-label={`View ${resource.title}`}
+              >
+                <span className="resource-status" aria-hidden="true">
+                  {resource.completed ? "✓" : "○"}
+                </span>
 
-              <div className="resource-content">
-                <h3>{resource.title}</h3>
+                <span className="resource-content">
+                  <span className="resource-title">{resource.title}</span>
 
-                {resource.description && <p>{resource.description}</p>}
+                  {resource.description && <span>{resource.description}</span>}
 
-                <span>{resource.type || "Resource"}</span>
-              </div>
+                  <span> {resource.type || "Resource"}</span>
+                </span>
+              </button>
 
               {resource.url && (
                 <a
@@ -82,6 +109,7 @@ function SkillResources({
                   }
                   target="_blank"
                   rel="noopener noreferrer"
+                  onClick={(event) => event.stopPropagation()}
                 >
                   Open
                 </a>

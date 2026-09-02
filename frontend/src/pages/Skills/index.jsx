@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import ConfirmModal from "../../components/ConfirmModal";
 import LoadingState from "../../components/LoadingState";
 
 import SkillCard from "./components/SkillCard";
@@ -11,18 +10,9 @@ import SkillForm from "./components/SkillForm";
 import { journeyService } from "../../services/journeyService";
 import { getGoals } from "../../services/goalService";
 
-import {
-  createResource,
-  updateResource,
-  getResources,
-} from "../../services/resourceService";
+import { createResource } from "../../services/resourceService";
 
-import {
-  getSkills,
-  createSkill,
-  updateSkill,
-  deleteSkill,
-} from "../../services/skillService";
+import { getSkills, createSkill } from "../../services/skillService";
 
 import "./index.css";
 
@@ -42,7 +32,6 @@ function Skills() {
   const [newCategory, setNewCategory] = useState("Programming");
   const [secondaryGoalId, setSecondaryGoalId] = useState("");
   const [newResource, setNewResource] = useState("");
-  const [resourceId, setResourceId] = useState(null);
 
   const [learningAreas, setLearningAreas] = useState([]);
   const [practicalRequirements, setPracticalRequirements] = useState([]);
@@ -59,12 +48,8 @@ function Skills() {
   const [skills, setSkills] = useState([]);
   const [goals, setGoals] = useState([]);
 
-  /* EDIT / DELETE */
+  /* FORM */
 
-  const [editingSkillId, setEditingSkillId] = useState(null);
-  const [selectedSkillId, setSelectedSkillId] = useState(null);
-
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [showSkillForm, setShowSkillForm] = useState(isGuidedSetup);
 
   /* REQUEST STATE */
@@ -73,27 +58,29 @@ function Skills() {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  /* LOAD SKILLS */
+
   useEffect(() => {
     async function fetchSkills() {
       try {
         setLoading(true);
+        setErrorMsg("");
 
-        const [skills, goals] = await Promise.all([
-          getSkills({
-            search: searchSkill,
-            category: categoryFilter === "All" ? undefined : categoryFilter,
-            level: levelFilter === "All" ? undefined : levelFilter,
-            sort: sortOption === "default" ? undefined : sortOption,
-          }),
-          getGoals(),
-        ]);
+        const skillData = await getSkills({
+          search: searchSkill,
+          category: categoryFilter === "All" ? undefined : categoryFilter,
+          level: levelFilter === "All" ? undefined : levelFilter,
+          sort: sortOption === "default" ? undefined : sortOption,
+        });
 
-        setSkills(skills);
-        setGoals(goals);
+        setSkills(skillData);
       } catch (error) {
         console.error("Failed to load skills:", error);
 
-        setErrorMsg("Unable to load your skills. Please try again.");
+        setErrorMsg(
+          error.response?.data?.message ||
+            "Unable to load your skills. Please try again.",
+        );
       } finally {
         setLoading(false);
       }
@@ -102,37 +89,38 @@ function Skills() {
     fetchSkills();
   }, [searchSkill, categoryFilter, levelFilter, sortOption]);
 
-  /* MANUAL PROGRESS */
+  /* LOAD GOALS */
 
-  async function handleProgress(skillId) {
-    try {
-      const skill = skills.find((skill) => skill._id === skillId);
+  useEffect(() => {
+    async function fetchGoals() {
+      try {
+        const goalData = await getGoals();
 
-      if (!skill) {
-        return;
+        setGoals(goalData);
+      } catch (error) {
+        console.error("Failed to load goals:", error);
+
+        setErrorMsg(
+          error.response?.data?.message ||
+            "Unable to load your goals. Please try again.",
+        );
       }
-
-      const newProgress = Math.min(Number(skill.progress || 0) + 10, 100);
-
-      let newLevel = "Beginner";
-
-      if (newProgress >= 80) {
-        newLevel = "Advanced";
-      } else if (newProgress >= 40) {
-        newLevel = "Intermediate";
-      }
-
-      await updateSkill(skillId, {
-        progress: newProgress,
-        level: newLevel,
-      });
-
-      const updatedSkills = await getSkills();
-
-      setSkills(updatedSkills);
-    } catch (error) {
-      console.error("Failed to update skill progress:", error);
     }
+
+    fetchGoals();
+  }, []);
+
+  /* REFRESH SKILLS */
+
+  async function refreshSkills() {
+    const updatedSkills = await getSkills({
+      search: searchSkill,
+      category: categoryFilter === "All" ? undefined : categoryFilter,
+      level: levelFilter === "All" ? undefined : levelFilter,
+      sort: sortOption === "default" ? undefined : sortOption,
+    });
+
+    setSkills(updatedSkills);
   }
 
   /* JOURNEY */
@@ -153,8 +141,6 @@ function Skills() {
   /* OPEN ADD FORM */
 
   function openAddSkill() {
-    setEditingSkillId(null);
-
     setNewSkill("");
     setNewCategory("Programming");
     setSecondaryGoalId("");
@@ -163,9 +149,7 @@ function Skills() {
     setLearningAreas([]);
     setPracticalRequirements([]);
 
-    setResourceId(null);
     setErrorMsg("");
-
     setShowSkillForm(true);
   }
 
@@ -185,49 +169,6 @@ function Skills() {
     setSaving(true);
 
     try {
-      /* EDIT */
-
-      if (editingSkillId) {
-        await updateSkill(editingSkillId, {
-          name: newSkill.trim(),
-          category: newCategory,
-          secondaryGoal: secondaryGoalId || null,
-          learningAreas,
-          practicalRequirements,
-        });
-
-        if (newResource.trim()) {
-          if (resourceId) {
-            await updateResource(resourceId, {
-              title: `${newSkill.trim()} Resource`,
-              url: newResource.trim(),
-              skill: editingSkillId,
-            });
-          } else {
-            await createResource({
-              title: `${newSkill.trim()} Resource`,
-              type: "Article",
-              url: newResource.trim(),
-              skill: editingSkillId,
-            });
-          }
-        }
-
-        const updatedSkills = await getSkills();
-
-        setSkills(updatedSkills);
-
-        handleCancelEdit();
-
-        if (journeyAction === "createSkill") {
-          goToNextStep();
-        }
-
-        return;
-      }
-
-      /* CREATE */
-
       const createdSkill = await createSkill({
         name: newSkill.trim(),
         category: newCategory,
@@ -248,9 +189,7 @@ function Skills() {
         });
       }
 
-      const updatedSkills = await getSkills();
-
-      setSkills(updatedSkills);
+      await refreshSkills();
 
       setNewSkill("");
       setNewCategory("Programming");
@@ -260,105 +199,22 @@ function Skills() {
       setLearningAreas([]);
       setPracticalRequirements([]);
 
-      setResourceId(null);
       setErrorMsg("");
-
       setShowSkillForm(false);
 
       if (journeyAction === "createSkill") {
         goToNextStep();
       }
     } catch (error) {
-      console.error("Failed to save skill:", error);
+      console.error("Failed to create skill:", error);
 
       setErrorMsg(
         error.response?.data?.message ||
-          "Unable to save the skill. Please try again.",
+          "Unable to create the skill. Please try again.",
       );
     } finally {
       setSaving(false);
     }
-  }
-
-  /* EDIT SKILL */
-
-  async function handleEditSkill(skillId) {
-    const skill = skills.find((skill) => skill._id === skillId);
-
-    if (!skill) {
-      return;
-    }
-
-    setEditingSkillId(skill._id);
-
-    setNewSkill(skill.name);
-    setNewCategory(skill.category);
-    setSecondaryGoalId(skill.secondaryGoal?._id || "");
-
-    setLearningAreas(skill.learningAreas || []);
-    setPracticalRequirements(skill.practicalRequirements || []);
-
-    setErrorMsg("");
-
-    try {
-      const resources = await getResources();
-
-      const resource = resources.find(
-        (resource) =>
-          resource.skill && resource.skill._id.toString() === skillId,
-      );
-
-      if (resource) {
-        setResourceId(resource._id);
-        setNewResource(resource.url || "");
-      } else {
-        setResourceId(null);
-        setNewResource("");
-      }
-    } catch (error) {
-      console.error("Failed to load skill resource:", error);
-
-      setResourceId(null);
-      setNewResource("");
-    }
-
-    setShowSkillForm(true);
-  }
-
-  /* CANCEL */
-
-  function handleCancelEdit() {
-    setEditingSkillId(null);
-
-    setNewSkill("");
-    setNewCategory("Programming");
-    setSecondaryGoalId("");
-    setNewResource("");
-
-    setLearningAreas([]);
-    setPracticalRequirements([]);
-
-    setErrorMsg("");
-    setResourceId(null);
-
-    setShowSkillForm(false);
-  }
-
-  /* DELETE */
-
-  async function confirmDeleteSkill() {
-    try {
-      await deleteSkill(selectedSkillId);
-
-      const updatedSkills = await getSkills();
-
-      setSkills(updatedSkills);
-    } catch (error) {
-      console.error("Failed to delete skill:", error);
-    }
-
-    setShowDeleteModal(false);
-    setSelectedSkillId(null);
   }
 
   const secondaryGoalOptions = goals.filter(
@@ -395,6 +251,12 @@ function Skills() {
 
       {isGuidedSetup && <p className="journey-message">{journeyDescription}</p>}
 
+      {errorMsg && (
+        <div className="skill-error-message" role="alert">
+          {errorMsg}
+        </div>
+      )}
+
       <SkillFilters
         searchSkill={searchSkill}
         setSearchSkill={setSearchSkill}
@@ -404,15 +266,17 @@ function Skills() {
         setCategoryFilter={setCategoryFilter}
         levelFilter={levelFilter}
         setLevelFilter={setLevelFilter}
-        skillCount={skills.length}
       />
 
       <SkillForm
         isOpen={showSkillForm}
-        onClose={handleCancelEdit}
-        title={editingSkillId ? "Edit Skill" : "Add Skill"}
+        onClose={() => {
+          setShowSkillForm(false);
+          setErrorMsg("");
+        }}
+        title="Add Skill"
         onSubmit={addSkill}
-        submitLabel={editingSkillId ? "Save Changes" : "Add Skill"}
+        submitLabel="Add Skill"
         newSkill={newSkill}
         setNewSkill={setNewSkill}
         newCategory={newCategory}
@@ -441,17 +305,6 @@ function Skills() {
               category={skill.category}
               level={skill.level}
               relatedGoalTitle={skill.secondaryGoal?.title}
-              onProgress={handleProgress}
-              onDelete={(skillId) => {
-                setSelectedSkillId(skillId);
-                setShowDeleteModal(true);
-              }}
-              onEdit={handleEditSkill}
-              onResources={(skillId) =>
-                navigate("/resources", {
-                  state: { skillId },
-                })
-              }
             />
           ))
         ) : (
@@ -462,17 +315,6 @@ function Skills() {
           </div>
         )}
       </div>
-
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        title="Delete Skill"
-        message="Are you sure you want to delete this skill?"
-        onConfirm={confirmDeleteSkill}
-        onCancel={() => {
-          setShowDeleteModal(false);
-          setSelectedSkillId(null);
-        }}
-      />
     </div>
   );
 }

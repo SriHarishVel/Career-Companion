@@ -26,16 +26,20 @@ function SkillFilters({
           label: "Programming",
         },
         {
-          value: "Design",
-          label: "Design",
+          value: "Database",
+          label: "Database",
         },
         {
-          value: "Communication",
-          label: "Communication",
+          value: "Framework",
+          label: "Framework",
         },
         {
-          value: "Business",
-          label: "Business",
+          value: "Tools",
+          label: "Tools",
+        },
+        {
+          value: "Soft Skills",
+          label: "Soft Skills",
         },
         {
           value: "Other",

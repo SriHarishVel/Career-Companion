@@ -80,6 +80,30 @@ function SkillForm({
     );
   }
 
+  function handleSubmit() {
+    const cleanedLearningAreas = learningAreas
+      .map((area) => ({
+        ...area,
+        name: area.name.trim(),
+      }))
+      .filter((area) => area.name !== "");
+
+    const cleanedPracticalRequirements = practicalRequirements
+      .map((requirement) => ({
+        ...requirement,
+        title: requirement.title.trim(),
+      }))
+      .filter((requirement) => requirement.title !== "");
+
+    setLearningAreas(cleanedLearningAreas);
+    setPracticalRequirements(cleanedPracticalRequirements);
+
+    onSubmit({
+      learningAreas: cleanedLearningAreas,
+      practicalRequirements: cleanedPracticalRequirements,
+    });
+  }
+
   return (
     <FormDialog
       isOpen={isOpen}
@@ -99,7 +123,7 @@ function SkillForm({
           <button
             type="button"
             className="skill-action-primary"
-            onClick={onSubmit}
+            onClick={handleSubmit}
             disabled={saving}
           >
             {saving ? "Saving..." : submitLabel}
@@ -119,7 +143,7 @@ function SkillForm({
               type="text"
               placeholder="e.g. React"
               value={newSkill}
-              onChange={(e) => setNewSkill(e.target.value)}
+              onChange={(event) => setNewSkill(event.target.value)}
               disabled={saving}
             />
           </div>
@@ -132,7 +156,7 @@ function SkillForm({
             <select
               id="skill-category"
               value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
+              onChange={(event) => setNewCategory(event.target.value)}
               disabled={saving}
             >
               <option value="Programming">Programming</option>
@@ -155,7 +179,7 @@ function SkillForm({
             <select
               id="skill-goal"
               value={secondaryGoalId}
-              onChange={(e) => setSecondaryGoalId(e.target.value)}
+              onChange={(event) => setSecondaryGoalId(event.target.value)}
               disabled={saving}
             >
               <option value="">No Related Goal</option>
@@ -181,7 +205,7 @@ function SkillForm({
               type="url"
               placeholder="https://..."
               value={newResource}
-              onChange={(e) => setNewResource(e.target.value)}
+              onChange={(event) => setNewResource(event.target.value)}
               disabled={saving}
             />
           </div>

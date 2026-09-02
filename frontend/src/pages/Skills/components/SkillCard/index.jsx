@@ -1,23 +1,33 @@
 import { useNavigate } from "react-router-dom";
+
 import "./index.css";
 
-function SkillCard({ id, name, progress, category, level, relatedGoalTitle }) {
+function SkillCard({
+  id,
+  name,
+  progress = 0,
+  category,
+  level,
+  relatedGoalTitle,
+}) {
   const navigate = useNavigate();
 
-  function handleSkillDetails(skillId) {
-    navigate(`/skills/${skillId}`);
+  const safeProgress = Math.min(Math.max(Number(progress) || 0, 0), 100);
+
+  function handleSkillDetails() {
+    navigate(`/skills/${id}`);
   }
 
   return (
-    <div
+    <article
       className="skill-card"
-      onClick={() => handleSkillDetails(id)}
+      onClick={handleSkillDetails}
       role="button"
       tabIndex={0}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {
           event.preventDefault();
-          handleSkillDetails(id);
+          handleSkillDetails();
         }
       }}
     >
@@ -45,19 +55,26 @@ function SkillCard({ id, name, progress, category, level, relatedGoalTitle }) {
         <div className="progress-header">
           <span>Progress</span>
 
-          <strong>{progress}%</strong>
+          <strong>{safeProgress}%</strong>
         </div>
 
-        <div className="progress-bar">
+        <div
+          className="progress-bar"
+          role="progressbar"
+          aria-valuenow={safeProgress}
+          aria-valuemin="0"
+          aria-valuemax="100"
+          aria-label={`${name} progress`}
+        >
           <div
             className="progress-fill"
             style={{
-              width: `${progress}%`,
+              width: `${safeProgress}%`,
             }}
           />
         </div>
       </div>
-    </div>
+    </article>
   );
 }
 

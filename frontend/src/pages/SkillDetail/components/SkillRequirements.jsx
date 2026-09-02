@@ -9,6 +9,16 @@ function SkillRequirements({
   onToggleLearningArea,
   onTogglePracticalRequirement,
 }) {
+  const safeLearningProgress = Math.min(
+    Math.max(Number(learningProgress) || 0, 0),
+    100,
+  );
+
+  const safePracticalProgress = Math.min(
+    Math.max(Number(practicalProgress) || 0, 0),
+    100,
+  );
+
   return (
     <section className="skill-requirements-section">
       <div className="skill-section-header">
@@ -39,34 +49,56 @@ function SkillRequirements({
               {completedLearningAreas}/{learningAreas.length}
             </strong>
 
-            <span>{learningProgress}% covered</span>
+            <span>{safeLearningProgress}% covered</span>
           </div>
         </div>
 
         {learningAreas.length > 0 ? (
-          <div className="skill-requirements-list">
-            {learningAreas.map((area, index) => (
-              <button
-                key={index}
-                type="button"
-                className={`skill-requirement-item ${
-                  area.completed ? "completed" : ""
-                }`}
-                onClick={() => onToggleLearningArea(index)}
-                disabled={updatingRequirement}
-              >
-                <span className="skill-requirement-indicator">
-                  {area.completed ? "✓" : "○"}
-                </span>
+          <>
+            <div
+              className="skill-requirements-progress"
+              role="progressbar"
+              aria-valuenow={safeLearningProgress}
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-label="Learning areas progress"
+            >
+              <div
+                className="skill-requirements-progress-fill"
+                style={{
+                  width: `${safeLearningProgress}%`,
+                }}
+              />
+            </div>
 
-                <span className="skill-requirement-name">{area.name}</span>
+            <div className="skill-requirements-list">
+              {learningAreas.map((area, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`skill-requirement-item ${
+                    area.completed ? "completed" : ""
+                  }`}
+                  onClick={() => onToggleLearningArea(index)}
+                  disabled={updatingRequirement}
+                  aria-pressed={area.completed}
+                >
+                  <span
+                    className="skill-requirement-indicator"
+                    aria-hidden="true"
+                  >
+                    {area.completed ? "✓" : "○"}
+                  </span>
 
-                <span className="skill-requirement-state">
-                  {area.completed ? "Covered" : "Not Covered"}
-                </span>
-              </button>
-            ))}
-          </div>
+                  <span className="skill-requirement-name">{area.name}</span>
+
+                  <span className="skill-requirement-state">
+                    {area.completed ? "Covered" : "Not Covered"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="skill-requirements-empty">
             <h3>No learning areas added</h3>
@@ -94,36 +126,58 @@ function SkillRequirements({
               {completedPracticalRequirements}/{practicalRequirements.length}
             </strong>
 
-            <span>{practicalProgress}% completed</span>
+            <span>{safePracticalProgress}% completed</span>
           </div>
         </div>
 
         {practicalRequirements.length > 0 ? (
-          <div className="skill-requirements-list">
-            {practicalRequirements.map((requirement, index) => (
-              <button
-                key={index}
-                type="button"
-                className={`skill-requirement-item ${
-                  requirement.completed ? "completed" : ""
-                }`}
-                onClick={() => onTogglePracticalRequirement(index)}
-                disabled={updatingRequirement}
-              >
-                <span className="skill-requirement-indicator">
-                  {requirement.completed ? "✓" : "○"}
-                </span>
+          <>
+            <div
+              className="skill-requirements-progress"
+              role="progressbar"
+              aria-valuenow={safePracticalProgress}
+              aria-valuemin="0"
+              aria-valuemax="100"
+              aria-label="Practical development progress"
+            >
+              <div
+                className="skill-requirements-progress-fill"
+                style={{
+                  width: `${safePracticalProgress}%`,
+                }}
+              />
+            </div>
 
-                <span className="skill-requirement-name">
-                  {requirement.title}
-                </span>
+            <div className="skill-requirements-list">
+              {practicalRequirements.map((requirement, index) => (
+                <button
+                  key={index}
+                  type="button"
+                  className={`skill-requirement-item ${
+                    requirement.completed ? "completed" : ""
+                  }`}
+                  onClick={() => onTogglePracticalRequirement(index)}
+                  disabled={updatingRequirement}
+                  aria-pressed={requirement.completed}
+                >
+                  <span
+                    className="skill-requirement-indicator"
+                    aria-hidden="true"
+                  >
+                    {requirement.completed ? "✓" : "○"}
+                  </span>
 
-                <span className="skill-requirement-state">
-                  {requirement.completed ? "Completed" : "Not Completed"}
-                </span>
-              </button>
-            ))}
-          </div>
+                  <span className="skill-requirement-name">
+                    {requirement.title}
+                  </span>
+
+                  <span className="skill-requirement-state">
+                    {requirement.completed ? "Completed" : "Not Completed"}
+                  </span>
+                </button>
+              ))}
+            </div>
+          </>
         ) : (
           <div className="skill-requirements-empty">
             <h3>No practical work added</h3>

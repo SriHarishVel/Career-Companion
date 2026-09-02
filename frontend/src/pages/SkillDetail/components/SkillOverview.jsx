@@ -3,14 +3,14 @@ import { useNavigate } from "react-router-dom";
 function SkillOverview({ skill }) {
   const navigate = useNavigate();
 
-  const progress = Number(skill.progress) || 0;
+  const progress = Math.min(Math.max(Number(skill.progress) || 0, 0), 100);
 
   const progressStatus =
-    progress >= 80
-      ? "Advanced"
-      : progress >= 40
-        ? "Developing"
-        : "Getting Started";
+    progress === 100
+      ? "Complete"
+      : progress > 0
+        ? "In Progress"
+        : "Not Started";
 
   return (
     <section className="skill-overview">
@@ -46,7 +46,14 @@ function SkillOverview({ skill }) {
             <span className="progress-status">{progressStatus}</span>
           </div>
 
-          <div className="skill-progress-track">
+          <div
+            className="skill-progress-track"
+            role="progressbar"
+            aria-valuenow={progress}
+            aria-valuemin="0"
+            aria-valuemax="100"
+            aria-label={`${skill.name} progress`}
+          >
             <div
               className="skill-progress-fill"
               style={{
