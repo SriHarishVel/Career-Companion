@@ -14,21 +14,8 @@ function GoalActions({
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
-  const [editForm, setEditForm] = useState({
-    title: goal.title || "",
-    category: goal.category || "",
-    priority: goal.priority || "",
-    goalType: goal.goalType || "Primary",
-    parentGoal: goal.parentGoal?._id || goal.parentGoal || "",
-    deadline: goal.deadline
-      ? new Date(goal.deadline).toISOString().split("T")[0]
-      : "",
-  });
-
-  const formId = `edit-goal-form-${goal._id}`;
-
-  const handleOpenEdit = () => {
-    setEditForm({
+  function getInitialForm() {
+    return {
       title: goal.title || "",
       category: goal.category || "",
       priority: goal.priority || "",
@@ -37,31 +24,38 @@ function GoalActions({
       deadline: goal.deadline
         ? new Date(goal.deadline).toISOString().split("T")[0]
         : "",
-    });
+    };
+  }
 
+  const [editForm, setEditForm] = useState(getInitialForm);
+
+  const formId = `edit-goal-form-${goal._id}`;
+
+  function handleOpenEdit() {
+    setEditForm(getInitialForm());
     setError("");
     setShowEditModal(true);
-  };
+  }
 
-  const handleCloseEdit = () => {
+  function handleCloseEdit() {
     if (saving) {
       return;
     }
 
     setError("");
     setShowEditModal(false);
-  };
+  }
 
-  const handleChange = (field, value) => {
+  function handleChange(field, value) {
     setEditForm((previous) => ({
       ...previous,
       [field]: value,
     }));
 
     setError("");
-  };
+  }
 
-  const handleGoalTypeChange = (event) => {
+  function handleGoalTypeChange(event) {
     const value = event.target.value;
 
     setEditForm((previous) => ({
@@ -71,12 +65,14 @@ function GoalActions({
     }));
 
     setError("");
-  };
+  }
 
-  const handleSave = async (event) => {
+  async function handleSave(event) {
     event.preventDefault();
 
-    if (!editForm.title.trim()) {
+    const title = editForm.title.trim();
+
+    if (!title) {
       setError("Goal title is required.");
       return;
     }
@@ -86,12 +82,17 @@ function GoalActions({
       return;
     }
 
+    if (editForm.goalType === "Secondary" && editForm.parentGoal === goal._id) {
+      setError("A goal cannot be its own parent.");
+      return;
+    }
+
     try {
       setSaving(true);
       setError("");
 
       const updatedGoal = await updateGoal(goal._id, {
-        title: editForm.title.trim(),
+        title,
         category: editForm.category,
         priority: editForm.priority,
         goalType: editForm.goalType,
@@ -101,18 +102,21 @@ function GoalActions({
       });
 
       if (onGoalUpdated) {
-        await onGoalUpdated(updatedGoal);
+        onGoalUpdated(updatedGoal);
       }
 
       setShowEditModal(false);
     } catch (error) {
       console.error("Failed to update goal:", error);
 
-      setError(error.response?.data?.message || "Failed to update goal.");
+      setError(
+        error.response?.data?.message ||
+          "Failed to update goal. Please try again.",
+      );
     } finally {
       setSaving(false);
     }
-  };
+  }
 
   return (
     <>
@@ -121,6 +125,7 @@ function GoalActions({
           type="button"
           className="goal-action-secondary"
           onClick={handleOpenEdit}
+          disabled={deleting || saving}
         >
           Edit Goal
         </button>
@@ -129,7 +134,7 @@ function GoalActions({
           type="button"
           className="goal-action-danger"
           onClick={onDelete}
-          disabled={deleting}
+          disabled={deleting || saving}
         >
           {deleting ? "Deleting..." : "Delete Goal"}
         </button>
@@ -161,8 +166,10 @@ function GoalActions({
           </>
         }
       >
-        <form id={formId} className="goal-edit-form" onSubmit={handleSave}>
-          <div className="goal-edit-field">
+        <form id={formId} className="goal-form-content" onSubmit={handleSave}>
+          {/* Goal Title */}
+
+          <div className="goal-field goal-title-field">
             <label htmlFor="edit-goal-title">Goal Title</label>
 
             <input
@@ -170,12 +177,15 @@ function GoalActions({
               type="text"
               value={editForm.title}
               onChange={(event) => handleChange("title", event.target.value)}
+              disabled={saving}
               required
             />
           </div>
 
-          <div className="goal-edit-grid">
-            <div className="goal-edit-field">
+          {/* Goal Options */}
+
+          <div className="goal-options">
+            <div className="goal-field">
               <label htmlFor="edit-goal-category">Category</label>
 
               <select
@@ -184,6 +194,7 @@ function GoalActions({
                 onChange={(event) =>
                   handleChange("category", event.target.value)
                 }
+                disabled={saving}
               >
                 <option value="">Select category</option>
                 <option value="Learning">Learning</option>
@@ -193,7 +204,7 @@ function GoalActions({
               </select>
             </div>
 
-            <div className="goal-edit-field">
+            <div className="goal-field">
               <label htmlFor="edit-goal-priority">Priority</label>
 
               <select
@@ -202,6 +213,7 @@ function GoalActions({
                 onChange={(event) =>
                   handleChange("priority", event.target.value)
                 }
+                disabled={saving}
               >
                 <option value="">Select priority</option>
                 <option value="High">High</option>
@@ -210,20 +222,21 @@ function GoalActions({
               </select>
             </div>
 
-            <div className="goal-edit-field">
+            <div className="goal-field">
               <label htmlFor="edit-goal-type">Goal Type</label>
 
               <select
                 id="edit-goal-type"
                 value={editForm.goalType}
                 onChange={handleGoalTypeChange}
+                disabled={saving}
               >
                 <option value="Primary">Primary</option>
                 <option value="Secondary">Secondary</option>
               </select>
             </div>
 
-            <div className="goal-edit-field">
+            <div className="goal-field">
               <label htmlFor="edit-goal-deadline">Deadline</label>
 
               <input
@@ -233,12 +246,15 @@ function GoalActions({
                 onChange={(event) =>
                   handleChange("deadline", event.target.value)
                 }
+                disabled={saving}
               />
             </div>
           </div>
 
+          {/* Parent Goal */}
+
           {editForm.goalType === "Secondary" && (
-            <div className="goal-edit-field">
+            <div className="goal-field">
               <label htmlFor="edit-parent-goal">Parent Goal</label>
 
               <select
@@ -247,6 +263,7 @@ function GoalActions({
                 onChange={(event) =>
                   handleChange("parentGoal", event.target.value)
                 }
+                disabled={saving}
                 required
               >
                 <option value="">Select a primary goal</option>
@@ -260,11 +277,9 @@ function GoalActions({
             </div>
           )}
 
-          {error && (
-            <div className="goal-edit-form-error" role="alert">
-              {error}
-            </div>
-          )}
+          {/* Error */}
+
+          {error && <p className="error">{error}</p>}
         </form>
       </FormDialog>
     </>

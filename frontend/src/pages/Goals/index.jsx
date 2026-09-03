@@ -4,17 +4,11 @@ import { useLocation } from "react-router-dom";
 import GoalFilters from "./components/GoalFilters";
 import GoalForm from "./components/GoalForm";
 import GoalSections from "./components/GoalSections";
-import JourneyBanner from "./components/JourneyBanner";
-import JourneyMessage from "./components/JourneyMessage";
+import JourneySetup from "./components/JourneySetup";
 
 import LoadingState from "../../components/LoadingState";
 
-import {
-  getGoals,
-  createGoal,
-  updateGoal,
-  deleteGoal,
-} from "../../services/goalService";
+import { getGoals, createGoal, updateGoal } from "../../services/goalService";
 
 import "./index.css";
 
@@ -43,9 +37,6 @@ function Goals() {
   const [editingGoalId, setEditingGoalId] = useState(null);
   const [showGoalForm, setShowGoalForm] = useState(false);
 
-  const [selectedGoalId, setSelectedGoalId] = useState(null);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
@@ -53,6 +44,7 @@ function Goals() {
     async function fetchGoals() {
       try {
         setLoading(true);
+        setErrorMsg("");
 
         const data = await getGoals({
           search: searchGoal,
@@ -137,23 +129,6 @@ function Goals() {
     setShowGoalForm(false);
   }
 
-  function editGoal(goal) {
-    setEditingGoalId(goal._id);
-
-    setNewGoal(goal.title);
-    setNewCategory(goal.category);
-    setNewPriority(goal.priority);
-    setNewGoalType(goal.goalType);
-    setParentGoalId(goal.parentGoal?._id || "");
-
-    setNewDeadline(
-      goal.deadline ? new Date(goal.deadline).toISOString().split("T")[0] : "",
-    );
-
-    setErrorMsg("");
-    setShowGoalForm(true);
-  }
-
   function handleGoalTypeChange(event) {
     const value = event.target.value;
 
@@ -181,7 +156,7 @@ function Goals() {
     setGoals(data);
   }
 
-  async function addGoal() {
+  async function saveGoal() {
     if (!newGoal.trim()) {
       setErrorMsg("Goal title cannot be empty.");
       return;
@@ -220,25 +195,6 @@ function Goals() {
     }
   }
 
-  async function confirmDeleteGoal() {
-    if (!selectedGoalId) {
-      return;
-    }
-
-    try {
-      await deleteGoal(selectedGoalId);
-
-      await refreshGoals();
-    } catch (error) {
-      console.error("Failed to delete goal:", error);
-
-      setErrorMsg("Unable to delete the goal. Please try again.");
-    } finally {
-      setShowDeleteModal(false);
-      setSelectedGoalId(null);
-    }
-  }
-
   const dialogTitle = editingGoalId
     ? "Edit Goal"
     : journeyStep?.action === "createPrimaryGoal"
@@ -257,7 +213,7 @@ function Goals() {
 
   if (loading) {
     return (
-      <div className="container">
+      <div className="container goals-page">
         <h1>Goals</h1>
 
         <LoadingState message="Loading your goals..." />
@@ -266,16 +222,15 @@ function Goals() {
   }
 
   return (
-    <div className="container">
+    <div className="container goals-page">
       <h1>Goals</h1>
 
-      <JourneyBanner
+      <JourneySetup
         isGuidedSetup={isGuidedSetup}
         journeyStep={journeyStep}
         secondaryGoals={secondaryGoals}
+        primaryGoal={primaryGoals[0]}
       />
-
-      <JourneyMessage journeyStep={journeyStep} primaryGoal={primaryGoals[0]} />
 
       <div className="goal-page-actions">
         <button type="button" className="add-goal-btn" onClick={openAddGoal}>
@@ -298,7 +253,11 @@ function Goals() {
         setStatusFilter={setStatusFilter}
       />
 
-      {errorMsg && !showGoalForm && <p className="error">{errorMsg}</p>}
+      {errorMsg && !showGoalForm && (
+        <p className="error" role="alert">
+          {errorMsg}
+        </p>
+      )}
 
       <GoalSections
         goals={goals}
@@ -306,18 +265,13 @@ function Goals() {
         secondaryGoals={secondaryGoals}
         getChildGoals={getChildGoals}
         getParentGoalTitle={getParentGoalTitle}
-        editGoal={editGoal}
-        showDeleteModal={showDeleteModal}
-        confirmDeleteGoal={confirmDeleteGoal}
-        setShowDeleteModal={setShowDeleteModal}
-        setSelectedGoalId={setSelectedGoalId}
       />
 
       <GoalForm
         isOpen={showGoalForm}
         onClose={closeGoalForm}
         title={dialogTitle}
-        onSubmit={addGoal}
+        onSubmit={saveGoal}
         submitLabel={dialogSaveText}
         newGoal={newGoal}
         setNewGoal={setNewGoal}

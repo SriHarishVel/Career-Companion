@@ -16,9 +16,11 @@ function GoalCard({
 }) {
   const navigate = useNavigate();
 
-  const openGoal = () => {
+  const goalProgress = Number(progress) || 0;
+
+  function openGoal() {
     navigate(`/goals/${id}`);
-  };
+  }
 
   let daysLeft = null;
 
@@ -40,15 +42,13 @@ function GoalCard({
       role="button"
       tabIndex={0}
       onClick={openGoal}
-      onKeyDown={(e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
+      onKeyDown={(event) => {
+        if (event.key === "Enter" || event.key === " ") {
+          event.preventDefault();
           openGoal();
         }
       }}
     >
-      {/* Header */}
-
       <div className="card-header">
         <div className="card-title-row">
           <h2>{title}</h2>
@@ -73,8 +73,6 @@ function GoalCard({
         </div>
       </div>
 
-      {/* Supporting Goals */}
-
       {childGoals.length > 0 && (
         <div className="child-goals">
           <div className="child-goals-label">Supporting Goals</div>
@@ -90,8 +88,6 @@ function GoalCard({
         </div>
       )}
 
-      {/* Parent Goal */}
-
       {parentGoalTitle && (
         <div className="parent-goal-card">
           <div className="parent-goal-label">Primary Goal</div>
@@ -100,26 +96,22 @@ function GoalCard({
         </div>
       )}
 
-      {/* Progress */}
-
       <div className="goal-progress-section">
         <div className="progress-header">
           <span>Progress</span>
 
-          <strong>{progress}%</strong>
+          <strong>{goalProgress}%</strong>
         </div>
 
         <div className="progress-bar">
           <div
             className="progress-fill"
             style={{
-              width: `${progress}%`,
+              width: `${goalProgress}%`,
             }}
           />
         </div>
       </div>
-
-      {/* Deadline */}
 
       {deadline && (
         <div className="deadline-info">

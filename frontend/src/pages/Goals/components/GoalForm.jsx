@@ -6,7 +6,6 @@ function GoalForm({
   title = "Add Goal",
   onSubmit,
   submitLabel = "Add Goal",
-
   newGoal,
   setNewGoal,
   newCategory,
@@ -60,8 +59,8 @@ function GoalForm({
             type="text"
             placeholder="e.g. Become a full-stack developer"
             value={newGoal}
-            onChange={(e) => {
-              setNewGoal(e.target.value);
+            onChange={(event) => {
+              setNewGoal(event.target.value);
               setErrorMsg("");
             }}
           />
@@ -74,7 +73,7 @@ function GoalForm({
             <select
               id="goal-category"
               value={newCategory}
-              onChange={(e) => setNewCategory(e.target.value)}
+              onChange={(event) => setNewCategory(event.target.value)}
             >
               <option value="Learning">Learning</option>
               <option value="Career">Career</option>
@@ -89,7 +88,7 @@ function GoalForm({
             <select
               id="goal-priority"
               value={newPriority}
-              onChange={(e) => setNewPriority(e.target.value)}
+              onChange={(event) => setNewPriority(event.target.value)}
             >
               <option value="High">High</option>
               <option value="Medium">Medium</option>
@@ -125,7 +124,7 @@ function GoalForm({
               <select
                 id="parent-goal"
                 value={parentGoalId}
-                onChange={(e) => setParentGoalId(e.target.value)}
+                onChange={(event) => setParentGoalId(event.target.value)}
               >
                 <option value="">Select parent goal</option>
 
@@ -145,7 +144,7 @@ function GoalForm({
               id="goal-deadline"
               type="date"
               value={newDeadline}
-              onChange={(e) => setNewDeadline(e.target.value)}
+              onChange={(event) => setNewDeadline(event.target.value)}
             />
           </div>
         </div>

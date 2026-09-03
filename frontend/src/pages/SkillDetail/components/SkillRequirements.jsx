@@ -1,3 +1,5 @@
+import { useState } from "react";
+
 function SkillRequirements({
   learningAreas = [],
   practicalRequirements = [],
@@ -8,7 +10,17 @@ function SkillRequirements({
   updatingRequirement = false,
   onToggleLearningArea,
   onTogglePracticalRequirement,
+  onAddLearningArea,
+  onAddPracticalRequirement,
 }) {
+  const [addingLearningArea, setAddingLearningArea] = useState(false);
+  const [addingPracticalRequirement, setAddingPracticalRequirement] =
+    useState(false);
+
+  const [learningAreaName, setLearningAreaName] = useState("");
+  const [practicalRequirementTitle, setPracticalRequirementTitle] =
+    useState("");
+
   const safeLearningProgress = Math.min(
     Math.max(Number(learningProgress) || 0, 0),
     100,
@@ -19,8 +31,65 @@ function SkillRequirements({
     100,
   );
 
+  const submitLearningArea = async (event) => {
+    event.preventDefault();
+
+    const value = learningAreaName.trim();
+
+    if (!value || updatingRequirement || !onAddLearningArea) {
+      return;
+    }
+
+    try {
+      await onAddLearningArea(value);
+
+      setLearningAreaName("");
+      setAddingLearningArea(false);
+    } catch (error) {
+      console.error("Failed to add learning area:", error);
+    }
+  };
+
+  const submitPracticalRequirement = async (event) => {
+    event.preventDefault();
+
+    const value = practicalRequirementTitle.trim();
+
+    if (!value || updatingRequirement || !onAddPracticalRequirement) {
+      return;
+    }
+
+    try {
+      await onAddPracticalRequirement(value);
+
+      setPracticalRequirementTitle("");
+      setAddingPracticalRequirement(false);
+    } catch (error) {
+      console.error("Failed to add practical requirement:", error);
+    }
+  };
+
+  const cancelLearningArea = () => {
+    if (updatingRequirement) {
+      return;
+    }
+
+    setLearningAreaName("");
+    setAddingLearningArea(false);
+  };
+
+  const cancelPracticalRequirement = () => {
+    if (updatingRequirement) {
+      return;
+    }
+
+    setPracticalRequirementTitle("");
+    setAddingPracticalRequirement(false);
+  };
+
   return (
     <section className="skill-requirements-section">
+      {/* Header */}
       <div className="skill-section-header">
         <div>
           <span className="section-label">Development Areas</span>
@@ -28,14 +97,12 @@ function SkillRequirements({
           <h2>What You're Working Toward</h2>
 
           <p>
-            Track both knowledge coverage and practical application as you
-            develop this skill.
+            Track the knowledge and practical work needed to develop this skill.
           </p>
         </div>
       </div>
 
-      {/* Learning Areas */}
-
+      {/* Learning areas */}
       <div className="skill-requirements-block">
         <div className="skill-requirements-header">
           <div>
@@ -53,7 +120,7 @@ function SkillRequirements({
           </div>
         </div>
 
-        {learningAreas.length > 0 ? (
+        {learningAreas.length > 0 && (
           <>
             <div
               className="skill-requirements-progress"
@@ -99,26 +166,60 @@ function SkillRequirements({
               ))}
             </div>
           </>
-        ) : (
-          <div className="skill-requirements-empty">
-            <h3>No learning areas added</h3>
+        )}
 
-            <p>
-              Add the concepts or areas you want to cover when editing this
-              skill.
-            </p>
-          </div>
+        {!addingLearningArea ? (
+          <button
+            type="button"
+            className="skill-requirements-add-button"
+            onClick={() => setAddingLearningArea(true)}
+            disabled={updatingRequirement}
+          >
+            + Add learning area
+          </button>
+        ) : (
+          <form
+            className="skill-requirement-add-form"
+            onSubmit={submitLearningArea}
+          >
+            <input
+              type="text"
+              value={learningAreaName}
+              onChange={(event) => setLearningAreaName(event.target.value)}
+              placeholder="e.g. Angular components"
+              autoFocus
+              disabled={updatingRequirement}
+            />
+
+            <div className="skill-requirement-add-actions">
+              <button
+                type="button"
+                className="skill-requirement-cancel"
+                onClick={cancelLearningArea}
+                disabled={updatingRequirement}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="skill-requirement-save"
+                disabled={updatingRequirement || !learningAreaName.trim()}
+              >
+                {updatingRequirement ? "Adding..." : "Add"}
+              </button>
+            </div>
+          </form>
         )}
       </div>
 
-      {/* Practical Development */}
-
+      {/* Practical development */}
       <div className="skill-requirements-block">
         <div className="skill-requirements-header">
           <div>
             <h2>Practical Development</h2>
 
-            <p>Practical work that helps demonstrate applied understanding.</p>
+            <p>Work that demonstrates applied understanding.</p>
           </div>
 
           <div className="skill-requirements-summary">
@@ -130,7 +231,7 @@ function SkillRequirements({
           </div>
         </div>
 
-        {practicalRequirements.length > 0 ? (
+        {practicalRequirements.length > 0 && (
           <>
             <div
               className="skill-requirements-progress"
@@ -178,15 +279,54 @@ function SkillRequirements({
               ))}
             </div>
           </>
-        ) : (
-          <div className="skill-requirements-empty">
-            <h3>No practical work added</h3>
+        )}
 
-            <p>
-              Add projects, exercises, or other practical work when editing this
-              skill.
-            </p>
-          </div>
+        {!addingPracticalRequirement ? (
+          <button
+            type="button"
+            className="skill-requirements-add-button"
+            onClick={() => setAddingPracticalRequirement(true)}
+            disabled={updatingRequirement}
+          >
+            + Add practical requirement
+          </button>
+        ) : (
+          <form
+            className="skill-requirement-add-form"
+            onSubmit={submitPracticalRequirement}
+          >
+            <input
+              type="text"
+              value={practicalRequirementTitle}
+              onChange={(event) =>
+                setPracticalRequirementTitle(event.target.value)
+              }
+              placeholder="e.g. Build an Angular project"
+              autoFocus
+              disabled={updatingRequirement}
+            />
+
+            <div className="skill-requirement-add-actions">
+              <button
+                type="button"
+                className="skill-requirement-cancel"
+                onClick={cancelPracticalRequirement}
+                disabled={updatingRequirement}
+              >
+                Cancel
+              </button>
+
+              <button
+                type="submit"
+                className="skill-requirement-save"
+                disabled={
+                  updatingRequirement || !practicalRequirementTitle.trim()
+                }
+              >
+                {updatingRequirement ? "Adding..." : "Add"}
+              </button>
+            </div>
+          </form>
         )}
       </div>
     </section>

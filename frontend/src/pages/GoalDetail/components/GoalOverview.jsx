@@ -11,14 +11,14 @@ function GoalOverview({
 }) {
   const navigate = useNavigate();
 
+  const goalType = goal.goalType || "Primary";
+
   return (
     <section className="goal-overview">
       <header className="goal-detail-hero">
         <div className="goal-detail-hero-main">
           <div className="goal-detail-meta">
-            <span className="goal-detail-eyebrow">
-              {goal.goalType || "Career goal"}
-            </span>
+            <span className="goal-detail-eyebrow">{goalType}</span>
 
             {goal.category && (
               <span className="goal-detail-category">{goal.category}</span>
@@ -51,10 +51,10 @@ function GoalOverview({
           style={{
             "--goal-progress": `${progress}%`,
           }}
+          aria-label={`${progress}% complete`}
         >
           <div className="goal-detail-progress-number">
             <strong>{progress}%</strong>
-
             <span>complete</span>
           </div>
         </div>
@@ -80,10 +80,10 @@ function GoalOverview({
         <div className="goal-detail-section">
           <span className="goal-section-eyebrow">Goal type</span>
 
-          <h2>{goal.goalType || "Career goal"}</h2>
+          <h2>{goalType}</h2>
 
           <p>
-            {goal.goalType === "Secondary"
+            {goalType === "Secondary"
               ? "Supporting career objective"
               : "Primary career objective"}
           </p>
@@ -112,7 +112,7 @@ function GoalOverview({
             type="button"
             className="goal-parent-arrow"
             onClick={() => navigate(`/goals/${parentGoal._id}`)}
-            aria-label="Open primary goal"
+            aria-label={`Open primary goal: ${parentGoal.title}`}
           >
             →
           </button>

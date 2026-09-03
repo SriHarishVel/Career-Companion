@@ -52,7 +52,6 @@ function GoalFilters({
         },
       ],
     },
-
     {
       label: "Priority",
       value: priorityFilter,
@@ -77,7 +76,6 @@ function GoalFilters({
         },
       ],
     },
-
     {
       label: "Goal Type",
       value: goalTypeFilter,
@@ -98,7 +96,6 @@ function GoalFilters({
         },
       ],
     },
-
     {
       label: "Status",
       value: statusFilter,
@@ -133,19 +130,12 @@ function GoalFilters({
         onClearFilters={clearFilters}
       >
         <option value="default">Default</option>
-
         <option value="az">A-Z</option>
-
         <option value="za">Z-A</option>
-
         <option value="priorityHigh">Priority High-Low</option>
-
         <option value="priorityLow">Priority Low-High</option>
-
         <option value="high">Highest Progress</option>
-
         <option value="low">Lowest Progress</option>
-
         <option value="recent">Recently Updated</option>
       </SearchFilterBar>
     </div>

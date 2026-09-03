@@ -3,7 +3,7 @@ import { useNavigate } from "react-router-dom";
 function SkillOverview({ skill }) {
   const navigate = useNavigate();
 
-  const progress = Math.min(Math.max(Number(skill.progress) || 0, 0), 100);
+  const progress = Math.min(Math.max(Number(skill?.progress) || 0, 0), 100);
 
   const progressStatus =
     progress === 100
@@ -14,31 +14,37 @@ function SkillOverview({ skill }) {
 
   return (
     <section className="skill-overview">
+      {/* Skill Header */}
       <div className="skill-detail-header">
-        <div>
-          <span className="skill-detail-label">Skill</span>
-
-          <h1>{skill.name}</h1>
+        <div className="skill-detail-title">
+          <span className="skill-detail-label">SKILL</span>
+          <h1>{skill?.name || "Untitled Skill"}</h1>
         </div>
 
         <div className="skill-detail-header-meta">
-          <span className="skill-category">
-            {skill.category || "Uncategorized"}
-          </span>
+          {skill?.category && (
+            <span className="skill-category">{skill.category}</span>
+          )}
 
-          <span className="skill-level">{skill.level || "Beginner"}</span>
-
-          <span className="skill-development-status">
-            {skill.developmentStatus || "In Progress"}
-          </span>
+          {skill?.developmentStatus && (
+            <span
+              className={`skill-development-status ${skill.developmentStatus
+                .toLowerCase()
+                .replace(/\s+/g, "-")}`}
+            >
+              {skill.developmentStatus}
+            </span>
+          )}
         </div>
       </div>
 
+      {/* Overview Cards */}
       <div className="skill-overview-grid">
+        {/* Progress */}
         <section className="skill-progress-section">
           <div className="skill-progress-header">
             <div>
-              <span className="section-label">Current Progress</span>
+              <span className="section-label">CURRENT PROGRESS</span>
 
               <h2>{progress}%</h2>
             </div>
@@ -52,7 +58,7 @@ function SkillOverview({ skill }) {
             aria-valuenow={progress}
             aria-valuemin="0"
             aria-valuemax="100"
-            aria-label={`${skill.name} progress`}
+            aria-label={`${skill?.name || "Skill"} progress`}
           >
             <div
               className="skill-progress-fill"
@@ -63,19 +69,20 @@ function SkillOverview({ skill }) {
           </div>
 
           <p className="skill-development-note">
-            Progress reflects the development of this skill based on the tracked
-            work associated with it.
+            Progress is based on the development requirements and learning
+            resources tracked for this skill.
           </p>
         </section>
 
+        {/* Supporting Goal */}
         <section className="skill-goal-section">
-          <span className="section-label">Supporting Goal</span>
+          <span className="section-label">SUPPORTING GOAL</span>
 
-          {skill.secondaryGoal ? (
+          {skill?.secondaryGoal ? (
             <>
               <h2>{skill.secondaryGoal.title}</h2>
 
-              <p>This skill contributes toward the supporting career goal.</p>
+              <p>This skill contributes to the supporting career goal.</p>
 
               <button
                 type="button"
@@ -89,7 +96,9 @@ function SkillOverview({ skill }) {
             <>
               <h2>No supporting goal</h2>
 
-              <p>This skill is currently not linked to a secondary goal.</p>
+              <p>
+                This skill is currently not linked to a supporting career goal.
+              </p>
             </>
           )}
         </section>

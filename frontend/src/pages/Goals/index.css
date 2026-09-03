@@ -130,29 +130,50 @@
   align-items: start;
 }
 
-/* Goal Form */
+/* =========================================================
+   SHARED GOAL FORM
+   Used by both Add Goal and Edit Goal
+   ========================================================= */
 
-.goal-form-content {
+.goal-form-content,
+.goal-edit-form {
   display: flex;
   flex-direction: column;
+
   gap: 22px;
+
+  width: 100%;
 }
 
-.goal-field {
+/* Individual field */
+
+.goal-field,
+.goal-edit-field {
   display: flex;
   flex-direction: column;
+
   gap: 8px;
+
+  width: 100%;
 }
 
-.goal-field label {
+.goal-field label,
+.goal-edit-field label {
+  margin: 0;
+
   color: #334155;
+
   font-size: 0.82rem;
   font-weight: 650;
   line-height: 1.2;
 }
 
+/* Shared inputs */
+
 .goal-field input,
-.goal-field select {
+.goal-field select,
+.goal-edit-field input,
+.goal-edit-field select {
   width: 100%;
   min-height: 46px;
 
@@ -177,38 +198,117 @@
     background-color 0.15s ease;
 }
 
+/* Hover */
+
 .goal-field input:hover,
-.goal-field select:hover {
+.goal-field select:hover,
+.goal-edit-field input:hover,
+.goal-edit-field select:hover {
   border-color: #94a3b8;
 }
 
+/* Focus */
+
 .goal-field input:focus,
-.goal-field select:focus {
+.goal-field select:focus,
+.goal-edit-field input:focus,
+.goal-edit-field select:focus {
   border-color: #2563eb;
 
   box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
 }
 
-.goal-field input::placeholder {
+/* Placeholder */
+
+.goal-field input::placeholder,
+.goal-edit-field input::placeholder {
   color: #94a3b8;
+}
+
+/* Disabled */
+
+.goal-field input:disabled,
+.goal-field select:disabled,
+.goal-edit-field input:disabled,
+.goal-edit-field select:disabled {
+  background: #f8fafc;
+
+  color: #64748b;
+
+  cursor: not-allowed;
+
+  opacity: 0.75;
 }
 
 /* Goal Title */
 
-.goal-title-field input {
+.goal-title-field input,
+.goal-edit-field:first-child input {
   min-height: 50px;
 
   font-size: 1rem;
 }
 
-/* Goal Options */
+/* Two-column form fields */
 
-.goal-options {
+.goal-options,
+.goal-edit-grid {
   display: grid;
 
   grid-template-columns: repeat(2, minmax(0, 1fr));
 
   gap: 18px 16px;
+
+  width: 100%;
+}
+
+/* Full-width parent goal field */
+
+.goal-edit-form > .goal-edit-field:last-of-type {
+  width: 100%;
+}
+
+/* Date input */
+
+.goal-field input[type="date"],
+.goal-edit-field input[type="date"] {
+  min-height: 46px;
+
+  appearance: auto;
+}
+
+/* Error inside form */
+
+.goal-edit-form-error {
+  margin: -4px 0 0;
+
+  padding: 11px 13px;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  background: #fef2f2;
+  color: #b91c1c;
+
+  font-size: 0.82rem;
+  line-height: 1.4;
+}
+
+/* Generic form error */
+
+.error {
+  margin: 0;
+
+  padding: 11px 13px;
+
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+
+  background: #fef2f2;
+  color: #b91c1c;
+
+  font-size: 0.82rem;
+  line-height: 1.4;
 }
 
 /* Helper */
@@ -228,24 +328,9 @@
   line-height: 1.45;
 }
 
-/* Error */
-
-.error {
-  margin: 0;
-
-  padding: 11px 13px;
-
-  border: 1px solid #fecaca;
-  border-radius: 8px;
-
-  background: #fef2f2;
-  color: #b91c1c;
-
-  font-size: 0.82rem;
-  line-height: 1.4;
-}
-
-/* Empty State */
+/* =========================================================
+   EMPTY STATE
+   ========================================================= */
 
 .empty-state {
   width: 100%;
@@ -276,7 +361,9 @@
   font-size: 0.84rem;
 }
 
-/* Journey Setup */
+/* =========================================================
+   JOURNEY SETUP
+   ========================================================= */
 
 .journey-banner {
   margin-bottom: 20px;
@@ -377,53 +464,9 @@
   font-size: 1.2rem;
 }
 
-/* Journey Message */
-
-.journey-message {
-  margin-bottom: 18px;
-
-  padding: 14px 16px;
-
-  border-left: 3px solid #2563eb;
-  border-radius: 7px;
-
-  background: #eff6ff;
-}
-
-.journey-message-text {
-  margin: 0;
-
-  color: #334155;
-
-  font-size: 0.88rem;
-}
-
-.journey-current-goal {
-  display: flex;
-
-  flex-direction: column;
-
-  gap: 3px;
-
-  margin-top: 10px;
-}
-
-.journey-current-goal-label {
-  color: #64748b;
-
-  font-size: 0.7rem;
-  font-weight: 700;
-
-  letter-spacing: 0.5px;
-
-  text-transform: uppercase;
-}
-
-.journey-current-goal strong {
-  color: #1e293b;
-}
-
-/* Success */
+/* =========================================================
+   SUCCESS
+   ========================================================= */
 
 .success-banner {
   display: flex;
@@ -463,14 +506,17 @@
   cursor: pointer;
 }
 
-/* Responsive */
+/* =========================================================
+   RESPONSIVE
+   ========================================================= */
 
 @media (max-width: 1100px) {
   .goals-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
-  .goal-options {
+  .goal-options,
+  .goal-edit-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
@@ -503,11 +549,13 @@
     gap: 14px;
   }
 
-  .goal-options {
+  .goal-options,
+  .goal-edit-grid {
     grid-template-columns: 1fr;
   }
 
-  .goal-form-content {
+  .goal-form-content,
+  .goal-edit-form {
     gap: 18px;
   }
 
@@ -526,7 +574,11 @@
 
 @media (prefers-reduced-motion: reduce) {
   .add-goal-btn,
-  .setup-progress-fill {
+  .setup-progress-fill,
+  .goal-field input,
+  .goal-field select,
+  .goal-edit-field input,
+  .goal-edit-field select {
     transition: none;
   }
 }

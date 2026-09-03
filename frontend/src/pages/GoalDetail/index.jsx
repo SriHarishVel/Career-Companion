@@ -3,6 +3,8 @@ import { useNavigate, useParams } from "react-router-dom";
 
 import { getGoal, getGoals, deleteGoal } from "../../services/goalService";
 
+import { getSkills } from "../../services/skillService";
+
 import LoadingState from "../../components/LoadingState";
 import ConfirmModal from "../../components/ConfirmModal";
 
@@ -18,28 +20,41 @@ function GoalDetail() {
 
   const [goal, setGoal] = useState(null);
   const [allGoals, setAllGoals] = useState([]);
+  const [allSkills, setAllSkills] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-  const [deleting, setDeleting] = useState(false);
 
+  const [deleting, setDeleting] = useState(false);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   useEffect(() => {
     async function loadGoalDetail() {
+      if (!goalId) {
+        setLoading(false);
+        setErrorMsg("Invalid goal.");
+        return;
+      }
+
       try {
         setLoading(true);
         setErrorMsg("");
 
-        const [goalData, goalsData] = await Promise.all([
+        const [goalData, goalsData, skillsData] = await Promise.all([
           getGoal(goalId),
           getGoals(),
+          getSkills(),
         ]);
 
         setGoal(goalData);
         setAllGoals(goalsData);
+        setAllSkills(skillsData);
       } catch (error) {
         console.error("Failed to load goal details:", error);
+
+        setGoal(null);
+        setAllGoals([]);
+        setAllSkills([]);
 
         setErrorMsg(
           error.response?.data?.message ||
@@ -50,9 +65,7 @@ function GoalDetail() {
       }
     }
 
-    if (goalId) {
-      loadGoalDetail();
-    }
+    loadGoalDetail();
   }, [goalId]);
 
   const primaryGoals = useMemo(() => {
@@ -67,9 +80,16 @@ function GoalDetail() {
     }
 
     return allGoals.filter((item) => {
-      const parentId = item.parentGoal?._id || item.parentGoal;
+      if (item.goalType !== "Secondary") {
+        return false;
+      }
 
-      return item.goalType === "Secondary" && parentId === goal._id;
+      const parentId =
+        typeof item.parentGoal === "object"
+          ? item.parentGoal?._id
+          : item.parentGoal;
+
+      return parentId === goal._id;
     });
   }, [allGoals, goal]);
 
@@ -85,7 +105,22 @@ function GoalDetail() {
     return allGoals.find((item) => item._id === goal.parentGoal) || null;
   }, [allGoals, goal]);
 
-  const progress = Number(goal?.progress) || 0;
+  const relatedSkills = useMemo(() => {
+    if (!goal || goal.goalType !== "Secondary") {
+      return [];
+    }
+
+    return allSkills.filter((skill) => {
+      const secondaryGoalId =
+        typeof skill.secondaryGoal === "object"
+          ? skill.secondaryGoal?._id
+          : skill.secondaryGoal;
+
+      return secondaryGoalId === goal._id;
+    });
+  }, [allSkills, goal]);
+
+  const progress = Math.max(0, Math.min(100, Number(goal?.progress) || 0));
 
   const formattedDeadline = useMemo(() => {
     if (!goal?.deadline) {
@@ -97,7 +132,7 @@ function GoalDetail() {
       month: "short",
       year: "numeric",
     });
-  }, [goal]);
+  }, [goal?.deadline]);
 
   const formattedCreatedAt = useMemo(() => {
     if (!goal?.createdAt) {
@@ -109,7 +144,7 @@ function GoalDetail() {
       month: "short",
       year: "numeric",
     });
-  }, [goal]);
+  }, [goal?.createdAt]);
 
   const daysLeft = useMemo(() => {
     if (!goal?.deadline) {
@@ -117,15 +152,15 @@ function GoalDetail() {
     }
 
     const today = new Date();
-
     today.setHours(0, 0, 0, 0);
 
     const deadline = new Date(goal.deadline);
-
     deadline.setHours(0, 0, 0, 0);
 
-    return Math.ceil((deadline - today) / (1000 * 60 * 60 * 24));
-  }, [goal]);
+    return Math.ceil(
+      (deadline.getTime() - today.getTime()) / (1000 * 60 * 60 * 24),
+    );
+  }, [goal?.deadline]);
 
   const deadlineStatus =
     daysLeft === null
@@ -136,33 +171,35 @@ function GoalDetail() {
           ? "urgent"
           : "on-track";
 
-  const handleGoalUpdated = (updatedGoal) => {
+  function handleGoalUpdated(updatedGoal) {
     setGoal(updatedGoal);
 
-    setAllGoals((previous) =>
-      previous.map((item) =>
+    setAllGoals((previousGoals) =>
+      previousGoals.map((item) =>
         item._id === updatedGoal._id ? updatedGoal : item,
       ),
     );
-  };
 
-  const handleDelete = () => {
+    setErrorMsg("");
+  }
+
+  function handleDelete() {
     if (!goal || deleting) {
       return;
     }
 
     setShowDeleteModal(true);
-  };
+  }
 
-  const handleCancelDelete = () => {
+  function handleCancelDelete() {
     if (deleting) {
       return;
     }
 
     setShowDeleteModal(false);
-  };
+  }
 
-  const handleConfirmDelete = async () => {
+  async function handleConfirmDelete() {
     if (!goal || deleting) {
       return;
     }
@@ -173,6 +210,8 @@ function GoalDetail() {
 
       await deleteGoal(goal._id);
 
+      setShowDeleteModal(false);
+
       navigate("/goals");
     } catch (error) {
       console.error("Failed to delete goal:", error);
@@ -182,7 +221,11 @@ function GoalDetail() {
       setDeleting(false);
       setShowDeleteModal(false);
     }
-  };
+  }
+
+  function handleBackToGoals() {
+    navigate("/goals");
+  }
 
   if (loading) {
     return (
@@ -198,7 +241,7 @@ function GoalDetail() {
         <button
           type="button"
           className="goal-detail-back-btn"
-          onClick={() => navigate("/goals")}
+          onClick={handleBackToGoals}
         >
           Back to Goals
         </button>
@@ -211,7 +254,7 @@ function GoalDetail() {
           <button
             type="button"
             className="goal-action-secondary"
-            onClick={() => navigate("/goals")}
+            onClick={handleBackToGoals}
           >
             Back to Goals
           </button>
@@ -228,15 +271,23 @@ function GoalDetail() {
     <div className="container goal-detail-page">
       <div className="goal-detail-topbar">
         <button
+          type="button"
           className="goal-detail-back-btn"
-          onClick={() => navigate("/goals")}
+          onClick={handleBackToGoals}
         >
-          <span className="back-chevron">‹</span>
+          <span className="back-chevron" aria-hidden="true">
+            ‹
+          </span>
+
           <span>Goals</span>
         </button>
       </div>
 
-      {errorMsg && <div className="goal-detail-error-message">{errorMsg}</div>}
+      {errorMsg && (
+        <div className="goal-detail-error-message" role="alert">
+          {errorMsg}
+        </div>
+      )}
 
       <main className="goal-detail-content">
         <GoalOverview
@@ -249,7 +300,11 @@ function GoalDetail() {
           parentGoal={parentGoal}
         />
 
-        <GoalSupporting supportingGoals={supportingGoals} />
+        <GoalSupporting
+          supportingGoals={supportingGoals}
+          relatedSkills={relatedSkills}
+          goalType={goal.goalType}
+        />
 
         <GoalActions
           goal={goal}

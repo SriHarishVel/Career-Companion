@@ -2,9 +2,9 @@ import { useNavigate } from "react-router-dom";
 
 function SkillResources({
   skillName,
-  resources,
-  completedResources,
-  resourceProgress,
+  resources = [],
+  completedResources = 0,
+  resourceProgress = 0,
   onManageResources,
 }) {
   const navigate = useNavigate();
@@ -20,8 +20,9 @@ function SkillResources({
 
   return (
     <section className="skill-resources-section">
+      {/* Header */}
       <div className="skill-resources-header">
-        <div>
+        <div className="skill-resources-heading">
           <span className="section-label">Learning Resources</span>
 
           <h2>Resources for {skillName}</h2>
@@ -40,7 +41,7 @@ function SkillResources({
 
           <button
             type="button"
-            className="skill-resource-action"
+            className="skill-resource-manage-btn"
             onClick={onManageResources}
           >
             Manage Resources
@@ -48,6 +49,7 @@ function SkillResources({
         </div>
       </div>
 
+      {/* Progress */}
       {resources.length > 0 && (
         <div className="resource-progress-summary">
           <div
@@ -66,10 +68,11 @@ function SkillResources({
             />
           </div>
 
-          <span>{safeResourceProgress}% of tracked resources completed</span>
+          <span>{safeResourceProgress}% completed</span>
         </div>
       )}
 
+      {/* Resources */}
       {resources.length > 0 ? (
         <div className="skill-resources-list">
           {resources.map((resource) => (
@@ -83,7 +86,7 @@ function SkillResources({
                 type="button"
                 className="skill-resource-content-button"
                 onClick={() => handleResourceDetails(resource._id)}
-                aria-label={`View ${resource.title}`}
+                aria-label={`View details for ${resource.title}`}
               >
                 <span className="resource-status" aria-hidden="true">
                   {resource.completed ? "✓" : "○"}
@@ -92,9 +95,15 @@ function SkillResources({
                 <span className="resource-content">
                   <span className="resource-title">{resource.title}</span>
 
-                  {resource.description && <span>{resource.description}</span>}
+                  {resource.description && (
+                    <span className="resource-description">
+                      {resource.description}
+                    </span>
+                  )}
 
-                  <span> {resource.type || "Resource"}</span>
+                  <span className="resource-type">
+                    {resource.type || "Resource"}
+                  </span>
                 </span>
               </button>
 
@@ -121,11 +130,14 @@ function SkillResources({
         <div className="skill-resources-empty">
           <h3>No resources yet</h3>
 
-          <p>Add learning resources for this skill from the Resources page.</p>
+          <p>
+            Add learning resources to start building your knowledge of this
+            skill.
+          </p>
 
           <button
             type="button"
-            className="skill-resource-action"
+            className="skill-resource-empty-btn"
             onClick={onManageResources}
           >
             Add Resources

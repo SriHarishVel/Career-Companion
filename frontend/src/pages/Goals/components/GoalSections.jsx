@@ -1,5 +1,4 @@
 import GoalCard from "./GoalCard";
-import ConfirmModal from "../../../components/ConfirmModal";
 
 function GoalSections({
   goals,
@@ -7,17 +6,7 @@ function GoalSections({
   secondaryGoals,
   getChildGoals,
   getParentGoalTitle,
-  editGoal,
-  showDeleteModal,
-  confirmDeleteGoal,
-  setShowDeleteModal,
-  setSelectedGoalId,
 }) {
-  function handleDelete(goalId) {
-    setSelectedGoalId(goalId);
-    setShowDeleteModal(true);
-  }
-
   return (
     <>
       <div className="goal-summary">
@@ -49,9 +38,6 @@ function GoalSections({
                     childGoals={getChildGoals(goal._id)}
                     deadline={goal.deadline}
                     completed={goal.completed}
-                    onProgress={null}
-                    onEdit={editGoal}
-                    onDelete={handleDelete}
                   />
                 ))}
               </div>
@@ -75,9 +61,6 @@ function GoalSections({
                     parentGoalTitle={getParentGoalTitle(goal.parentGoal?._id)}
                     deadline={goal.deadline}
                     completed={goal.completed}
-                    onProgress={null}
-                    onEdit={editGoal}
-                    onDelete={handleDelete}
                   />
                 ))}
               </div>
@@ -91,17 +74,6 @@ function GoalSections({
           <p>Try adjusting your filters or create your first goal above.</p>
         </div>
       )}
-
-      <ConfirmModal
-        isOpen={showDeleteModal}
-        title="Delete Goal"
-        message="Are you sure you want to delete this goal?"
-        onConfirm={confirmDeleteGoal}
-        onCancel={() => {
-          setShowDeleteModal(false);
-          setSelectedGoalId(null);
-        }}
-      />
     </>
   );
 }

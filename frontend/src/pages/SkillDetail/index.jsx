@@ -164,6 +164,79 @@ function SkillDetail() {
     }
   };
 
+  /* ADD REQUIREMENT */
+
+  const handleAddLearningArea = async (name) => {
+    if (!skill || updatingRequirement) {
+      return;
+    }
+
+    const learningAreas = [...(skill.learningAreas || [])];
+
+    learningAreas.push({
+      name,
+      completed: false,
+    });
+
+    try {
+      setUpdatingRequirement(true);
+      setErrorMsg("");
+
+      const updatedSkill = await updateSkill(skill._id, {
+        learningAreas,
+        practicalRequirements: skill.practicalRequirements || [],
+      });
+
+      setSkill(updatedSkill);
+    } catch (error) {
+      console.error("Failed to add learning area:", error);
+
+      setErrorMsg(
+        error.response?.data?.message || "Unable to add the learning area.",
+      );
+
+      throw error;
+    } finally {
+      setUpdatingRequirement(false);
+    }
+  };
+
+  const handleAddPracticalRequirement = async (title) => {
+    if (!skill || updatingRequirement) {
+      return;
+    }
+
+    const practicalRequirements = [...(skill.practicalRequirements || [])];
+
+    practicalRequirements.push({
+      title,
+      completed: false,
+    });
+
+    try {
+      setUpdatingRequirement(true);
+      setErrorMsg("");
+
+      const updatedSkill = await updateSkill(skill._id, {
+        learningAreas: skill.learningAreas || [],
+        practicalRequirements,
+      });
+
+      setSkill(updatedSkill);
+    } catch (error) {
+      console.error("Failed to add practical requirement:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to add the practical requirement.",
+      );
+
+      throw error;
+    } finally {
+      setUpdatingRequirement(false);
+    }
+  };
+
   /* REFRESH RESOURCES */
 
   const handleResourcesUpdated = async () => {
@@ -356,6 +429,8 @@ function SkillDetail() {
           onTogglePracticalRequirement={(index) =>
             handleRequirementUpdate("practical", index)
           }
+          onAddLearningArea={handleAddLearningArea}
+          onAddPracticalRequirement={handleAddPracticalRequirement}
         />
 
         <SkillActions

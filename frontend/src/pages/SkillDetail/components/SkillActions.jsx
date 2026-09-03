@@ -1,14 +1,12 @@
 import { useState } from "react";
 
 import { updateSkill } from "../../../services/skillService";
-import { updateResource } from "../../../services/resourceService";
 
 import FormDialog from "../../../components/FormDialog";
 
 function SkillActions({
   skill,
   goals = [],
-  resources = [],
   onAddResource,
   onDelete,
   deleting,
@@ -26,8 +24,6 @@ function SkillActions({
     practicalRequirements: skill.practicalRequirements || [],
   });
 
-  const [resourceUrls, setResourceUrls] = useState({});
-
   /* Open Edit */
 
   const handleOpenEdit = () => {
@@ -35,17 +31,18 @@ function SkillActions({
       name: skill.name || "",
       category: skill.category || "",
       secondaryGoal: skill.secondaryGoal?._id || "",
-      learningAreas: skill.learningAreas || [],
-      practicalRequirements: skill.practicalRequirements || [],
+      learningAreas: (skill.learningAreas || []).map((area) => ({
+        name: area.name || "",
+        completed: Boolean(area.completed),
+      })),
+      practicalRequirements: (skill.practicalRequirements || []).map(
+        (requirement) => ({
+          title: requirement.title || "",
+          completed: Boolean(requirement.completed),
+        }),
+      ),
     });
 
-    const urls = {};
-
-    resources.forEach((resource) => {
-      urls[resource._id] = resource.url || "";
-    });
-
-    setResourceUrls(urls);
     setError("");
     setShowEditModal(true);
   };
@@ -61,23 +58,12 @@ function SkillActions({
     setShowEditModal(false);
   };
 
-  /* General Form Change */
+  /* Form Change */
 
   const handleChange = (field, value) => {
     setEditForm((previous) => ({
       ...previous,
       [field]: value,
-    }));
-
-    setError("");
-  };
-
-  /* Resource URL */
-
-  const handleResourceUrlChange = (resourceId, value) => {
-    setResourceUrls((previous) => ({
-      ...previous,
-      [resourceId]: value,
     }));
 
     setError("");
@@ -231,15 +217,6 @@ function SkillActions({
       }))
       .filter((requirement) => requirement.title);
 
-    for (const resource of resources) {
-      const url = (resourceUrls[resource._id] || "").trim();
-
-      if (!url) {
-        setError(`URL is required for "${resource.title}".`);
-        return;
-      }
-    }
-
     try {
       setSaving(true);
       setError("");
@@ -252,18 +229,6 @@ function SkillActions({
         practicalRequirements,
       });
 
-      for (const resource of resources) {
-        const url = (resourceUrls[resource._id] || "").trim();
-
-        const formattedUrl = url.startsWith("http") ? url : `https://${url}`;
-
-        if (formattedUrl !== resource.url) {
-          await updateResource(resource._id, {
-            url: formattedUrl,
-          });
-        }
-      }
-
       if (onSkillUpdated) {
         await onSkillUpdated(updatedSkill);
       }
@@ -272,9 +237,7 @@ function SkillActions({
     } catch (error) {
       console.error("Failed to update skill:", error);
 
-      setError(
-        error.response?.data?.message || "Failed to update skill and resource.",
-      );
+      setError(error.response?.data?.message || "Failed to update skill.");
     } finally {
       setSaving(false);
     }
@@ -282,36 +245,35 @@ function SkillActions({
 
   return (
     <>
-      {/* Skill Actions */}
-
       <section className="skill-detail-actions">
-        <button
-          type="button"
-          className="skill-action-secondary"
-          onClick={handleOpenEdit}
-        >
-          Edit Skill
-        </button>
+        <div className="skill-detail-actions-main">
+          <button
+            type="button"
+            className="skill-action-secondary"
+            onClick={handleOpenEdit}
+            disabled={saving}
+          >
+            Edit Skill
+          </button>
 
-        <button
-          type="button"
-          className="skill-action-secondary"
-          onClick={onAddResource}
-        >
-          Add Resource
-        </button>
-
-        <button
-          type="button"
-          className="skill-action-danger"
-          onClick={onDelete}
-          disabled={deleting}
-        >
-          {deleting ? "Deleting..." : "Delete Skill"}
-        </button>
+          <button
+            type="button"
+            className="skill-action-secondary"
+            onClick={onAddResource}
+            disabled={saving}
+          >
+            Add Resource
+          </button>
+          <button
+            type="button"
+            className="skill-action-danger"
+            onClick={onDelete}
+            disabled={deleting || saving}
+          >
+            {deleting ? "Deleting..." : "Delete Skill"}
+          </button>
+        </div>
       </section>
-
-      {/* Edit Skill Dialog */}
 
       <FormDialog
         isOpen={showEditModal}
@@ -344,8 +306,6 @@ function SkillActions({
           className="skill-edit-form"
           onSubmit={handleSave}
         >
-          {/* Basic Skill Information */}
-
           <div className="skill-edit-field">
             <label htmlFor="edit-skill-name">Skill Name</label>
 
@@ -401,8 +361,6 @@ function SkillActions({
               ))}
             </select>
           </div>
-
-          {/* Learning Areas */}
 
           <div className="skill-edit-requirements">
             <div className="skill-edit-requirements-header">
@@ -466,8 +424,6 @@ function SkillActions({
               </p>
             )}
           </div>
-
-          {/* Practical Development */}
 
           <div className="skill-edit-requirements">
             <div className="skill-edit-requirements-header">
@@ -536,36 +492,6 @@ function SkillActions({
               </p>
             )}
           </div>
-
-          {/* Learning Resources */}
-
-          {resources.length > 0 && (
-            <div className="skill-edit-resources">
-              <div className="skill-edit-resources-header">
-                <label>Learning Resources</label>
-
-                <span>URL only</span>
-              </div>
-
-              {resources.map((resource) => (
-                <div key={resource._id} className="skill-edit-resource">
-                  <strong>{resource.title}</strong>
-
-                  <input
-                    type="text"
-                    value={resourceUrls[resource._id] || ""}
-                    onChange={(event) =>
-                      handleResourceUrlChange(resource._id, event.target.value)
-                    }
-                    placeholder="https://..."
-                    disabled={saving}
-                  />
-                </div>
-              ))}
-            </div>
-          )}
-
-          {/* Error */}
 
           {error && (
             <p className="error" role="alert">
