@@ -3,15 +3,47 @@ import { useNavigate } from "react-router-dom";
 function ApplicationCard({ application }) {
   const navigate = useNavigate();
 
-  const statusClass = (application.status || "")
-    .toLowerCase()
-    .replace(/\s+/g, "-");
+  const status = application?.status?.trim() || "Applied";
 
-  const interviewRounds = application.interviewRounds || [];
+  const statusClass = status.toLowerCase().replace(/\s+/g, "-");
+
+  const interviewRounds = Array.isArray(application?.interviewRounds)
+    ? application.interviewRounds
+    : [];
 
   const handleOpen = () => {
+    if (!application?._id) return;
+
     navigate(`/applications/${application._id}`);
   };
+
+  const formatDate = (date) => {
+    if (!date) return "-";
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) return "-";
+
+    return parsedDate.toLocaleDateString("en-GB");
+  };
+
+  const formatUpdatedDate = (date) => {
+    if (!date) return "-";
+
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) return "-";
+
+    return parsedDate.toLocaleString();
+  };
+
+  const applicationUrl = application?.applicationUrl?.trim();
+
+  const normalizedApplicationUrl = applicationUrl
+    ? /^https?:\/\//i.test(applicationUrl)
+      ? applicationUrl
+      : `https://${applicationUrl}`
+    : null;
 
   return (
     <article
@@ -27,18 +59,18 @@ function ApplicationCard({ application }) {
       tabIndex={0}
     >
       <div className="application-header">
-        <div>
-          <h2>{application.role}</h2>
+        <div className="application-title-content">
+          <h2>{application?.role || "Untitled Role"}</h2>
 
-          <p className="application-company">{application.company}</p>
+          <p className="application-company">
+            {application?.company || "Company not specified"}
+          </p>
         </div>
 
-        <span className={`application-status ${statusClass}`}>
-          {application.status}
-        </span>
+        <span className={`application-status ${statusClass}`}>{status}</span>
       </div>
 
-      {application.primaryGoal && (
+      {application?.primaryGoal?.title && (
         <div className="related-goal-card">
           <span className="related-goal-label">Career Goal</span>
 
@@ -52,11 +84,7 @@ function ApplicationCard({ application }) {
         <div>
           <span className="application-detail-label">Applied</span>
 
-          <strong>
-            {application.appliedDate
-              ? new Date(application.appliedDate).toLocaleDateString("en-GB")
-              : "-"}
-          </strong>
+          <strong>{formatDate(application?.appliedDate)}</strong>
         </div>
 
         <div>
@@ -67,20 +95,13 @@ function ApplicationCard({ application }) {
       </div>
 
       <p className="application-updated">
-        Last Updated:{" "}
-        {application.updatedAt
-          ? new Date(application.updatedAt).toLocaleString()
-          : "-"}
+        Last Updated: {formatUpdatedDate(application?.updatedAt)}
       </p>
 
-      {application.applicationUrl && (
+      {normalizedApplicationUrl && (
         <div className="card-actions">
           <a
-            href={
-              application.applicationUrl.startsWith("http")
-                ? application.applicationUrl
-                : `https://${application.applicationUrl}`
-            }
+            href={normalizedApplicationUrl}
             className="view-posting-link"
             target="_blank"
             rel="noopener noreferrer"

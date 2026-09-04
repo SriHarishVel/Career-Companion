@@ -17,6 +17,10 @@ import ApplicationActions from "./components/ApplicationActions";
 
 import "./index.css";
 
+function getErrorMessage(error, fallbackMessage) {
+  return error?.response?.data?.message || fallbackMessage;
+}
+
 function ApplicationDetail() {
   const { applicationId } = useParams();
   const navigate = useNavigate();
@@ -25,7 +29,6 @@ function ApplicationDetail() {
   const [loading, setLoading] = useState(Boolean(applicationId));
   const [errorMsg, setErrorMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
-  const [retryCount, setRetryCount] = useState(0);
 
   useEffect(() => {
     if (!applicationId) {
@@ -35,10 +38,6 @@ function ApplicationDetail() {
     let cancelled = false;
 
     async function loadApplication() {
-      setLoading(true);
-      setErrorMsg("");
-      setApplication(null);
-
       try {
         const applicationData = await getApplication(applicationId);
 
@@ -47,6 +46,7 @@ function ApplicationDetail() {
         }
 
         setApplication(applicationData);
+        setErrorMsg("");
       } catch (error) {
         if (cancelled) {
           return;
@@ -54,9 +54,13 @@ function ApplicationDetail() {
 
         console.error("Failed to load application:", error);
 
+        setApplication(null);
+
         setErrorMsg(
-          error.response?.data?.message ||
+          getErrorMessage(
+            error,
             "Unable to load this application. Please try again.",
+          ),
         );
       } finally {
         if (!cancelled) {
@@ -70,7 +74,7 @@ function ApplicationDetail() {
     return () => {
       cancelled = true;
     };
-  }, [applicationId, retryCount]);
+  }, [applicationId]);
 
   const handleApplicationUpdated = (updatedApplication) => {
     if (!updatedApplication) {
@@ -83,7 +87,11 @@ function ApplicationDetail() {
 
   const handleAddRound = async (roundData) => {
     if (!application?._id) {
-      return;
+      const error = new Error("Application not found.");
+
+      setErrorMsg(error.message);
+
+      throw error;
     }
 
     try {
@@ -95,18 +103,36 @@ function ApplicationDetail() {
       );
 
       setApplication(updatedApplication);
+
+      return updatedApplication;
     } catch (error) {
       console.error("Failed to add interview round:", error);
 
-      setErrorMsg(
-        error.response?.data?.message || "Failed to add interview round.",
-      );
+      const message = getErrorMessage(error, "Failed to add interview round.");
+
+      setErrorMsg(message);
+
+      throw new Error(message, {
+        cause: error,
+      });
     }
   };
 
   const handleUpdateRound = async (roundId, roundData) => {
-    if (!application?._id || !roundId) {
-      return;
+    if (!application?._id) {
+      const error = new Error("Application not found.");
+
+      setErrorMsg(error.message);
+
+      throw error;
+    }
+
+    if (!roundId) {
+      const error = new Error("Interview round could not be identified.");
+
+      setErrorMsg(error.message);
+
+      throw error;
     }
 
     try {
@@ -119,18 +145,39 @@ function ApplicationDetail() {
       );
 
       setApplication(updatedApplication);
+
+      return updatedApplication;
     } catch (error) {
       console.error("Failed to update interview round:", error);
 
-      setErrorMsg(
-        error.response?.data?.message || "Failed to update interview round.",
+      const message = getErrorMessage(
+        error,
+        "Failed to update interview round.",
       );
+
+      setErrorMsg(message);
+
+      throw new Error(message, {
+        cause: error,
+      });
     }
   };
 
   const handleDeleteRound = async (roundId) => {
-    if (!application?._id || !roundId) {
-      return;
+    if (!application?._id) {
+      const error = new Error("Application not found.");
+
+      setErrorMsg(error.message);
+
+      throw error;
+    }
+
+    if (!roundId) {
+      const error = new Error("Interview round could not be identified.");
+
+      setErrorMsg(error.message);
+
+      throw error;
     }
 
     try {
@@ -142,25 +189,26 @@ function ApplicationDetail() {
       );
 
       setApplication(updatedApplication);
+
+      return updatedApplication;
     } catch (error) {
       console.error("Failed to delete interview round:", error);
 
-      setErrorMsg(
-        error.response?.data?.message || "Failed to delete interview round.",
+      const message = getErrorMessage(
+        error,
+        "Failed to delete interview round.",
       );
+
+      setErrorMsg(message);
+
+      throw new Error(message, {
+        cause: error,
+      });
     }
   };
 
   const handleDelete = async () => {
     if (!application?._id || deleting) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Are you sure you want to delete the application for "${application.role}" at "${application.company}"? This action cannot be undone.`,
-    );
-
-    if (!confirmed) {
       return;
     }
 
@@ -174,9 +222,7 @@ function ApplicationDetail() {
     } catch (error) {
       console.error("Failed to delete application:", error);
 
-      setErrorMsg(
-        error.response?.data?.message || "Failed to delete application.",
-      );
+      setErrorMsg(getErrorMessage(error, "Failed to delete application."));
 
       setDeleting(false);
     }
@@ -186,8 +232,32 @@ function ApplicationDetail() {
     navigate("/applications");
   };
 
-  const handleRetry = () => {
-    setRetryCount((current) => current + 1);
+  const handleRetry = async () => {
+    if (!applicationId || loading) {
+      return;
+    }
+
+    setLoading(true);
+    setErrorMsg("");
+
+    try {
+      const applicationData = await getApplication(applicationId);
+
+      setApplication(applicationData);
+    } catch (error) {
+      console.error("Failed to load application:", error);
+
+      setApplication(null);
+
+      setErrorMsg(
+        getErrorMessage(
+          error,
+          "Unable to load this application. Please try again.",
+        ),
+      );
+    } finally {
+      setLoading(false);
+    }
   };
 
   if (!applicationId) {
@@ -227,7 +297,10 @@ function ApplicationDetail() {
             className="application-detail-back-btn"
             onClick={handleBack}
           >
-            <span className="back-chevron">‹</span>
+            <span className="back-chevron" aria-hidden="true">
+              ‹
+            </span>
+
             <span>Applications</span>
           </button>
         </div>
@@ -267,7 +340,10 @@ function ApplicationDetail() {
           className="application-detail-back-btn"
           onClick={handleBack}
         >
-          <span className="back-chevron">‹</span>
+          <span className="back-chevron" aria-hidden="true">
+            ‹
+          </span>
+
           <span>Applications</span>
         </button>
       </div>

@@ -1,6 +1,13 @@
 function ApplicationOverview({ application }) {
-  const { company, role, status, appliedDate, applicationUrl, primaryGoal } =
-    application;
+  const {
+    company,
+    role,
+    status,
+    appliedDate,
+    applicationUrl,
+    primaryGoal,
+    interviewRounds,
+  } = application;
 
   const statusClass = (status || "").toLowerCase().replace(/\s+/g, "-");
 
@@ -12,17 +19,11 @@ function ApplicationOverview({ application }) {
       })
     : "Not provided";
 
-  const openApplication = () => {
-    if (!applicationUrl) {
-      return;
-    }
-
-    const url = applicationUrl.startsWith("http")
+  const formattedApplicationUrl = applicationUrl
+    ? applicationUrl.startsWith("http")
       ? applicationUrl
-      : `https://${applicationUrl}`;
-
-    window.open(url, "_blank", "noopener,noreferrer");
-  };
+      : `https://${applicationUrl}`
+    : "";
 
   return (
     <section className="application-overview">
@@ -60,37 +61,24 @@ function ApplicationOverview({ application }) {
             Interview Rounds
           </span>
 
-          <strong>{application.interviewRounds?.length || 0}</strong>
+          <strong>{interviewRounds?.length || 0}</strong>
         </div>
       </div>
 
       {applicationUrl && (
         <div className="application-detail-url">
-          <div className="application-detail-url-content">
-            <span className="application-detail-url-label">
-              Application Link:{" "}
-            </span>
+          <span className="application-detail-url-label">
+            Application Link:
+          </span>
 
-            <a
-              href={
-                applicationUrl.startsWith("http")
-                  ? applicationUrl
-                  : `https://${applicationUrl}`
-              }
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              {applicationUrl}
-            </a>
-          </div>
-
-          <button
-            type="button"
-            className="application-detail-open-btn"
-            onClick={openApplication}
+          <a
+            href={formattedApplicationUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="application-detail-url-link"
           >
-            Open Application
-          </button>
+            {applicationUrl}
+          </a>
         </div>
       )}
     </section>
