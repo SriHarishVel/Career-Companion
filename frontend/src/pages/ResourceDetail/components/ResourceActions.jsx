@@ -22,7 +22,6 @@ function ResourceActions({
     title: resource.title || "",
     type: resource.type || "Other",
     url: resource.url || "",
-    description: resource.description || "",
     skillId: resource.skill?._id || "",
   });
 
@@ -35,7 +34,6 @@ function ResourceActions({
       title: resource.title || "",
       type: resource.type || "Other",
       url: resource.url || "",
-      description: resource.description || "",
       skillId: resource.skill?._id || "",
     });
 
@@ -66,7 +64,6 @@ function ResourceActions({
 
     const title = editForm.title.trim();
     const url = editForm.url.trim();
-    const description = editForm.description.trim();
 
     if (!title) {
       setError("Resource title cannot be empty.");
@@ -87,7 +84,6 @@ function ResourceActions({
         title,
         type: editForm.type,
         url: formattedUrl,
-        description,
         skill: editForm.skillId || null,
       });
 
@@ -131,9 +127,12 @@ function ResourceActions({
       return;
     }
 
-    await onDelete();
-
-    setShowDeleteModal(false);
+    try {
+      await onDelete();
+      setShowDeleteModal(false);
+    } catch (error) {
+      console.error("Failed to delete resource:", error);
+    }
   };
 
   return (
@@ -145,6 +144,7 @@ function ResourceActions({
           type="button"
           className="resource-action-secondary"
           onClick={handleOpenEdit}
+          disabled={deleting}
         >
           Edit Resource
         </button>
@@ -237,24 +237,6 @@ function ResourceActions({
             />
 
             <small>Leave empty if this resource does not have a URL.</small>
-          </div>
-
-          {/* DESCRIPTION */}
-
-          <div className="resource-edit-field">
-            <label htmlFor="edit-resource-description">
-              Description / Notes
-            </label>
-
-            <textarea
-              id="edit-resource-description"
-              value={editForm.description}
-              onChange={(event) =>
-                handleChange("description", event.target.value)
-              }
-              placeholder="Add notes, summary, purpose, topics covered, or anything useful about this resource..."
-              rows={5}
-            />
           </div>
 
           {/* RELATED SKILL */}

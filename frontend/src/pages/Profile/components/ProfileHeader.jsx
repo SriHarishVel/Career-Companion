@@ -10,21 +10,30 @@ function ProfileHeader({ profile, initials, firstName, setShowEditModal }) {
       </div>
 
       <section className="profile-hero">
-        <div className="profile-avatar">{initials}</div>
+        <div className="profile-avatar" aria-hidden="true">
+          {initials}
+        </div>
 
         <div className="profile-hero-info">
           <span className="profile-hero-label">Personal account</span>
 
-          <h2>Hi, {firstName} 👋</h2>
+          <h2>
+            Hi, {firstName}
+            <span className="profile-wave" aria-hidden="true">
+              👋
+            </span>
+          </h2>
 
           <p>{profile.email}</p>
         </div>
 
         <button
+          type="button"
           className="profile-primary-btn"
           onClick={() => setShowEditModal(true)}
         >
           Edit Profile
+          <span>→</span>
         </button>
       </section>
     </div>

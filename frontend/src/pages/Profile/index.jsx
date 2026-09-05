@@ -32,6 +32,12 @@ function Profile() {
   const [showEditModal, setShowEditModal] = useState(false);
   const [showPasswordModal, setShowPasswordModal] = useState(false);
 
+  const [profileSuccess, setProfileSuccess] = useState("");
+  const [passwordSuccess, setPasswordSuccess] = useState("");
+
+  const [profileError, setProfileError] = useState("");
+  const [passwordError, setPasswordError] = useState("");
+
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -58,9 +64,33 @@ function Profile() {
     fetchProfile();
   }, []);
 
+  useEffect(() => {
+    if (!profileSuccess) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setProfileSuccess("");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [profileSuccess]);
+
+  useEffect(() => {
+    if (!passwordSuccess) {
+      return;
+    }
+
+    const timer = setTimeout(() => {
+      setPasswordSuccess("");
+    }, 3000);
+
+    return () => clearTimeout(timer);
+  }, [passwordSuccess]);
+
   async function saveProfile() {
     try {
-      setError("");
+      setProfileError("");
 
       const updatedUser = await updateProfile({
         fullName,
@@ -68,21 +98,28 @@ function Profile() {
       });
 
       setProfile(updatedUser);
-
       setFullName(updatedUser.fullName || "");
       setEmail(updatedUser.email || "");
 
+      setProfileSuccess("Profile updated successfully.");
       setShowEditModal(false);
+
+      return true;
     } catch (error) {
       console.error("Failed to update profile:", error);
 
-      setError("Unable to update your profile. Please try again.");
+      setProfileError(
+        error.response?.data?.message ||
+          "Unable to update your profile. Please try again.",
+      );
+
+      return false;
     }
   }
 
   async function updateUserPassword() {
     try {
-      setError("");
+      setPasswordError("");
 
       await changePassword({
         currentPassword,
@@ -92,13 +129,18 @@ function Profile() {
       setCurrentPassword("");
       setNewPassword("");
 
-      setShowPasswordModal(false);
+      setPasswordSuccess("Password updated successfully.");
+
+      return true;
     } catch (error) {
       console.error("Failed to change password:", error);
 
-      setError(
-        "Unable to change your password. Please check your current password and try again.",
+      setPasswordError(
+        error.response?.data?.message ||
+          "Unable to change your password. Please try again.",
       );
+
+      return false;
     }
   }
 
@@ -114,6 +156,7 @@ function Profile() {
       </div>
     );
   }
+
   if (!profile) {
     return (
       <div className="container profile-container">
@@ -123,6 +166,7 @@ function Profile() {
           <p>{error || "Something went wrong while loading your profile."}</p>
 
           <button
+            type="button"
             className="profile-primary-btn"
             onClick={() => window.location.reload()}
           >
@@ -148,11 +192,22 @@ function Profile() {
     <div className="container profile-container">
       {error && <div className="profile-error">{error}</div>}
 
+      {profileSuccess && (
+        <div className="profile-success">{profileSuccess}</div>
+      )}
+
+      {passwordSuccess && (
+        <div className="profile-success">{passwordSuccess}</div>
+      )}
+
       <ProfileHeader
         profile={profile}
         initials={initials}
         firstName={firstName}
-        setShowEditModal={setShowEditModal}
+        setShowEditModal={(value) => {
+          setProfileError("");
+          setShowEditModal(value);
+        }}
       />
 
       <div className="profile-content-grid">
@@ -165,6 +220,8 @@ function Profile() {
           showEditModal={showEditModal}
           setShowEditModal={setShowEditModal}
           saveProfile={saveProfile}
+          profileError={profileError}
+          setProfileError={setProfileError}
         />
 
         <SecuritySection
@@ -175,6 +232,8 @@ function Profile() {
           showPasswordModal={showPasswordModal}
           setShowPasswordModal={setShowPasswordModal}
           updateUserPassword={updateUserPassword}
+          passwordError={passwordError}
+          setPasswordError={setPasswordError}
         />
       </div>
 

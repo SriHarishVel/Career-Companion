@@ -7,9 +7,22 @@ function ProfileInfo({
   setFullName,
   setEmail,
   showEditModal,
-  setshowEditModal,
+  setShowEditModal,
   saveProfile,
+  profileError,
+  setProfileError,
 }) {
+  const handleClose = () => {
+    setFullName(profile.fullName || "");
+    setEmail(profile.email || "");
+    setProfileError("");
+    setShowEditModal(false);
+  };
+
+  const handleSave = async () => {
+    await saveProfile();
+  };
+
   return (
     <section className="profile-card">
       <div className="profile-card-header">
@@ -38,6 +51,7 @@ function ProfileInfo({
         <div className="profile-row">
           <div>
             <span>Member Since</span>
+
             <strong>
               {profile.createdAt
                 ? new Date(profile.createdAt).toLocaleDateString("en-GB", {
@@ -54,26 +68,62 @@ function ProfileInfo({
       <FormDialog
         isOpen={showEditModal}
         title="Edit Profile"
-        saveButtonText="Save Changes"
-        onSave={async () => {
-          await saveProfile();
-          setshowEditModal(false);
-        }}
-        onCancel={() => setshowEditModal(false)}
-      >
-        <input
-          type="text"
-          value={fullName}
-          onChange={(e) => setFullName(e.target.value)}
-          placeholder="Full Name"
-        />
+        onClose={handleClose}
+        footer={
+          <>
+            <button
+              type="button"
+              className="form-dialog-secondary-btn"
+              onClick={handleClose}
+            >
+              Cancel
+            </button>
 
-        <input
-          type="email"
-          value={email}
-          onChange={(e) => setEmail(e.target.value)}
-          placeholder="Email"
-        />
+            <button
+              type="button"
+              className="form-dialog-primary-btn"
+              onClick={handleSave}
+            >
+              Save Changes
+            </button>
+          </>
+        }
+      >
+        <div className="profile-modal-fields">
+          {profileError && (
+            <div className="profile-modal-error">{profileError}</div>
+          )}
+
+          <div className="profile-modal-field">
+            <label htmlFor="profile-full-name">Full Name</label>
+
+            <input
+              id="profile-full-name"
+              type="text"
+              value={fullName}
+              onChange={(e) => {
+                setFullName(e.target.value);
+                setProfileError("");
+              }}
+              placeholder="Enter your full name"
+            />
+          </div>
+
+          <div className="profile-modal-field">
+            <label htmlFor="profile-email">Email</label>
+
+            <input
+              id="profile-email"
+              type="email"
+              value={email}
+              onChange={(e) => {
+                setEmail(e.target.value);
+                setProfileError("");
+              }}
+              placeholder="Enter your email"
+            />
+          </div>
+        </div>
       </FormDialog>
     </section>
   );

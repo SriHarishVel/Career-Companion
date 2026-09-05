@@ -8,11 +8,27 @@ function SecuritySection({
   showPasswordModal,
   setShowPasswordModal,
   updateUserPassword,
+  passwordError,
+  setPasswordError,
 }) {
-  const closePasswordModal = () => {
+  const handleClose = () => {
     setCurrentPassword("");
     setNewPassword("");
+    setPasswordError("");
     setShowPasswordModal(false);
+  };
+
+  const handleOpen = () => {
+    setPasswordError("");
+    setShowPasswordModal(true);
+  };
+
+  const handleSave = async () => {
+    const success = await updateUserPassword();
+
+    if (success) {
+      handleClose();
+    }
   };
 
   return (
@@ -39,8 +55,9 @@ function SecuritySection({
         </div>
 
         <button
+          type="button"
           className="profile-secondary-btn"
-          onClick={() => setShowPasswordModal(true)}
+          onClick={handleOpen}
         >
           Change Password
         </button>
@@ -49,26 +66,64 @@ function SecuritySection({
       <FormDialog
         isOpen={showPasswordModal}
         title="Change Password"
-        saveButtonText="Update Password"
-        onSave={async () => {
-          await updateUserPassword();
-          setShowPasswordModal(false);
-        }}
-        onCancel={closePasswordModal}
-      >
-        <input
-          type="password"
-          value={currentPassword}
-          onChange={(e) => setCurrentPassword(e.target.value)}
-          placeholder="Current Password"
-        />
+        onClose={handleClose}
+        footer={
+          <>
+            <button
+              type="button"
+              className="form-dialog-secondary-btn"
+              onClick={handleClose}
+            >
+              Cancel
+            </button>
 
-        <input
-          type="password"
-          value={newPassword}
-          onChange={(e) => setNewPassword(e.target.value)}
-          placeholder="New Password"
-        />
+            <button
+              type="button"
+              className="form-dialog-primary-btn"
+              onClick={handleSave}
+            >
+              Update Password
+            </button>
+          </>
+        }
+      >
+        <div className="profile-modal-fields">
+          {passwordError && (
+            <div className="profile-modal-error">{passwordError}</div>
+          )}
+
+          <div className="profile-modal-field">
+            <label htmlFor="current-password">Current Password</label>
+
+            <input
+              id="current-password"
+              type="password"
+              value={currentPassword}
+              onChange={(e) => {
+                setCurrentPassword(e.target.value);
+                setPasswordError("");
+              }}
+              placeholder="Enter current password"
+            />
+          </div>
+
+          <div className="profile-modal-field">
+            <label htmlFor="new-password">New Password</label>
+
+            <input
+              id="new-password"
+              type="password"
+              value={newPassword}
+              onChange={(e) => {
+                setNewPassword(e.target.value);
+                setPasswordError("");
+              }}
+              placeholder="Enter new password"
+            />
+
+            <small>Password must be at least 6 characters.</small>
+          </div>
+        </div>
       </FormDialog>
     </section>
   );

@@ -22,23 +22,22 @@ function ResourceDetail() {
   const { resourceId } = useParams();
   const navigate = useNavigate();
 
-  /* RESOURCE */
-
   const [resource, setResource] = useState(null);
   const [skills, setSkills] = useState([]);
-
-  /* UI */
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
 
-  /* LOAD RESOURCE + SKILLS */
-
   useEffect(() => {
+    if (!resourceId) {
+      return;
+    }
+
+    let cancelled = false;
+
     async function loadResourceDetail() {
       try {
-        setLoading(true);
         setErrorMsg("");
 
         const [resourceData, skillData] = await Promise.all([
@@ -46,9 +45,17 @@ function ResourceDetail() {
           getSkills(),
         ]);
 
+        if (cancelled) {
+          return;
+        }
+
         setResource(resourceData);
         setSkills(skillData?.skills || skillData || []);
       } catch (error) {
+        if (cancelled) {
+          return;
+        }
+
         console.error("Failed to load resource details:", error);
 
         setErrorMsg(
@@ -56,22 +63,22 @@ function ResourceDetail() {
             "Unable to load this resource. Please try again.",
         );
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
-    if (resourceId) {
-      loadResourceDetail();
-    }
-  }, [resourceId]);
+    loadResourceDetail();
 
-  /* BACK */
+    return () => {
+      cancelled = true;
+    };
+  }, [resourceId]);
 
   const handleBack = () => {
     navigate("/resources");
   };
-
-  /* OPEN RESOURCE */
 
   const handleOpenResource = () => {
     if (!resource?.url) {
@@ -85,7 +92,29 @@ function ResourceDetail() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  /* FAVORITE */
+  /* RESOURCE UPDATE HANDLER */
+  const handleResourceUpdated = async (updatedResource) => {
+    if (!updatedResource?._id) {
+      return;
+    }
+
+    try {
+      setErrorMsg("");
+
+      const freshResource = await getResource(updatedResource._id);
+
+      setResource(freshResource || updatedResource);
+    } catch (error) {
+      console.error("Failed to refresh resource:", error);
+
+      setResource(updatedResource);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Resource was updated, but the latest data could not be loaded.",
+      );
+    }
+  };
 
   const handleToggleFavorite = async () => {
     if (!resource) {
@@ -99,7 +128,7 @@ function ResourceDetail() {
         favorite: !resource.favorite,
       });
 
-      setResource(updatedResource);
+      await handleResourceUpdated(updatedResource);
     } catch (error) {
       console.error("Failed to update favorite:", error);
 
@@ -108,8 +137,6 @@ function ResourceDetail() {
       );
     }
   };
-
-  /* COMPLETION */
 
   const handleToggleCompleted = async () => {
     if (!resource) {
@@ -123,7 +150,7 @@ function ResourceDetail() {
         completed: !resource.completed,
       });
 
-      setResource(updatedResource);
+      await handleResourceUpdated(updatedResource);
     } catch (error) {
       console.error("Failed to update resource completion:", error);
 
@@ -134,48 +161,28 @@ function ResourceDetail() {
     }
   };
 
-  /* RESOURCE UPDATED */
+  const handleDelete = async () => {
+    if (!resource || deleting) {
+      return;
+    }
 
-  const handleResourceUpdated = async (updatedResource) => {
     try {
+      setDeleting(true);
       setErrorMsg("");
 
-      const freshResource = await getResource(updatedResource._id);
+      await deleteResource(resource._id);
 
-      setResource(freshResource || updatedResource);
+      navigate("/resources");
     } catch (error) {
-      console.error("Failed to refresh resource:", error);
+      console.error("Failed to delete resource:", error);
 
-      setResource(updatedResource);
+      setErrorMsg(
+        error.response?.data?.message || "Failed to delete resource.",
+      );
+
+      setDeleting(false);
     }
   };
-
-  /* DELETE */
-
-const handleDelete = async () => {
-  if (!resource || deleting) {
-    return;
-  }
-
-  try {
-    setDeleting(true);
-    setErrorMsg("");
-
-    await deleteResource(resource._id);
-
-    navigate("/resources");
-  } catch (error) {
-    console.error("Failed to delete resource:", error);
-
-    setErrorMsg(
-      error.response?.data?.message || "Failed to delete resource.",
-    );
-
-    setDeleting(false);
-  }
-};
-
-  /* LOADING */
 
   if (loading) {
     return (
@@ -184,8 +191,6 @@ const handleDelete = async () => {
       </div>
     );
   }
-
-  /* ERROR */
 
   if (errorMsg && !resource) {
     return (
@@ -197,7 +202,6 @@ const handleDelete = async () => {
             onClick={handleBack}
           >
             <span className="back-chevron">‹</span>
-
             <span>Resources</span>
           </button>
         </div>
@@ -225,8 +229,6 @@ const handleDelete = async () => {
 
   return (
     <div className="container resource-detail-page">
-      {/* TOP NAVIGATION */}
-
       <div className="resource-detail-topbar">
         <button
           type="button"
@@ -234,20 +236,15 @@ const handleDelete = async () => {
           onClick={handleBack}
         >
           <span className="back-chevron">‹</span>
-
           <span>Resources</span>
         </button>
       </div>
-
-      {/* ERROR */}
 
       {errorMsg && (
         <div className="resource-detail-error-message" role="alert">
           {errorMsg}
         </div>
       )}
-
-      {/* CONTENT */}
 
       <main className="resource-detail-content">
         <ResourceOverview
@@ -261,7 +258,10 @@ const handleDelete = async () => {
           onToggleCompleted={handleToggleCompleted}
         />
 
-        <ResourceDescription description={resource.description} />
+        <ResourceDescription
+          description={resource.description}
+          onResourceUpdated={handleResourceUpdated}
+        />
 
         <ResourceSkill
           skill={resource.skill}
