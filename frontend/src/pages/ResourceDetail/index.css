@@ -209,6 +209,29 @@
   outline-offset: 3px;
 }
 
+.resource-detail-error-message,
+.resource-detail-success-message {
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 12px 16px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 500;
+  box-sizing: border-box;
+}
+
+.resource-detail-error-message {
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  color: #b91c1c;
+}
+
+.resource-detail-success-message {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  color: #15803d;
+}
+
 /* URL */
 
 .resource-url {

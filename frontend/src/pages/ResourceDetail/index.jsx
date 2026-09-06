@@ -27,6 +27,7 @@ function ResourceDetail() {
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
   const [deleting, setDeleting] = useState(false);
 
   useEffect(() => {
@@ -38,7 +39,9 @@ function ResourceDetail() {
 
     async function loadResourceDetail() {
       try {
+        setLoading(true);
         setErrorMsg("");
+        setSuccessMsg("");
 
         const [resourceData, skillData] = await Promise.all([
           getResource(resourceId),
@@ -92,7 +95,6 @@ function ResourceDetail() {
     window.open(url, "_blank", "noopener,noreferrer");
   };
 
-  /* RESOURCE UPDATE HANDLER */
   const handleResourceUpdated = async (updatedResource) => {
     if (!updatedResource?._id) {
       return;
@@ -100,10 +102,12 @@ function ResourceDetail() {
 
     try {
       setErrorMsg("");
+      setSuccessMsg("");
 
       const freshResource = await getResource(updatedResource._id);
 
       setResource(freshResource || updatedResource);
+      setSuccessMsg("Resource updated successfully.");
     } catch (error) {
       console.error("Failed to refresh resource:", error);
 
@@ -123,6 +127,7 @@ function ResourceDetail() {
 
     try {
       setErrorMsg("");
+      setSuccessMsg("");
 
       const updatedResource = await updateResource(resource._id, {
         favorite: !resource.favorite,
@@ -145,6 +150,7 @@ function ResourceDetail() {
 
     try {
       setErrorMsg("");
+      setSuccessMsg("");
 
       const updatedResource = await updateResource(resource._id, {
         completed: !resource.completed,
@@ -169,6 +175,7 @@ function ResourceDetail() {
     try {
       setDeleting(true);
       setErrorMsg("");
+      setSuccessMsg("");
 
       await deleteResource(resource._id);
 
@@ -243,6 +250,12 @@ function ResourceDetail() {
       {errorMsg && (
         <div className="resource-detail-error-message" role="alert">
           {errorMsg}
+        </div>
+      )}
+
+      {successMsg && (
+        <div className="resource-detail-success-message" role="status">
+          {successMsg}
         </div>
       )}
 
