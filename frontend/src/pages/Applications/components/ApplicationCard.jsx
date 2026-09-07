@@ -4,7 +4,6 @@ function ApplicationCard({ application }) {
   const navigate = useNavigate();
 
   const status = application?.status?.trim() || "Applied";
-
   const statusClass = status.toLowerCase().replace(/\s+/g, "-");
 
   const interviewRounds = Array.isArray(application?.interviewRounds)
@@ -12,27 +11,37 @@ function ApplicationCard({ application }) {
     : [];
 
   const handleOpen = () => {
-    if (!application?._id) return;
+    if (!application?._id) {
+      return;
+    }
 
     navigate(`/applications/${application._id}`);
   };
 
   const formatDate = (date) => {
-    if (!date) return "-";
+    if (!date) {
+      return "-";
+    }
 
     const parsedDate = new Date(date);
 
-    if (Number.isNaN(parsedDate.getTime())) return "-";
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "-";
+    }
 
     return parsedDate.toLocaleDateString("en-GB");
   };
 
   const formatUpdatedDate = (date) => {
-    if (!date) return "-";
+    if (!date) {
+      return "-";
+    }
 
     const parsedDate = new Date(date);
 
-    if (Number.isNaN(parsedDate.getTime())) return "-";
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "-";
+    }
 
     return parsedDate.toLocaleString();
   };

@@ -161,28 +161,6 @@ function Applications() {
     setShowApplicationForm(true);
   };
 
-  /* Open edit */
-
-  const openEditModal = (application) => {
-    setEditingApplicationId(application._id);
-
-    setCompany(application.company || "");
-    setRole(application.role || "");
-    setApplicationUrl(application.applicationUrl || "");
-    setStatus(application.status || "Applied");
-
-    setPrimaryGoalId(application.primaryGoal?._id || "");
-
-    setAppliedDate(
-      application.appliedDate
-        ? new Date(application.appliedDate).toISOString().split("T")[0]
-        : "",
-    );
-
-    setErrorMsg("");
-    setShowApplicationForm(true);
-  };
-
   /* Close form */
 
   const closeApplicationForm = () => {
@@ -333,9 +311,6 @@ function Applications() {
             <ApplicationCard
               key={application._id}
               application={application}
-              openEditModal={openEditModal}
-              setApplicationToDeleteId={setApplicationToDeleteId}
-              setShowDeleteModal={setShowDeleteModal}
             />
           ))}
         </div>

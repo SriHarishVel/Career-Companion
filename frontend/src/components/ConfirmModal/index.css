@@ -1,6 +1,6 @@
-/* CONFIRM MODAL */
+/* CONFIRM MODAL OVERLAY */
 
-.modal-overlay {
+.confirm-modal-overlay {
   position: fixed;
   inset: 0;
 
@@ -16,12 +16,12 @@
 
   z-index: 1000;
 
-  animation: modalOverlayIn 0.2s ease-out;
+  animation: confirmModalOverlayIn 0.2s ease-out;
 }
 
-/* MODAL CONTAINER */
+/* CONFIRM MODAL CONTAINER */
 
-.modal {
+.confirm-modal {
   width: 100%;
   max-width: 440px;
 
@@ -36,12 +36,12 @@
     0 24px 60px rgba(15, 23, 42, 0.18),
     0 8px 24px rgba(15, 23, 42, 0.08);
 
-  animation: modalIn 0.22s ease-out;
+  animation: confirmModalIn 0.22s ease-out;
 }
 
 /* MODAL CONTENT */
 
-.modal h2 {
+.confirm-modal-content h2 {
   margin: 0 0 10px;
 
   color: #102a43;
@@ -52,7 +52,7 @@
   letter-spacing: -0.02em;
 }
 
-.modal p {
+.confirm-modal-content p {
   margin: 0 0 28px;
 
   color: #52606d;
@@ -63,7 +63,7 @@
 
 /* MODAL ACTIONS */
 
-.modal-actions {
+.confirm-modal-actions {
   display: flex;
   justify-content: flex-end;
   align-items: center;
@@ -75,7 +75,7 @@
 
 /* CANCEL BUTTON */
 
-.modal-actions .cancel-btn {
+.confirm-modal-cancel {
   min-width: 104px;
   height: 46px;
 
@@ -99,7 +99,7 @@
     box-shadow 0.18s ease;
 }
 
-.modal-actions .cancel-btn:hover {
+.confirm-modal-cancel:hover {
   background: #f5f7fa;
   border-color: #bcccdc;
 
@@ -108,13 +108,13 @@
   box-shadow: 0 4px 10px rgba(15, 23, 42, 0.06);
 }
 
-.modal-actions .cancel-btn:active {
+.confirm-modal-cancel:active {
   transform: translateY(0);
 }
 
 /* CONFIRM / DELETE BUTTON */
 
-.modal-actions .delete-btn {
+.confirm-modal-confirm {
   min-width: 104px;
   height: 46px;
 
@@ -138,7 +138,7 @@
     box-shadow 0.18s ease;
 }
 
-.modal-actions .delete-btn:hover {
+.confirm-modal-confirm:hover {
   background: #b91c1c;
   border-color: #b91c1c;
 
@@ -147,20 +147,20 @@
   box-shadow: 0 6px 14px rgba(220, 38, 38, 0.22);
 }
 
-.modal-actions .delete-btn:active {
+.confirm-modal-confirm:active {
   transform: translateY(0);
 }
 
 /* FOCUS STATES */
 
-.modal-actions button:focus-visible {
+.confirm-modal-actions button:focus-visible {
   outline: 3px solid rgba(59, 130, 246, 0.25);
   outline-offset: 2px;
 }
 
 /* ANIMATIONS */
 
-@keyframes modalOverlayIn {
+@keyframes confirmModalOverlayIn {
   from {
     opacity: 0;
   }
@@ -170,7 +170,7 @@
   }
 }
 
-@keyframes modalIn {
+@keyframes confirmModalIn {
   from {
     opacity: 0;
     transform: translateY(10px) scale(0.98);
@@ -185,11 +185,11 @@
 /* MOBILE */
 
 @media (max-width: 520px) {
-  .modal-overlay {
+  .confirm-modal-overlay {
     padding: 16px;
   }
 
-  .modal {
+  .confirm-modal {
     max-width: none;
 
     padding: 24px;
@@ -197,21 +197,22 @@
     border-radius: 17px;
   }
 
-  .modal h2 {
+  .confirm-modal-content h2 {
     font-size: 21px;
   }
 
-  .modal p {
+  .confirm-modal-content p {
     font-size: 14px;
     line-height: 1.6;
+
     margin-bottom: 24px;
   }
 
-  .modal-actions {
+  .confirm-modal-actions {
     gap: 10px;
   }
 
-  .modal-actions button {
+  .confirm-modal-actions button {
     flex: 1;
     min-width: 0;
   }

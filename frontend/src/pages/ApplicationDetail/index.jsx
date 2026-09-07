@@ -13,6 +13,7 @@ import LoadingState from "../../components/LoadingState";
 
 import ApplicationOverview from "./components/ApplicationOverview";
 import ApplicationInterviews from "./components/ApplicationInterviews";
+import ApplicationActivity from "./components/ApplicationActivity";
 import ApplicationActions from "./components/ApplicationActions";
 
 import "./index.css";
@@ -363,6 +364,8 @@ function ApplicationDetail() {
           onUpdateRound={handleUpdateRound}
           onDeleteRound={handleDeleteRound}
         />
+
+        <ApplicationActivity application={application} />
 
         <ApplicationActions
           application={application}

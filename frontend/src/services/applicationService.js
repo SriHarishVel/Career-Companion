@@ -1,87 +1,99 @@
 import api from "../api/axios";
 
 export const getApplications = async (params = {}) => {
-    const response = await api.get(
-        "/applications",
-        {
-            params,
-        }
-    );
+  const response = await api.get("/applications", {
+    params,
+  });
 
-    return response.data;
+  return response.data;
 };
 
 export const getApplication = async (id) => {
-    const response = await api.get(
-        `/applications/${id}`
-    );
+  const response = await api.get(`/applications/${id}`);
 
-    return response.data;
+  return response.data;
 };
 
-export const createApplication = async (
-    applicationData
-) => {
-    const response = await api.post(
-        "/applications",
-        applicationData
-    );
+export const getApplicationActivities = async (applicationId) => {
+  const response = await api.get(`/applications/${applicationId}/activities`);
 
-    return response.data;
+  return response.data;
 };
 
-export const updateApplication = async (
-    id,
-    applicationData
-) => {
-    const response = await api.put(
-        `/applications/${id}`,
-        applicationData
-    );
+export const addApplicationActivity = async (applicationId, activityData) => {
+  const response = await api.post(
+    `/applications/${applicationId}/activities`,
+    activityData,
+  );
 
-    return response.data;
+  return response.data;
 };
 
-export const addInterviewRound = async (
-    applicationId,
-    roundData
+export const updateApplicationActivity = async (
+  applicationId,
+  activityId,
+  activityData,
 ) => {
-    const response = await api.post(
-        `/applications/${applicationId}/rounds`,
-        roundData
-    );
+  const response = await api.put(
+    `/applications/${applicationId}/activities/${activityId}`,
+    activityData,
+  );
 
-    return response.data;
+  return response.data;
+};
+
+export const deleteApplicationActivity = async (applicationId, activityId) => {
+  const response = await api.delete(
+    `/applications/${applicationId}/activities/${activityId}`,
+  );
+
+  return response.data;
+};
+
+export const createApplication = async (applicationData) => {
+  const response = await api.post("/applications", applicationData);
+
+  return response.data;
+};
+
+export const updateApplication = async (id, applicationData) => {
+  const response = await api.put(`/applications/${id}`, applicationData);
+
+  return response.data;
+};
+
+export const addInterviewRound = async (applicationId, roundData) => {
+  const response = await api.post(
+    `/applications/${applicationId}/rounds`,
+    roundData,
+  );
+
+  return response.data;
 };
 
 export const updateInterviewRound = async (
-    applicationId,
-    roundId,
-    roundData
+  applicationId,
+  roundId,
+  roundData,
 ) => {
-    const response = await api.put(
-        `/applications/${applicationId}/rounds/${roundId}`,
-        roundData
-    );
+  const response = await api.put(
+    `/applications/${applicationId}/rounds/${roundId}`,
+    roundData,
+  );
 
-    return response.data;
+  return response.data;
 };
 
-export const deleteInterviewRound = async (
-    applicationId,
-    roundId
-) => {
-    const response = await api.delete(
-        `/applications/${applicationId}/rounds/${roundId}`
-    );
+export const deleteInterviewRound = async (applicationId, roundId) => {
+  const response = await api.delete(
+    `/applications/${applicationId}/rounds/${roundId}`,
+  );
 
-    return response.data;
+  return response.data;
 };
 
 export const deleteApplication = async (id) => {
-    const response = await api.delete(
-        `/applications/${id}`
-    );
+  const response = await api.delete(`/applications/${id}`);
 
-    return response.data;
+  return response.data;
 };

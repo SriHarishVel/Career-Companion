@@ -9,7 +9,9 @@ function ApplicationInterviews({
   onUpdateRound,
   onDeleteRound,
 }) {
-  const interviewRounds = application?.interviewRounds || [];
+  const interviewRounds = Array.isArray(application?.interviewRounds)
+    ? application.interviewRounds
+    : [];
 
   const [showAddDialog, setShowAddDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
@@ -22,7 +24,6 @@ function ApplicationInterviews({
   const [roundDate, setRoundDate] = useState("");
 
   const [saving, setSaving] = useState(false);
-
   const [errorMsg, setErrorMsg] = useState("");
 
   const sortedRounds = [...interviewRounds].sort((a, b) => {
@@ -37,7 +38,13 @@ function ApplicationInterviews({
       return "Date not set";
     }
 
-    return new Date(date).toLocaleDateString("en-GB", {
+    const parsedDate = new Date(date);
+
+    if (Number.isNaN(parsedDate.getTime())) {
+      return "Date not set";
+    }
+
+    return parsedDate.toLocaleDateString("en-GB", {
       day: "2-digit",
       month: "short",
       year: "numeric",
@@ -45,7 +52,7 @@ function ApplicationInterviews({
   }
 
   function getStatusClass(status) {
-    return (status || "").toLowerCase().replace(/\s+/g, "-");
+    return (status || "Pending").toLowerCase().replace(/\s+/g, "-");
   }
 
   function resetForm() {
@@ -95,6 +102,7 @@ function ApplicationInterviews({
 
   function openDeleteDialog(round) {
     setSelectedRound(round);
+    setErrorMsg("");
     setShowDeleteModal(true);
   }
 
@@ -105,6 +113,7 @@ function ApplicationInterviews({
 
     setShowDeleteModal(false);
     setSelectedRound(null);
+    setErrorMsg("");
   }
 
   async function handleAddRound() {
@@ -169,6 +178,7 @@ function ApplicationInterviews({
 
     try {
       setSaving(true);
+      setErrorMsg("");
 
       await onDeleteRound(selectedRound._id);
 
@@ -209,6 +219,14 @@ function ApplicationInterviews({
             <h3>No interview rounds yet</h3>
 
             <p>Add your first interview round to start tracking the process.</p>
+
+            <button
+              type="button"
+              className="application-add-round-btn"
+              onClick={openAddDialog}
+            >
+              + Add Round
+            </button>
           </div>
         ) : (
           <div className="application-interview-list">
@@ -242,7 +260,6 @@ function ApplicationInterviews({
                   <button
                     type="button"
                     className="application-round-action"
-                    aria-label={`Edit ${round.title}`}
                     onClick={() => openEditDialog(round)}
                   >
                     Edit
@@ -251,7 +268,6 @@ function ApplicationInterviews({
                   <button
                     type="button"
                     className="application-round-action application-round-action-danger"
-                    aria-label={`Delete ${round.title}`}
                     onClick={() => openDeleteDialog(round)}
                   >
                     Delete
@@ -262,8 +278,6 @@ function ApplicationInterviews({
           </div>
         )}
       </section>
-
-      {/* ADD INTERVIEW ROUND */}
 
       <FormDialog
         isOpen={showAddDialog}
@@ -300,7 +314,8 @@ function ApplicationInterviews({
               type="text"
               placeholder="e.g. Technical Interview"
               value={roundTitle}
-              onChange={(e) => setRoundTitle(e.target.value)}
+              onChange={(event) => setRoundTitle(event.target.value)}
+              disabled={saving}
             />
           </div>
 
@@ -310,7 +325,8 @@ function ApplicationInterviews({
             <select
               id="add-round-status"
               value={roundStatus}
-              onChange={(e) => setRoundStatus(e.target.value)}
+              onChange={(event) => setRoundStatus(event.target.value)}
+              disabled={saving}
             >
               <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
@@ -325,7 +341,8 @@ function ApplicationInterviews({
               id="add-round-date"
               type="date"
               value={roundDate}
-              onChange={(e) => setRoundDate(e.target.value)}
+              onChange={(event) => setRoundDate(event.target.value)}
+              disabled={saving}
             />
           </div>
 
@@ -336,8 +353,6 @@ function ApplicationInterviews({
           )}
         </div>
       </FormDialog>
-
-      {/* EDIT INTERVIEW ROUND */}
 
       <FormDialog
         isOpen={showEditDialog}
@@ -376,7 +391,8 @@ function ApplicationInterviews({
               type="text"
               placeholder="e.g. Technical Interview"
               value={roundTitle}
-              onChange={(e) => setRoundTitle(e.target.value)}
+              onChange={(event) => setRoundTitle(event.target.value)}
+              disabled={saving}
             />
           </div>
 
@@ -386,7 +402,8 @@ function ApplicationInterviews({
             <select
               id="edit-round-status"
               value={roundStatus}
-              onChange={(e) => setRoundStatus(e.target.value)}
+              onChange={(event) => setRoundStatus(event.target.value)}
+              disabled={saving}
             >
               <option value="Pending">Pending</option>
               <option value="Completed">Completed</option>
@@ -401,7 +418,8 @@ function ApplicationInterviews({
               id="edit-round-date"
               type="date"
               value={roundDate}
-              onChange={(e) => setRoundDate(e.target.value)}
+              onChange={(event) => setRoundDate(event.target.value)}
+              disabled={saving}
             />
           </div>
 
@@ -412,8 +430,6 @@ function ApplicationInterviews({
           )}
         </div>
       </FormDialog>
-
-      {/* DELETE INTERVIEW ROUND */}
 
       <ConfirmModal
         isOpen={showDeleteModal}
