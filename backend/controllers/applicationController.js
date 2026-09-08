@@ -13,7 +13,6 @@ export const createApplication = async (req, res) => {
       appliedDate,
       applicationUrl,
       primaryGoal,
-
       user: req.user._id,
 
       activities: [
@@ -26,7 +25,11 @@ export const createApplication = async (req, res) => {
       ],
     });
 
-    res.status(201).json(application);
+    const createdApplication = await Application.findById(
+      application._id,
+    ).populate("primaryGoal");
+
+    res.status(201).json(createdApplication);
   } catch (error) {
     res.status(500).json({
       message: error.message,
@@ -41,7 +44,6 @@ export const getApplications = async (req, res) => {
       user: req.user._id,
     };
 
-    // Search company or role.
     if (req.query.search) {
       query.$or = [
         {
@@ -59,17 +61,14 @@ export const getApplications = async (req, res) => {
       ];
     }
 
-    // Status filter.
     if (req.query.status) {
       query.status = req.query.status;
     }
 
-    // Career goal filter.
     if (req.query.primaryGoal) {
       query.primaryGoal = req.query.primaryGoal;
     }
 
-    // Sorting.
     let sortOption = {
       updatedAt: -1,
     };
@@ -147,19 +146,13 @@ export const updateApplication = async (req, res) => {
     const previousStatus = application.status;
 
     application.company = req.body.company ?? application.company;
-
     application.role = req.body.role ?? application.role;
-
     application.status = req.body.status ?? application.status;
-
     application.appliedDate = req.body.appliedDate ?? application.appliedDate;
-
     application.applicationUrl =
       req.body.applicationUrl ?? application.applicationUrl;
-
     application.primaryGoal = req.body.primaryGoal ?? application.primaryGoal;
 
-    // Record status changes.
     if (req.body.status && req.body.status !== previousStatus) {
       application.activities.push({
         type: "Status Changed",
@@ -169,7 +162,11 @@ export const updateApplication = async (req, res) => {
       });
     }
 
-    const updatedApplication = await application.save();
+    await application.save();
+
+    const updatedApplication = await Application.findById(
+      req.params.id,
+    ).populate("primaryGoal");
 
     res.status(200).json(updatedApplication);
   } catch (error) {
@@ -251,28 +248,25 @@ export const updateInterviewRound = async (req, res) => {
     }
 
     const previousStatus = round.status;
+    const previousTitle = round.title;
 
     round.title = req.body.title ?? round.title;
-
     round.status = req.body.status ?? round.status;
-
     round.date = req.body.date ?? round.date;
 
+    const wasCompleted =
+      round.status === "Completed" && previousStatus !== "Completed";
+
     application.activities.push({
-      type:
-        round.status === "Completed" && previousStatus !== "Completed"
-          ? "Interview Completed"
-          : "Interview Updated",
+      type: wasCompleted ? "Interview Completed" : "Interview Updated",
 
-      title:
-        round.status === "Completed" && previousStatus !== "Completed"
-          ? `${round.title} completed`
-          : `${round.title} updated`,
+      title: wasCompleted
+        ? `${round.title} completed`
+        : `${round.title} updated`,
 
-      description:
-        round.status === "Completed" && previousStatus !== "Completed"
-          ? `Interview round "${round.title}" was marked as completed.`
-          : `Interview round "${round.title}" was updated.`,
+      description: wasCompleted
+        ? `Interview round "${round.title}" was marked as completed.`
+        : `Interview round "${previousTitle}" was updated.`,
 
       date: new Date(),
     });
@@ -320,8 +314,12 @@ export const deleteInterviewRound = async (req, res) => {
 
     application.interviewRounds.pull(req.params.roundId);
 
+    /*
+     * "Interview Deleted" must also exist in the
+     * activity enum in Application.js.
+     */
     application.activities.push({
-      type: "Interview Updated",
+      type: "Interview Deleted",
       title: `Interview round deleted: ${deletedRoundTitle}`,
       description: `Interview round "${deletedRoundTitle}" was deleted.`,
       date: new Date(),

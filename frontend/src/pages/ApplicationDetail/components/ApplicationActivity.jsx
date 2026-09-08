@@ -8,13 +8,15 @@ import {
 } from "../../../services/applicationService";
 
 import FormDialog from "../../../components/FormDialog";
+import ConfirmModal from "../../../components/ConfirmModal";
 
-function ApplicationActivity({ application }) {
+function ApplicationActivity({ application, onApplicationUpdated }) {
   const [activities, setActivities] = useState([]);
 
   const [showAddModal, setShowAddModal] = useState(false);
-  const [showEditModal, setShowEditModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
+  const [showEditModal, setShowEditModal] = useState(false);
+  const [showDeleteModal, setShowDeleteModal] = useState(false);
 
   const [selectedActivity, setSelectedActivity] = useState(null);
 
@@ -25,6 +27,7 @@ function ApplicationActivity({ application }) {
 
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
+  const [deleting, setDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
@@ -70,6 +73,20 @@ function ApplicationActivity({ application }) {
     };
   }, [application?._id]);
 
+  const syncApplication = (updatedApplication) => {
+    if (!updatedApplication) {
+      return;
+    }
+
+    if (Array.isArray(updatedApplication.activities)) {
+      setActivities(updatedApplication.activities);
+    }
+
+    if (onApplicationUpdated) {
+      onApplicationUpdated(updatedApplication);
+    }
+  };
+
   const resetForm = () => {
     setType("Note Added");
     setTitle("");
@@ -99,7 +116,7 @@ function ApplicationActivity({ application }) {
   };
 
   const closeDetailModal = () => {
-    if (saving) {
+    if (saving || deleting) {
       return;
     }
 
@@ -118,20 +135,17 @@ function ApplicationActivity({ application }) {
     if (activity.date) {
       const parsedDate = new Date(activity.date);
 
-      if (!Number.isNaN(parsedDate.getTime())) {
-        const year = parsedDate.getFullYear();
-        const month = String(parsedDate.getMonth() + 1).padStart(2, "0");
-        const day = String(parsedDate.getDate()).padStart(2, "0");
-
-        setDate(`${year}-${month}-${day}`);
-      } else {
-        setDate("");
-      }
+      setDate(
+        Number.isNaN(parsedDate.getTime())
+          ? ""
+          : parsedDate.toISOString().split("T")[0],
+      );
     } else {
       setDate("");
     }
 
     setErrorMsg("");
+    setShowDetailModal(false);
     setShowEditModal(true);
   };
 
@@ -143,7 +157,25 @@ function ApplicationActivity({ application }) {
     setShowEditModal(false);
     setSelectedActivity(null);
     setErrorMsg("");
-    resetForm();
+  };
+
+  const openDeleteModal = (activity) => {
+    setSelectedActivity(activity);
+
+    setShowDetailModal(false);
+    setShowEditModal(false);
+    setShowDeleteModal(true);
+    setErrorMsg("");
+  };
+
+  const closeDeleteModal = () => {
+    if (deleting) {
+      return;
+    }
+
+    setShowDeleteModal(false);
+    setSelectedActivity(null);
+    setErrorMsg("");
   };
 
   const handleAddSubmit = async (event) => {
@@ -162,14 +194,14 @@ function ApplicationActivity({ application }) {
       setSaving(true);
       setErrorMsg("");
 
-      const activity = await addApplicationActivity(application._id, {
+      const updatedApplication = await addApplicationActivity(application._id, {
         type,
         title: title.trim(),
         description: description.trim(),
         date: date || null,
       });
 
-      setActivities((currentActivities) => [activity, ...currentActivities]);
+      syncApplication(updatedApplication);
 
       setShowAddModal(false);
       resetForm();
@@ -185,7 +217,7 @@ function ApplicationActivity({ application }) {
   const handleEditSubmit = async (event) => {
     event.preventDefault();
 
-    if (saving || !selectedActivity) {
+    if (saving || !selectedActivity?._id) {
       return;
     }
 
@@ -198,7 +230,7 @@ function ApplicationActivity({ application }) {
       setSaving(true);
       setErrorMsg("");
 
-      const updatedActivity = await updateApplicationActivity(
+      const updatedApplication = await updateApplicationActivity(
         application._id,
         selectedActivity._id,
         {
@@ -209,11 +241,7 @@ function ApplicationActivity({ application }) {
         },
       );
 
-      setActivities((currentActivities) =>
-        currentActivities.map((activity) =>
-          activity._id === selectedActivity._id ? updatedActivity : activity,
-        ),
-      );
+      syncApplication(updatedApplication);
 
       setShowEditModal(false);
       setSelectedActivity(null);
@@ -229,38 +257,32 @@ function ApplicationActivity({ application }) {
     }
   };
 
-  const handleDelete = async (activity) => {
-    if (!activity?._id) {
-      return;
-    }
-
-    const confirmed = window.confirm(
-      `Delete "${activity.title}"? This action cannot be undone.`,
-    );
-
-    if (!confirmed) {
+  const handleDelete = async () => {
+    if (deleting || !selectedActivity?._id) {
       return;
     }
 
     try {
+      setDeleting(true);
       setErrorMsg("");
 
-      await deleteApplicationActivity(application._id, activity._id);
-
-      setActivities((currentActivities) =>
-        currentActivities.filter((item) => item._id !== activity._id),
+      const updatedApplication = await deleteApplicationActivity(
+        application._id,
+        selectedActivity._id,
       );
 
-      if (selectedActivity?._id === activity._id) {
-        setShowDetailModal(false);
-        setSelectedActivity(null);
-      }
+      syncApplication(updatedApplication);
+
+      setShowDeleteModal(false);
+      setSelectedActivity(null);
     } catch (error) {
       console.error("Failed to delete application activity:", error);
 
       setErrorMsg(
         error?.response?.data?.message || "Failed to delete activity.",
       );
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -312,11 +334,15 @@ function ApplicationActivity({ application }) {
         </button>
       </div>
 
-      {errorMsg && !showAddModal && !showEditModal && !showDetailModal && (
-        <p className="application-activity-error" role="alert">
-          {errorMsg}
-        </p>
-      )}
+      {errorMsg &&
+        !showAddModal &&
+        !showDetailModal &&
+        !showEditModal &&
+        !showDeleteModal && (
+          <p className="application-activity-error" role="alert">
+            {errorMsg}
+          </p>
+        )}
 
       {loading ? (
         <div className="application-activity-empty">
@@ -337,62 +363,47 @@ function ApplicationActivity({ application }) {
               <div
                 className="application-activity-card"
                 onClick={() => openDetailModal(activity)}
-                role="button"
-                tabIndex={0}
-                onKeyDown={(event) => {
-                  if (event.key === "Enter" || event.key === " ") {
-                    event.preventDefault();
-                    openDetailModal(activity);
-                  }
-                }}
               >
-                <div className="application-activity-main">
-                  <span className="application-activity-type">
-                    {formatActivityType(activity.type)}
-                  </span>
+                <div className="application-activity-card-header">
+                  <div className="application-activity-card-main">
+                    <span className="application-activity-type">
+                      {formatActivityType(activity.type)}
+                    </span>
 
-                  <h3>{activity.title}</h3>
-                </div>
+                    <h3>{activity.title}</h3>
 
-                <div className="application-activity-description-wrap">
-                  {activity.description ? (
-                    <p className="application-activity-description">
-                      {activity.description}
-                    </p>
-                  ) : (
-                    <p className="application-activity-description application-activity-no-description">
-                      No description
-                    </p>
-                  )}
-                </div>
+                    {activity.description && (
+                      <p className="application-activity-description">
+                        {activity.description}
+                      </p>
+                    )}
+                  </div>
 
-                <div className="application-activity-actions">
-                  <span className="application-activity-date">
-                    {formatDate(activity.date)}
-                  </span>
+                  <div className="application-activity-card-side">
+                    <span className="application-activity-date">
+                      {formatDate(activity.date)}
+                    </span>
 
-                  <div className="application-activity-buttons">
-                    <button
-                      type="button"
-                      className="application-activity-edit"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        openEditModal(activity);
-                      }}
+                    <div
+                      className="application-activity-actions"
+                      onClick={(event) => event.stopPropagation()}
                     >
-                      Edit
-                    </button>
+                      <button
+                        type="button"
+                        className="application-activity-edit"
+                        onClick={() => openEditModal(activity)}
+                      >
+                        Edit
+                      </button>
 
-                    <button
-                      type="button"
-                      className="application-activity-delete"
-                      onClick={(event) => {
-                        event.stopPropagation();
-                        handleDelete(activity);
-                      }}
-                    >
-                      Delete
-                    </button>
+                      <button
+                        type="button"
+                        className="application-activity-delete"
+                        onClick={() => openDeleteModal(activity)}
+                      >
+                        Delete
+                      </button>
+                    </div>
                   </div>
                 </div>
               </div>
@@ -400,6 +411,8 @@ function ApplicationActivity({ application }) {
           ))}
         </div>
       )}
+
+      {/* Add Activity */}
 
       <FormDialog
         isOpen={showAddModal}
@@ -441,7 +454,6 @@ function ApplicationActivity({ application }) {
               onChange={(event) => setType(event.target.value)}
             >
               <option value="Note Added">Note</option>
-
               <option value="Follow-up">Follow-up</option>
             </select>
           </div>
@@ -490,6 +502,40 @@ function ApplicationActivity({ application }) {
         </form>
       </FormDialog>
 
+      {/* Activity Details */}
+
+      <FormDialog
+        isOpen={showDetailModal}
+        title={selectedActivity?.title || "Activity"}
+        onClose={closeDetailModal}
+      >
+        {selectedActivity && (
+          <div className="application-activity-detail">
+            <div className="application-activity-detail-meta">
+              <span className="application-activity-type">
+                {formatActivityType(selectedActivity.type)}
+              </span>
+
+              <span className="application-activity-date">
+                {formatDate(selectedActivity.date)}
+              </span>
+            </div>
+
+            <div className="application-activity-detail-description">
+              {selectedActivity.description ? (
+                <p>{selectedActivity.description}</p>
+              ) : (
+                <p className="application-activity-no-description">
+                  No description added.
+                </p>
+              )}
+            </div>
+          </div>
+        )}
+      </FormDialog>
+
+      {/* Edit Activity */}
+
       <FormDialog
         isOpen={showEditModal}
         title="Edit Activity"
@@ -522,24 +568,23 @@ function ApplicationActivity({ application }) {
           onSubmit={handleEditSubmit}
         >
           <div className="filter-group">
-            <label htmlFor="edit-activity-type">Activity Type</label>
+            <label htmlFor="activity-edit-type">Activity Type</label>
 
             <select
-              id="edit-activity-type"
+              id="activity-edit-type"
               value={type}
               onChange={(event) => setType(event.target.value)}
             >
               <option value="Note Added">Note</option>
-
               <option value="Follow-up">Follow-up</option>
             </select>
           </div>
 
           <div className="filter-group">
-            <label htmlFor="edit-activity-title">Title</label>
+            <label htmlFor="activity-edit-title">Title</label>
 
             <input
-              id="edit-activity-title"
+              id="activity-edit-title"
               type="text"
               value={title}
               onChange={(event) => setTitle(event.target.value)}
@@ -548,21 +593,21 @@ function ApplicationActivity({ application }) {
           </div>
 
           <div className="filter-group">
-            <label htmlFor="edit-activity-description">Description</label>
+            <label htmlFor="activity-edit-description">Description</label>
 
             <textarea
-              id="edit-activity-description"
+              id="activity-edit-description"
               value={description}
               onChange={(event) => setDescription(event.target.value)}
-              rows={5}
+              rows={6}
             />
           </div>
 
           <div className="filter-group">
-            <label htmlFor="edit-activity-date">Date</label>
+            <label htmlFor="activity-edit-date">Date</label>
 
             <input
-              id="edit-activity-date"
+              id="activity-edit-date"
               type="date"
               value={date}
               onChange={(event) => setDate(event.target.value)}
@@ -577,33 +622,20 @@ function ApplicationActivity({ application }) {
         </form>
       </FormDialog>
 
-      <FormDialog
-        isOpen={showDetailModal}
-        title={selectedActivity?.title || "Activity"}
-        onClose={closeDetailModal}
-      >
-        {selectedActivity && (
-          <div className="application-activity-detail">
-            <span className="application-activity-type">
-              {formatActivityType(selectedActivity.type)}
-            </span>
+      {/* Delete Confirmation */}
 
-            <span className="application-activity-date">
-              {formatDate(selectedActivity.date)}
-            </span>
-
-            {selectedActivity.description ? (
-              <p className="application-activity-modal-description">
-                {selectedActivity.description}
-              </p>
-            ) : (
-              <p className="application-activity-description application-activity-no-description">
-                No description
-              </p>
-            )}
-          </div>
-        )}
-      </FormDialog>
+      <ConfirmModal
+        isOpen={showDeleteModal}
+        title="Delete Activity"
+        message={
+          selectedActivity
+            ? `Are you sure you want to delete "${selectedActivity.title}"? This action cannot be undone.`
+            : "Are you sure you want to delete this activity?"
+        }
+        onConfirm={handleDelete}
+        onCancel={closeDeleteModal}
+        loading={deleting}
+      />
     </section>
   );
 }

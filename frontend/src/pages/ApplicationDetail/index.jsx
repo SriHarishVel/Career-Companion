@@ -365,7 +365,10 @@ function ApplicationDetail() {
           onDeleteRound={handleDeleteRound}
         />
 
-        <ApplicationActivity application={application} />
+        <ApplicationActivity
+          application={application}
+          onApplicationUpdated={handleApplicationUpdated}
+        />
 
         <ApplicationActions
           application={application}

@@ -36,6 +36,7 @@ const applicationActivitySchema = new mongoose.Schema(
         "Interview Added",
         "Interview Updated",
         "Interview Completed",
+        "Interview Deleted",
         "Note Added",
         "Follow-up",
       ],
