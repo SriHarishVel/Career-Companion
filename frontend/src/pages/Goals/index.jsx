@@ -7,6 +7,7 @@ import GoalSections from "./components/GoalSections";
 import JourneySetup from "./components/JourneySetup";
 
 import LoadingState from "../../components/LoadingState";
+import useQueryParams from "../../hooks/useQueryParams";
 
 import { getGoals, createGoal, updateGoal } from "../../services/goalService";
 
@@ -15,17 +16,20 @@ import "./index.css";
 function Goals() {
   const location = useLocation();
 
+  const { getParam, setParams, clearParams } = useQueryParams();
+
   const journeyStep = location.state?.journeyStep || null;
   const isGuidedSetup = Boolean(journeyStep);
 
   const [goals, setGoals] = useState([]);
 
-  const [searchGoal, setSearchGoal] = useState("");
-  const [sortOption, setSortOption] = useState("default");
-  const [categoryFilter, setCategoryFilter] = useState("All");
-  const [priorityFilter, setPriorityFilter] = useState("All");
-  const [goalTypeFilter, setGoalTypeFilter] = useState("All");
-  const [statusFilter, setStatusFilter] = useState("All");
+  // Filter state comes directly from the browser URL.
+  const searchGoal = getParam("search");
+  const sortOption = getParam("sort") || "default";
+  const categoryFilter = getParam("category") || "All";
+  const priorityFilter = getParam("priority") || "All";
+  const goalTypeFilter = getParam("goalType") || "All";
+  const statusFilter = getParam("status") || "All";
 
   const [newGoal, setNewGoal] = useState("");
   const [newCategory, setNewCategory] = useState("Learning");
@@ -47,7 +51,7 @@ function Goals() {
         setErrorMsg("");
 
         const data = await getGoals({
-          search: searchGoal,
+          search: searchGoal || undefined,
           category: categoryFilter === "All" ? undefined : categoryFilter,
           priority: priorityFilter === "All" ? undefined : priorityFilter,
           goalType: goalTypeFilter === "All" ? undefined : goalTypeFilter,
@@ -93,6 +97,53 @@ function Goals() {
     const parent = primaryGoals.find((goal) => goal._id === parentId);
 
     return parent ? parent.title : "";
+  }
+
+  function handleSearchChange(value) {
+    setParams({
+      search: value,
+    });
+  }
+
+  function handleSortChange(value) {
+    setParams({
+      sort: value === "default" ? "" : value,
+    });
+  }
+
+  function handleCategoryChange(value) {
+    setParams({
+      category: value === "All" ? "" : value,
+    });
+  }
+
+  function handlePriorityChange(value) {
+    setParams({
+      priority: value === "All" ? "" : value,
+    });
+  }
+
+  function handleGoalTypeFilterChange(value) {
+    setParams({
+      goalType: value === "All" ? "" : value,
+    });
+  }
+
+  function handleStatusChange(value) {
+    setParams({
+      status: value === "All" ? "" : value,
+    });
+  }
+
+  function clearFilters() {
+    clearParams([
+      "search",
+      "sort",
+      "category",
+      "priority",
+      "goalType",
+      "status",
+    ]);
   }
 
   function resetGoalForm() {
@@ -145,7 +196,7 @@ function Goals() {
 
   async function refreshGoals() {
     const data = await getGoals({
-      search: searchGoal,
+      search: searchGoal || undefined,
       category: categoryFilter === "All" ? undefined : categoryFilter,
       priority: priorityFilter === "All" ? undefined : priorityFilter,
       goalType: goalTypeFilter === "All" ? undefined : goalTypeFilter,
@@ -240,17 +291,18 @@ function Goals() {
 
       <GoalFilters
         searchGoal={searchGoal}
-        setSearchGoal={setSearchGoal}
+        setSearchGoal={handleSearchChange}
         sortOption={sortOption}
-        setSortOption={setSortOption}
+        setSortOption={handleSortChange}
         categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
+        setCategoryFilter={handleCategoryChange}
         priorityFilter={priorityFilter}
-        setPriorityFilter={setPriorityFilter}
+        setPriorityFilter={handlePriorityChange}
         goalTypeFilter={goalTypeFilter}
-        setGoalTypeFilter={setGoalTypeFilter}
+        setGoalTypeFilter={handleGoalTypeFilterChange}
         statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
+        setStatusFilter={handleStatusChange}
+        onClearFilters={clearFilters}
       />
 
       {errorMsg && !showGoalForm && (

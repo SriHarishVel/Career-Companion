@@ -13,16 +13,8 @@ function GoalFilters({
   setGoalTypeFilter,
   statusFilter,
   setStatusFilter,
+  onClearFilters,
 }) {
-  function clearFilters() {
-    setSearchGoal("");
-    setSortOption("default");
-    setCategoryFilter("All");
-    setPriorityFilter("All");
-    setGoalTypeFilter("All");
-    setStatusFilter("All");
-  }
-
   const filters = [
     {
       label: "Category",
@@ -127,7 +119,7 @@ function GoalFilters({
         onSortChange={setSortOption}
         searchPlaceholder="Search goals..."
         filters={filters}
-        onClearFilters={clearFilters}
+        onClearFilters={onClearFilters}
       >
         <option value="default">Default</option>
         <option value="az">A-Z</option>

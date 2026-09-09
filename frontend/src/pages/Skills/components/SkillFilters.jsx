@@ -9,6 +9,7 @@ function SkillFilters({
   setCategoryFilter,
   levelFilter,
   setLevelFilter,
+  onClearFilters,
 }) {
   const filters = [
     {
@@ -47,7 +48,6 @@ function SkillFilters({
         },
       ],
     },
-
     {
       label: "Level",
       value: levelFilter,
@@ -74,13 +74,6 @@ function SkillFilters({
     },
   ];
 
-  function clearFilters() {
-    setSearchSkill("");
-    setSortOption("default");
-    setCategoryFilter("All");
-    setLevelFilter("All");
-  }
-
   return (
     <div className="skill-filters">
       <SearchFilterBar
@@ -90,7 +83,7 @@ function SkillFilters({
         onSortChange={setSortOption}
         searchPlaceholder="Search skills..."
         filters={filters}
-        onClearFilters={clearFilters}
+        onClearFilters={onClearFilters}
       >
         <option value="default">Default</option>
         <option value="az">A-Z</option>

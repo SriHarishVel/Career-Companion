@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
 import LoadingState from "../../components/LoadingState";
+import useQueryParams from "../../hooks/useQueryParams";
 
 import SkillCard from "./components/SkillCard";
 import SkillFilters from "./components/SkillFilters";
@@ -9,9 +10,7 @@ import SkillForm from "./components/SkillForm";
 
 import { journeyService } from "../../services/journeyService";
 import { getGoals } from "../../services/goalService";
-
 import { createResource } from "../../services/resourceService";
-
 import { getSkills, createSkill } from "../../services/skillService";
 
 import "./index.css";
@@ -20,11 +19,20 @@ function Skills() {
   const navigate = useNavigate();
   const location = useLocation();
 
+  const { getParam, setParams, clearParams } = useQueryParams();
+
   const journeyAction = location.state?.action;
   const journeyTitle = location.state?.title;
   const journeyDescription = location.state?.description;
 
   const isGuidedSetup = journeyAction === "createSkill";
+
+  /* URL FILTER STATE */
+
+  const searchSkill = getParam("search");
+  const sortOption = getParam("sort") || "default";
+  const categoryFilter = getParam("category") || "All";
+  const levelFilter = getParam("level") || "All";
 
   /* FORM STATE */
 
@@ -35,13 +43,6 @@ function Skills() {
 
   const [learningAreas, setLearningAreas] = useState([]);
   const [practicalRequirements, setPracticalRequirements] = useState([]);
-
-  /* FILTER STATE */
-
-  const [searchSkill, setSearchSkill] = useState("");
-  const [sortOption, setSortOption] = useState("default");
-  const [categoryFilter, setCategoryFilter] = useState("All");
-  const [levelFilter, setLevelFilter] = useState("All");
 
   /* DATA */
 
@@ -58,6 +59,36 @@ function Skills() {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  /* URL FILTER HANDLERS */
+
+  function handleSearchChange(value) {
+    setParams({
+      search: value,
+    });
+  }
+
+  function handleSortChange(value) {
+    setParams({
+      sort: value === "default" ? "" : value,
+    });
+  }
+
+  function handleCategoryChange(value) {
+    setParams({
+      category: value === "All" ? "" : value,
+    });
+  }
+
+  function handleLevelChange(value) {
+    setParams({
+      level: value === "All" ? "" : value,
+    });
+  }
+
+  function clearFilters() {
+    clearParams(["search", "sort", "category", "level"]);
+  }
+
   /* LOAD SKILLS */
 
   useEffect(() => {
@@ -67,7 +98,7 @@ function Skills() {
         setErrorMsg("");
 
         const skillData = await getSkills({
-          search: searchSkill,
+          search: searchSkill || undefined,
           category: categoryFilter === "All" ? undefined : categoryFilter,
           level: levelFilter === "All" ? undefined : levelFilter,
           sort: sortOption === "default" ? undefined : sortOption,
@@ -114,7 +145,7 @@ function Skills() {
 
   async function refreshSkills() {
     const updatedSkills = await getSkills({
-      search: searchSkill,
+      search: searchSkill || undefined,
       category: categoryFilter === "All" ? undefined : categoryFilter,
       level: levelFilter === "All" ? undefined : levelFilter,
       sort: sortOption === "default" ? undefined : sortOption,
@@ -259,13 +290,14 @@ function Skills() {
 
       <SkillFilters
         searchSkill={searchSkill}
-        setSearchSkill={setSearchSkill}
+        setSearchSkill={handleSearchChange}
         sortOption={sortOption}
-        setSortOption={setSortOption}
+        setSortOption={handleSortChange}
         categoryFilter={categoryFilter}
-        setCategoryFilter={setCategoryFilter}
+        setCategoryFilter={handleCategoryChange}
         levelFilter={levelFilter}
-        setLevelFilter={setLevelFilter}
+        setLevelFilter={handleLevelChange}
+        onClearFilters={clearFilters}
       />
 
       <SkillForm
