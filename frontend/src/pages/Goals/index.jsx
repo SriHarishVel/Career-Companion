@@ -21,15 +21,19 @@ function Goals() {
   const journeyStep = location.state?.journeyStep || null;
   const isGuidedSetup = Boolean(journeyStep);
 
-  const [goals, setGoals] = useState([]);
+  const initialFilters = {
+    search: getParam("search") || "",
+    sort: getParam("sort") || "default",
+    category: getParam("category") || "All",
+    priority: getParam("priority") || "All",
+    goalType: getParam("goalType") || "All",
+    status: getParam("status") || "All",
+  };
 
-  // Filter state comes directly from the browser URL.
-  const searchGoal = getParam("search");
-  const sortOption = getParam("sort") || "default";
-  const categoryFilter = getParam("category") || "All";
-  const priorityFilter = getParam("priority") || "All";
-  const goalTypeFilter = getParam("goalType") || "All";
-  const statusFilter = getParam("status") || "All";
+  const [filters, setFilters] = useState(initialFilters);
+  const [appliedFilters, setAppliedFilters] = useState(initialFilters);
+
+  const [goals, setGoals] = useState([]);
 
   const [newGoal, setNewGoal] = useState("");
   const [newCategory, setNewCategory] = useState("Learning");
@@ -45,39 +49,58 @@ function Goals() {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
+    let cancelled = false;
+
     async function fetchGoals() {
       try {
         setLoading(true);
         setErrorMsg("");
 
         const data = await getGoals({
-          search: searchGoal || undefined,
-          category: categoryFilter === "All" ? undefined : categoryFilter,
-          priority: priorityFilter === "All" ? undefined : priorityFilter,
-          goalType: goalTypeFilter === "All" ? undefined : goalTypeFilter,
-          status: statusFilter === "All" ? undefined : statusFilter,
-          sort: sortOption === "default" ? undefined : sortOption,
+          search: appliedFilters.search || undefined,
+          category:
+            appliedFilters.category === "All"
+              ? undefined
+              : appliedFilters.category,
+          priority:
+            appliedFilters.priority === "All"
+              ? undefined
+              : appliedFilters.priority,
+          goalType:
+            appliedFilters.goalType === "All"
+              ? undefined
+              : appliedFilters.goalType,
+          status:
+            appliedFilters.status === "All" ? undefined : appliedFilters.status,
+          sort:
+            appliedFilters.sort === "default" ? undefined : appliedFilters.sort,
         });
 
-        setGoals(data);
+        if (!cancelled) {
+          setGoals(data);
+        }
       } catch (error) {
-        console.error("Failed to load goals:", error);
+        if (!cancelled) {
+          console.error("Failed to load goals:", error);
 
-        setErrorMsg("Unable to load your goals. Please try again.");
+          setErrorMsg(
+            error.response?.data?.message ||
+              "Unable to load your goals. Please try again.",
+          );
+        }
       } finally {
-        setLoading(false);
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
     fetchGoals();
-  }, [
-    searchGoal,
-    sortOption,
-    categoryFilter,
-    priorityFilter,
-    goalTypeFilter,
-    statusFilter,
-  ]);
+
+    return () => {
+      cancelled = true;
+    };
+  }, [appliedFilters]);
 
   const primaryGoals = goals.filter((goal) => goal.goalType === "Primary");
 
@@ -100,42 +123,73 @@ function Goals() {
   }
 
   function handleSearchChange(value) {
-    setParams({
+    setFilters((current) => ({
+      ...current,
       search: value,
-    });
+    }));
   }
 
   function handleSortChange(value) {
-    setParams({
-      sort: value === "default" ? "" : value,
-    });
+    setFilters((current) => ({
+      ...current,
+      sort: value,
+    }));
   }
 
   function handleCategoryChange(value) {
-    setParams({
-      category: value === "All" ? "" : value,
-    });
+    setFilters((current) => ({
+      ...current,
+      category: value,
+    }));
   }
 
   function handlePriorityChange(value) {
-    setParams({
-      priority: value === "All" ? "" : value,
-    });
+    setFilters((current) => ({
+      ...current,
+      priority: value,
+    }));
   }
 
   function handleGoalTypeFilterChange(value) {
-    setParams({
-      goalType: value === "All" ? "" : value,
-    });
+    setFilters((current) => ({
+      ...current,
+      goalType: value,
+    }));
   }
 
   function handleStatusChange(value) {
+    setFilters((current) => ({
+      ...current,
+      status: value,
+    }));
+  }
+
+  function applyFilters() {
+    setAppliedFilters({ ...filters });
+
     setParams({
-      status: value === "All" ? "" : value,
+      search: filters.search || "",
+      sort: filters.sort === "default" ? "" : filters.sort,
+      category: filters.category === "All" ? "" : filters.category,
+      priority: filters.priority === "All" ? "" : filters.priority,
+      goalType: filters.goalType === "All" ? "" : filters.goalType,
+      status: filters.status === "All" ? "" : filters.status,
     });
   }
 
   function clearFilters() {
+    const clearedFilters = {
+      search: "",
+      sort: "default",
+      category: "All",
+      priority: "All",
+      goalType: "All",
+      status: "All",
+    };
+
+    setFilters(clearedFilters);
+    setAppliedFilters(clearedFilters);
+
     clearParams([
       "search",
       "sort",
@@ -196,12 +250,16 @@ function Goals() {
 
   async function refreshGoals() {
     const data = await getGoals({
-      search: searchGoal || undefined,
-      category: categoryFilter === "All" ? undefined : categoryFilter,
-      priority: priorityFilter === "All" ? undefined : priorityFilter,
-      goalType: goalTypeFilter === "All" ? undefined : goalTypeFilter,
-      status: statusFilter === "All" ? undefined : statusFilter,
-      sort: sortOption === "default" ? undefined : sortOption,
+      search: appliedFilters.search || undefined,
+      category:
+        appliedFilters.category === "All" ? undefined : appliedFilters.category,
+      priority:
+        appliedFilters.priority === "All" ? undefined : appliedFilters.priority,
+      goalType:
+        appliedFilters.goalType === "All" ? undefined : appliedFilters.goalType,
+      status:
+        appliedFilters.status === "All" ? undefined : appliedFilters.status,
+      sort: appliedFilters.sort === "default" ? undefined : appliedFilters.sort,
     });
 
     setGoals(data);
@@ -242,7 +300,10 @@ function Goals() {
     } catch (error) {
       console.error("Failed to save goal:", error);
 
-      setErrorMsg("Unable to save the goal. Please try again.");
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to save the goal. Please try again.",
+      );
     }
   }
 
@@ -290,19 +351,20 @@ function Goals() {
       </div>
 
       <GoalFilters
-        searchGoal={searchGoal}
+        searchGoal={filters.search}
         setSearchGoal={handleSearchChange}
-        sortOption={sortOption}
+        sortOption={filters.sort}
         setSortOption={handleSortChange}
-        categoryFilter={categoryFilter}
+        categoryFilter={filters.category}
         setCategoryFilter={handleCategoryChange}
-        priorityFilter={priorityFilter}
+        priorityFilter={filters.priority}
         setPriorityFilter={handlePriorityChange}
-        goalTypeFilter={goalTypeFilter}
+        goalTypeFilter={filters.goalType}
         setGoalTypeFilter={handleGoalTypeFilterChange}
-        statusFilter={statusFilter}
+        statusFilter={filters.status}
         setStatusFilter={handleStatusChange}
         onClearFilters={clearFilters}
+        onApplyFilters={applyFilters}
       />
 
       {errorMsg && !showGoalForm && (

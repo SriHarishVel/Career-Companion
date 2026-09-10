@@ -9,6 +9,7 @@ function SearchFilterBar({
   searchPlaceholder = "Search...",
   filters = [],
   onClearFilters,
+  onApplyFilters,
   children,
 }) {
   const [isFilterOpen, setIsFilterOpen] = useState(false);
@@ -36,6 +37,14 @@ function SearchFilterBar({
     } else {
       onSearchChange("");
     }
+  }
+
+  function handleApplyFilters() {
+    if (onApplyFilters) {
+      onApplyFilters();
+    }
+
+    setIsFilterOpen(false);
   }
 
   return (
@@ -154,7 +163,7 @@ function SearchFilterBar({
               <button
                 type="button"
                 className="filter-panel-apply"
-                onClick={() => setIsFilterOpen(false)}
+                onClick={handleApplyFilters}
               >
                 Apply Filters
               </button>

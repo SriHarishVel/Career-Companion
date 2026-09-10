@@ -9,6 +9,7 @@ function SkillFilters({
   setCategoryFilter,
   levelFilter,
   setLevelFilter,
+  onApplyFilters,
   onClearFilters,
 }) {
   const filters = [
@@ -18,34 +19,13 @@ function SkillFilters({
       defaultValue: "All",
       onChange: setCategoryFilter,
       options: [
-        {
-          value: "All",
-          label: "All Categories",
-        },
-        {
-          value: "Programming",
-          label: "Programming",
-        },
-        {
-          value: "Database",
-          label: "Database",
-        },
-        {
-          value: "Framework",
-          label: "Framework",
-        },
-        {
-          value: "Tools",
-          label: "Tools",
-        },
-        {
-          value: "Soft Skills",
-          label: "Soft Skills",
-        },
-        {
-          value: "Other",
-          label: "Other",
-        },
+        { value: "All", label: "All Categories" },
+        { value: "Programming", label: "Programming" },
+        { value: "Database", label: "Database" },
+        { value: "Framework", label: "Framework" },
+        { value: "Tools", label: "Tools" },
+        { value: "Soft Skills", label: "Soft Skills" },
+        { value: "Other", label: "Other" },
       ],
     },
     {
@@ -54,22 +34,10 @@ function SkillFilters({
       defaultValue: "All",
       onChange: setLevelFilter,
       options: [
-        {
-          value: "All",
-          label: "All Levels",
-        },
-        {
-          value: "Beginner",
-          label: "Beginner",
-        },
-        {
-          value: "Intermediate",
-          label: "Intermediate",
-        },
-        {
-          value: "Advanced",
-          label: "Advanced",
-        },
+        { value: "All", label: "All Levels" },
+        { value: "Beginner", label: "Beginner" },
+        { value: "Intermediate", label: "Intermediate" },
+        { value: "Advanced", label: "Advanced" },
       ],
     },
   ];
@@ -84,6 +52,7 @@ function SkillFilters({
         searchPlaceholder="Search skills..."
         filters={filters}
         onClearFilters={onClearFilters}
+        onApplyFilters={onApplyFilters}
       >
         <option value="default">Default</option>
         <option value="az">A-Z</option>

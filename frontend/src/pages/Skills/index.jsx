@@ -27,14 +27,18 @@ function Skills() {
 
   const isGuidedSetup = journeyAction === "createSkill";
 
-  /* URL FILTER STATE */
+  const urlSearch = getParam("search") || "";
+  const urlSort = getParam("sort") || "default";
+  const urlCategory = getParam("category") || "All";
+  const urlLevel = getParam("level") || "All";
 
-  const searchSkill = getParam("search");
-  const sortOption = getParam("sort") || "default";
-  const categoryFilter = getParam("category") || "All";
-  const levelFilter = getParam("level") || "All";
+  const [searchSkill, setSearchSkill] = useState(urlSearch);
+  const [sortOption, setSortOption] = useState(urlSort);
+  const [categoryFilter, setCategoryFilter] = useState(urlCategory);
+  const [levelFilter, setLevelFilter] = useState(urlLevel);
 
-  /* FORM STATE */
+  const [skills, setSkills] = useState([]);
+  const [goals, setGoals] = useState([]);
 
   const [newSkill, setNewSkill] = useState("");
   const [newCategory, setNewCategory] = useState("Programming");
@@ -44,64 +48,19 @@ function Skills() {
   const [learningAreas, setLearningAreas] = useState([]);
   const [practicalRequirements, setPracticalRequirements] = useState([]);
 
-  /* DATA */
-
-  const [skills, setSkills] = useState([]);
-  const [goals, setGoals] = useState([]);
-
-  /* FORM */
-
   const [showSkillForm, setShowSkillForm] = useState(isGuidedSetup);
-
-  /* REQUEST STATE */
-
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  /* URL FILTER HANDLERS */
-
-  function handleSearchChange(value) {
-    setParams({
-      search: value,
-    });
-  }
-
-  function handleSortChange(value) {
-    setParams({
-      sort: value === "default" ? "" : value,
-    });
-  }
-
-  function handleCategoryChange(value) {
-    setParams({
-      category: value === "All" ? "" : value,
-    });
-  }
-
-  function handleLevelChange(value) {
-    setParams({
-      level: value === "All" ? "" : value,
-    });
-  }
-
-  function clearFilters() {
-    clearParams(["search", "sort", "category", "level"]);
-  }
-
-  /* LOAD SKILLS */
-
   useEffect(() => {
     async function fetchSkills() {
       try {
-        setLoading(true);
-        setErrorMsg("");
-
         const skillData = await getSkills({
-          search: searchSkill || undefined,
-          category: categoryFilter === "All" ? undefined : categoryFilter,
-          level: levelFilter === "All" ? undefined : levelFilter,
-          sort: sortOption === "default" ? undefined : sortOption,
+          search: urlSearch || undefined,
+          category: urlCategory === "All" ? undefined : urlCategory,
+          level: urlLevel === "All" ? undefined : urlLevel,
+          sort: urlSort === "default" ? undefined : urlSort,
         });
 
         setSkills(skillData);
@@ -118,15 +77,12 @@ function Skills() {
     }
 
     fetchSkills();
-  }, [searchSkill, categoryFilter, levelFilter, sortOption]);
-
-  /* LOAD GOALS */
+  }, [urlSearch, urlCategory, urlLevel, urlSort]);
 
   useEffect(() => {
     async function fetchGoals() {
       try {
         const goalData = await getGoals();
-
         setGoals(goalData);
       } catch (error) {
         console.error("Failed to load goals:", error);
@@ -141,20 +97,34 @@ function Skills() {
     fetchGoals();
   }, []);
 
-  /* REFRESH SKILLS */
+  function applyFilters() {
+    setParams({
+      search: searchSkill || "",
+      sort: sortOption === "default" ? "" : sortOption,
+      category: categoryFilter === "All" ? "" : categoryFilter,
+      level: levelFilter === "All" ? "" : levelFilter,
+    });
+  }
+
+  function clearFilters() {
+    setSearchSkill("");
+    setSortOption("default");
+    setCategoryFilter("All");
+    setLevelFilter("All");
+
+    clearParams(["search", "sort", "category", "level"]);
+  }
 
   async function refreshSkills() {
     const updatedSkills = await getSkills({
-      search: searchSkill || undefined,
-      category: categoryFilter === "All" ? undefined : categoryFilter,
-      level: levelFilter === "All" ? undefined : levelFilter,
-      sort: sortOption === "default" ? undefined : sortOption,
+      search: urlSearch || undefined,
+      category: urlCategory === "All" ? undefined : urlCategory,
+      level: urlLevel === "All" ? undefined : urlLevel,
+      sort: urlSort === "default" ? undefined : urlSort,
     });
 
     setSkills(updatedSkills);
   }
-
-  /* JOURNEY */
 
   function goToNextStep() {
     const nextStep = journeyService.getNextStep();
@@ -169,8 +139,6 @@ function Skills() {
     });
   }
 
-  /* OPEN ADD FORM */
-
   function openAddSkill() {
     setNewSkill("");
     setNewCategory("Programming");
@@ -184,14 +152,12 @@ function Skills() {
     setShowSkillForm(true);
   }
 
-  /* ADD SKILL */
-
   async function addSkill() {
     if (saving) {
       return;
     }
 
-    if (newSkill.trim() === "") {
+    if (!newSkill.trim()) {
       setErrorMsg("Skill cannot be empty.");
       return;
     }
@@ -209,8 +175,6 @@ function Skills() {
         secondaryGoal: secondaryGoalId || null,
       });
 
-      /* OPTIONAL RESOURCE */
-
       if (newResource.trim()) {
         await createResource({
           title: `${newSkill.trim()} Resource`,
@@ -226,7 +190,6 @@ function Skills() {
       setNewCategory("Programming");
       setSecondaryGoalId("");
       setNewResource("");
-
       setLearningAreas([]);
       setPracticalRequirements([]);
 
@@ -252,13 +215,10 @@ function Skills() {
     (goal) => goal.goalType === "Secondary",
   );
 
-  /* LOADING */
-
   if (loading) {
     return (
       <div className="container">
         <h1>Skills</h1>
-
         <LoadingState message="Loading your skills..." />
       </div>
     );
@@ -290,13 +250,14 @@ function Skills() {
 
       <SkillFilters
         searchSkill={searchSkill}
-        setSearchSkill={handleSearchChange}
+        setSearchSkill={setSearchSkill}
         sortOption={sortOption}
-        setSortOption={handleSortChange}
+        setSortOption={setSortOption}
         categoryFilter={categoryFilter}
-        setCategoryFilter={handleCategoryChange}
+        setCategoryFilter={setCategoryFilter}
         levelFilter={levelFilter}
-        setLevelFilter={handleLevelChange}
+        setLevelFilter={setLevelFilter}
+        onApplyFilters={applyFilters}
         onClearFilters={clearFilters}
       />
 
@@ -342,7 +303,6 @@ function Skills() {
         ) : (
           <div className="empty-state">
             <h3>No skills found</h3>
-
             <p>Add a skill or adjust your filters.</p>
           </div>
         )}

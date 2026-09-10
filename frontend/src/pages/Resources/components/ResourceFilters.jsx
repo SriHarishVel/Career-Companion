@@ -12,6 +12,7 @@ function ResourceFilters({
   skills,
   getParentGoalTitle,
   onClearFilters,
+  onApplyFilters,
 }) {
   const filters = [
     {
@@ -20,44 +21,24 @@ function ResourceFilters({
       defaultValue: "All",
       onChange: setFilterOption,
       options: [
-        {
-          value: "All",
-          label: "All Resources",
-        },
-        {
-          value: "Favorites",
-          label: "Favorites",
-        },
-        {
-          value: "Documentation",
-          label: "Documentation",
-        },
-        {
-          value: "Course",
-          label: "Course",
-        },
-        {
-          value: "Video",
-          label: "Video",
-        },
-        {
-          value: "Article",
-          label: "Article",
-        },
+        { value: "All", label: "All Resources" },
+        { value: "Favorites", label: "Favorites" },
+        { value: "Documentation", label: "Documentation" },
+        { value: "Course", label: "Course" },
+        { value: "Video", label: "Video" },
+        { value: "Article", label: "Article" },
+        { value: "Book", label: "Book" },
+        { value: "Practice", label: "Practice" },
+        { value: "Other", label: "Other" },
       ],
     },
-
     {
       label: "Related Skill",
       value: skillFilter,
       defaultValue: "All",
       onChange: setSkillFilter,
       options: [
-        {
-          value: "All",
-          label: "All Skills",
-        },
-
+        { value: "All", label: "All Skills" },
         ...skills.map((skill) => {
           const parentGoal = getParentGoalTitle(skill);
 
@@ -80,7 +61,7 @@ function ResourceFilters({
         searchPlaceholder="Search resources..."
         filters={filters}
         onClearFilters={onClearFilters}
-        forceFilterPopup
+        onApplyFilters={onApplyFilters}
       >
         <option value="default">Default</option>
         <option value="az">A-Z</option>

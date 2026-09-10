@@ -14,6 +14,7 @@ function GoalFilters({
   statusFilter,
   setStatusFilter,
   onClearFilters,
+  onApplyFilters,
 }) {
   const filters = [
     {
@@ -22,26 +23,11 @@ function GoalFilters({
       defaultValue: "All",
       onChange: setCategoryFilter,
       options: [
-        {
-          value: "All",
-          label: "All Categories",
-        },
-        {
-          value: "Learning",
-          label: "Learning",
-        },
-        {
-          value: "Career",
-          label: "Career",
-        },
-        {
-          value: "Personal",
-          label: "Personal",
-        },
-        {
-          value: "Health",
-          label: "Health",
-        },
+        { value: "All", label: "All Categories" },
+        { value: "Learning", label: "Learning" },
+        { value: "Career", label: "Career" },
+        { value: "Personal", label: "Personal" },
+        { value: "Health", label: "Health" },
       ],
     },
     {
@@ -50,22 +36,10 @@ function GoalFilters({
       defaultValue: "All",
       onChange: setPriorityFilter,
       options: [
-        {
-          value: "All",
-          label: "All Priorities",
-        },
-        {
-          value: "High",
-          label: "High",
-        },
-        {
-          value: "Medium",
-          label: "Medium",
-        },
-        {
-          value: "Low",
-          label: "Low",
-        },
+        { value: "All", label: "All Priorities" },
+        { value: "High", label: "High" },
+        { value: "Medium", label: "Medium" },
+        { value: "Low", label: "Low" },
       ],
     },
     {
@@ -74,18 +48,9 @@ function GoalFilters({
       defaultValue: "All",
       onChange: setGoalTypeFilter,
       options: [
-        {
-          value: "All",
-          label: "All Types",
-        },
-        {
-          value: "Primary",
-          label: "Primary Goals",
-        },
-        {
-          value: "Secondary",
-          label: "Secondary Goals",
-        },
+        { value: "All", label: "All Types" },
+        { value: "Primary", label: "Primary Goals" },
+        { value: "Secondary", label: "Secondary Goals" },
       ],
     },
     {
@@ -94,18 +59,9 @@ function GoalFilters({
       defaultValue: "All",
       onChange: setStatusFilter,
       options: [
-        {
-          value: "All",
-          label: "All Goals",
-        },
-        {
-          value: "Active",
-          label: "Active Goals",
-        },
-        {
-          value: "Completed",
-          label: "Completed Goals",
-        },
+        { value: "All", label: "All Goals" },
+        { value: "Active", label: "Active Goals" },
+        { value: "Completed", label: "Completed Goals" },
       ],
     },
   ];
@@ -120,6 +76,7 @@ function GoalFilters({
         searchPlaceholder="Search goals..."
         filters={filters}
         onClearFilters={onClearFilters}
+        onApplyFilters={onApplyFilters}
       >
         <option value="default">Default</option>
         <option value="az">A-Z</option>

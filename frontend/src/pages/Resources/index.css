@@ -11,32 +11,29 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-
   gap: 20px;
-  margin: 0 0 26px;
+  width: 100%;
+  margin: 0 0 24px;
 }
 
 .resources-page .page-header h1 {
   margin: 0;
-
   color: #1f2937;
-
-  font-size: 2.5rem;
+  font-size: 2.25rem;
   font-weight: 700;
-  line-height: 1.1;
+  line-height: 1.2;
 }
 
 .add-resource-btn {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-
   flex-shrink: 0;
 
   min-height: 40px;
-  padding: 9px 15px;
+  padding: 9px 16px;
 
-  border: none;
+  border: 1px solid #2563eb;
   border-radius: 8px;
 
   background: #2563eb;
@@ -50,10 +47,12 @@
 
   transition:
     background-color 0.18s ease,
+    border-color 0.18s ease,
     transform 0.15s ease;
 }
 
 .add-resource-btn:hover {
+  border-color: #1d4ed8;
   background: #1d4ed8;
   transform: translateY(-1px);
 }
@@ -73,12 +72,10 @@
   gap: 8px 18px;
 
   width: 100%;
-
   margin: 0 0 20px;
   padding: 0;
 
   color: #64748b;
-
   font-size: 0.84rem;
   font-weight: 500;
 }
@@ -105,12 +102,13 @@
 
 .resources-grid {
   display: grid;
-
   grid-template-columns: repeat(3, minmax(0, 1fr));
-
   gap: 20px;
 
+  width: 100%;
   align-items: stretch;
+
+  margin-top: 24px;
 }
 
 /* RESOURCE CARD */
@@ -145,8 +143,6 @@
     background-color 0.18s ease;
 }
 
-/* UNFINISHED RESOURCE */
-
 .resource-card:not(.resource-card-completed) {
   border-left-color: #2563eb;
 }
@@ -160,15 +156,10 @@
   transform: translateY(-2px);
 }
 
-/* COMPLETED RESOURCE */
-
 .resource-card-completed {
   border-color: #dce9e1;
   border-left-color: #22c55e;
 
-  /*
-   * Very subtle green tint.
-   * Do not turn the entire card green. */
   background: #fcfefc;
 
   box-shadow: 0 2px 7px rgba(15, 23, 42, 0.035);
@@ -194,7 +185,6 @@
 
 .resource-card-header {
   min-width: 0;
-
   padding-right: 30px;
 }
 
@@ -220,11 +210,8 @@
   display: flex;
   align-items: center;
   flex-wrap: wrap;
-
   gap: 7px;
 }
-
-/* Resource type */
 
 .resource-type {
   display: inline-flex;
@@ -232,7 +219,6 @@
   justify-content: center;
 
   min-height: 25px;
-
   box-sizing: border-box;
 
   padding: 5px 10px;
@@ -244,13 +230,10 @@
 
   font-size: 0.69rem;
   font-weight: 700;
-
   line-height: 1;
 
   white-space: nowrap;
 }
-
-/* Completed badge */
 
 .resource-completed-badge {
   display: inline-flex;
@@ -258,7 +241,6 @@
   justify-content: center;
 
   min-height: 25px;
-
   box-sizing: border-box;
 
   padding: 5px 10px;
@@ -271,7 +253,6 @@
 
   font-size: 0.69rem;
   font-weight: 700;
-
   line-height: 1;
 
   white-space: nowrap;
@@ -281,38 +262,41 @@
 
 .favorite-star {
   position: absolute;
-
   top: 17px;
   right: 17px;
 
-  width: 24px;
-  height: 24px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  width: 28px;
+  height: 28px;
 
   padding: 0;
   margin: 0;
 
   border: none;
-  background: transparent;
+  border-radius: 6px;
 
+  background: transparent;
   color: #94a3b8;
 
   font-size: 1.3rem;
-  line-height: 24px;
+  line-height: 1;
 
   cursor: pointer;
 
   transition:
     color 0.15s ease,
+    background-color 0.15s ease,
     transform 0.15s ease;
 }
 
 .favorite-star:hover {
   border: none;
-  background: transparent;
-
+  background: #fff7ed;
   color: #f59e0b;
-
-  transform: scale(1.08);
+  transform: scale(1.05);
 }
 
 .favorite-star.active {
@@ -333,7 +317,6 @@
 .related-skill {
   display: flex;
   flex-direction: column;
-
   gap: 5px;
 
   margin-top: 18px;
@@ -348,20 +331,14 @@
   background: #f8fafc;
 }
 
-/* Unfinished */
-
 .resource-card:not(.resource-card-completed) .related-skill {
   border-left-color: #2563eb;
-
   background: #f7faff;
 }
-
-/* Completed */
 
 .resource-card-completed .related-skill {
   border-color: #e1ebe4;
   border-left-color: #22c55e;
-
   background: #f7fbf8;
 }
 
@@ -395,6 +372,8 @@
   display: flex;
   flex-direction: column;
 
+  gap: 9px;
+
   margin-top: auto;
   padding-top: 16px;
 
@@ -404,7 +383,6 @@
 .resource-actions button,
 .resource-actions a {
   display: inline-flex;
-
   align-items: center;
   justify-content: center;
 
@@ -421,7 +399,6 @@
   font-family: inherit;
   font-size: 0.78rem;
   font-weight: 700;
-
   line-height: 1;
 
   cursor: pointer;
@@ -444,13 +421,9 @@
 
 .open-resource-btn:hover {
   border-color: #94a3b8;
-
   background: #f8fafc;
-
   color: #1e293b;
 }
-
-/* Completed */
 
 .resource-card-completed .open-resource-btn {
   border-color: #c9e5d1;
@@ -461,9 +434,7 @@
 
 .resource-card-completed .open-resource-btn:hover {
   border-color: #9ed3ad;
-
   background: #f5fbf6;
-
   color: #14532d;
 }
 
@@ -478,7 +449,6 @@
 
 .resource-details-btn:hover {
   border-color: #1d4ed8;
-
   background: #1d4ed8;
 }
 
@@ -491,13 +461,12 @@
 
   gap: 9px;
 
-  margin-top: 9px;
+  margin-top: 0;
 }
 
 .resource-secondary-actions .edit-btn,
 .resource-secondary-actions .delete-btn {
   width: 100%;
-
   min-height: 38px;
 
   padding: 8px 12px;
@@ -508,8 +477,6 @@
   font-weight: 600;
 }
 
-/* Edit */
-
 .resource-secondary-actions .edit-btn {
   border: 1px solid #cbd5e1;
 
@@ -519,11 +486,8 @@
 
 .resource-secondary-actions .edit-btn:hover {
   border-color: #94a3b8;
-
   background: #f8fafc;
 }
-
-/* Delete */
 
 .resource-secondary-actions .delete-btn {
   border: 1px solid #fecaca;
@@ -534,7 +498,6 @@
 
 .resource-secondary-actions .delete-btn:hover {
   border-color: #fca5a5;
-
   background: #fef2f2;
 }
 
@@ -546,7 +509,7 @@
   width: 100%;
   box-sizing: border-box;
 
-  padding: 44px 20px;
+  padding: 48px 24px;
 
   border: 1px dashed #cbd5e1;
   border-radius: 12px;
@@ -692,7 +655,6 @@
 
   .resources-grid {
     grid-template-columns: 1fr;
-
     gap: 14px;
   }
 
@@ -708,7 +670,6 @@
 
   .resource-card {
     min-height: 205px;
-
     padding: 18px;
   }
 

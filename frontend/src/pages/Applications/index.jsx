@@ -22,16 +22,21 @@ import ApplicationCard from "./components/ApplicationCard";
 import "./index.css";
 
 function Applications() {
-  /* Query Parameters */
-
   const { getParam, setParams, clearParams } = useQueryParams();
 
-  /* URL FILTER STATE */
+  /* URL filter state */
 
-  const searchTerm = getParam("search");
+  const searchTerm = getParam("search") || "";
   const statusFilter = getParam("status") || "All";
   const goalFilter = getParam("goal") || "All";
   const sortBy = getParam("sort") || "Last Updated";
+
+  /* Draft filter state */
+
+  const [draftSearchTerm, setDraftSearchTerm] = useState(searchTerm);
+  const [draftStatusFilter, setDraftStatusFilter] = useState(statusFilter);
+  const [draftGoalFilter, setDraftGoalFilter] = useState(goalFilter);
+  const [draftSortBy, setDraftSortBy] = useState(sortBy);
 
   /* Data */
 
@@ -41,7 +46,6 @@ function Applications() {
   /* Application form */
 
   const [showApplicationForm, setShowApplicationForm] = useState(false);
-
   const [editingApplicationId, setEditingApplicationId] = useState(null);
 
   const [company, setCompany] = useState("");
@@ -54,7 +58,6 @@ function Applications() {
   /* Delete */
 
   const [showDeleteModal, setShowDeleteModal] = useState(false);
-
   const [applicationToDeleteId, setApplicationToDeleteId] = useState(null);
 
   /* UI */
@@ -62,36 +65,6 @@ function Applications() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
-
-  /* URL FILTER HANDLERS */
-
-  function handleSearchChange(value) {
-    setParams({
-      search: value,
-    });
-  }
-
-  function handleStatusChange(value) {
-    setParams({
-      status: value === "All" ? "" : value,
-    });
-  }
-
-  function handleGoalChange(value) {
-    setParams({
-      goal: value === "All" ? "" : value,
-    });
-  }
-
-  function handleSortChange(value) {
-    setParams({
-      sort: value === "Last Updated" ? "" : value,
-    });
-  }
-
-  function clearFilters() {
-    clearParams(["search", "status", "goal", "sort"]);
-  }
 
   /* Load applications */
 
@@ -141,6 +114,28 @@ function Applications() {
     };
   }, []);
 
+  /* Apply filters */
+
+  function applyFilters() {
+    setParams({
+      search: draftSearchTerm || "",
+      status: draftStatusFilter === "All" ? "" : draftStatusFilter,
+      goal: draftGoalFilter === "All" ? "" : draftGoalFilter,
+      sort: draftSortBy === "Last Updated" ? "" : draftSortBy,
+    });
+  }
+
+  /* Clear filters */
+
+  function clearFilters() {
+    setDraftSearchTerm("");
+    setDraftStatusFilter("All");
+    setDraftGoalFilter("All");
+    setDraftSortBy("Last Updated");
+
+    clearParams(["search", "status", "goal", "sort"]);
+  }
+
   /* Filter applications */
 
   const filteredApplications = useMemo(() => {
@@ -182,7 +177,7 @@ function Applications() {
 
   /* Reset form */
 
-  const resetApplicationForm = () => {
+  function resetApplicationForm() {
     setCompany("");
     setRole("");
     setApplicationUrl("");
@@ -190,19 +185,19 @@ function Applications() {
     setPrimaryGoalId("");
     setAppliedDate("");
     setEditingApplicationId(null);
-  };
+  }
 
   /* Open create */
 
-  const openCreateModal = () => {
+  function openCreateModal() {
     resetApplicationForm();
     setErrorMsg("");
     setShowApplicationForm(true);
-  };
+  }
 
   /* Close form */
 
-  const closeApplicationForm = () => {
+  function closeApplicationForm() {
     if (saving) {
       return;
     }
@@ -210,11 +205,11 @@ function Applications() {
     setShowApplicationForm(false);
     resetApplicationForm();
     setErrorMsg("");
-  };
+  }
 
   /* Save application */
 
-  const handleApplicationSubmit = async (event) => {
+  async function handleApplicationSubmit(event) {
     event.preventDefault();
 
     if (!company.trim() || !role.trim()) {
@@ -266,11 +261,11 @@ function Applications() {
     } finally {
       setSaving(false);
     }
-  };
+  }
 
   /* Delete application */
 
-  const handleDeleteApplication = async () => {
+  async function handleDeleteApplication() {
     if (!applicationToDeleteId) {
       return;
     }
@@ -295,7 +290,7 @@ function Applications() {
         error.response?.data?.message || "Unable to delete the application.",
       );
     }
-  };
+  }
 
   /* Loading */
 
@@ -332,15 +327,16 @@ function Applications() {
       )}
 
       <ApplicationFilters
-        searchTerm={searchTerm}
-        setSearchTerm={handleSearchChange}
-        statusFilter={statusFilter}
-        setStatusFilter={handleStatusChange}
-        goalFilter={goalFilter}
-        setGoalFilter={handleGoalChange}
-        sortBy={sortBy}
-        setSortBy={handleSortChange}
+        searchTerm={draftSearchTerm}
+        setSearchTerm={setDraftSearchTerm}
+        statusFilter={draftStatusFilter}
+        setStatusFilter={setDraftStatusFilter}
+        goalFilter={draftGoalFilter}
+        setGoalFilter={setDraftGoalFilter}
+        sortBy={draftSortBy}
+        setSortBy={setDraftSortBy}
         primaryGoalOptions={primaryGoalOptions}
+        onApplyFilters={applyFilters}
         onClearFilters={clearFilters}
       />
 
@@ -430,4 +426,3 @@ function Applications() {
 }
 
 export default Applications;
-  
