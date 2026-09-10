@@ -10,6 +10,7 @@ function ApplicationFilters({
   sortBy,
   setSortBy,
   primaryGoalOptions,
+  onClearFilters,
 }) {
   const filters = [
     {
@@ -18,21 +19,44 @@ function ApplicationFilters({
       defaultValue: "All",
       onChange: setStatusFilter,
       options: [
-        { value: "All", label: "All Statuses" },
-        { value: "Applied", label: "Applied" },
-        { value: "In Progress", label: "In Progress" },
-        { value: "Offer", label: "Offer" },
-        { value: "Rejected", label: "Rejected" },
-        { value: "Withdrawn", label: "Withdrawn" },
+        {
+          value: "All",
+          label: "All Statuses",
+        },
+        {
+          value: "Applied",
+          label: "Applied",
+        },
+        {
+          value: "In Progress",
+          label: "In Progress",
+        },
+        {
+          value: "Offer",
+          label: "Offer",
+        },
+        {
+          value: "Rejected",
+          label: "Rejected",
+        },
+        {
+          value: "Withdrawn",
+          label: "Withdrawn",
+        },
       ],
     },
+
     {
       label: "Career Goal",
       value: goalFilter,
       defaultValue: "All",
       onChange: setGoalFilter,
       options: [
-        { value: "All", label: "All Goals" },
+        {
+          value: "All",
+          label: "All Goals",
+        },
+
         ...primaryGoalOptions.map((goal) => ({
           value: goal._id,
           label: goal.title,
@@ -40,13 +64,6 @@ function ApplicationFilters({
       ],
     },
   ];
-
-  const clearFilters = () => {
-    setSearchTerm("");
-    setStatusFilter("All");
-    setGoalFilter("All");
-    setSortBy("Last Updated");
-  };
 
   return (
     <div className="filters-card">
@@ -57,7 +74,7 @@ function ApplicationFilters({
         onSortChange={setSortBy}
         searchPlaceholder="Search applications..."
         filters={filters}
-        onClearFilters={clearFilters}
+        onClearFilters={onClearFilters}
       >
         <option value="Last Updated">Last Updated</option>
         <option value="Applied Date">Applied Date</option>

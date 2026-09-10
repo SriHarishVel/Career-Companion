@@ -17,27 +17,30 @@ import {
 
 import { getSkills } from "../../services/skillService";
 
+import useQueryParams from "../../hooks/useQueryParams";
+
 import "./index.css";
 
 function Resources() {
   const location = useLocation();
+
+  const { getParam, setParams, clearParams } = useQueryParams();
 
   /* FORM STATE */
 
   const [newTitle, setNewTitle] = useState("");
   const [newUrl, setNewUrl] = useState("");
   const [newType, setNewType] = useState("Documentation");
+
   const [skillId, setSkillId] = useState(location.state?.skillId || "");
 
-  /* FILTER STATE */
+  /* URL FILTER STATE */
 
-  const [searchResource, setSearchResource] = useState("");
-  const [sortOption, setSortOption] = useState("default");
-  const [filterOption, setFilterOption] = useState("All");
+  const searchResource = getParam("search");
+  const sortOption = getParam("sort") || "default";
+  const filterOption = getParam("type") || "All";
 
-  const [skillFilter, setSkillFilter] = useState(
-    location.state?.skillId || "All",
-  );
+  const skillFilter = getParam("skill") || location.state?.skillId || "All";
 
   /* DATA STATE */
 
@@ -57,6 +60,36 @@ function Resources() {
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
+  /* URL FILTER HANDLERS */
+
+  function handleSearchChange(value) {
+    setParams({
+      search: value,
+    });
+  }
+
+  function handleSortChange(value) {
+    setParams({
+      sort: value === "default" ? "" : value,
+    });
+  }
+
+  function handleTypeChange(value) {
+    setParams({
+      type: value === "All" ? "" : value,
+    });
+  }
+
+  function handleSkillChange(value) {
+    setParams({
+      skill: value === "All" ? "" : value,
+    });
+  }
+
+  function clearFilters() {
+    clearParams(["search", "sort", "type", "skill"]);
+  }
+
   /* LOAD RESOURCES + SKILLS */
 
   useEffect(() => {
@@ -67,7 +100,7 @@ function Resources() {
 
         const [resourceData, skillData] = await Promise.all([
           getResources({
-            search: searchResource,
+            search: searchResource || undefined,
 
             type:
               filterOption === "All" || filterOption === "Favorites"
@@ -89,7 +122,10 @@ function Resources() {
       } catch (error) {
         console.error("Failed to load resources:", error);
 
-        setErrorMsg("Unable to load your resources. Please try again.");
+        setErrorMsg(
+          error.response?.data?.message ||
+            "Unable to load your resources. Please try again.",
+        );
       } finally {
         setLoading(false);
       }
@@ -141,7 +177,7 @@ function Resources() {
 
   async function refreshResources() {
     const resourceData = await getResources({
-      search: searchResource,
+      search: searchResource || undefined,
 
       type:
         filterOption === "All" || filterOption === "Favorites"
@@ -350,15 +386,16 @@ function Resources() {
 
       <ResourceFilters
         searchResource={searchResource}
-        setSearchResource={setSearchResource}
+        setSearchResource={handleSearchChange}
         sortOption={sortOption}
-        setSortOption={setSortOption}
+        setSortOption={handleSortChange}
         filterOption={filterOption}
-        setFilterOption={setFilterOption}
+        setFilterOption={handleTypeChange}
         skillFilter={skillFilter}
-        setSkillFilter={setSkillFilter}
+        setSkillFilter={handleSkillChange}
         skills={skills}
         getParentGoalTitle={getParentGoalTitle}
+        onClearFilters={clearFilters}
       />
 
       <div className="resource-summary">
@@ -392,8 +429,6 @@ function Resources() {
         )}
       </div>
 
-      {/* ADD / EDIT RESOURCE */}
-
       <ResourceForm
         isOpen={showResourceForm}
         onClose={closeResourceForm}
@@ -410,8 +445,6 @@ function Resources() {
         errorMsg={errorMsg}
         addResource={addResource}
       />
-
-      {/* DELETE CONFIRMATION */}
 
       <ConfirmModal
         isOpen={showDeleteModal}

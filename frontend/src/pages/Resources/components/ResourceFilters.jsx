@@ -11,6 +11,7 @@ function ResourceFilters({
   setSkillFilter,
   skills,
   getParentGoalTitle,
+  onClearFilters,
 }) {
   const filters = [
     {
@@ -69,27 +70,24 @@ function ResourceFilters({
     },
   ];
 
-  function handleClearFilters() {
-    setFilterOption("All");
-    setSkillFilter("All");
-  }
-
   return (
-    <SearchFilterBar
-      searchValue={searchResource}
-      onSearchChange={setSearchResource}
-      sortValue={sortOption}
-      onSortChange={setSortOption}
-      searchPlaceholder="Search resources..."
-      filters={filters}
-      onClearFilters={handleClearFilters}
-      forceFilterPopup
-    >
-      <option value="default">Default</option>
-      <option value="az">A-Z</option>
-      <option value="za">Z-A</option>
-      <option value="updatedAt">Recently Updated</option>
-    </SearchFilterBar>
+    <div className="resource-filters">
+      <SearchFilterBar
+        searchValue={searchResource}
+        onSearchChange={setSearchResource}
+        sortValue={sortOption}
+        onSortChange={setSortOption}
+        searchPlaceholder="Search resources..."
+        filters={filters}
+        onClearFilters={onClearFilters}
+        forceFilterPopup
+      >
+        <option value="default">Default</option>
+        <option value="az">A-Z</option>
+        <option value="za">Z-A</option>
+        <option value="updatedAt">Recently Updated</option>
+      </SearchFilterBar>
+    </div>
   );
 }
 

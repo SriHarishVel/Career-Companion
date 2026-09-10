@@ -1,5 +1,7 @@
 import { useEffect, useMemo, useState } from "react";
 
+import useQueryParams from "../../hooks/useQueryParams";
+
 import {
   getApplications,
   createApplication,
@@ -20,17 +22,21 @@ import ApplicationCard from "./components/ApplicationCard";
 import "./index.css";
 
 function Applications() {
+  /* Query Parameters */
+
+  const { getParam, setParams, clearParams } = useQueryParams();
+
+  /* URL FILTER STATE */
+
+  const searchTerm = getParam("search");
+  const statusFilter = getParam("status") || "All";
+  const goalFilter = getParam("goal") || "All";
+  const sortBy = getParam("sort") || "Last Updated";
+
   /* Data */
 
   const [applications, setApplications] = useState([]);
   const [primaryGoalOptions, setPrimaryGoalOptions] = useState([]);
-
-  /* Filters */
-
-  const [searchTerm, setSearchTerm] = useState("");
-  const [statusFilter, setStatusFilter] = useState("All");
-  const [goalFilter, setGoalFilter] = useState("All");
-  const [sortBy, setSortBy] = useState("Last Updated");
 
   /* Application form */
 
@@ -57,6 +63,36 @@ function Applications() {
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  /* URL FILTER HANDLERS */
+
+  function handleSearchChange(value) {
+    setParams({
+      search: value,
+    });
+  }
+
+  function handleStatusChange(value) {
+    setParams({
+      status: value === "All" ? "" : value,
+    });
+  }
+
+  function handleGoalChange(value) {
+    setParams({
+      goal: value === "All" ? "" : value,
+    });
+  }
+
+  function handleSortChange(value) {
+    setParams({
+      sort: value === "Last Updated" ? "" : value,
+    });
+  }
+
+  function clearFilters() {
+    clearParams(["search", "status", "goal", "sort"]);
+  }
+
   /* Load applications */
 
   useEffect(() => {
@@ -64,6 +100,9 @@ function Applications() {
 
     async function loadApplications() {
       try {
+        setLoading(true);
+        setErrorMsg("");
+
         const [applicationData, goalData] = await Promise.all([
           getApplications(),
           getGoals({
@@ -77,8 +116,6 @@ function Applications() {
 
         setApplications(applicationData);
         setPrimaryGoalOptions(goalData);
-        setErrorMsg("");
-        setLoading(false);
       } catch (error) {
         if (cancelled) {
           return;
@@ -90,8 +127,10 @@ function Applications() {
           error.response?.data?.message ||
             "Unable to load applications. Please try again.",
         );
-
-        setLoading(false);
+      } finally {
+        if (!cancelled) {
+          setLoading(false);
+        }
       }
     }
 
@@ -275,7 +314,6 @@ function Applications() {
           <span className="section-label">Career Tracking</span>
 
           <h1>Applications</h1>
-
         </div>
 
         <button
@@ -295,23 +333,21 @@ function Applications() {
 
       <ApplicationFilters
         searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
+        setSearchTerm={handleSearchChange}
         statusFilter={statusFilter}
-        setStatusFilter={setStatusFilter}
+        setStatusFilter={handleStatusChange}
         goalFilter={goalFilter}
-        setGoalFilter={setGoalFilter}
+        setGoalFilter={handleGoalChange}
         sortBy={sortBy}
-        setSortBy={setSortBy}
+        setSortBy={handleSortChange}
         primaryGoalOptions={primaryGoalOptions}
+        onClearFilters={clearFilters}
       />
 
       {filteredApplications.length > 0 ? (
         <div className="applications-grid">
           {filteredApplications.map((application) => (
-            <ApplicationCard
-              key={application._id}
-              application={application}
-            />
+            <ApplicationCard key={application._id} application={application} />
           ))}
         </div>
       ) : (
@@ -394,3 +430,4 @@ function Applications() {
 }
 
 export default Applications;
+  
