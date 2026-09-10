@@ -1,0 +1,38 @@
+/* Shared page layout */
+
+.container {
+  width: 100%;
+  max-width: none;
+
+  margin: 0;
+  padding: 32px;
+
+  background: var(--color-surface);
+
+  border: none;
+  border-radius: 0;
+
+  box-shadow: none;
+}
+
+.container > h1 {
+  color: var(--color-text-heading);
+
+  font-size: var(--font-size-display);
+  line-height: var(--line-height-tight);
+}
+
+@media (max-width: 700px) {
+  .container {
+    width: calc(100% - 24px);
+    margin: auto;
+    padding: 20px;
+
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+    border-bottom-width: var(--border-width-accent);
+  }
+
+  .container > h1 {
+    font-size: var(--font-size-2xl);
+  }
+}
