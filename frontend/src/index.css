@@ -26,8 +26,16 @@ body {
 
 /* Root */
 
+/* App Layout */
+
 #root {
   min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+#root > * {
+  flex-shrink: 0;
 }
 
 /* Main Page Container */

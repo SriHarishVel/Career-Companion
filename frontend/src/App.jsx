@@ -27,34 +27,39 @@ function App() {
     location.pathname === "/login" || location.pathname === "/signup";
 
   return (
-    <>
+    <div className="app-layout">
       {!isAuthPage && <Navbar />}
 
-      <Routes>
-        <Route element={<PublicRoute />}>
-          <Route path="/login" element={<Auth />} />
-          <Route path="/signup" element={<Auth />} />
-        </Route>
+      <main className="app-main">
+        <Routes>
+          <Route element={<PublicRoute />}>
+            <Route path="/login" element={<Auth />} />
+            <Route path="/signup" element={<Auth />} />
+          </Route>
 
-        <Route element={<ProtectedRoute />}>
-          <Route path="/" element={<Home />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/goals" element={<Goals />} />
-          <Route path="/goals/:goalId" element={<GoalDetail />} />
-          <Route path="/skills" element={<Skills />} />
-          <Route path="/skills/:skillId" element={<SkillDetail />} />
-          <Route path="/resources" element={<Resources />} />
-          <Route path="/resources/:resourceId" element={<ResourceDetail />} />
-          <Route path="/applications" element={<Applications />} />
-          <Route path="/applications/:applicationId" element={<ApplicationDetail />} />
-          <Route path="/profile" element={<Profile />} />
-        </Route>
+          <Route element={<ProtectedRoute />}>
+            <Route path="/" element={<Home />} />
+            <Route path="/dashboard" element={<Dashboard />} />
+            <Route path="/goals" element={<Goals />} />
+            <Route path="/goals/:goalId" element={<GoalDetail />} />
+            <Route path="/skills" element={<Skills />} />
+            <Route path="/skills/:skillId" element={<SkillDetail />} />
+            <Route path="/resources" element={<Resources />} />
+            <Route path="/resources/:resourceId" element={<ResourceDetail />} />
+            <Route path="/applications" element={<Applications />} />
+            <Route
+              path="/applications/:applicationId"
+              element={<ApplicationDetail />}
+            />
+            <Route path="/profile" element={<Profile />} />
+          </Route>
 
-        <Route path="*" element={<NotFound />} />
-      </Routes>
+          <Route path="*" element={<NotFound />} />
+        </Routes>
+      </main>
 
       {!isAuthPage && <Footer />}
-    </>
+    </div>
   );
 }
 

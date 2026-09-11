@@ -44,8 +44,7 @@
 /* BUTTONS */
 
 .application-action-primary,
-.application-action-secondary,
-.application-action-danger {
+.application-action-secondary {
   min-height: 40px;
 
   padding: 9px 16px;
@@ -96,22 +95,8 @@
   background: #f8fafc;
 }
 
-.application-action-danger {
-  border: 1px solid #fecaca;
-
-  background: #ffffff;
-  color: #dc2626;
-}
-
-.application-action-danger:hover {
-  border-color: #fca5a5;
-
-  background: #fef2f2;
-}
-
 .application-action-primary:disabled,
-.application-action-secondary:disabled,
-.application-action-danger:disabled {
+.application-action-secondary:disabled {
   opacity: 0.55;
 
   cursor: not-allowed;
@@ -410,8 +395,7 @@
   margin-bottom: 18px;
 }
 
-.application-details > div,
-.interview-rounds-detail {
+.application-details > div {
   box-sizing: border-box;
 
   min-width: 0;
@@ -451,30 +435,6 @@
   font-weight: 750;
 }
 
-.interview-rounds-detail {
-  display: flex;
-  flex-direction: column;
-
-  align-items: flex-start;
-  justify-content: space-between;
-
-  gap: 8px;
-
-  width: 100%;
-
-  text-align: left;
-
-  cursor: pointer;
-
-  font-family: inherit;
-}
-
-.interview-rounds-detail:hover {
-  border-color: #93c5fd;
-
-  background: #f8fbff;
-}
-
 /* LAST UPDATED */
 
 .application-updated {
@@ -504,7 +464,6 @@
   padding-top: 16px;
 }
 
-.card-actions button,
 .view-posting-link {
   display: inline-flex;
   align-items: center;
@@ -516,11 +475,11 @@
 
   padding: 8px 12px;
 
-  border: 1px solid #cbd5e1;
+  border: 1px solid #bfdbfe;
   border-radius: 8px;
 
-  background: #ffffff;
-  color: #334155;
+  background: #eff6ff;
+  color: #2563eb;
 
   font-family: inherit;
   font-size: 0.75rem;
@@ -536,43 +495,10 @@
     color 0.2s ease;
 }
 
-.card-actions button:hover,
-.view-posting-link:hover {
-  border-color: #94a3b8;
-
-  background: #f8fafc;
-}
-
-.view-posting-link {
-  border-color: #bfdbfe;
-
-  background: #eff6ff;
-  color: #2563eb;
-}
-
 .view-posting-link:hover {
   border-color: #93c5fd;
 
   background: #dbeafe;
-}
-
-.card-actions .edit-btn {
-  border-color: #cbd5e1;
-
-  background: #ffffff;
-}
-
-.card-actions .delete-btn {
-  border-color: #fecaca;
-
-  background: #ffffff;
-  color: #dc2626;
-}
-
-.card-actions .delete-btn:hover {
-  border-color: #fca5a5;
-
-  background: #fef2f2;
 }
 
 /* EMPTY STATE */
@@ -618,15 +544,6 @@
 
 .application-form {
   width: 100%;
-}
-
-.application-form-fields {
-  display: flex;
-  flex-direction: column;
-
-  width: 100%;
-
-  gap: 16px;
 }
 
 .application-form-field {
@@ -712,20 +629,9 @@
   cursor: pointer;
 }
 
-/* Optional label */
-
-.application-form-field .optional-label {
-  margin-left: 2px;
-
-  color: #94a3b8;
-
-  font-size: 0.68rem;
-  font-weight: 600;
-}
-
 /* Error */
 
-.application-form .error {
+.application-form-error {
   margin: 0;
 
   padding: 10px 12px;
@@ -804,7 +710,6 @@
     align-items: stretch;
   }
 
-  .card-actions button,
   .view-posting-link {
     flex: 1;
   }

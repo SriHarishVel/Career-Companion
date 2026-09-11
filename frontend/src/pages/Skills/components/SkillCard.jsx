@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 
-import "./index.css";
-
 function SkillCard({
   id,
   name,

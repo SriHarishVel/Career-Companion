@@ -464,8 +464,8 @@
   margin-top: 0;
 }
 
-.resource-secondary-actions .edit-btn,
-.resource-secondary-actions .delete-btn {
+.resource-secondary-actions .btn-secondary,
+.resource-secondary-actions .btn-danger {
   width: 100%;
   min-height: 38px;
 
@@ -477,26 +477,26 @@
   font-weight: 600;
 }
 
-.resource-secondary-actions .edit-btn {
+.resource-secondary-actions .btn-secondary {
   border: 1px solid #cbd5e1;
 
   background: #ffffff;
   color: #334155;
 }
 
-.resource-secondary-actions .edit-btn:hover {
+.resource-secondary-actions .btn-secondary:hover {
   border-color: #94a3b8;
   background: #f8fafc;
 }
 
-.resource-secondary-actions .delete-btn {
+.resource-secondary-actions .btn-danger {
   border: 1px solid #fecaca;
 
   background: #ffffff;
   color: #b91c1c;
 }
 
-.resource-secondary-actions .delete-btn:hover {
+.resource-secondary-actions .btn-danger:hover {
   border-color: #fca5a5;
   background: #fef2f2;
 }

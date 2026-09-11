@@ -120,6 +120,27 @@ function ResourceDetail() {
     }
   };
 
+  const handleSaveDescription = async (description) => {
+    if (!resource) {
+      return;
+    }
+
+    try {
+      setErrorMsg("");
+      setSuccessMsg("");
+
+      const updatedResource = await updateResource(resource._id, {
+        description,
+      });
+
+      await handleResourceUpdated(updatedResource);
+    } catch (error) {
+      console.error("Failed to update resource notes:", error);
+
+      throw error;
+    }
+  };
+
   const handleToggleFavorite = async () => {
     if (!resource) {
       return;
@@ -273,7 +294,7 @@ function ResourceDetail() {
 
         <ResourceDescription
           description={resource.description}
-          onResourceUpdated={handleResourceUpdated}
+          onSave={handleSaveDescription}
         />
 
         <ResourceSkill

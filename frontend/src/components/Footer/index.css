@@ -2,6 +2,7 @@
 
 .footer {
   width: 100%;
+  flex-shrink: 0;
 
   background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
 
@@ -64,10 +65,6 @@
 /* Mobile */
 
 @media (max-width: 700px) {
-  .footer {
-    margin-top: 0;
-  }
-
   .footer-main {
     width: calc(100% - 32px);
 

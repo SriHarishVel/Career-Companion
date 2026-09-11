@@ -1,4 +1,25 @@
-/* Shared page layout */
+/* App Layout */
+
+#root {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.app-layout {
+  min-height: 100vh;
+
+  display: flex;
+  flex-direction: column;
+}
+
+.app-main {
+  flex: 1;
+  min-height: 0;
+}
+
+/* Shared Page Layout */
 
 .container {
   width: 100%;
@@ -22,13 +43,17 @@
   line-height: var(--line-height-tight);
 }
 
+/* Mobile */
+
 @media (max-width: 700px) {
   .container {
     width: calc(100% - 24px);
+
     margin: auto;
     padding: 20px;
 
     border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+
     border-bottom-width: var(--border-width-accent);
   }
 
