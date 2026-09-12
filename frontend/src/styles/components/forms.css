@@ -5,16 +5,19 @@ textarea,
 select {
   width: 100%;
   max-width: 100%;
-  font: inherit;
-}
+  min-height: var(--size-control-md);
+  padding: 10px 12px;
 
-.container input,
-.container textarea,
-.container select {
+  border: var(--border-width-thin) solid var(--color-border-strong);
+  border-radius: var(--radius-md);
+
   background-color: var(--color-surface);
   color: var(--color-text-heading);
 
-  border: var(--border-width-thin) solid var(--color-border-strong);
+  font: inherit;
+  font-size: var(--font-size-md);
+
+  outline: none;
 
   transition:
     border-color var(--duration-normal) var(--ease-standard),
@@ -22,17 +25,30 @@ select {
     background-color var(--duration-normal) var(--ease-standard);
 }
 
-.container input:focus,
-.container textarea:focus,
-.container select:focus {
-  border-color: var(--color-primary);
-
-  box-shadow: 0 0 0 4px var(--focus-ring-control);
+input:hover,
+textarea:hover,
+select:hover {
+  border-color: var(--color-text-muted);
 }
 
-.container input::placeholder,
-.container textarea::placeholder {
+input:focus,
+textarea:focus,
+select:focus {
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 var(--focus-ring-width) var(--focus-ring-control);
+}
+
+input::placeholder,
+textarea::placeholder {
   color: var(--color-control-placeholder);
+}
+
+input:disabled,
+textarea:disabled,
+select:disabled {
+  background-color: var(--color-control-disabled);
+  color: var(--color-text-muted);
+  cursor: not-allowed;
 }
 
 input:focus-visible,
@@ -47,16 +63,10 @@ textarea {
   line-height: var(--line-height-normal);
 }
 
-input,
-select {
-  min-height: var(--size-control-md);
-}
-
 @media (max-width: 700px) {
   input,
   textarea,
   select {
-    max-width: 100%;
     font-size: 16px;
   }
 }

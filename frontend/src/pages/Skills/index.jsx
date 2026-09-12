@@ -232,7 +232,7 @@ function Skills() {
         {!isGuidedSetup && (
           <button
             type="button"
-            className="add-skill-btn"
+            className="btn-primary"
             onClick={openAddSkill}
           >
             + Add Skill

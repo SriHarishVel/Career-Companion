@@ -7,23 +7,23 @@ function ResourceCard({ resource, onToggleFavorite }) {
     navigate(`/resources/${resource._id}`);
   }
 
+  function handleKeyDown(event) {
+    if (event.key === "Enter" || event.key === " ") {
+      event.preventDefault();
+      handleCardClick();
+    }
+  }
+
   return (
     <article
-      className={`resource-card ${
+      className={`card resource-card ${
         resource.completed ? "resource-card-completed" : ""
       }`}
       onClick={handleCardClick}
+      onKeyDown={handleKeyDown}
       role="button"
       tabIndex={0}
-      onKeyDown={(event) => {
-        if (event.key === "Enter" || event.key === " ") {
-          event.preventDefault();
-          handleCardClick();
-        }
-      }}
     >
-      {/* Favorite */}
-
       <button
         type="button"
         className={`favorite-star ${resource.favorite ? "active" : ""}`}
@@ -38,8 +38,6 @@ function ResourceCard({ resource, onToggleFavorite }) {
         {resource.favorite ? "★" : "☆"}
       </button>
 
-      {/* Header */}
-
       <div className="resource-card-header">
         <div className="resource-badges">
           <span className="resource-type">{resource.type || "Resource"}</span>
@@ -52,17 +50,12 @@ function ResourceCard({ resource, onToggleFavorite }) {
         <h3>{resource.title}</h3>
       </div>
 
-      {/* Related Skill */}
-
       {resource.skill && (
         <div className="related-skill">
           <span className="related-skill-label">Related Skill</span>
-
           <span className="related-skill-title">{resource.skill.name}</span>
         </div>
       )}
-
-      {/* Actions */}
 
       <div className="resource-actions">
         <a

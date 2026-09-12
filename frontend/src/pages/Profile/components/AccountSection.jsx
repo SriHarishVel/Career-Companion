@@ -27,7 +27,7 @@ function AccountSection({ handleLogout }) {
 
       <button
         type="button"
-        className="logout-btn"
+        className="btn-danger"
         onClick={() => setShowLogoutModal(true)}
       >
         <span>Log out</span>

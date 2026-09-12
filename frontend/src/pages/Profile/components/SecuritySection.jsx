@@ -56,7 +56,7 @@ function SecuritySection({
 
         <button
           type="button"
-          className="profile-secondary-btn"
+          className="btn-secondary"
           onClick={handleOpen}
         >
           Change Password

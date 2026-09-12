@@ -61,3 +61,28 @@
     font-size: var(--font-size-2xl);
   }
 }
+
+/* Shared Page Header */
+
+.page-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-5);
+  margin-bottom: var(--space-2);
+}
+
+.page-header h1 {
+  margin: 0;
+  color: var(--color-text-heading);
+  font-size: var(--font-size-display);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+@media (max-width: 700px) {
+  .page-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+}

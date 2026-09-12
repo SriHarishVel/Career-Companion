@@ -18,7 +18,7 @@ function SkillCard({
 
   return (
     <article
-      className="skill-card"
+      className="card skill-card"
       onClick={handleSkillDetails}
       role="button"
       tabIndex={0}

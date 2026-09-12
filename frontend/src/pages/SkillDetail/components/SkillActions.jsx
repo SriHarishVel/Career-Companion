@@ -249,7 +249,7 @@ function SkillActions({
         <div className="skill-detail-actions-main">
           <button
             type="button"
-            className="skill-action-secondary"
+            className="btn-secondary"
             onClick={handleOpenEdit}
             disabled={saving}
           >
@@ -258,7 +258,7 @@ function SkillActions({
 
           <button
             type="button"
-            className="skill-action-secondary"
+            className="btn-secondary"
             onClick={onAddResource}
             disabled={saving}
           >
@@ -266,7 +266,7 @@ function SkillActions({
           </button>
           <button
             type="button"
-            className="skill-action-danger"
+            className="btn-danger"
             onClick={onDelete}
             disabled={deleting || saving}
           >
