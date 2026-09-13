@@ -207,7 +207,7 @@ function ApplicationInterviews({
 
           <button
             type="button"
-            className="application-add-round-btn"
+            className="btn-primary application-add-round-btn"
             onClick={openAddDialog}
           >
             + Add Round
@@ -222,7 +222,7 @@ function ApplicationInterviews({
 
             <button
               type="button"
-              className="application-add-round-btn"
+              className="btn-primary application-add-round-btn"
               onClick={openAddDialog}
             >
               + Add Round
@@ -259,7 +259,7 @@ function ApplicationInterviews({
                 <div className="application-interview-round-actions">
                   <button
                     type="button"
-                    className="application-round-action"
+                    className="btn-secondary application-round-action"
                     onClick={() => openEditDialog(round)}
                   >
                     Edit
@@ -267,7 +267,7 @@ function ApplicationInterviews({
 
                   <button
                     type="button"
-                    className="application-round-action application-round-action-danger"
+                    className="btn-danger-outline application-round-action"
                     onClick={() => openDeleteDialog(round)}
                   >
                     Delete
@@ -287,7 +287,7 @@ function ApplicationInterviews({
           <>
             <button
               type="button"
-              className="application-action-secondary"
+              className="btn-secondary"
               onClick={closeAddDialog}
               disabled={saving}
             >
@@ -296,7 +296,7 @@ function ApplicationInterviews({
 
             <button
               type="button"
-              className="application-action-primary"
+              className="btn-primary"
               onClick={handleAddRound}
               disabled={saving}
             >
@@ -364,7 +364,7 @@ function ApplicationInterviews({
           <>
             <button
               type="button"
-              className="application-action-secondary"
+              className="btn-secondary"
               onClick={closeEditDialog}
               disabled={saving}
             >
@@ -373,7 +373,7 @@ function ApplicationInterviews({
 
             <button
               type="button"
-              className="application-action-primary"
+              className="btn-primary"
               onClick={handleUpdateRound}
               disabled={saving}
             >

@@ -10,7 +10,9 @@ import {
 import FormDialog from "../../../components/FormDialog";
 import ConfirmModal from "../../../components/ConfirmModal";
 
-function ApplicationActivity({ application, onApplicationUpdated }) {
+function ApplicationActivity({ application }) {
+  const applicationId = application?._id;
+
   const [activities, setActivities] = useState([]);
 
   const [showAddModal, setShowAddModal] = useState(false);
@@ -25,24 +27,29 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
   const [description, setDescription] = useState("");
   const [date, setDate] = useState("");
 
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(Boolean(applicationId));
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
+  /*
+   * LOAD ACTIVITIES
+   */
   useEffect(() => {
-    if (!application?._id) {
-      return;
+    if (!applicationId) {
+      return undefined;
     }
 
     let cancelled = false;
 
-    async function loadActivities() {
+    const loadActivities = async () => {
       try {
         setLoading(true);
         setErrorMsg("");
 
-        const activityData = await getApplicationActivities(application._id);
+        console.log("Loading activities for application:", applicationId);
+
+        const activityData = await getApplicationActivities(applicationId);
 
         if (cancelled) {
           return;
@@ -56,6 +63,8 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
 
         console.error("Failed to load application activities:", error);
 
+        setActivities([]);
+
         setErrorMsg(
           error?.response?.data?.message || "Failed to load activity history.",
         );
@@ -64,29 +73,42 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
           setLoading(false);
         }
       }
-    }
+    };
 
     loadActivities();
 
     return () => {
       cancelled = true;
     };
-  }, [application?._id]);
+  }, [applicationId]);
 
-  const syncApplication = (updatedApplication) => {
-    if (!updatedApplication) {
+  /*
+   * RELOAD ACTIVITIES
+   *
+   * Activity update/delete endpoints do not return the
+   * complete application, so we reload the activity list.
+   */
+  const reloadActivities = async () => {
+    if (!applicationId) {
       return;
     }
 
-    if (Array.isArray(updatedApplication.activities)) {
-      setActivities(updatedApplication.activities);
-    }
+    try {
+      const activityData = await getApplicationActivities(applicationId);
 
-    if (onApplicationUpdated) {
-      onApplicationUpdated(updatedApplication);
+      setActivities(Array.isArray(activityData) ? activityData : []);
+    } catch (error) {
+      console.error("Failed to reload application activities:", error);
+
+      setErrorMsg(
+        error?.response?.data?.message || "Failed to reload activity history.",
+      );
     }
   };
 
+  /*
+   * RESET FORM
+   */
   const resetForm = () => {
     setType("Note Added");
     setTitle("");
@@ -94,6 +116,9 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     setDate("");
   };
 
+  /*
+   * ADD MODAL
+   */
   const openAddModal = () => {
     resetForm();
     setErrorMsg("");
@@ -109,6 +134,9 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     setErrorMsg("");
   };
 
+  /*
+   * DETAIL MODAL
+   */
   const openDetailModal = (activity) => {
     setSelectedActivity(activity);
     setErrorMsg("");
@@ -125,6 +153,9 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     setErrorMsg("");
   };
 
+  /*
+   * EDIT MODAL
+   */
   const openEditModal = (activity) => {
     setSelectedActivity(activity);
 
@@ -159,6 +190,9 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     setErrorMsg("");
   };
 
+  /*
+   * DELETE MODAL
+   */
   const openDeleteModal = (activity) => {
     setSelectedActivity(activity);
 
@@ -178,10 +212,18 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     setErrorMsg("");
   };
 
+  /*
+   * ADD ACTIVITY
+   */
   const handleAddSubmit = async (event) => {
     event.preventDefault();
 
     if (saving) {
+      return;
+    }
+
+    if (!applicationId) {
+      setErrorMsg("Application could not be identified.");
       return;
     }
 
@@ -194,14 +236,16 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
       setSaving(true);
       setErrorMsg("");
 
-      const updatedApplication = await addApplicationActivity(application._id, {
+      console.log("Adding activity to application:", applicationId);
+
+      await addApplicationActivity(applicationId, {
         type,
         title: title.trim(),
         description: description.trim(),
         date: date || null,
       });
 
-      syncApplication(updatedApplication);
+      await reloadActivities();
 
       setShowAddModal(false);
       resetForm();
@@ -214,10 +258,23 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     }
   };
 
+  /*
+   * EDIT ACTIVITY
+   */
   const handleEditSubmit = async (event) => {
     event.preventDefault();
 
-    if (saving || !selectedActivity?._id) {
+    if (saving) {
+      return;
+    }
+
+    if (!applicationId) {
+      setErrorMsg("Application could not be identified.");
+      return;
+    }
+
+    if (!selectedActivity?._id) {
+      setErrorMsg("Activity could not be identified.");
       return;
     }
 
@@ -230,18 +287,22 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
       setSaving(true);
       setErrorMsg("");
 
-      const updatedApplication = await updateApplicationActivity(
-        application._id,
-        selectedActivity._id,
-        {
-          type,
-          title: title.trim(),
-          description: description.trim(),
-          date: date || null,
-        },
-      );
+      console.log("Updating activity:", selectedActivity._id);
 
-      syncApplication(updatedApplication);
+      console.log("Application ID:", applicationId);
+
+      await updateApplicationActivity(applicationId, selectedActivity._id, {
+        type,
+        title: title.trim(),
+        description: description.trim(),
+        date: date || null,
+      });
+
+      /*
+       * Backend returns the updated activity,
+       * not the complete application.
+       */
+      await reloadActivities();
 
       setShowEditModal(false);
       setSelectedActivity(null);
@@ -257,8 +318,21 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     }
   };
 
+  /*
+   * DELETE ACTIVITY
+   */
   const handleDelete = async () => {
-    if (deleting || !selectedActivity?._id) {
+    if (deleting) {
+      return;
+    }
+
+    if (!applicationId) {
+      setErrorMsg("Application could not be identified.");
+      return;
+    }
+
+    if (!selectedActivity?._id) {
+      setErrorMsg("Activity could not be identified.");
       return;
     }
 
@@ -266,12 +340,13 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
       setDeleting(true);
       setErrorMsg("");
 
-      const updatedApplication = await deleteApplicationActivity(
-        application._id,
-        selectedActivity._id,
-      );
+      console.log("Deleting activity:", selectedActivity._id);
 
-      syncApplication(updatedApplication);
+      console.log("Application ID:", applicationId);
+
+      await deleteApplicationActivity(applicationId, selectedActivity._id);
+
+      await reloadActivities();
 
       setShowDeleteModal(false);
       setSelectedActivity(null);
@@ -286,6 +361,9 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     }
   };
 
+  /*
+   * FORMAT DATE
+   */
   const formatDate = (activityDate) => {
     if (!activityDate) {
       return "No date";
@@ -304,6 +382,9 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
     });
   };
 
+  /*
+   * FORMAT ACTIVITY TYPE
+   */
   const formatActivityType = (activityType) => {
     if (!activityType) {
       return "Activity";
@@ -314,6 +395,8 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
 
   return (
     <section className="application-activity">
+      {/* HEADER */}
+
       <div className="application-activity-header">
         <div>
           <span className="application-activity-eyebrow">
@@ -327,12 +410,14 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
 
         <button
           type="button"
-          className="application-action-primary"
+          className="btn-primary"
           onClick={openAddModal}
         >
           Add Activity
         </button>
       </div>
+
+      {/* ERROR */}
 
       {errorMsg &&
         !showAddModal &&
@@ -343,6 +428,8 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
             {errorMsg}
           </p>
         )}
+
+      {/* TIMELINE */}
 
       {loading ? (
         <div className="application-activity-empty">
@@ -390,7 +477,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
                     >
                       <button
                         type="button"
-                        className="application-activity-edit"
+                        className="btn-secondary"
                         onClick={() => openEditModal(activity)}
                       >
                         Edit
@@ -398,7 +485,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
 
                       <button
                         type="button"
-                        className="application-activity-delete"
+                        className="btn-danger-outline"
                         onClick={() => openDeleteModal(activity)}
                       >
                         Delete
@@ -412,7 +499,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
         </div>
       )}
 
-      {/* Add Activity */}
+      {/* ADD ACTIVITY */}
 
       <FormDialog
         isOpen={showAddModal}
@@ -423,7 +510,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
             <button
               type="submit"
               form="application-activity-form"
-              className="application-action-primary"
+              className="btn-primary"
               disabled={saving}
             >
               {saving ? "Saving..." : "Add Activity"}
@@ -431,7 +518,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
 
             <button
               type="button"
-              className="application-action-secondary"
+              className="btn-secondary"
               onClick={closeAddModal}
               disabled={saving}
             >
@@ -454,6 +541,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
               onChange={(event) => setType(event.target.value)}
             >
               <option value="Note Added">Note</option>
+
               <option value="Follow-up">Follow-up</option>
             </select>
           </div>
@@ -502,7 +590,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
         </form>
       </FormDialog>
 
-      {/* Activity Details */}
+      {/* ACTIVITY DETAILS */}
 
       <FormDialog
         isOpen={showDetailModal}
@@ -534,7 +622,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
         )}
       </FormDialog>
 
-      {/* Edit Activity */}
+      {/* EDIT ACTIVITY */}
 
       <FormDialog
         isOpen={showEditModal}
@@ -545,7 +633,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
             <button
               type="submit"
               form="application-activity-edit-form"
-              className="application-action-primary"
+              className="btn-primary"
               disabled={saving}
             >
               {saving ? "Saving..." : "Save Changes"}
@@ -553,7 +641,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
 
             <button
               type="button"
-              className="application-action-secondary"
+              className="btn-secondary"
               onClick={closeEditModal}
               disabled={saving}
             >
@@ -576,6 +664,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
               onChange={(event) => setType(event.target.value)}
             >
               <option value="Note Added">Note</option>
+
               <option value="Follow-up">Follow-up</option>
             </select>
           </div>
@@ -622,7 +711,7 @@ function ApplicationActivity({ application, onApplicationUpdated }) {
         </form>
       </FormDialog>
 
-      {/* Delete Confirmation */}
+      {/* DELETE CONFIRMATION */}
 
       <ConfirmModal
         isOpen={showDeleteModal}

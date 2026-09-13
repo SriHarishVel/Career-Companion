@@ -470,7 +470,11 @@ export const updateApplicationActivity = async (req, res) => {
 
     await application.save();
 
-    res.status(200).json(activity);
+    const updatedApplication = await Application.findById(
+      req.params.id,
+    ).populate("primaryGoal");
+
+    res.status(200).json(updatedApplication);
   } catch (error) {
     res.status(500).json({
       message: error.message,

@@ -271,7 +271,7 @@ function ApplicationDetail() {
 
           <button
             type="button"
-            className="application-action-secondary"
+            className="btn-secondary"
             onClick={handleBack}
           >
             Back to Applications
@@ -314,7 +314,7 @@ function ApplicationDetail() {
           <div className="application-detail-error-actions">
             <button
               type="button"
-              className="application-action-secondary"
+              className="btn-secondary"
               onClick={handleBack}
             >
               Back to Applications
@@ -322,7 +322,7 @@ function ApplicationDetail() {
 
             <button
               type="button"
-              className="application-action-primary"
+              className="btn-primary"
               onClick={handleRetry}
             >
               Try Again

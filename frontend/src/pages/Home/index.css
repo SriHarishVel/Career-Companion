@@ -1,43 +1,55 @@
-/* HOME PAGE */
+/* Home Page */
 
 .home-grid {
   display: flex;
   flex-direction: column;
-  gap: 20px;
+  gap: var(--space-5);
+
   width: 100%;
 }
 
-/* GENERIC HOME CARD */
+/* Generic Home Card */
 
 .home-card {
-  background: #ffffff;
-  padding: 24px;
-  border-radius: 16px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
+  padding: var(--space-6);
+
+  background: var(--color-surface);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+
+  box-shadow: var(--shadow-sm);
 }
 
 .home-card h2 {
   margin-top: 0;
 }
 
-/* JOURNEY BANNER */
+/* Journey Banner */
 
 .journey-banner {
   width: 100%;
   box-sizing: border-box;
 
-  padding: 32px;
+  padding: var(--space-8);
 
-  border: 1px solid #dbeafe;
-  border-radius: 16px;
+  border: var(--border-width-thin) solid var(--color-primary-muted);
+  border-radius: var(--radius-lg);
 
-  background: linear-gradient(135deg, #eff6ff 0%, #ffffff 65%);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-subtle) 0%,
+    var(--color-surface) 65%
+  );
 
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
+  box-shadow: var(--shadow-md);
 }
 
 .journey-banner-empty {
-  background: linear-gradient(135deg, #eff6ff, #ffffff);
+  background: linear-gradient(
+    135deg,
+    var(--color-primary-subtle),
+    var(--color-surface)
+  );
 }
 
 .journey-banner-top {
@@ -45,18 +57,18 @@
   align-items: flex-start;
   justify-content: space-between;
 
-  gap: 30px;
+  gap: var(--space-8);
 }
 
 .journey-eyebrow {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: var(--space-2);
 
-  color: #2563eb;
+  color: var(--color-primary);
 
-  font-size: 12px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 
   letter-spacing: 0.08em;
 }
@@ -64,40 +76,42 @@
 .journey-banner h2 {
   margin: 0;
 
-  color: #0f172a;
+  color: var(--color-text-heading);
 
-  font-size: 28px;
-  line-height: 1.25;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
 }
 
 .journey-banner-top p {
-  margin: 8px 0 0;
+  margin: var(--space-2) 0 0;
 
-  color: #64748b;
+  color: var(--color-text-muted);
 
-  font-size: 15px;
-  line-height: 1.5;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
 }
 
 .journey-banner-empty p {
   max-width: 600px;
 
-  margin: 8px 0 20px;
+  margin: var(--space-2) 0 var(--space-5);
 
-  color: #64748b;
+  color: var(--color-text-muted);
 
-  line-height: 1.5;
+  line-height: var(--line-height-normal);
 }
 
-/* JOURNEY PROGRESS */
+/* Journey Progress */
 
 .journey-progress-number {
   flex-shrink: 0;
 
-  color: #2563eb;
+  color: var(--color-primary);
 
-  font-size: 32px;
-  font-weight: 700;
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+
   line-height: 1;
 }
 
@@ -105,13 +119,13 @@
   width: 100%;
   height: 9px;
 
-  margin: 24px 0;
+  margin: var(--space-6) 0;
 
   overflow: hidden;
 
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 
-  background: #dbe4f0;
+  background: var(--color-surface-muted);
 }
 
 .journey-progress-fill {
@@ -119,71 +133,69 @@
 
   border-radius: inherit;
 
-  background: #2563eb;
+  background: var(--color-primary);
 
-  transition: width 0.3s ease;
+  transition: width var(--duration-normal) var(--ease-standard);
 }
 
-/* JOURNEY STATS */
+/* Journey Stats */
 
 .journey-stats {
   display: grid;
 
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .journey-stats div {
   min-width: 0;
 
-  padding: 14px 16px;
+  padding: var(--space-3) var(--space-4);
 
-  box-sizing: border-box;
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
 
-  border: 1px solid #e2e8f0;
-  border-radius: 10px;
-
-  background: rgba(255, 255, 255, 0.8);
+  background: var(--color-surface);
 }
 
 .journey-stats strong {
   display: block;
 
-  color: #0f172a;
+  color: var(--color-text-heading);
 
-  font-size: 20px;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
 }
 
 .journey-stats span {
   display: block;
 
-  margin-top: 2px;
+  margin-top: var(--space-1);
 
-  color: #64748b;
+  color: var(--color-text-muted);
 
-  font-size: 13px;
+  font-size: var(--font-size-xs);
 }
 
-/* NEXT JOURNEY STEP */
+/* Next Journey Step */
 
 .journey-next {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
 
-  gap: 20px;
+  gap: var(--space-5);
 
-  margin-top: 20px;
-  padding: 18px 20px;
+  margin-top: var(--space-5);
+  padding: var(--space-4) var(--space-5);
 
   box-sizing: border-box;
 
-  border: 1px solid #dbeafe;
-  border-radius: 12px;
+  border: var(--border-width-thin) solid var(--color-primary-muted);
+  border-radius: var(--radius-md);
 
-  background: #ffffff;
+  background: var(--color-surface);
 }
 
 .journey-next > div {
@@ -193,12 +205,12 @@
 .journey-next span {
   display: block;
 
-  margin-bottom: 4px;
+  margin-bottom: var(--space-1);
 
-  color: #2563eb;
+  color: var(--color-primary);
 
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 
   letter-spacing: 0.06em;
 }
@@ -206,278 +218,309 @@
 .journey-next strong {
   display: block;
 
-  color: #0f172a;
+  color: var(--color-text-heading);
 
-  font-size: 16px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
 }
 
 .journey-next p {
-  margin: 4px 0 0;
+  margin: var(--space-1) 0 0;
 
-  color: #64748b;
+  color: var(--color-text-muted);
 
-  font-size: 13px;
+  font-size: var(--font-size-xs);
   line-height: 1.4;
 }
 
-/* BUTTONS */
-
-.journey-next button,
-.journey-banner button {
-  flex-shrink: 0;
-
-  padding: 11px 18px;
-
-  border: none;
-  border-radius: 8px;
-
-  background: #2563eb;
-  color: #ffffff;
-
-  font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
-
-  cursor: pointer;
-
-  transition:
-    background-color 0.2s ease,
-    transform 0.15s ease;
-}
-
-.journey-next button:hover,
-.journey-banner button:hover {
-  background: #1d4ed8;
-
-  transform: translateY(-1px);
-}
-
-.journey-next button:active,
-.journey-banner button:active {
-  transform: translateY(0);
-}
-
-/* TODAY'S FOCUS */
+/* Today's Focus */
 
 .todays-focus {
   width: 100%;
   box-sizing: border-box;
 
-  padding: 28px;
+  padding: var(--space-7);
 
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
 
-  background: #ffffff;
+  background: var(--color-surface);
 
-  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .focus-header {
   display: flex;
-
   align-items: flex-start;
   justify-content: space-between;
 
-  gap: 20px;
+  width: 100%;
+
+  gap: var(--space-5);
+}
+
+.focus-header > div {
+  flex: 1 1 auto;
+
+  min-width: 0;
 }
 
 .focus-eyebrow,
 .focus-label {
   display: block;
 
-  color: #2563eb;
+  color: var(--color-primary);
 
-  font-size: 11px;
-  font-weight: 700;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
 
   letter-spacing: 0.08em;
 }
 
 .todays-focus h2 {
-  margin: 7px 0 0;
+  margin: var(--space-1) 0 0;
 
-  color: #0f172a;
+  color: var(--color-text-heading);
 
-  font-size: 22px;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
   line-height: 1.3;
+
+  overflow-wrap: anywhere;
 }
 
 .focus-percent {
-  flex-shrink: 0;
+  flex: 0 0 auto;
 
-  color: #2563eb;
+  color: var(--color-primary);
 
-  font-size: 24px;
-  font-weight: 700;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+
+  line-height: 1.2;
 }
 
-/* FOCUS PROGRESS */
+/* Focus Progress */
 
 .focus-progress-track {
+  width: 100%;
   height: 7px;
 
-  margin-top: 20px;
+  margin-top: var(--space-5);
 
   overflow: hidden;
 
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 
-  background: #e2e8f0;
+  background: var(--color-surface-muted);
 }
 
 .focus-progress-fill {
+  width: 0;
   height: 100%;
+
+  max-width: 100%;
 
   border-radius: inherit;
 
-  background: #2563eb;
+  background: var(--color-primary);
 
-  transition: width 0.3s ease;
+  transition: width var(--duration-normal) var(--ease-standard);
 }
 
-/* FOCUS ACTION */
+/* Focus Action */
 
 .focus-action {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
 
-  gap: 24px;
-
-  margin-top: 24px;
-  padding: 18px;
+  width: 100%;
+  min-width: 0;
 
   box-sizing: border-box;
 
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  gap: var(--space-6);
 
-  background: #f8fafc;
+  margin-top: var(--space-6);
+  padding: var(--space-5);
+
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface-muted);
 }
 
 .focus-action > div {
+  flex: 1 1 auto;
+
   min-width: 0;
 }
 
-.focus-action p {
-  margin: 6px 0 0;
-
-  color: #64748b;
-
-  font-size: 14px;
-  line-height: 1.5;
+.focus-action .focus-label {
+  margin: 0;
 }
+
+.focus-action p {
+  margin: var(--space-1) 0 0;
+
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
+
+  overflow-wrap: anywhere;
+}
+
+/* Focus Action Button */
 
 .focus-action button,
 .todays-focus-empty button {
-  flex-shrink: 0;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
 
-  padding: 10px 16px;
+  flex: 0 0 auto;
 
-  border: none;
-  border-radius: 8px;
+  min-width: 150px;
+  min-height: var(--size-control-md);
 
-  background: #2563eb;
-  color: #ffffff;
+  padding: 10px var(--space-4);
+
+  box-sizing: border-box;
+
+  border: var(--border-width-thin) solid var(--color-primary);
+  border-radius: var(--radius-md);
+
+  background: var(--color-primary);
+  color: var(--color-text-inverse);
 
   font-family: inherit;
-  font-size: 0.85rem;
-  font-weight: 600;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+
+  line-height: 1;
+
+  white-space: nowrap;
 
   cursor: pointer;
 
   transition:
-    background-color 0.2s ease,
-    transform 0.15s ease;
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard),
+    box-shadow var(--duration-normal) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .focus-action button:hover,
 .todays-focus-empty button:hover {
-  background: #1d4ed8;
+  border-color: var(--color-primary-hover);
+
+  background: var(--color-primary-hover);
+
+  box-shadow: var(--shadow-primary);
 
   transform: translateY(-1px);
 }
 
-/* FOCUS SKILLS */
+.focus-action button:active,
+.todays-focus-empty button:active {
+  transform: translateY(1px);
+}
+
+.focus-action button:disabled,
+.todays-focus-empty button:disabled {
+  opacity: 0.6;
+
+  cursor: not-allowed;
+
+  transform: none;
+}
+
+/* Focus Skills */
 
 .focus-skills {
-  margin-top: 22px;
+  margin-top: var(--space-6);
 }
 
 .focus-skill-list {
   display: flex;
-
   flex-wrap: wrap;
 
-  gap: 8px;
+  gap: var(--space-2);
 
-  margin-top: 10px;
+  margin-top: var(--space-2);
 }
 
 .focus-skill-list span {
-  padding: 6px 10px;
+  padding: 6px var(--space-2);
 
-  border-radius: 999px;
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-pill);
 
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
 
-  font-size: 13px;
+  font-size: var(--font-size-xs);
 }
 
-/* EMPTY FOCUS STATE */
+/* Empty Focus State */
 
 .todays-focus-empty p {
   max-width: 600px;
 
-  margin: 8px 0 20px;
+  margin: var(--space-2) 0 var(--space-5);
 
-  color: #64748b;
+  color: var(--color-text-muted);
 
-  line-height: 1.5;
+  line-height: var(--line-height-normal);
 }
 
-/* QUICK ACCESS */
+.todays-focus-empty button {
+  margin-top: 0;
+}
+
+/* Quick Access */
 
 .quick-access {
   width: 100%;
   box-sizing: border-box;
 
-  padding: 28px;
+  padding: var(--space-7);
 
-  border: 1px solid #e2e8f0;
-  border-radius: 16px;
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
 
-  background: #ffffff;
+  background: var(--color-surface);
 
-  box-shadow: 0 6px 20px rgba(15, 23, 42, 0.06);
+  box-shadow: var(--shadow-sm);
 }
 
 .quick-access-header {
   display: flex;
-
   align-items: flex-end;
   justify-content: space-between;
 
-  gap: 24px;
+  gap: var(--space-6);
 
-  margin-bottom: 20px;
+  margin-bottom: var(--space-5);
 }
 
 .quick-access-header h2 {
   margin: 0;
 
-  color: #0f172a;
+  color: var(--color-text-heading);
 
-  font-size: 24px;
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
 }
 
 .quick-access-header p {
   margin: 0;
 
-  color: #64748b;
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-sm);
 }
 
 .quick-access-grid {
@@ -485,74 +528,78 @@
 
   grid-template-columns: repeat(4, minmax(0, 1fr));
 
-  gap: 12px;
+  gap: var(--space-3);
 }
 
 .quick-access-item {
   display: flex;
-
   align-items: center;
   justify-content: space-between;
 
-  gap: 16px;
+  gap: var(--space-4);
 
   min-height: 100px;
 
-  padding: 18px;
+  padding: var(--space-4);
 
   box-sizing: border-box;
 
-  border: 1px solid #e2e8f0;
-  border-radius: 12px;
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
 
-  background: #f8fafc;
+  background: var(--color-surface-muted);
 
+  color: inherit;
   text-align: left;
 
   cursor: pointer;
 
   transition:
-    border-color 0.2s ease,
-    background-color 0.2s ease,
-    transform 0.2s ease;
+    border-color var(--duration-normal) var(--ease-standard),
+    background-color var(--duration-normal) var(--ease-standard),
+    box-shadow var(--duration-normal) var(--ease-standard),
+    transform var(--duration-fast) var(--ease-standard);
 }
 
 .quick-access-item:hover {
-  background: #eff6ff;
+  background: var(--color-primary-subtle);
 
-  border-color: #93c5fd;
+  border-color: var(--color-primary-muted);
 
-  transform: translateY(-2px);
+  box-shadow: var(--shadow-sm);
+
+  transform: translateY(-1px);
 }
 
 .quick-access-item strong {
   display: block;
 
-  margin-bottom: 7px;
+  margin-bottom: var(--space-1);
 
-  color: #0f172a;
+  color: var(--color-text-heading);
 
-  font-size: 16px;
+  font-size: var(--font-size-base);
+  font-weight: var(--font-weight-semibold);
 }
 
 .quick-access-item span {
   display: block;
 
-  color: #64748b;
+  color: var(--color-text-muted);
 
-  font-size: 13px;
+  font-size: var(--font-size-xs);
   line-height: 1.4;
 }
 
 .quick-access-item .quick-access-arrow {
   flex-shrink: 0;
 
-  color: #2563eb;
+  color: var(--color-primary);
 
-  font-size: 20px;
+  font-size: var(--font-size-lg);
 }
 
-/* RESPONSIVE */
+/* Responsive Layout */
 
 @media (max-width: 900px) {
   .journey-stats {
@@ -566,17 +613,17 @@
 
 @media (max-width: 700px) {
   .journey-banner {
-    padding: 24px;
+    padding: var(--space-6);
   }
 
   .journey-banner-top {
     flex-direction: column;
 
-    gap: 16px;
+    gap: var(--space-4);
   }
 
   .journey-progress-number {
-    font-size: 28px;
+    font-size: var(--font-size-2xl);
   }
 
   .journey-next {
@@ -590,22 +637,30 @@
   }
 
   .todays-focus {
-    padding: 24px;
+    padding: var(--space-6);
+  }
+
+  .focus-header {
+    gap: var(--space-4);
   }
 
   .focus-action {
-    align-items: flex-start;
+    align-items: stretch;
 
     flex-direction: column;
+
+    gap: var(--space-4);
   }
 
   .focus-action button,
   .todays-focus-empty button {
     width: 100%;
+
+    min-width: 0;
   }
 
   .quick-access {
-    padding: 20px;
+    padding: var(--space-5);
   }
 
   .quick-access-header {
@@ -625,29 +680,31 @@
   }
 
   .journey-banner {
-    padding: 20px;
+    padding: var(--space-5);
   }
 
   .todays-focus {
-    padding: 20px;
+    padding: var(--space-5);
   }
 
   .focus-header {
-    gap: 12px;
+    gap: var(--space-3);
   }
 
   .todays-focus h2 {
-    font-size: 20px;
+    font-size: var(--font-size-lg);
+  }
+
+  .focus-percent {
+    font-size: var(--font-size-lg);
   }
 }
 
-/* REDUCED MOTION */
+/* Reduced Motion */
 
 @media (prefers-reduced-motion: reduce) {
   .journey-progress-fill,
   .focus-progress-fill,
-  .journey-next button,
-  .journey-banner button,
   .focus-action button,
   .todays-focus-empty button,
   .quick-access-item {

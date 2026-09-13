@@ -133,7 +133,7 @@ function ApplicationActions({
       <div className="application-detail-actions">
         <button
           type="button"
-          className="application-action-secondary"
+          className="btn-secondary"
           onClick={openEditModal}
           disabled={deleting}
         >
@@ -142,7 +142,7 @@ function ApplicationActions({
 
         <button
           type="button"
-          className="application-action-danger"
+          className="btn-danger"
           onClick={() => setShowDeleteModal(true)}
           disabled={deleting}
         >
@@ -159,7 +159,7 @@ function ApplicationActions({
             <button
               type="submit"
               form="application-detail-edit-form"
-              className="application-action-primary"
+              className="btn-primary"
               disabled={saving}
             >
               {saving ? "Saving..." : "Save Changes"}
@@ -167,7 +167,7 @@ function ApplicationActions({
 
             <button
               type="button"
-              className="application-action-secondary"
+              className="btn-secondary"
               onClick={closeEditModal}
               disabled={saving}
             >
