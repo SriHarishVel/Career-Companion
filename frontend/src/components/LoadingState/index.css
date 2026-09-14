@@ -1,3 +1,5 @@
+/* Loading State */
+
 .loading-state {
   display: flex;
   flex-direction: column;
@@ -5,19 +7,19 @@
   justify-content: center;
 
   min-height: 220px;
-
   padding: 30px 20px;
 
   text-align: center;
 }
 
 .loading-brand {
-  margin-bottom: 12px;
+  margin-bottom: var(--space-3);
 
-  color: #1e293b;
+  color: var(--color-text-primary);
 
-  font-size: 0.9rem;
-  font-weight: 700;
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+
   letter-spacing: -0.01em;
 }
 
@@ -25,14 +27,13 @@
   position: relative;
 
   width: min(220px, 70%);
-
   height: 3px;
 
   overflow: hidden;
 
-  border-radius: 999px;
+  border-radius: var(--radius-pill);
 
-  background: #e2e8f0;
+  background: var(--color-border);
 }
 
 .loading-bar-progress {
@@ -45,18 +46,18 @@
 
   border-radius: inherit;
 
-  background: #2563eb;
+  background: var(--color-primary);
 
-  animation: loading-sweep 1s ease-in-out infinite;
+  animation: loading-sweep 1s var(--ease-standard) infinite;
 }
 
 .loading-state p {
-  margin: 10px 0 0;
+  margin: var(--space-2) 0 0;
 
-  color: #64748b;
+  color: var(--color-text-secondary);
 
-  font-size: 0.78rem;
-  font-weight: 500;
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
 }
 
 @keyframes loading-sweep {
@@ -66,5 +67,15 @@
 
   to {
     left: 100%;
+  }
+}
+
+/* Reduced motion */
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-bar-progress {
+    animation: none;
+    left: 0;
+    width: 100%;
   }
 }

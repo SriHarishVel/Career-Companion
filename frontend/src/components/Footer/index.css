@@ -4,9 +4,13 @@
   width: 100%;
   flex-shrink: 0;
 
-  background: linear-gradient(180deg, #1e293b 0%, #172033 100%);
+  background: linear-gradient(
+    180deg,
+    var(--color-text-primary) 0%,
+    #172033 100%
+  );
 
-  color: #ffffff;
+  color: var(--color-text-inverse);
 
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.06),
@@ -14,21 +18,20 @@
 }
 
 .footer-main {
-  width: calc(100% - 48px);
-  max-width: 1700px;
-
-  margin: 0 auto;
-
   display: flex;
   align-items: center;
   justify-content: space-between;
 
+  width: calc(100% - 48px);
+  max-width: 1700px;
+
+  margin: 0 auto;
   padding: 22px 0 18px;
 }
 
 .footer-brand {
-  font-size: 18px;
-  font-weight: 700;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
   letter-spacing: -0.2px;
 }
 
@@ -41,8 +44,8 @@
 
   color: #cbd5e1;
 
-  font-size: 13px;
-  line-height: 1.4;
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
 }
 
 .footer-bottom {
@@ -50,34 +53,34 @@
   max-width: 1700px;
 
   margin: 0 auto;
-
   padding: 10px 0 12px;
 
-  border-top: 1px solid rgba(148, 163, 184, 0.2);
+  border-top: var(--border-width-thin) solid rgba(148, 163, 184, 0.2);
 
-  color: #94a3b8;
+  color: var(--color-text-muted);
 
   text-align: center;
 
-  font-size: 12px;
+  font-size: var(--font-size-xs);
 }
 
 /* Mobile */
 
 @media (max-width: 700px) {
   .footer-main {
-    width: calc(100% - 32px);
-
+    display: flex;
     align-items: flex-start;
     flex-direction: column;
 
-    gap: 10px;
+    width: calc(100% - 32px);
+
+    gap: var(--space-2);
 
     padding: 20px 0 14px;
   }
 
   .footer-brand {
-    font-size: 17px;
+    font-size: var(--font-size-md);
   }
 
   .footer-message {
@@ -85,7 +88,7 @@
   }
 
   .footer-message p {
-    font-size: 12px;
+    font-size: var(--font-size-xs);
   }
 
   .footer-bottom {
@@ -93,6 +96,6 @@
 
     padding: 9px 0 11px;
 
-    font-size: 11px;
+    font-size: var(--font-size-xs);
   }
 }
