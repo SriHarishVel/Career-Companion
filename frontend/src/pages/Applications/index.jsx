@@ -313,7 +313,7 @@ function Applications() {
 
         <button
           type="button"
-          className="application-action-primary"
+          className="btn-primary"
           onClick={openCreateModal}
         >
           Add Application
@@ -354,7 +354,7 @@ function Applications() {
 
           <button
             type="button"
-            className="application-action-primary"
+            className="btn-primary"
             onClick={openCreateModal}
           >
             Add Application
@@ -370,7 +370,7 @@ function Applications() {
           <>
             <button
               type="button"
-              className="application-action-secondary"
+              className="btn-secondary"
               onClick={closeApplicationForm}
               disabled={saving}
             >
@@ -380,7 +380,7 @@ function Applications() {
             <button
               type="submit"
               form="application-form"
-              className="application-action-primary"
+              className="btn-primary"
               disabled={saving}
             >
               {saving

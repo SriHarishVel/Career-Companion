@@ -4,6 +4,7 @@ function ApplicationCard({ application }) {
   const navigate = useNavigate();
 
   const status = application?.status?.trim() || "Applied";
+
   const statusClass = status.toLowerCase().replace(/\s+/g, "-");
 
   const interviewRounds = Array.isArray(application?.interviewRounds)
@@ -56,7 +57,7 @@ function ApplicationCard({ application }) {
 
   return (
     <article
-      className="application-card"
+      className="card application-card"
       onClick={handleOpen}
       onKeyDown={(event) => {
         if (event.key === "Enter" || event.key === " ") {

@@ -8,12 +8,7 @@ import ResourceCard from "./components/ResourceCard";
 import ResourceFilters from "./components/ResourceFilters";
 
 import { getGoals } from "../../services/goalService";
-import {
-  getResources,
-  createResource,
-  updateResource,
-  deleteResource,
-} from "../../services/resourceService";
+import { getResources, updateResource } from "../../services/resourceService";
 import { getSkills } from "../../services/skillService";
 
 import "./index.css";
@@ -150,23 +145,7 @@ function Resources() {
 
       setErrorMsg(
         error.response?.data?.message ||
-          "Unable to refresh your resources. Please try again.",
-      );
-    }
-  }
-
-  async function handleCreateResource(resourceData) {
-    try {
-      setErrorMsg("");
-
-      await createResource(resourceData);
-      await refreshResources();
-    } catch (error) {
-      console.error("Failed to create resource:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to create the resource. Please try again.",
+          "Unable to refresh resources. Please try again.",
       );
     }
   }
@@ -187,20 +166,16 @@ function Resources() {
     }
   }
 
-  async function handleDeleteResource(resourceId) {
-    try {
-      setErrorMsg("");
+  async function handleToggleFavorite(resourceId) {
+    const resource = resources.find((item) => item._id === resourceId);
 
-      await deleteResource(resourceId);
-      await refreshResources();
-    } catch (error) {
-      console.error("Failed to delete resource:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to delete the resource. Please try again.",
-      );
+    if (!resource) {
+      return;
     }
+
+    await handleUpdateResource(resourceId, {
+      favorite: !resource.favorite,
+    });
   }
 
   if (loading) {
@@ -246,9 +221,7 @@ function Resources() {
             <ResourceCard
               key={resource._id}
               resource={resource}
-              onCreate={handleCreateResource}
-              onUpdate={handleUpdateResource}
-              onDelete={handleDeleteResource}
+              onToggleFavorite={handleToggleFavorite}
             />
           ))
         ) : (

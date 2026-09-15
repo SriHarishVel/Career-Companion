@@ -1,8 +1,8 @@
-/*
- * Career Companion Design Tokens
- *
- * Shared visual decisions for the application.
- * Keep page- and component-specific values out of this file.
+/* 
+ * Career Companion Design Tokens 
+ * 
+ * Shared visual decisions for the application. 
+ * Keep page- and component-specific values out of this file. 
  */
 
 :root {
@@ -12,6 +12,9 @@
   --color-primary-subtle: #eff6ff;
   --color-primary-muted: #dbeafe;
   --color-primary-border: #93c5fd;
+
+  --color-secondary: #7c3aed;
+  --color-secondary-subtle: #f5f3ff;
 
   /* Text colors */
   --color-text-primary: #1e293b;

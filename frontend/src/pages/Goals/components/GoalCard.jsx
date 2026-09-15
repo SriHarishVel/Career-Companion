@@ -36,7 +36,7 @@ function GoalCard({
 
   return (
     <article
-      className={`card ${completed ? "completed-card" : ""}`}
+      className={`card goal-card ${completed ? "completed-card" : ""}`}
       role="button"
       tabIndex={0}
       onClick={openGoal}
