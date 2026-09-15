@@ -11,6 +11,7 @@ function SkillCard({
   const navigate = useNavigate();
 
   const safeProgress = Math.min(Math.max(Number(progress) || 0, 0), 100);
+  const completed = safeProgress === 100;
 
   function handleSkillDetails() {
     navigate(`/skills/${id}`);
@@ -18,7 +19,7 @@ function SkillCard({
 
   return (
     <article
-      className="card skill-card"
+      className={`card skill-card ${completed ? "card-success" : ""}`}
       onClick={handleSkillDetails}
       role="button"
       tabIndex={0}
@@ -29,7 +30,7 @@ function SkillCard({
         }
       }}
     >
-      <div className="skill-card-header">
+      <div className="card-header skill-card-header">
         <h2>{name}</h2>
       </div>
 

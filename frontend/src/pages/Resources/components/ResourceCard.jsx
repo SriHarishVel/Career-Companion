@@ -17,7 +17,7 @@ function ResourceCard({ resource, onToggleFavorite }) {
   return (
     <article
       className={`card resource-card ${
-        resource.completed ? "resource-card-completed" : ""
+        resource.completed ? "card-success" : ""
       }`}
       onClick={handleCardClick}
       onKeyDown={handleKeyDown}
@@ -38,7 +38,7 @@ function ResourceCard({ resource, onToggleFavorite }) {
         {resource.favorite ? "★" : "☆"}
       </button>
 
-      <div className="resource-card-header">
+      <div className="card-header resource-card-header">
         <div className="resource-badges">
           <span className="resource-type">{resource.type || "Resource"}</span>
 
