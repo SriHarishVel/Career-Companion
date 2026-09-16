@@ -1,5 +1,7 @@
 import Resource from "../models/Resource.js";
 import Skill from "../models/Skill.js";
+import fs from "fs";
+import path from "path";
 
 import { syncSkillProgress } from "../utils/syncSkillProgress.js";
 
@@ -37,7 +39,20 @@ export const createResource = async (req, res) => {
     const resource = new Resource({
       title: req.body.title,
       type: req.body.type,
+
+      source: req.file ? "upload" : "external",
+
       url: req.body.url,
+
+      file: req.file
+        ? {
+            originalName: req.file.originalname,
+            mimeType: req.file.mimetype,
+            size: req.file.size,
+            filename: req.file.filename,
+          }
+        : undefined,
+
       description: req.body.description,
       favorite: req.body.favorite ?? false,
       completed: req.body.completed ?? false,
@@ -183,13 +198,15 @@ export const updateResource = async (req, res) => {
 
     const previousSkillId = resource.skill ? resource.skill.toString() : null;
 
+    /* Store previous file */
+
+    const previousFilename = resource.file?.filename;
+
     /* Update resource */
 
     resource.title = req.body.title ?? resource.title;
 
     resource.type = req.body.type ?? resource.type;
-
-    resource.url = req.body.url ?? resource.url;
 
     resource.description = req.body.description ?? resource.description;
 
@@ -199,7 +216,43 @@ export const updateResource = async (req, res) => {
 
     resource.skill = req.body.skill ?? resource.skill;
 
+    /* Handle uploaded file or external URL */
+
+    if (req.file) {
+      resource.source = "upload";
+
+      resource.url = undefined;
+
+      resource.file = {
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        filename: req.file.filename,
+      };
+    } else if (req.body.url !== undefined) {
+      resource.source = "external";
+
+      resource.url = req.body.url || undefined;
+
+      resource.file = undefined;
+    }
+
     const updatedResource = await resource.save();
+
+    /* Delete previous physical file */
+
+    if (req.file && previousFilename) {
+      const previousFilePath = path.join(
+        process.cwd(),
+        "uploads",
+        "resources",
+        previousFilename,
+      );
+
+      if (fs.existsSync(previousFilePath)) {
+        fs.unlinkSync(previousFilePath);
+      }
+    }
 
     /* Recalculate previous skill */
 
@@ -211,11 +264,6 @@ export const updateResource = async (req, res) => {
 
     if (updatedResource.skill) {
       const currentSkillId = updatedResource.skill.toString();
-
-      /*
-       * If the resource moved to another skill,
-       * recalculate the new skill as well.
-       */
 
       if (currentSkillId !== previousSkillId) {
         await syncSkill(req.user._id, currentSkillId);
@@ -252,7 +300,24 @@ export const deleteResource = async (req, res) => {
 
     const skillId = resource.skill ? resource.skill.toString() : null;
 
+    const filename = resource.file?.filename;
+
     await resource.deleteOne();
+
+    /* Delete physical uploaded file */
+
+    if (filename) {
+      const filePath = path.join(
+        process.cwd(),
+        "uploads",
+        "resources",
+        filename,
+      );
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
 
     /* Synchronize related skill */
 

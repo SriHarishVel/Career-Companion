@@ -1,61 +1,91 @@
 import mongoose from "mongoose";
 
 const resourceSchema = new mongoose.Schema(
-    {
-        title: {
-            type: String,
-            required: true,
-            trim: true,
-        },
-
-        type: {
-            type: String,
-            enum: [
-                "Course",
-                "Video",
-                "Article",
-                "Book",
-                "Documentation",
-                "Practice",
-                "Other",
-            ],
-            default: "Course",
-        },
-
-        url: {
-            type: String,
-            trim: true,
-        },
-
-        description: {
-            type: String,
-            trim: true,
-        },
-
-        favorite: {
-            type: Boolean,
-            default: false,
-        },
-
-        completed: {
-            type: Boolean,
-            default: false,
-        },
-
-        skill: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "Skill",
-        },
-
-        user: {
-            type: mongoose.Schema.Types.ObjectId,
-            ref: "User",
-            required: true,
-        },
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
     },
-    {
-        timestamps: true,
-    }
+
+    type: {
+      type: String,
+      enum: [
+        "Course",
+        "Video",
+        "Audio",
+        "Article",
+        "Book",
+        "Documentation",
+        "Practice",
+        "PDF",
+        "Image",
+        "Other",
+      ],
+      default: "Course",
+    },
+
+    source: {
+      type: String,
+      enum: ["external", "upload"],
+      default: "external",
+    },
+
+    url: {
+      type: String,
+      trim: true,
+    },
+
+    file: {
+      originalName: {
+        type: String,
+        trim: true,
+      },
+
+      mimeType: {
+        type: String,
+        trim: true,
+      },
+
+      size: {
+        type: Number,
+      },
+
+      filename: {
+        type: String,
+        trim: true,
+      },
+    },
+
+    description: {
+      type: String,
+      trim: true,
+    },
+
+    favorite: {
+      type: Boolean,
+      default: false,
+    },
+
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+
+    skill: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Skill",
+    },
+
+    user: {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "User",
+      required: true,
+    },
+  },
+  {
+    timestamps: true,
+  },
 );
 
 const Resource = mongoose.model("Resource", resourceSchema);
