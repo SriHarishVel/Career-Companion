@@ -18,14 +18,17 @@ function ResourceForm({
   setSkillId,
   skills,
   errorMsg,
+  setErrorMsg,
   addResource,
 }) {
   const isEditing = Boolean(editingResourceId);
+  const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
   function handleSourceChange(event) {
     const selectedSource = event.target.value;
 
     setSource(selectedSource);
+    setErrorMsg("");
 
     if (selectedSource === "upload") {
       setNewUrl("");
@@ -37,6 +40,19 @@ function ResourceForm({
   function handleFileChange(event) {
     const selectedFile = event.target.files[0] || null;
 
+    if (!selectedFile) {
+      setFile(null);
+      return;
+    }
+
+    if (selectedFile.size > MAX_FILE_SIZE) {
+      setFile(null);
+      event.target.value = "";
+      setErrorMsg("File size cannot exceed 100 MB.");
+      return;
+    }
+
+    setErrorMsg("");
     setFile(selectedFile);
   }
 
@@ -120,11 +136,18 @@ function ResourceForm({
           <div className="filter-group">
             <label htmlFor="resource-file">Upload File</label>
 
-            <input id="resource-file" type="file" onChange={handleFileChange} />
+            <input
+              id="resource-file"
+              type="file"
+              accept="video/*,audio/*,application/pdf,image/*"
+              onChange={handleFileChange}
+            />
 
             {file && (
               <span className="resource-file-name">Selected: {file.name}</span>
             )}
+
+            <small>Maximum file size: 100 MB.</small>
           </div>
         )}
 

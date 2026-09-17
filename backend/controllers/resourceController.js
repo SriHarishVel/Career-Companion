@@ -34,35 +34,21 @@ async function syncSkill(userId, skillId) {
   await skill.save();
 }
 
+/* CREATE RESOURCE */
+
 export const createResource = async (req, res) => {
   try {
     const resource = new Resource({
       title: req.body.title,
-      type: req.body.type,
-
-      source: req.file ? "upload" : "external",
-
-      url: req.body.url,
-
-      file: req.file
-        ? {
-            originalName: req.file.originalname,
-            mimeType: req.file.mimetype,
-            size: req.file.size,
-            filename: req.file.filename,
-          }
-        : undefined,
-
       description: req.body.description,
       favorite: req.body.favorite ?? false,
       completed: req.body.completed ?? false,
       skill: req.body.skill || null,
       user: req.user._id,
+      items: [],
     });
 
     const createdResource = await resource.save();
-
-    /* Synchronize related skill */
 
     await syncSkill(req.user._id, createdResource.skill);
 
@@ -78,6 +64,8 @@ export const createResource = async (req, res) => {
   }
 };
 
+/* GET RESOURCES */
+
 export const getResources = async (req, res) => {
   try {
     const query = {
@@ -91,12 +79,6 @@ export const getResources = async (req, res) => {
         $regex: req.query.search,
         $options: "i",
       };
-    }
-
-    /* Type filter */
-
-    if (req.query.type) {
-      query.type = req.query.type;
     }
 
     /* Favorite filter */
@@ -151,6 +133,8 @@ export const getResources = async (req, res) => {
   }
 };
 
+/* GET SINGLE RESOURCE */
+
 export const getResource = async (req, res) => {
   try {
     const resource = await Resource.findById(req.params.id).populate(
@@ -178,6 +162,8 @@ export const getResource = async (req, res) => {
   }
 };
 
+/* UPDATE RESOURCE */
+
 export const updateResource = async (req, res) => {
   try {
     const resource = await Resource.findById(req.params.id);
@@ -198,15 +184,9 @@ export const updateResource = async (req, res) => {
 
     const previousSkillId = resource.skill ? resource.skill.toString() : null;
 
-    /* Store previous file */
-
-    const previousFilename = resource.file?.filename;
-
     /* Update resource */
 
     resource.title = req.body.title ?? resource.title;
-
-    resource.type = req.body.type ?? resource.type;
 
     resource.description = req.body.description ?? resource.description;
 
@@ -214,45 +194,10 @@ export const updateResource = async (req, res) => {
 
     resource.completed = req.body.completed ?? resource.completed;
 
-    resource.skill = req.body.skill ?? resource.skill;
-
-    /* Handle uploaded file or external URL */
-
-    if (req.file) {
-      resource.source = "upload";
-
-      resource.url = undefined;
-
-      resource.file = {
-        originalName: req.file.originalname,
-        mimeType: req.file.mimetype,
-        size: req.file.size,
-        filename: req.file.filename,
-      };
-    } else if (req.body.url !== undefined) {
-      resource.source = "external";
-
-      resource.url = req.body.url || undefined;
-
-      resource.file = undefined;
-    }
+    resource.skill =
+      req.body.skill !== undefined ? req.body.skill || null : resource.skill;
 
     const updatedResource = await resource.save();
-
-    /* Delete previous physical file */
-
-    if (req.file && previousFilename) {
-      const previousFilePath = path.join(
-        process.cwd(),
-        "uploads",
-        "resources",
-        previousFilename,
-      );
-
-      if (fs.existsSync(previousFilePath)) {
-        fs.unlinkSync(previousFilePath);
-      }
-    }
 
     /* Recalculate previous skill */
 
@@ -282,6 +227,8 @@ export const updateResource = async (req, res) => {
   }
 };
 
+/* DELETE RESOURCE */
+
 export const deleteResource = async (req, res) => {
   try {
     const resource = await Resource.findById(req.params.id);
@@ -300,13 +247,17 @@ export const deleteResource = async (req, res) => {
 
     const skillId = resource.skill ? resource.skill.toString() : null;
 
-    const filename = resource.file?.filename;
+    /* Store uploaded filenames */
+
+    const filenames = resource.items
+      .filter((item) => item.source === "upload" && item.file?.filename)
+      .map((item) => item.file.filename);
 
     await resource.deleteOne();
 
-    /* Delete physical uploaded file */
+    /* Delete physical uploaded files */
 
-    if (filename) {
+    for (const filename of filenames) {
       const filePath = path.join(
         process.cwd(),
         "uploads",
@@ -326,6 +277,218 @@ export const deleteResource = async (req, res) => {
     res.status(200).json({
       message: "Resource deleted successfully",
     });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* ADD RESOURCE ITEM */
+
+export const addResourceItem = async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+
+    if (!resource) {
+      return res.status(404).json({
+        message: "Resource not found",
+      });
+    }
+
+    if (resource.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    if (!req.body.title?.trim()) {
+      return res.status(400).json({
+        message: "Resource item title is required.",
+      });
+    }
+
+    const source = req.file ? "upload" : "external";
+
+    if (source === "external" && !req.body.url?.trim()) {
+      return res.status(400).json({
+        message: "Resource URL is required.",
+      });
+    }
+
+    const item = {
+      title: req.body.title.trim(),
+
+      type: req.body.type || "Other",
+
+      source,
+
+      completed: false,
+    };
+
+    if (source === "external") {
+      item.url = req.body.url.trim();
+    }
+
+    if (source === "upload") {
+      item.file = {
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        filename: req.file.filename,
+      };
+    }
+
+    resource.items.push(item);
+
+    const updatedResource = await resource.save();
+
+    const populatedResource = await Resource.findById(
+      updatedResource._id,
+    ).populate("skill", "name level category");
+
+    res.status(201).json(populatedResource);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* UPDATE RESOURCE ITEM */
+
+export const updateResourceItem = async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+
+    if (!resource) {
+      return res.status(404).json({
+        message: "Resource not found",
+      });
+    }
+
+    if (resource.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    const item = resource.items.id(req.params.itemId);
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Resource item not found",
+      });
+    }
+
+    const previousFilename = item.file?.filename;
+
+    item.title = req.body.title ?? item.title;
+
+    item.type = req.body.type ?? item.type;
+
+    item.completed = req.body.completed ?? item.completed;
+
+    /* Replace uploaded file */
+
+    if (req.file) {
+      item.source = "upload";
+      item.url = undefined;
+
+      item.file = {
+        originalName: req.file.originalname,
+        mimeType: req.file.mimetype,
+        size: req.file.size,
+        filename: req.file.filename,
+      };
+    } else if (req.body.url !== undefined) {
+      item.source = "external";
+      item.url = req.body.url || undefined;
+      item.file = undefined;
+    }
+
+    const updatedResource = await resource.save();
+
+    /* Delete previous physical file */
+
+    if (req.file && previousFilename) {
+      const previousFilePath = path.join(
+        process.cwd(),
+        "uploads",
+        "resources",
+        previousFilename,
+      );
+
+      if (fs.existsSync(previousFilePath)) {
+        fs.unlinkSync(previousFilePath);
+      }
+    }
+
+    const populatedResource = await Resource.findById(
+      updatedResource._id,
+    ).populate("skill", "name level category");
+
+    res.status(200).json(populatedResource);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* DELETE RESOURCE ITEM */
+
+export const deleteResourceItem = async (req, res) => {
+  try {
+    const resource = await Resource.findById(req.params.id);
+
+    if (!resource) {
+      return res.status(404).json({
+        message: "Resource not found",
+      });
+    }
+
+    if (resource.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    const item = resource.items.id(req.params.itemId);
+
+    if (!item) {
+      return res.status(404).json({
+        message: "Resource item not found",
+      });
+    }
+
+    const filename = item.file?.filename;
+
+    item.deleteOne();
+
+    await resource.save();
+
+    /* Delete physical uploaded file */
+
+    if (filename) {
+      const filePath = path.join(
+        process.cwd(),
+        "uploads",
+        "resources",
+        filename,
+      );
+
+      if (fs.existsSync(filePath)) {
+        fs.unlinkSync(filePath);
+      }
+    }
+
+    const populatedResource = await Resource.findById(resource._id).populate(
+      "skill",
+      "name level category",
+    );
+
+    res.status(200).json(populatedResource);
   } catch (error) {
     res.status(500).json({
       message: error.message,

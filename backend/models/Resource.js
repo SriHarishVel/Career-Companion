@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 
-const resourceSchema = new mongoose.Schema(
+const resourceItemSchema = new mongoose.Schema(
   {
     title: {
       type: String,
@@ -22,7 +22,7 @@ const resourceSchema = new mongoose.Schema(
         "Image",
         "Other",
       ],
-      default: "Course",
+      default: "Other",
     },
 
     source: {
@@ -57,6 +57,24 @@ const resourceSchema = new mongoose.Schema(
       },
     },
 
+    completed: {
+      type: Boolean,
+      default: false,
+    },
+  },
+  {
+    _id: true,
+  },
+);
+
+const resourceSchema = new mongoose.Schema(
+  {
+    title: {
+      type: String,
+      required: true,
+      trim: true,
+    },
+
     description: {
       type: String,
       trim: true,
@@ -81,6 +99,11 @@ const resourceSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: "User",
       required: true,
+    },
+
+    items: {
+      type: [resourceItemSchema],
+      default: [],
     },
   },
   {
