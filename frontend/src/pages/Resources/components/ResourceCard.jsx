@@ -1,5 +1,7 @@
 import { useNavigate } from "react-router-dom";
 
+import { API_BASE_URL } from "../../../api/axios";
+
 function ResourceCard({ resource, onToggleFavorite }) {
   const navigate = useNavigate();
 
@@ -13,6 +15,16 @@ function ResourceCard({ resource, onToggleFavorite }) {
       handleCardClick();
     }
   }
+
+  function getResourceUrl() {
+    if (resource.source === "upload" && resource.file?.filename) {
+      return `${API_BASE_URL}/uploads/resources/${resource.file.filename}`;
+    }
+
+    return resource.url;
+  }
+
+  const resourceUrl = getResourceUrl();
 
   return (
     <article
@@ -58,15 +70,17 @@ function ResourceCard({ resource, onToggleFavorite }) {
       )}
 
       <div className="resource-actions">
-        <a
-          href={resource.url}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="open-resource-btn"
-          onClick={(event) => event.stopPropagation()}
-        >
-          Open Resource
-        </a>
+        {resourceUrl && (
+          <a
+            href={resourceUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="open-resource-btn"
+            onClick={(event) => event.stopPropagation()}
+          >
+            Open Resource
+          </a>
+        )}
       </div>
     </article>
   );

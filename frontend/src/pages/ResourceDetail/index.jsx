@@ -9,9 +9,12 @@ import {
 
 import { getSkills } from "../../services/skillService";
 
+import { API_BASE_URL } from "../../api/axios";
+
 import LoadingState from "../../components/LoadingState";
 
 import ResourceOverview from "./components/ResourceOverview";
+import ResourcePreview from "./components/ResourcePreview";
 import ResourceDescription from "./components/ResourceDescription";
 import ResourceSkill from "./components/ResourceSkill";
 import ResourceActions from "./components/ResourceActions";
@@ -79,20 +82,43 @@ function ResourceDetail() {
     };
   }, [resourceId]);
 
+  useEffect(() => {
+    if (!successMsg) {
+      return;
+    }
+
+    const timeoutId = setTimeout(() => {
+      setSuccessMsg("");
+    }, 3000);
+
+    return () => {
+      clearTimeout(timeoutId);
+    };
+  }, [successMsg]);
+
   const handleBack = () => {
     navigate("/resources");
   };
 
   const handleOpenResource = () => {
-    if (!resource?.url) {
+    if (!resource) {
       return;
     }
 
-    const url = resource.url.startsWith("http")
-      ? resource.url
-      : `https://${resource.url}`;
+    if (resource.source === "upload" && resource.file?.filename) {
+      const fileUrl = `${API_BASE_URL}/uploads/resources/${resource.file.filename}`;
 
-    window.open(url, "_blank", "noopener,noreferrer");
+      window.open(fileUrl, "_blank", "noopener,noreferrer");
+      return;
+    }
+
+    if (resource.url) {
+      const url = resource.url.startsWith("http")
+        ? resource.url
+        : `https://${resource.url}`;
+
+      window.open(url, "_blank", "noopener,noreferrer");
+    }
   };
 
   const handleResourceUpdated = async (updatedResource) => {
@@ -239,11 +265,7 @@ function ResourceDetail() {
 
           <p>{errorMsg}</p>
 
-          <button
-            type="button"
-            className="resource-action-secondary"
-            onClick={handleBack}
-          >
+          <button type="button" className="btn-secondary" onClick={handleBack}>
             Back to Resources
           </button>
         </div>
@@ -285,12 +307,16 @@ function ResourceDetail() {
           title={resource.title}
           type={resource.type}
           url={resource.url}
+          source={resource.source}
+          file={resource.file}
           favorite={resource.favorite}
           completed={resource.completed}
           onOpenResource={handleOpenResource}
           onToggleFavorite={handleToggleFavorite}
           onToggleCompleted={handleToggleCompleted}
         />
+
+        <ResourcePreview source={resource.source} file={resource.file} />
 
         <ResourceDescription
           description={resource.description}

@@ -10,6 +10,10 @@ function ResourceForm({
   setNewTitle,
   newUrl,
   setNewUrl,
+  source,
+  setSource,
+  file,
+  setFile,
   skillId,
   setSkillId,
   skills,
@@ -18,6 +22,24 @@ function ResourceForm({
 }) {
   const isEditing = Boolean(editingResourceId);
 
+  function handleSourceChange(event) {
+    const selectedSource = event.target.value;
+
+    setSource(selectedSource);
+
+    if (selectedSource === "upload") {
+      setNewUrl("");
+    } else {
+      setFile(null);
+    }
+  }
+
+  function handleFileChange(event) {
+    const selectedFile = event.target.files[0] || null;
+
+    setFile(selectedFile);
+  }
+
   return (
     <FormDialog
       isOpen={isOpen}
@@ -25,19 +47,11 @@ function ResourceForm({
       onClose={onClose}
       footer={
         <>
-          <button
-            type="button"
-            className="form-dialog-cancel"
-            onClick={onClose}
-          >
+          <button type="button" className="btn-secondary" onClick={onClose}>
             Cancel
           </button>
 
-          <button
-            type="button"
-            className="form-dialog-submit"
-            onClick={addResource}
-          >
+          <button type="button" className="btn-primary" onClick={addResource}>
             {isEditing ? "Update Resource" : "Add Resource"}
           </button>
         </>
@@ -55,7 +69,13 @@ function ResourceForm({
             <option value="Documentation">Documentation</option>
             <option value="Course">Course</option>
             <option value="Video">Video</option>
+            <option value="Audio">Audio</option>
             <option value="Article">Article</option>
+            <option value="Book">Book</option>
+            <option value="Practice">Practice</option>
+            <option value="PDF">PDF</option>
+            <option value="Image">Image</option>
+            <option value="Other">Other</option>
           </select>
         </div>
 
@@ -72,16 +92,41 @@ function ResourceForm({
         </div>
 
         <div className="filter-group">
-          <label htmlFor="resource-url">Resource URL</label>
+          <label htmlFor="resource-source">Resource Source</label>
 
-          <input
-            id="resource-url"
-            type="url"
-            placeholder="https://..."
-            value={newUrl}
-            onChange={(event) => setNewUrl(event.target.value)}
-          />
+          <select
+            id="resource-source"
+            value={source}
+            onChange={handleSourceChange}
+          >
+            <option value="external">External URL</option>
+            <option value="upload">Upload File</option>
+          </select>
         </div>
+
+        {source === "external" ? (
+          <div className="filter-group">
+            <label htmlFor="resource-url">Resource URL</label>
+
+            <input
+              id="resource-url"
+              type="url"
+              placeholder="https://..."
+              value={newUrl}
+              onChange={(event) => setNewUrl(event.target.value)}
+            />
+          </div>
+        ) : (
+          <div className="filter-group">
+            <label htmlFor="resource-file">Upload File</label>
+
+            <input id="resource-file" type="file" onChange={handleFileChange} />
+
+            {file && (
+              <span className="resource-file-name">Selected: {file.name}</span>
+            )}
+          </div>
+        )}
 
         <div className="filter-group">
           <label htmlFor="resource-skill">

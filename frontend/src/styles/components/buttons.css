@@ -139,19 +139,19 @@ button:disabled {
 .btn-success {
   padding: 10px 16px;
 
-  border: var(--border-width-thin) solid var(--color-success);
+  border: var(--border-width-thin) solid var(--color-success-border);
   border-radius: var(--radius-md);
 
-  background: var(--color-success);
-  color: var(--color-text-inverse);
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
 
   font-size: var(--font-size-md);
   font-weight: var(--font-weight-semibold);
 }
 
 .btn-success:hover {
-  background: var(--color-success-hover);
-  border-color: var(--color-success-hover);
+  border-color: var(--color-success);
 
-  box-shadow: var(--shadow-success);
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
 }

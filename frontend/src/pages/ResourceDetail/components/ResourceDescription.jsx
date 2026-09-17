@@ -198,7 +198,7 @@ function ResourceDescription({ description, onSave }) {
                 <div className="resource-notes-editor-actions">
                   <button
                     type="button"
-                    className="resource-notes-cancel"
+                    className="btn-secondary"
                     onClick={handleCancelEdit}
                     disabled={saving}
                   >
@@ -207,7 +207,7 @@ function ResourceDescription({ description, onSave }) {
 
                   <button
                     type="button"
-                    className="resource-notes-save"
+                    className="btn-primary"
                     onClick={handleSave}
                     disabled={saving}
                   >
@@ -230,7 +230,7 @@ function ResourceDescription({ description, onSave }) {
                 <div className="resource-notes-modal-actions">
                   <button
                     type="button"
-                    className="resource-notes-edit"
+                    className="btn-primary"
                     onClick={handleEdit}
                   >
                     Edit Notes
@@ -238,7 +238,7 @@ function ResourceDescription({ description, onSave }) {
 
                   <button
                     type="button"
-                    className="resource-notes-close-secondary"
+                    className="btn-secondary"
                     onClick={handleClose}
                   >
                     Close

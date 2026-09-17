@@ -5,20 +5,6 @@
   max-width: none;
 }
 
-/* Add resource */
-
-.add-resource-btn {
-  flex-shrink: 0;
-
-  min-height: var(--size-control-md);
-
-  padding: 9px 16px;
-}
-
-.add-resource-btn:hover {
-  box-shadow: var(--shadow-primary);
-}
-
 /* Resource summary */
 
 .resource-summary {
@@ -244,7 +230,6 @@
   border-top: var(--border-width-thin) solid var(--color-border-subtle);
 }
 
-.resource-actions button,
 .resource-actions a {
   display: inline-flex;
   align-items: center;
@@ -281,21 +266,6 @@
   background: var(--color-surface-muted);
 }
 
-/* View details */
-
-.resource-details-btn {
-  border: var(--border-width-thin) solid var(--color-primary);
-
-  background: var(--color-primary);
-  color: var(--color-text-inverse);
-}
-
-.resource-details-btn:hover {
-  border-color: var(--color-primary-hover);
-
-  background: var(--color-primary-hover);
-}
-
 /* Secondary actions */
 
 .resource-secondary-actions {
@@ -311,13 +281,6 @@
 .resource-secondary-actions .btn-secondary,
 .resource-secondary-actions .btn-danger {
   width: 100%;
-  min-height: var(--size-control-sm);
-
-  padding: 8px 12px;
-
-  border-radius: var(--radius-sm);
-
-  font-size: var(--font-size-xs);
 }
 
 /* Empty state */
@@ -424,10 +387,6 @@
 
   .resource-form-fields {
     grid-template-columns: 1fr;
-  }
-
-  .add-resource-btn {
-    width: 100%;
   }
 }
 

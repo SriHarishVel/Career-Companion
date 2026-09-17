@@ -6,9 +6,14 @@ import useQueryParams from "../../hooks/useQueryParams";
 
 import ResourceCard from "./components/ResourceCard";
 import ResourceFilters from "./components/ResourceFilters";
+import ResourceForm from "./components/ResourceForm";
 
 import { getGoals } from "../../services/goalService";
-import { getResources, updateResource } from "../../services/resourceService";
+import {
+  createResource,
+  getResources,
+  updateResource,
+} from "../../services/resourceService";
 import { getSkills } from "../../services/skillService";
 
 import "./index.css";
@@ -31,6 +36,15 @@ function Resources() {
   const [resources, setResources] = useState([]);
   const [skills, setSkills] = useState([]);
   const [goals, setGoals] = useState([]);
+
+  const [isResourceFormOpen, setIsResourceFormOpen] = useState(false);
+
+  const [newTitle, setNewTitle] = useState("");
+  const [newType, setNewType] = useState("Course");
+  const [newUrl, setNewUrl] = useState("");
+  const [source, setSource] = useState("external");
+  const [file, setFile] = useState(null);
+  const [skillId, setSkillId] = useState("");
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -150,6 +164,74 @@ function Resources() {
     }
   }
 
+  function resetResourceForm() {
+    setNewTitle("");
+    setNewType("Course");
+    setNewUrl("");
+    setSource("external");
+    setFile(null);
+    setSkillId("");
+  }
+
+  function openResourceForm() {
+    resetResourceForm();
+    setErrorMsg("");
+    setIsResourceFormOpen(true);
+  }
+
+  function closeResourceForm() {
+    setIsResourceFormOpen(false);
+    resetResourceForm();
+  }
+
+  async function addResource() {
+    try {
+      setErrorMsg("");
+
+      if (!newTitle.trim()) {
+        setErrorMsg("Resource title is required.");
+        return;
+      }
+
+      if (source === "external" && !newUrl.trim()) {
+        setErrorMsg("Resource URL is required.");
+        return;
+      }
+
+      if (source === "upload" && !file) {
+        setErrorMsg("Please select a file.");
+        return;
+      }
+
+      const formData = new FormData();
+
+      formData.append("title", newTitle.trim());
+      formData.append("type", newType);
+
+      if (source === "external") {
+        formData.append("url", newUrl.trim());
+      } else {
+        formData.append("file", file);
+      }
+
+      if (skillId) {
+        formData.append("skill", skillId);
+      }
+
+      await createResource(formData);
+
+      closeResourceForm();
+      await refreshResources();
+    } catch (error) {
+      console.error("Failed to create resource:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to create the resource. Please try again.",
+      );
+    }
+  }
+
   async function handleUpdateResource(resourceId, resourceData) {
     try {
       setErrorMsg("");
@@ -192,6 +274,14 @@ function Resources() {
     <div className="container">
       <div className="page-header">
         <h1>Resources</h1>
+
+        <button
+          type="button"
+          className="btn-primary"
+          onClick={openResourceForm}
+        >
+          Add Resource
+        </button>
       </div>
 
       {errorMsg && (
@@ -232,6 +322,27 @@ function Resources() {
           </div>
         )}
       </div>
+
+      <ResourceForm
+        isOpen={isResourceFormOpen}
+        onClose={closeResourceForm}
+        editingResourceId={null}
+        newType={newType}
+        setNewType={setNewType}
+        newTitle={newTitle}
+        setNewTitle={setNewTitle}
+        newUrl={newUrl}
+        setNewUrl={setNewUrl}
+        source={source}
+        setSource={setSource}
+        file={file}
+        setFile={setFile}
+        skillId={skillId}
+        setSkillId={setSkillId}
+        skills={skills}
+        errorMsg={errorMsg}
+        addResource={addResource}
+      />
     </div>
   );
 }

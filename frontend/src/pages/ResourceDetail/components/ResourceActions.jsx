@@ -142,7 +142,7 @@ function ResourceActions({
       <section className="resource-detail-actions">
         <button
           type="button"
-          className="resource-action-secondary"
+          className="btn-secondary"
           onClick={handleOpenEdit}
           disabled={deleting}
         >
@@ -151,7 +151,7 @@ function ResourceActions({
 
         <button
           type="button"
-          className="resource-action-danger"
+          className="btn-danger"
           onClick={handleOpenDelete}
           disabled={deleting}
         >
@@ -169,7 +169,7 @@ function ResourceActions({
           <>
             <button
               type="button"
-              className="resource-action-secondary"
+              className="btn-secondary"
               onClick={handleCloseEdit}
               disabled={saving}
             >
@@ -179,7 +179,7 @@ function ResourceActions({
             <button
               type="submit"
               form={formId}
-              className="resource-action-primary"
+              className="btn-primary"
               disabled={saving}
             >
               {saving ? "Saving..." : "Save Changes"}
