@@ -3,11 +3,12 @@ import FormDialog from "../../../components/FormDialog";
 function ResourceForm({
   isOpen,
   onClose,
-  editingResourceId,
-  newType,
-  setNewType,
   newTitle,
   setNewTitle,
+  newItemTitle,
+  setNewItemTitle,
+  newType,
+  setNewType,
   newUrl,
   setNewUrl,
   source,
@@ -21,7 +22,6 @@ function ResourceForm({
   setErrorMsg,
   addResource,
 }) {
-  const isEditing = Boolean(editingResourceId);
   const MAX_FILE_SIZE = 100 * 1024 * 1024;
 
   function handleSourceChange(event) {
@@ -59,7 +59,7 @@ function ResourceForm({
   return (
     <FormDialog
       isOpen={isOpen}
-      title={isEditing ? "Edit Resource" : "Add a Resource"}
+      title="Add a Resource"
       onClose={onClose}
       footer={
         <>
@@ -68,19 +68,58 @@ function ResourceForm({
           </button>
 
           <button type="button" className="btn-primary" onClick={addResource}>
-            {isEditing ? "Update Resource" : "Add Resource"}
+            Add Resource
           </button>
         </>
       }
     >
       <div className="resource-form-fields">
+        {/* RESOURCE */}
+
         <div className="filter-group">
-          <label htmlFor="resource-type">Resource Type</label>
+          <label htmlFor="resource-title">Resource Title</label>
+
+          <input
+            id="resource-title"
+            type="text"
+            placeholder="e.g. React"
+            value={newTitle}
+            onChange={(event) => {
+              setNewTitle(event.target.value);
+              setErrorMsg("");
+            }}
+            required
+          />
+        </div>
+
+        {/* RESOURCE ITEM */}
+
+        <div className="filter-group">
+          <label htmlFor="resource-item-title">Resource Item Title</label>
+
+          <input
+            id="resource-item-title"
+            type="text"
+            placeholder="e.g. React Hooks Tutorial"
+            value={newItemTitle}
+            onChange={(event) => {
+              setNewItemTitle(event.target.value);
+              setErrorMsg("");
+            }}
+            required
+          />
+        </div>
+
+        <div className="filter-group">
+          <label htmlFor="resource-type">Resource Item Type</label>
 
           <select
             id="resource-type"
             value={newType}
-            onChange={(event) => setNewType(event.target.value)}
+            onChange={(event) => {
+              setNewType(event.target.value);
+              setErrorMsg("");
+            }}
           >
             <option value="Documentation">Documentation</option>
             <option value="Course">Course</option>
@@ -96,19 +135,7 @@ function ResourceForm({
         </div>
 
         <div className="filter-group">
-          <label htmlFor="resource-title">Resource Title</label>
-
-          <input
-            id="resource-title"
-            type="text"
-            placeholder="e.g. React Documentation"
-            value={newTitle}
-            onChange={(event) => setNewTitle(event.target.value)}
-          />
-        </div>
-
-        <div className="filter-group">
-          <label htmlFor="resource-source">Resource Source</label>
+          <label htmlFor="resource-source">Resource Item Source</label>
 
           <select
             id="resource-source"
@@ -122,19 +149,23 @@ function ResourceForm({
 
         {source === "external" ? (
           <div className="filter-group">
-            <label htmlFor="resource-url">Resource URL</label>
+            <label htmlFor="resource-url">Resource Item URL</label>
 
             <input
               id="resource-url"
               type="url"
               placeholder="https://..."
               value={newUrl}
-              onChange={(event) => setNewUrl(event.target.value)}
+              onChange={(event) => {
+                setNewUrl(event.target.value);
+                setErrorMsg("");
+              }}
+              required
             />
           </div>
         ) : (
           <div className="filter-group">
-            <label htmlFor="resource-file">Upload File</label>
+            <label htmlFor="resource-file">Resource Item File</label>
 
             <input
               id="resource-file"
@@ -151,6 +182,8 @@ function ResourceForm({
           </div>
         )}
 
+        {/* RELATED SKILL */}
+
         <div className="filter-group">
           <label htmlFor="resource-skill">
             Related Skill
@@ -160,7 +193,10 @@ function ResourceForm({
           <select
             id="resource-skill"
             value={skillId}
-            onChange={(event) => setSkillId(event.target.value)}
+            onChange={(event) => {
+              setSkillId(event.target.value);
+              setErrorMsg("");
+            }}
           >
             <option value="">No Related Skill</option>
 

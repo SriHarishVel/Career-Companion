@@ -10,6 +10,7 @@ import ResourceForm from "./components/ResourceForm";
 
 import { getGoals } from "../../services/goalService";
 import {
+  addResourceItem,
   createResource,
   getResources,
   updateResource,
@@ -40,6 +41,7 @@ function Resources() {
   const [isResourceFormOpen, setIsResourceFormOpen] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
+  const [newItemTitle, setNewItemTitle] = useState("");
   const [newType, setNewType] = useState("Course");
   const [newUrl, setNewUrl] = useState("");
   const [source, setSource] = useState("external");
@@ -57,8 +59,6 @@ function Resources() {
 
         const data = await getResources({
           search: urlSearch || undefined,
-          type:
-            urlType === "All" || urlType === "Favorites" ? undefined : urlType,
           favorite: urlType === "Favorites" ? true : undefined,
           skill: urlSkill === "All" ? undefined : urlSkill,
           sort: urlSort === "default" ? undefined : urlSort,
@@ -146,8 +146,6 @@ function Resources() {
 
       const data = await getResources({
         search: urlSearch || undefined,
-        type:
-          urlType === "All" || urlType === "Favorites" ? undefined : urlType,
         favorite: urlType === "Favorites" ? true : undefined,
         skill: urlSkill === "All" ? undefined : urlSkill,
         sort: urlSort === "default" ? undefined : urlSort,
@@ -166,16 +164,17 @@ function Resources() {
 
   function resetResourceForm() {
     setNewTitle("");
+    setNewItemTitle("");
     setNewType("Course");
     setNewUrl("");
     setSource("external");
     setFile(null);
     setSkillId("");
+    setErrorMsg("");
   }
 
   function openResourceForm() {
     resetResourceForm();
-    setErrorMsg("");
     setIsResourceFormOpen(true);
   }
 
@@ -193,8 +192,13 @@ function Resources() {
         return;
       }
 
+      if (!newItemTitle.trim()) {
+        setErrorMsg("Resource item title is required.");
+        return;
+      }
+
       if (source === "external" && !newUrl.trim()) {
-        setErrorMsg("Resource URL is required.");
+        setErrorMsg("Resource item URL is required.");
         return;
       }
 
@@ -203,22 +207,29 @@ function Resources() {
         return;
       }
 
-      const formData = new FormData();
+      const resourceData = {
+        title: newTitle.trim(),
+        skill: skillId || null,
+      };
 
-      formData.append("title", newTitle.trim());
-      formData.append("type", newType);
+      const createdResource = await createResource(resourceData);
+
+      const itemFormData = new FormData();
+
+      itemFormData.append("title", newItemTitle.trim());
+      itemFormData.append("type", newType);
 
       if (source === "external") {
-        formData.append("url", newUrl.trim());
+        const formattedUrl = newUrl.trim().startsWith("http")
+          ? newUrl.trim()
+          : `https://${newUrl.trim()}`;
+
+        itemFormData.append("url", formattedUrl);
       } else {
-        formData.append("file", file);
+        itemFormData.append("file", file);
       }
 
-      if (skillId) {
-        formData.append("skill", skillId);
-      }
-
-      await createResource(formData);
+      await addResourceItem(createdResource._id, itemFormData);
 
       closeResourceForm();
       await refreshResources();
@@ -236,8 +247,11 @@ function Resources() {
     try {
       setErrorMsg("");
 
-      await updateResource(resourceId, resourceData);
+      const updatedResource = await updateResource(resourceId, resourceData);
+
       await refreshResources();
+
+      return updatedResource;
     } catch (error) {
       console.error("Failed to update resource:", error);
 
@@ -245,6 +259,8 @@ function Resources() {
         error.response?.data?.message ||
           "Unable to update the resource. Please try again.",
       );
+
+      throw error;
     }
   }
 
@@ -326,11 +342,12 @@ function Resources() {
       <ResourceForm
         isOpen={isResourceFormOpen}
         onClose={closeResourceForm}
-        editingResourceId={null}
-        newType={newType}
-        setNewType={setNewType}
         newTitle={newTitle}
         setNewTitle={setNewTitle}
+        newItemTitle={newItemTitle}
+        setNewItemTitle={setNewItemTitle}
+        newType={newType}
+        setNewType={setNewType}
         newUrl={newUrl}
         setNewUrl={setNewUrl}
         source={source}
@@ -341,6 +358,7 @@ function Resources() {
         setSkillId={setSkillId}
         skills={skills}
         errorMsg={errorMsg}
+        setErrorMsg={setErrorMsg}
         addResource={addResource}
       />
     </div>

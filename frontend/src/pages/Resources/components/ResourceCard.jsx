@@ -1,7 +1,5 @@
 import { useNavigate } from "react-router-dom";
 
-import { API_BASE_URL } from "../../../api/axios";
-
 function ResourceCard({ resource, onToggleFavorite }) {
   const navigate = useNavigate();
 
@@ -16,15 +14,8 @@ function ResourceCard({ resource, onToggleFavorite }) {
     }
   }
 
-  function getResourceUrl() {
-    if (resource.source === "upload" && resource.file?.filename) {
-      return `${API_BASE_URL}/uploads/resources/${resource.file.filename}`;
-    }
-
-    return resource.url;
-  }
-
-  const resourceUrl = getResourceUrl();
+  const items = resource.items || [];
+  const completedItems = items.filter((item) => item.completed).length;
 
   return (
     <article
@@ -52,7 +43,7 @@ function ResourceCard({ resource, onToggleFavorite }) {
 
       <div className="card-header resource-card-header">
         <div className="resource-badges">
-          <span className="resource-type">{resource.type || "Resource"}</span>
+          <span className="resource-type">Resource</span>
 
           {resource.completed && (
             <span className="resource-completed-badge">✓ Completed</span>
@@ -60,6 +51,14 @@ function ResourceCard({ resource, onToggleFavorite }) {
         </div>
 
         <h3>{resource.title}</h3>
+      </div>
+
+      <div className="resource-item-summary">
+        <span>
+          {items.length} {items.length === 1 ? "item" : "items"}
+        </span>
+
+        {items.length > 0 && <span>{completedItems} completed</span>}
       </div>
 
       {resource.skill && (
@@ -70,17 +69,16 @@ function ResourceCard({ resource, onToggleFavorite }) {
       )}
 
       <div className="resource-actions">
-        {resourceUrl && (
-          <a
-            href={resourceUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="open-resource-btn"
-            onClick={(event) => event.stopPropagation()}
-          >
-            Open Resource
-          </a>
-        )}
+        <button
+          type="button"
+          className="btn-secondary"
+          onClick={(event) => {
+            event.stopPropagation();
+            handleCardClick();
+          }}
+        >
+          View Resource
+        </button>
       </div>
     </article>
   );

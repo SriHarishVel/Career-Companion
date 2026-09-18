@@ -1,28 +1,12 @@
-import { API_BASE_URL } from "../../../api/axios";
-
-function ResourceOverview({
-  title,
-  type,
-  url,
-  source,
-  file,
-  favorite,
-  completed,
-  onOpenResource,
-  onToggleFavorite,
-  onToggleCompleted,
-}) {
-  const resourceUrl =
-    source === "upload" && file?.filename
-      ? `${API_BASE_URL}/uploads/resources/${file.filename}`
-      : url;
+function ResourceOverview({ resource, onToggleFavorite, onToggleCompleted }) {
+  const { title, favorite, completed, items = [] } = resource;
 
   return (
     <section className="resource-overview">
       <div className="resource-overview-header">
         <div className="resource-overview-title">
           <div className="resource-detail-badges">
-            <span className="resource-detail-type">{type || "Resource"}</span>
+            <span className="resource-detail-type">Resource</span>
 
             {completed && (
               <span className="resource-detail-completed-badge">Finished</span>
@@ -45,35 +29,13 @@ function ResourceOverview({
         </button>
       </div>
 
-      {source === "upload" && file ? (
-        <div className="resource-url">
-          <span className="resource-url-label">Uploaded File</span>
-
-          <span>{file.originalName}</span>
-        </div>
-      ) : (
-        url && (
-          <div className="resource-url">
-            <span className="resource-url-label">Resource URL</span>
-
-            <a href={url} target="_blank" rel="noopener noreferrer">
-              {url}
-            </a>
-          </div>
-        )
-      )}
+      <div className="resource-overview-summary">
+        <span>
+          {items.length} {items.length === 1 ? "item" : "items"}
+        </span>
+      </div>
 
       <div className="resource-overview-actions">
-        {resourceUrl && (
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={onOpenResource}
-          >
-            Open Resource
-          </button>
-        )}
-
         <button
           type="button"
           className={completed ? "btn-success" : "btn-secondary"}

@@ -9,8 +9,6 @@ import {
 
 import { getSkills } from "../../services/skillService";
 
-import { API_BASE_URL } from "../../api/axios";
-
 import LoadingState from "../../components/LoadingState";
 
 import ResourceOverview from "./components/ResourceOverview";
@@ -98,27 +96,6 @@ function ResourceDetail() {
 
   const handleBack = () => {
     navigate("/resources");
-  };
-
-  const handleOpenResource = () => {
-    if (!resource) {
-      return;
-    }
-
-    if (resource.source === "upload" && resource.file?.filename) {
-      const fileUrl = `${API_BASE_URL}/uploads/resources/${resource.file.filename}`;
-
-      window.open(fileUrl, "_blank", "noopener,noreferrer");
-      return;
-    }
-
-    if (resource.url) {
-      const url = resource.url.startsWith("http")
-        ? resource.url
-        : `https://${resource.url}`;
-
-      window.open(url, "_blank", "noopener,noreferrer");
-    }
   };
 
   const handleResourceUpdated = async (updatedResource) => {
@@ -304,19 +281,15 @@ function ResourceDetail() {
 
       <main className="resource-detail-content">
         <ResourceOverview
-          title={resource.title}
-          type={resource.type}
-          url={resource.url}
-          source={resource.source}
-          file={resource.file}
-          favorite={resource.favorite}
-          completed={resource.completed}
-          onOpenResource={handleOpenResource}
+          resource={resource}
           onToggleFavorite={handleToggleFavorite}
           onToggleCompleted={handleToggleCompleted}
         />
 
-        <ResourcePreview source={resource.source} file={resource.file} />
+        <ResourcePreview
+          resource={resource}
+          onResourceUpdated={handleResourceUpdated}
+        />
 
         <ResourceDescription
           description={resource.description}

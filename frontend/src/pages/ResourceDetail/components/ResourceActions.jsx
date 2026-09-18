@@ -17,29 +17,22 @@ function ResourceActions({
 
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [file, setFile] = useState(null);
 
   const [editForm, setEditForm] = useState({
     title: resource.title || "",
-    type: resource.type || "Other",
-    url: resource.url || "",
     skillId: resource.skill?._id || "",
   });
 
   const formId = `edit-resource-form-${resource._id}`;
-  const isUploadedResource = resource.source === "upload";
 
-  /* EDIT */
+  /* EDIT RESOURCE */
 
   const handleOpenEdit = () => {
     setEditForm({
       title: resource.title || "",
-      type: resource.type || "Other",
-      url: resource.url || "",
       skillId: resource.skill?._id || "",
     });
 
-    setFile(null);
     setError("");
     setShowEditModal(true);
   };
@@ -50,7 +43,6 @@ function ResourceActions({
     }
 
     setError("");
-    setFile(null);
     setShowEditModal(false);
   };
 
@@ -63,85 +55,30 @@ function ResourceActions({
     setError("");
   };
 
-  const handleFileChange = (event) => {
-    const selectedFile = event.target.files[0] || null;
-
-    setFile(selectedFile);
-    setError("");
-  };
-
   const handleSave = async (event) => {
     event.preventDefault();
 
     const title = editForm.title.trim();
-    const url = editForm.url.trim();
 
     if (!title) {
       setError("Resource title cannot be empty.");
       return;
     }
 
-    if (isUploadedResource && file) {
-      const allowedMimeTypes = [
-        "video/mp4",
-        "video/webm",
-        "video/ogg",
-        "audio/mpeg",
-        "audio/mp3",
-        "audio/wav",
-        "audio/ogg",
-        "application/pdf",
-        "image/jpeg",
-        "image/png",
-        "image/gif",
-        "image/webp",
-      ];
-
-      if (!allowedMimeTypes.includes(file.type)) {
-        setError(
-          "Unsupported file type. Please upload a video, audio, PDF, or image.",
-        );
-        return;
-      }
-
-      if (file.size > 100 * 1024 * 1024) {
-        setError("File size cannot exceed 100 MB.");
-        return;
-      }
-    }
-
     try {
       setSaving(true);
       setError("");
 
-      const formData = new FormData();
-
-      formData.append("title", title);
-      formData.append("type", editForm.type);
-      formData.append("skill", editForm.skillId || "");
-
-      if (isUploadedResource) {
-        if (file) {
-          formData.append("file", file);
-        }
-      } else {
-        const formattedUrl = url
-          ? url.startsWith("http")
-            ? url
-            : `https://${url}`
-          : "";
-
-        formData.append("url", formattedUrl);
-      }
-
-      const updatedResource = await updateResource(resource._id, formData);
+      const updatedResource = await updateResource(resource._id, {
+        title,
+        skill: editForm.skillId || null,
+      });
 
       if (onResourceUpdated) {
         await onResourceUpdated(updatedResource);
       }
 
       setShowEditModal(false);
-      setFile(null);
     } catch (error) {
       console.error("Failed to update resource:", error);
 
@@ -154,7 +91,7 @@ function ResourceActions({
     }
   };
 
-  /* DELETE */
+  /* DELETE RESOURCE */
 
   const handleOpenDelete = () => {
     if (deleting) {
@@ -209,7 +146,7 @@ function ResourceActions({
         </button>
       </section>
 
-      {/* EDIT MODAL */}
+      {/* EDIT RESOURCE MODAL */}
 
       <FormDialog
         isOpen={showEditModal}
@@ -252,67 +189,6 @@ function ResourceActions({
               required
             />
           </div>
-
-          {/* TYPE */}
-
-          <div className="resource-edit-field">
-            <label htmlFor="edit-resource-type">Type</label>
-
-            <select
-              id="edit-resource-type"
-              value={editForm.type}
-              onChange={(event) => handleChange("type", event.target.value)}
-            >
-              <option value="Course">Course</option>
-              <option value="Video">Video</option>
-              <option value="Article">Article</option>
-              <option value="Book">Book</option>
-              <option value="Documentation">Documentation</option>
-              <option value="Practice">Practice</option>
-              <option value="PDF">PDF</option>
-              <option value="Image">Image</option>
-              <option value="Audio">Audio</option>
-              <option value="Other">Other</option>
-            </select>
-          </div>
-
-          {/* RESOURCE */}
-
-          {isUploadedResource ? (
-            <div className="resource-edit-field">
-              <label htmlFor="edit-resource-file">Uploaded File</label>
-
-              <small>
-                Current file: {resource.file?.originalName || "Unknown file"}
-              </small>
-
-              <input
-                id="edit-resource-file"
-                type="file"
-                accept="video/*,audio/*,application/pdf,image/*"
-                onChange={handleFileChange}
-              />
-
-              <small>
-                Select a new file only if you want to replace the current file.
-                Maximum size: 100 MB.
-              </small>
-            </div>
-          ) : (
-            <div className="resource-edit-field">
-              <label htmlFor="edit-resource-url">Resource URL</label>
-
-              <input
-                id="edit-resource-url"
-                type="url"
-                value={editForm.url}
-                onChange={(event) => handleChange("url", event.target.value)}
-                placeholder="https://... (optional)"
-              />
-
-              <small>Leave empty if this resource does not have a URL.</small>
-            </div>
-          )}
 
           {/* RELATED SKILL */}
 
