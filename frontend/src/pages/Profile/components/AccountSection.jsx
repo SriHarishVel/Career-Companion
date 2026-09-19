@@ -42,7 +42,7 @@ function AccountSection({ handleLogout }) {
           <>
             <button
               type="button"
-              className="form-dialog-secondary-btn"
+              className="btn-secondary"
               onClick={closeLogoutModal}
             >
               Cancel
@@ -50,7 +50,7 @@ function AccountSection({ handleLogout }) {
 
             <button
               type="button"
-              className="form-dialog-danger-btn"
+              className="btn-danger-outline"
               onClick={confirmLogout}
             >
               Log out

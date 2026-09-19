@@ -167,7 +167,7 @@ function Profile() {
 
           <button
             type="button"
-            className="profile-primary-btn"
+            className="btn-primary"
             onClick={() => window.location.reload()}
           >
             Try Again

@@ -1,6 +1,6 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
-function SignupForm({ onSubmit, error }) {
+function SignupForm({ onSubmit, onGoogleLogin, error }) {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
@@ -12,6 +12,67 @@ function SignupForm({ onSubmit, error }) {
     password: "",
     confirmPassword: "",
   });
+
+  useEffect(() => {
+    function renderGoogleButton() {
+      if (!window.google) {
+        return;
+      }
+
+      const googleButton = document.getElementById("google-sign-up-button");
+
+      if (!googleButton) {
+        return;
+      }
+
+      googleButton.innerHTML = "";
+
+      window.google.accounts.id.initialize({
+        client_id: import.meta.env.VITE_GOOGLE_CLIENT_ID,
+        callback: (response) => {
+          onGoogleLogin(response.credential);
+        },
+      });
+
+      window.google.accounts.id.renderButton(googleButton, {
+        theme: "outline",
+        size: "large",
+        width: "100%",
+        text: "signup_with",
+        shape: "rectangular",
+      });
+    }
+
+    if (window.google) {
+      renderGoogleButton();
+      return;
+    }
+
+    const existingScript = document.querySelector(
+      'script[src="https://accounts.google.com/gsi/client"]',
+    );
+
+    if (existingScript) {
+      existingScript.addEventListener("load", renderGoogleButton);
+
+      return () => {
+        existingScript.removeEventListener("load", renderGoogleButton);
+      };
+    }
+
+    const script = document.createElement("script");
+
+    script.src = "https://accounts.google.com/gsi/client";
+    script.async = true;
+    script.defer = true;
+    script.onload = renderGoogleButton;
+
+    document.head.appendChild(script);
+
+    return () => {
+      script.onload = null;
+    };
+  }, [onGoogleLogin]);
 
   // Handle input changes
   const handleChange = (e) => {
@@ -71,109 +132,117 @@ function SignupForm({ onSubmit, error }) {
   };
 
   return (
-    <form className="auth-form" onSubmit={handleSubmit}>
-      {/* Full name */}
-      <div className="auth-form-group">
-        <label htmlFor="signup-fullName">Full Name</label>
+    <div>
+      <form className="auth-form" onSubmit={handleSubmit}>
+        {/* Full name */}
+        <div className="auth-form-group">
+          <label htmlFor="signup-fullName">Full Name</label>
 
-        <input
-          id="signup-fullName"
-          type="text"
-          name="fullName"
-          placeholder="Your full name"
-          value={formData.fullName}
-          onChange={handleChange}
-          autoComplete="name"
-        />
-
-        {errors.fullName && (
-          <p className="auth-error-message">{errors.fullName}</p>
-        )}
-      </div>
-
-      {/* Email */}
-      <div className="auth-form-group">
-        <label htmlFor="signup-email">Email</label>
-
-        <input
-          id="signup-email"
-          type="email"
-          name="email"
-          placeholder="you@example.com"
-          value={formData.email}
-          onChange={handleChange}
-          autoComplete="email"
-        />
-
-        {errors.email && <p className="auth-error-message">{errors.email}</p>}
-      </div>
-
-      {/* Password */}
-      <div className="auth-form-group">
-        <label htmlFor="signup-password">Password</label>
-
-        <div className="auth-password-field">
           <input
-            id="signup-password"
-            type={showPassword ? "text" : "password"}
-            name="password"
-            placeholder="Create a password"
-            value={formData.password}
+            id="signup-fullName"
+            type="text"
+            name="fullName"
+            placeholder="Your full name"
+            value={formData.fullName}
             onChange={handleChange}
-            autoComplete="new-password"
+            autoComplete="name"
           />
 
-          <button
-            type="button"
-            className="auth-toggle-password"
-            onClick={() => setShowPassword((previous) => !previous)}
-          >
-            {showPassword ? "Hide" : "Show"}
-          </button>
+          {errors.fullName && (
+            <p className="auth-error-message">{errors.fullName}</p>
+          )}
         </div>
 
-        {errors.password && (
-          <p className="auth-error-message">{errors.password}</p>
-        )}
-      </div>
+        {/* Email */}
+        <div className="auth-form-group">
+          <label htmlFor="signup-email">Email</label>
 
-      {/* Confirm password */}
-      <div className="auth-form-group">
-        <label htmlFor="signup-confirmPassword">Confirm Password</label>
-
-        <div className="auth-password-field">
           <input
-            id="signup-confirmPassword"
-            type={showConfirmPassword ? "text" : "password"}
-            name="confirmPassword"
-            placeholder="Repeat your password"
-            value={formData.confirmPassword}
+            id="signup-email"
+            type="email"
+            name="email"
+            placeholder="you@example.com"
+            value={formData.email}
             onChange={handleChange}
-            autoComplete="new-password"
+            autoComplete="email"
           />
 
-          <button
-            type="button"
-            className="auth-toggle-password"
-            onClick={() => setShowConfirmPassword((previous) => !previous)}
-          >
-            {showConfirmPassword ? "Hide" : "Show"}
-          </button>
+          {errors.email && <p className="auth-error-message">{errors.email}</p>}
         </div>
 
-        {errors.confirmPassword && (
-          <p className="auth-error-message">{errors.confirmPassword}</p>
-        )}
+        {/* Password */}
+        <div className="auth-form-group">
+          <label htmlFor="signup-password">Password</label>
+
+          <div className="auth-password-field">
+            <input
+              id="signup-password"
+              type={showPassword ? "text" : "password"}
+              name="password"
+              placeholder="Create a password"
+              value={formData.password}
+              onChange={handleChange}
+              autoComplete="new-password"
+            />
+
+            <button
+              type="button"
+              className="auth-toggle-password"
+              onClick={() => setShowPassword((previous) => !previous)}
+            >
+              {showPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+
+          {errors.password && (
+            <p className="auth-error-message">{errors.password}</p>
+          )}
+        </div>
+
+        {/* Confirm password */}
+        <div className="auth-form-group">
+          <label htmlFor="signup-confirmPassword">Confirm Password</label>
+
+          <div className="auth-password-field">
+            <input
+              id="signup-confirmPassword"
+              type={showConfirmPassword ? "text" : "password"}
+              name="confirmPassword"
+              placeholder="Repeat your password"
+              value={formData.confirmPassword}
+              onChange={handleChange}
+              autoComplete="new-password"
+            />
+
+            <button
+              type="button"
+              className="auth-toggle-password"
+              onClick={() => setShowConfirmPassword((previous) => !previous)}
+            >
+              {showConfirmPassword ? "Hide" : "Show"}
+            </button>
+          </div>
+
+          {errors.confirmPassword && (
+            <p className="auth-error-message">{errors.confirmPassword}</p>
+          )}
+        </div>
+
+        {/* Server error */}
+        {error && <div className="auth-error">{error}</div>}
+
+        {/* Submit */}
+        <button type="submit" className="auth-submit">
+          Create my account →
+        </button>
+      </form>
+
+      <div className="auth-divider">
+        <span>OR</span>
       </div>
 
-      {/* Server error */}
-      {error && <div className="auth-error">{error}</div>}
-
-      {/* Submit */}
-      <button type="submit" className="auth-submit">
-        Create my account →
-      </button>
-    </form>
+      <div id="google-sign-up-button" className="google-sign-up-button" />
+    </div>
   );
 }
 

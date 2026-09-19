@@ -52,6 +52,21 @@ button:disabled {
   box-shadow: var(--shadow-primary);
 }
 
+.btn-primary-outline {
+  padding: 10px 16px;
+  border: var(--border-width-thin) solid var(--color-primary-border);
+  border-radius: var(--radius-md);
+  background: transparent;
+  color: var(--color-primary);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-semibold);
+}
+
+.btn-primary-outline:hover {
+  border-color: var(--color-primary);
+  background: var(--color-primary-surface);
+}
+
 /* Secondary */
 
 .btn-secondary {

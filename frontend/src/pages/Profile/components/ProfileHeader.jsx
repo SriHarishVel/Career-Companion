@@ -29,7 +29,7 @@ function ProfileHeader({ profile, initials, firstName, setShowEditModal }) {
 
         <button
           type="button"
-          className="btn-primary profile-primary-btn"
+          className="btn-primary"
           onClick={() => setShowEditModal(true)}
         >
           Edit Profile

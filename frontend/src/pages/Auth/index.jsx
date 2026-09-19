@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useCallback, useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
 
-import { login, register } from "../../services/authService";
+import { login, googleLogin, register } from "../../services/authService";
 
 import LoginForm from "./components/LoginForm";
 import SignupForm from "./components/SignupForm";
@@ -31,6 +31,29 @@ function Auth() {
       setLoginError(error.response?.data?.message || "Login failed");
     }
   };
+
+  // Handle Google login and signup
+  const handleGoogleLogin = useCallback(
+    async (credential) => {
+      try {
+        setLoginError("");
+        setSignupError("");
+
+        await googleLogin(credential);
+
+        navigate("/dashboard");
+      } catch (error) {
+        const message = error.response?.data?.message || "Google login failed";
+
+        if (isSignup) {
+          setSignupError(message);
+        } else {
+          setLoginError(message);
+        }
+      }
+    },
+    [isSignup, navigate],
+  );
 
   // Handle signup
   const handleSignup = async (e, formData) => {
@@ -134,7 +157,11 @@ function Auth() {
                   <p>Sign in to pick up where you left off.</p>
                 </div>
 
-                <LoginForm onSubmit={handleLogin} error={loginError} />
+                <LoginForm
+                  onSubmit={handleLogin}
+                  onGoogleLogin={handleGoogleLogin}
+                  error={loginError}
+                />
               </div>
 
               {/* Signup */}
@@ -153,7 +180,11 @@ function Auth() {
                   </p>
                 </div>
 
-                <SignupForm onSubmit={handleSignup} error={signupError} />
+                <SignupForm
+                  onSubmit={handleSignup}
+                  onGoogleLogin={handleGoogleLogin}
+                  error={signupError}
+                />
               </div>
             </div>
           </div>

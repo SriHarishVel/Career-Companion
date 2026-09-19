@@ -54,11 +54,7 @@ function SecuritySection({
           </div>
         </div>
 
-        <button
-          type="button"
-          className="btn-secondary"
-          onClick={handleOpen}
-        >
+        <button type="button" className="btn-secondary" onClick={handleOpen}>
           Change Password
         </button>
       </div>
@@ -71,7 +67,7 @@ function SecuritySection({
           <>
             <button
               type="button"
-              className="form-dialog-secondary-btn"
+              className="btn-secondary"
               onClick={handleClose}
             >
               Cancel
@@ -79,7 +75,7 @@ function SecuritySection({
 
             <button
               type="button"
-              className="form-dialog-primary-btn"
+              className="btn-primary-outline"
               onClick={handleSave}
             >
               Update Password

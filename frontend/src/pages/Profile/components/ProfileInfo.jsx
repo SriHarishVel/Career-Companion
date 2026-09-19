@@ -73,7 +73,7 @@ function ProfileInfo({
           <>
             <button
               type="button"
-              className="form-dialog-secondary-btn"
+              className="btn-secondary"
               onClick={handleClose}
             >
               Cancel
@@ -81,7 +81,7 @@ function ProfileInfo({
 
             <button
               type="button"
-              className="form-dialog-primary-btn"
+              className="btn-primary-outline"
               onClick={handleSave}
             >
               Save Changes
