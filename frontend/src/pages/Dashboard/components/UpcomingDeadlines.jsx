@@ -9,7 +9,7 @@ function UpcomingDeadlines({ upcomingDeadlines }) {
             <div key={goal._id} className="deadline-item">
               <div>
                 <h3>{goal.title}</h3>
-                <p>{goal.category}</p>
+                {goal.category && <p>{goal.category}</p>}
               </div>
 
               <span>

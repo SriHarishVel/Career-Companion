@@ -81,7 +81,6 @@ function ApplicationInterviews({
 
     setRoundTitle(round.title || "");
     setRoundStatus(round.status || "Pending");
-
     setRoundDate(
       round.date ? new Date(round.date).toISOString().split("T")[0] : "",
     );
@@ -305,53 +304,17 @@ function ApplicationInterviews({
           </>
         }
       >
-        <div className="interview-form-fields">
-          <div className="interview-form-field">
-            <label htmlFor="add-round-title">Round Name</label>
-
-            <input
-              id="add-round-title"
-              type="text"
-              placeholder="e.g. Technical Interview"
-              value={roundTitle}
-              onChange={(event) => setRoundTitle(event.target.value)}
-              disabled={saving}
-            />
-          </div>
-
-          <div className="interview-form-field">
-            <label htmlFor="add-round-status">Status</label>
-
-            <select
-              id="add-round-status"
-              value={roundStatus}
-              onChange={(event) => setRoundStatus(event.target.value)}
-              disabled={saving}
-            >
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Failed">Failed</option>
-            </select>
-          </div>
-
-          <div className="interview-form-field">
-            <label htmlFor="add-round-date">Interview Date</label>
-
-            <input
-              id="add-round-date"
-              type="date"
-              value={roundDate}
-              onChange={(event) => setRoundDate(event.target.value)}
-              disabled={saving}
-            />
-          </div>
-
-          {errorMsg && (
-            <p className="interview-form-error" role="alert">
-              {errorMsg}
-            </p>
-          )}
-        </div>
+        <InterviewRoundForm
+          idPrefix="add-round"
+          roundTitle={roundTitle}
+          setRoundTitle={setRoundTitle}
+          roundStatus={roundStatus}
+          setRoundStatus={setRoundStatus}
+          roundDate={roundDate}
+          setRoundDate={setRoundDate}
+          saving={saving}
+          errorMsg={errorMsg}
+        />
       </FormDialog>
 
       <FormDialog
@@ -382,53 +345,17 @@ function ApplicationInterviews({
           </>
         }
       >
-        <div className="interview-form-fields">
-          <div className="interview-form-field">
-            <label htmlFor="edit-round-title">Round Name</label>
-
-            <input
-              id="edit-round-title"
-              type="text"
-              placeholder="e.g. Technical Interview"
-              value={roundTitle}
-              onChange={(event) => setRoundTitle(event.target.value)}
-              disabled={saving}
-            />
-          </div>
-
-          <div className="interview-form-field">
-            <label htmlFor="edit-round-status">Status</label>
-
-            <select
-              id="edit-round-status"
-              value={roundStatus}
-              onChange={(event) => setRoundStatus(event.target.value)}
-              disabled={saving}
-            >
-              <option value="Pending">Pending</option>
-              <option value="Completed">Completed</option>
-              <option value="Failed">Failed</option>
-            </select>
-          </div>
-
-          <div className="interview-form-field">
-            <label htmlFor="edit-round-date">Interview Date</label>
-
-            <input
-              id="edit-round-date"
-              type="date"
-              value={roundDate}
-              onChange={(event) => setRoundDate(event.target.value)}
-              disabled={saving}
-            />
-          </div>
-
-          {errorMsg && (
-            <p className="interview-form-error" role="alert">
-              {errorMsg}
-            </p>
-          )}
-        </div>
+        <InterviewRoundForm
+          idPrefix="edit-round"
+          roundTitle={roundTitle}
+          setRoundTitle={setRoundTitle}
+          roundStatus={roundStatus}
+          setRoundStatus={setRoundStatus}
+          roundDate={roundDate}
+          setRoundDate={setRoundDate}
+          saving={saving}
+          errorMsg={errorMsg}
+        />
       </FormDialog>
 
       <ConfirmModal
@@ -443,6 +370,68 @@ function ApplicationInterviews({
         onCancel={closeDeleteDialog}
       />
     </>
+  );
+}
+
+function InterviewRoundForm({
+  idPrefix,
+  roundTitle,
+  setRoundTitle,
+  roundStatus,
+  setRoundStatus,
+  roundDate,
+  setRoundDate,
+  saving,
+  errorMsg,
+}) {
+  return (
+    <div className="interview-form-fields">
+      <div className="interview-form-field">
+        <label htmlFor={`${idPrefix}-title`}>Round Name</label>
+
+        <input
+          id={`${idPrefix}-title`}
+          type="text"
+          placeholder="e.g. Technical Interview"
+          value={roundTitle}
+          onChange={(event) => setRoundTitle(event.target.value)}
+          disabled={saving}
+        />
+      </div>
+
+      <div className="interview-form-field">
+        <label htmlFor={`${idPrefix}-status`}>Status</label>
+
+        <select
+          id={`${idPrefix}-status`}
+          value={roundStatus}
+          onChange={(event) => setRoundStatus(event.target.value)}
+          disabled={saving}
+        >
+          <option value="Pending">Pending</option>
+          <option value="Completed">Completed</option>
+          <option value="Failed">Failed</option>
+        </select>
+      </div>
+
+      <div className="interview-form-field">
+        <label htmlFor={`${idPrefix}-date`}>Interview Date</label>
+
+        <input
+          id={`${idPrefix}-date`}
+          type="date"
+          value={roundDate}
+          onChange={(event) => setRoundDate(event.target.value)}
+          disabled={saving}
+        />
+      </div>
+
+      {errorMsg && (
+        <p className="interview-form-error" role="alert">
+          {errorMsg}
+        </p>
+      )}
+    </div>
   );
 }
 

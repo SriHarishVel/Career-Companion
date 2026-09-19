@@ -32,9 +32,6 @@ function ApplicationActivity({ application }) {
   const [deleting, setDeleting] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  /*
-   * LOAD ACTIVITIES
-   */
   useEffect(() => {
     if (!applicationId) {
       return undefined;
@@ -42,12 +39,10 @@ function ApplicationActivity({ application }) {
 
     let cancelled = false;
 
-    const loadActivities = async () => {
+    async function loadActivities() {
       try {
         setLoading(true);
         setErrorMsg("");
-
-        console.log("Loading activities for application:", applicationId);
 
         const activityData = await getApplicationActivities(applicationId);
 
@@ -73,7 +68,7 @@ function ApplicationActivity({ application }) {
           setLoading(false);
         }
       }
-    };
+    }
 
     loadActivities();
 
@@ -82,13 +77,7 @@ function ApplicationActivity({ application }) {
     };
   }, [applicationId]);
 
-  /*
-   * RELOAD ACTIVITIES
-   *
-   * Activity update/delete endpoints do not return the
-   * complete application, so we reload the activity list.
-   */
-  const reloadActivities = async () => {
+  async function reloadActivities() {
     if (!applicationId) {
       return;
     }
@@ -104,46 +93,37 @@ function ApplicationActivity({ application }) {
         error?.response?.data?.message || "Failed to reload activity history.",
       );
     }
-  };
+  }
 
-  /*
-   * RESET FORM
-   */
-  const resetForm = () => {
+  function resetForm() {
     setType("Note Added");
     setTitle("");
     setDescription("");
     setDate("");
-  };
+  }
 
-  /*
-   * ADD MODAL
-   */
-  const openAddModal = () => {
+  function openAddModal() {
     resetForm();
     setErrorMsg("");
     setShowAddModal(true);
-  };
+  }
 
-  const closeAddModal = () => {
+  function closeAddModal() {
     if (saving) {
       return;
     }
 
     setShowAddModal(false);
     setErrorMsg("");
-  };
+  }
 
-  /*
-   * DETAIL MODAL
-   */
-  const openDetailModal = (activity) => {
+  function openDetailModal(activity) {
     setSelectedActivity(activity);
     setErrorMsg("");
     setShowDetailModal(true);
-  };
+  }
 
-  const closeDetailModal = () => {
+  function closeDetailModal() {
     if (saving || deleting) {
       return;
     }
@@ -151,12 +131,9 @@ function ApplicationActivity({ application }) {
     setShowDetailModal(false);
     setSelectedActivity(null);
     setErrorMsg("");
-  };
+  }
 
-  /*
-   * EDIT MODAL
-   */
-  const openEditModal = (activity) => {
+  function openEditModal(activity) {
     setSelectedActivity(activity);
 
     setType(activity.type || "Note Added");
@@ -178,9 +155,9 @@ function ApplicationActivity({ application }) {
     setErrorMsg("");
     setShowDetailModal(false);
     setShowEditModal(true);
-  };
+  }
 
-  const closeEditModal = () => {
+  function closeEditModal() {
     if (saving) {
       return;
     }
@@ -188,21 +165,18 @@ function ApplicationActivity({ application }) {
     setShowEditModal(false);
     setSelectedActivity(null);
     setErrorMsg("");
-  };
+  }
 
-  /*
-   * DELETE MODAL
-   */
-  const openDeleteModal = (activity) => {
+  function openDeleteModal(activity) {
     setSelectedActivity(activity);
 
     setShowDetailModal(false);
     setShowEditModal(false);
     setShowDeleteModal(true);
     setErrorMsg("");
-  };
+  }
 
-  const closeDeleteModal = () => {
+  function closeDeleteModal() {
     if (deleting) {
       return;
     }
@@ -210,12 +184,9 @@ function ApplicationActivity({ application }) {
     setShowDeleteModal(false);
     setSelectedActivity(null);
     setErrorMsg("");
-  };
+  }
 
-  /*
-   * ADD ACTIVITY
-   */
-  const handleAddSubmit = async (event) => {
+  async function handleAddSubmit(event) {
     event.preventDefault();
 
     if (saving) {
@@ -235,8 +206,6 @@ function ApplicationActivity({ application }) {
     try {
       setSaving(true);
       setErrorMsg("");
-
-      console.log("Adding activity to application:", applicationId);
 
       await addApplicationActivity(applicationId, {
         type,
@@ -256,12 +225,9 @@ function ApplicationActivity({ application }) {
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  /*
-   * EDIT ACTIVITY
-   */
-  const handleEditSubmit = async (event) => {
+  async function handleEditSubmit(event) {
     event.preventDefault();
 
     if (saving) {
@@ -287,10 +253,6 @@ function ApplicationActivity({ application }) {
       setSaving(true);
       setErrorMsg("");
 
-      console.log("Updating activity:", selectedActivity._id);
-
-      console.log("Application ID:", applicationId);
-
       await updateApplicationActivity(applicationId, selectedActivity._id, {
         type,
         title: title.trim(),
@@ -298,10 +260,6 @@ function ApplicationActivity({ application }) {
         date: date || null,
       });
 
-      /*
-       * Backend returns the updated activity,
-       * not the complete application.
-       */
       await reloadActivities();
 
       setShowEditModal(false);
@@ -316,12 +274,9 @@ function ApplicationActivity({ application }) {
     } finally {
       setSaving(false);
     }
-  };
+  }
 
-  /*
-   * DELETE ACTIVITY
-   */
-  const handleDelete = async () => {
+  async function handleDelete() {
     if (deleting) {
       return;
     }
@@ -340,10 +295,6 @@ function ApplicationActivity({ application }) {
       setDeleting(true);
       setErrorMsg("");
 
-      console.log("Deleting activity:", selectedActivity._id);
-
-      console.log("Application ID:", applicationId);
-
       await deleteApplicationActivity(applicationId, selectedActivity._id);
 
       await reloadActivities();
@@ -359,12 +310,9 @@ function ApplicationActivity({ application }) {
     } finally {
       setDeleting(false);
     }
-  };
+  }
 
-  /*
-   * FORMAT DATE
-   */
-  const formatDate = (activityDate) => {
+  function formatDate(activityDate) {
     if (!activityDate) {
       return "No date";
     }
@@ -380,23 +328,27 @@ function ApplicationActivity({ application }) {
       month: "short",
       year: "numeric",
     });
-  };
+  }
 
-  /*
-   * FORMAT ACTIVITY TYPE
-   */
-  const formatActivityType = (activityType) => {
-    if (!activityType) {
-      return "Activity";
+  function getActivityPreview(activityDescription) {
+    if (!activityDescription) {
+      return "";
     }
 
-    return activityType;
-  };
+    const lines = activityDescription
+      .split(/\r?\n/)
+      .map((line) => line.trim())
+      .filter(Boolean);
+
+    if (lines.length === 0) {
+      return "";
+    }
+
+    return lines.length > 1 ? `${lines[0]} ...` : lines[0];
+  }
 
   return (
     <section className="application-activity">
-      {/* HEADER */}
-
       <div className="application-activity-header">
         <div>
           <span className="application-activity-eyebrow">
@@ -408,16 +360,10 @@ function ApplicationActivity({ application }) {
           <p>Keep track of important events and notes for this application.</p>
         </div>
 
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={openAddModal}
-        >
+        <button type="button" className="btn-primary" onClick={openAddModal}>
           Add Activity
         </button>
       </div>
-
-      {/* ERROR */}
 
       {errorMsg &&
         !showAddModal &&
@@ -428,8 +374,6 @@ function ApplicationActivity({ application }) {
             {errorMsg}
           </p>
         )}
-
-      {/* TIMELINE */}
 
       {loading ? (
         <div className="application-activity-empty">
@@ -454,14 +398,14 @@ function ApplicationActivity({ application }) {
                 <div className="application-activity-card-header">
                   <div className="application-activity-card-main">
                     <span className="application-activity-type">
-                      {formatActivityType(activity.type)}
+                      {activity.type || "Activity"}
                     </span>
 
                     <h3>{activity.title}</h3>
 
                     {activity.description && (
                       <p className="application-activity-description">
-                        {activity.description}
+                        {getActivityPreview(activity.description)}
                       </p>
                     )}
                   </div>
@@ -499,8 +443,6 @@ function ApplicationActivity({ application }) {
         </div>
       )}
 
-      {/* ADD ACTIVITY */}
-
       <FormDialog
         isOpen={showAddModal}
         title="Add Activity"
@@ -527,70 +469,20 @@ function ApplicationActivity({ application }) {
           </>
         }
       >
-        <form
-          id="application-activity-form"
-          className="application-activity-form"
+        <ActivityForm
+          formId="application-activity-form"
+          type={type}
+          setType={setType}
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          date={date}
+          setDate={setDate}
+          errorMsg={errorMsg}
           onSubmit={handleAddSubmit}
-        >
-          <div className="filter-group">
-            <label htmlFor="activity-type">Activity Type</label>
-
-            <select
-              id="activity-type"
-              value={type}
-              onChange={(event) => setType(event.target.value)}
-            >
-              <option value="Note Added">Note</option>
-
-              <option value="Follow-up">Follow-up</option>
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label htmlFor="activity-title">Title</label>
-
-            <input
-              id="activity-title"
-              type="text"
-              placeholder="e.g. Recruiter follow-up"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="filter-group">
-            <label htmlFor="activity-description">Description</label>
-
-            <textarea
-              id="activity-description"
-              placeholder="Add additional details..."
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              rows={4}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label htmlFor="activity-date">Date</label>
-
-            <input
-              id="activity-date"
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-            />
-          </div>
-
-          {errorMsg && (
-            <p className="error" role="alert">
-              {errorMsg}
-            </p>
-          )}
-        </form>
+        />
       </FormDialog>
-
-      {/* ACTIVITY DETAILS */}
 
       <FormDialog
         isOpen={showDetailModal}
@@ -601,7 +493,7 @@ function ApplicationActivity({ application }) {
           <div className="application-activity-detail">
             <div className="application-activity-detail-meta">
               <span className="application-activity-type">
-                {formatActivityType(selectedActivity.type)}
+                {selectedActivity.type || "Activity"}
               </span>
 
               <span className="application-activity-date">
@@ -621,8 +513,6 @@ function ApplicationActivity({ application }) {
           </div>
         )}
       </FormDialog>
-
-      {/* EDIT ACTIVITY */}
 
       <FormDialog
         isOpen={showEditModal}
@@ -650,68 +540,20 @@ function ApplicationActivity({ application }) {
           </>
         }
       >
-        <form
-          id="application-activity-edit-form"
-          className="application-activity-form"
+        <ActivityForm
+          formId="application-activity-edit-form"
+          type={type}
+          setType={setType}
+          title={title}
+          setTitle={setTitle}
+          description={description}
+          setDescription={setDescription}
+          date={date}
+          setDate={setDate}
+          errorMsg={errorMsg}
           onSubmit={handleEditSubmit}
-        >
-          <div className="filter-group">
-            <label htmlFor="activity-edit-type">Activity Type</label>
-
-            <select
-              id="activity-edit-type"
-              value={type}
-              onChange={(event) => setType(event.target.value)}
-            >
-              <option value="Note Added">Note</option>
-
-              <option value="Follow-up">Follow-up</option>
-            </select>
-          </div>
-
-          <div className="filter-group">
-            <label htmlFor="activity-edit-title">Title</label>
-
-            <input
-              id="activity-edit-title"
-              type="text"
-              value={title}
-              onChange={(event) => setTitle(event.target.value)}
-              required
-            />
-          </div>
-
-          <div className="filter-group">
-            <label htmlFor="activity-edit-description">Description</label>
-
-            <textarea
-              id="activity-edit-description"
-              value={description}
-              onChange={(event) => setDescription(event.target.value)}
-              rows={6}
-            />
-          </div>
-
-          <div className="filter-group">
-            <label htmlFor="activity-edit-date">Date</label>
-
-            <input
-              id="activity-edit-date"
-              type="date"
-              value={date}
-              onChange={(event) => setDate(event.target.value)}
-            />
-          </div>
-
-          {errorMsg && (
-            <p className="error" role="alert">
-              {errorMsg}
-            </p>
-          )}
-        </form>
+        />
       </FormDialog>
-
-      {/* DELETE CONFIRMATION */}
 
       <ConfirmModal
         isOpen={showDeleteModal}
@@ -726,6 +568,79 @@ function ApplicationActivity({ application }) {
         loading={deleting}
       />
     </section>
+  );
+}
+
+function ActivityForm({
+  formId,
+  type,
+  setType,
+  title,
+  setTitle,
+  description,
+  setDescription,
+  date,
+  setDate,
+  errorMsg,
+  onSubmit,
+}) {
+  return (
+    <form id={formId} className="application-activity-form" onSubmit={onSubmit}>
+      <div className="filter-group">
+        <label htmlFor={`${formId}-type`}>Activity Type</label>
+
+        <select
+          id={`${formId}-type`}
+          value={type}
+          onChange={(event) => setType(event.target.value)}
+        >
+          <option value="Note Added">Note</option>
+          <option value="Follow-up">Follow-up</option>
+        </select>
+      </div>
+
+      <div className="filter-group">
+        <label htmlFor={`${formId}-title`}>Title</label>
+
+        <input
+          id={`${formId}-title`}
+          type="text"
+          placeholder="e.g. Recruiter follow-up"
+          value={title}
+          onChange={(event) => setTitle(event.target.value)}
+          required
+        />
+      </div>
+
+      <div className="filter-group">
+        <label htmlFor={`${formId}-description`}>Description</label>
+
+        <textarea
+          id={`${formId}-description`}
+          placeholder="Add additional details..."
+          value={description}
+          onChange={(event) => setDescription(event.target.value)}
+          rows={4}
+        />
+      </div>
+
+      <div className="filter-group">
+        <label htmlFor={`${formId}-date`}>Date</label>
+
+        <input
+          id={`${formId}-date`}
+          type="date"
+          value={date}
+          onChange={(event) => setDate(event.target.value)}
+        />
+      </div>
+
+      {errorMsg && (
+        <p className="error" role="alert">
+          {errorMsg}
+        </p>
+      )}
+    </form>
   );
 }
 

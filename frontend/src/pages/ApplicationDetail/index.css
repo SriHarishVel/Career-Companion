@@ -571,6 +571,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+
   gap: var(--space-6);
 }
 
@@ -618,42 +619,18 @@
 /* Activity description */
 
 .application-activity-description {
+  display: block;
   margin: 0;
+  overflow: hidden;
 
   color: var(--color-text-secondary);
   font-size: var(--font-size-base);
   line-height: var(--line-height-normal);
 
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-
-  max-height: 3.2em;
-
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  white-space: normal;
-}.application-activity-description {
-  margin: 0;
-
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-base);
-  line-height: var(--line-height-normal);
-
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
-  line-clamp: 2;
-
-  max-height: 3.2em;
-
-  overflow: hidden;
-  overflow-wrap: anywhere;
-  word-break: normal;
-  white-space: normal;
+  text-overflow: ellipsis;
+  white-space: nowrap;
 }
+
 .application-activity-card-side {
   display: flex;
   align-items: center;
@@ -1057,7 +1034,9 @@
   }
 
   .application-activity-card-header {
-    grid-template-columns: 1fr;
+    display: flex;
+    align-items: flex-start;
+    flex-direction: column;
     gap: 16px;
   }
 
@@ -1182,8 +1161,6 @@
   .application-activity-description {
     font-size: var(--font-size-sm);
     line-height: var(--line-height-normal);
-    -webkit-line-clamp: 2;
-    line-clamp: 2;
   }
 
   .application-activity-detail-meta {

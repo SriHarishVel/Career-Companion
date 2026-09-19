@@ -107,13 +107,19 @@ function CareerJourney({
         return (
           <div className="journey-details">
             <div className="journey-items">
-              {resources.slice(0, 4).map((resource) => (
-                <div key={resource._id} className="journey-item">
-                  <span>{resource.title}</span>
+              {resources.slice(0, 4).map((resource) => {
+                const items = resource.items || [];
 
-                  <strong>{resource.type}</strong>
-                </div>
-              ))}
+                return (
+                  <div key={resource._id} className="journey-item">
+                    <span>{resource.title}</span>
+
+                    <strong>
+                      {items.length} {items.length === 1 ? "item" : "items"}
+                    </strong>
+                  </div>
+                );
+              })}
             </div>
           </div>
         );
@@ -124,37 +130,48 @@ function CareerJourney({
             <div className="journey-application-stats">
               <div>
                 <span>Applied</span>
+
                 <strong>
                   {
-                    applications.filter((app) => app.status === "Applied")
-                      .length
+                    applications.filter(
+                      (application) => application.status === "Applied",
+                    ).length
                   }
                 </strong>
               </div>
 
               <div>
                 <span>In Progress</span>
+
                 <strong>
                   {
-                    applications.filter((app) => app.status === "In Progress")
-                      .length
+                    applications.filter(
+                      (application) => application.status === "In Progress",
+                    ).length
                   }
                 </strong>
               </div>
 
               <div>
                 <span>Offers</span>
+
                 <strong>
-                  {applications.filter((app) => app.status === "Offer").length}
+                  {
+                    applications.filter(
+                      (application) => application.status === "Offer",
+                    ).length
+                  }
                 </strong>
               </div>
 
               <div>
                 <span>Rejected</span>
+
                 <strong>
                   {
-                    applications.filter((app) => app.status === "Rejected")
-                      .length
+                    applications.filter(
+                      (application) => application.status === "Rejected",
+                    ).length
                   }
                 </strong>
               </div>
@@ -181,6 +198,7 @@ function CareerJourney({
         {stages.map((stage, index) => (
           <div key={stage.id} className="journey-stage-wrapper">
             <button
+              type="button"
               className={`journey-stage ${
                 activeStage === stage.id ? "active" : ""
               }`}

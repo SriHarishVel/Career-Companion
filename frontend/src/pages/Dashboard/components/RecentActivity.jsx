@@ -11,8 +11,8 @@ function RecentActivity({ recentItems }) {
 
       {recentItems.length > 0 ? (
         <div className="activity-timeline">
-          {recentItems.map((item, index) => (
-            <div key={index} className="activity-entry">
+          {recentItems.map((item) => (
+            <div key={item.id} className="activity-entry">
               <div className="activity-card">
                 <div className="activity-card-header">
                   <span className="activity-type">{item.type}</span>
