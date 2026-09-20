@@ -1,6 +1,7 @@
 /* Application Detail Page */
 
 .application-detail-page {
+  width: 100%;
   padding-bottom: var(--space-12);
 }
 
@@ -50,7 +51,8 @@
 /* Error States */
 
 .application-detail-error {
-  max-width: 620px;
+  width: min(100%, 620px);
+  box-sizing: border-box;
 
   margin: 40px auto;
   padding: var(--space-8);
@@ -89,6 +91,8 @@
 
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
+
+  overflow-wrap: anywhere;
 }
 
 /* Application Overview */
@@ -135,6 +139,8 @@
   font-size: var(--font-size-display);
   font-weight: var(--font-weight-extrabold);
   line-height: 1.08;
+
+  overflow-wrap: anywhere;
 }
 
 .application-overview-company {
@@ -142,6 +148,8 @@
 
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
+
+  overflow-wrap: anywhere;
 }
 
 .application-overview-details {
@@ -183,6 +191,8 @@
 
   font-size: var(--font-size-sm);
   font-weight: var(--font-weight-bold);
+
+  overflow-wrap: anywhere;
 }
 
 /* Application Link */
@@ -215,6 +225,7 @@
 
 .application-detail-url-link {
   min-width: 0;
+  max-width: 100%;
 
   overflow: hidden;
 
@@ -262,6 +273,10 @@
   margin-bottom: 22px;
 }
 
+.application-interviews-heading {
+  min-width: 0;
+}
+
 .application-interviews-heading h2 {
   margin-bottom: 6px;
 
@@ -275,6 +290,7 @@
   color: var(--color-text-secondary);
 
   font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
 }
 
 .application-interviews-empty {
@@ -298,6 +314,7 @@
 .application-interviews-empty p {
   color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
+  line-height: var(--line-height-normal);
 }
 
 .application-interview-list {
@@ -385,6 +402,8 @@
 
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
+
+  white-space: nowrap;
 }
 
 .application-round-status.pending {
@@ -405,12 +424,16 @@
 .application-interview-round-date {
   color: var(--color-text-secondary);
   font-size: var(--font-size-xs);
+
+  overflow-wrap: anywhere;
 }
 
 .application-interview-round-actions {
   display: flex;
   align-items: center;
   gap: 8px;
+
+  flex-shrink: 0;
 }
 
 /* Activity Timeline */
@@ -451,6 +474,8 @@
 }
 
 .application-activity-header p {
+  max-width: 700px;
+
   margin-top: 10px;
 
   color: var(--color-text-secondary);
@@ -470,6 +495,8 @@
   color: var(--color-danger-text);
 
   font-size: var(--font-size-sm);
+
+  overflow-wrap: anywhere;
 }
 
 /* Timeline */
@@ -484,6 +511,8 @@
 
 .application-activity-item {
   position: relative;
+  min-width: 0;
+
   padding-left: 38px;
 }
 
@@ -825,6 +854,8 @@
 }
 
 .form-dialog-title {
+  min-width: 0;
+
   margin: 0;
 
   color: var(--color-text-heading);
@@ -832,12 +863,16 @@
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-extrabold);
   line-height: 1.3;
+
+  overflow-wrap: anywhere;
 }
 
 .form-dialog-close {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+
+  flex-shrink: 0;
 
   width: 38px;
   height: 38px;
@@ -918,11 +953,6 @@
   font-weight: var(--font-weight-semibold);
 }
 
-/*
- * Shared input/select styles are intentionally not repeated here.
- * They are provided by the shared form-control stylesheet.
- */
-
 .form-dialog-content .application-edit-form .error {
   margin: 0;
   padding: 10px 12px;
@@ -971,11 +1001,6 @@
   line-height: 1.3;
 }
 
-/*
- * Shared input/select styling handles borders,
- * focus states, sizing, colours and placeholders.
- */
-
 .interview-form-error {
   margin: 0;
   padding: 10px 12px;
@@ -988,6 +1013,8 @@
 
   font-size: var(--font-size-sm);
   line-height: var(--line-height-normal);
+
+  overflow-wrap: anywhere;
 }
 
 /* Dialog Actions */
@@ -1009,18 +1036,13 @@
   background: var(--color-surface-muted);
 }
 
-/*
- * Button appearance comes from shared .btn-* classes.
- * Only dialog-specific sizing is kept here.
- */
-
 .form-dialog-actions button {
   min-width: 105px;
 }
 
 /* Responsive */
 
-@media (max-width: 800px) {
+@media (max-width: 900px) {
   .application-overview-details {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
@@ -1031,10 +1053,10 @@
 
   .application-interview-round-actions {
     grid-column: 2;
+    justify-content: flex-start;
   }
 
   .application-activity-card-header {
-    display: flex;
     align-items: flex-start;
     flex-direction: column;
     gap: 16px;
@@ -1047,13 +1069,21 @@
 }
 
 @media (max-width: 700px) {
+  .application-detail-page {
+    padding-bottom: var(--space-8);
+  }
+
   .application-overview {
-    padding: 20px;
+    padding: 22px;
   }
 
   .application-overview-header {
     flex-direction: column;
     gap: 12px;
+  }
+
+  .application-overview h1 {
+    font-size: clamp(1.8rem, 6vw, var(--font-size-display));
   }
 
   .application-overview-details {
@@ -1063,7 +1093,8 @@
   .application-detail-url {
     align-items: flex-start;
     flex-direction: column;
-    gap: 6px;
+    gap: 7px;
+    padding: 16px;
   }
 
   .application-detail-url-link {
@@ -1071,7 +1102,7 @@
   }
 
   .application-interviews {
-    padding: 20px;
+    padding: 22px;
   }
 
   .application-interviews-header {
@@ -1079,10 +1110,30 @@
     gap: 14px;
   }
 
+  .application-add-round-btn {
+    width: 100%;
+  }
+
+  .application-interview-round-actions {
+    width: 100%;
+  }
+
+  .application-round-action {
+    flex: 1;
+  }
+
+  .application-activity {
+    margin-top: 24px;
+  }
+
   .application-activity-header {
     align-items: flex-start;
     flex-direction: column;
     gap: 16px;
+  }
+
+  .application-activity-header h2 {
+    font-size: clamp(1.5rem, 5vw, 30px);
   }
 
   .application-activity-header .btn-primary {
@@ -1104,18 +1155,6 @@
     flex: 1;
   }
 
-  .application-add-round-btn {
-    width: 100%;
-  }
-
-  .application-interview-round-actions {
-    width: 100%;
-  }
-
-  .application-round-action {
-    flex: 1;
-  }
-
   .application-detail-actions {
     display: grid;
     grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1123,6 +1162,58 @@
 }
 
 @media (max-width: 600px) {
+  .application-detail-topbar {
+    margin-bottom: var(--space-4);
+  }
+
+  .application-detail-back-btn {
+    padding: 7px 10px;
+  }
+
+  .application-detail-error {
+    margin: 24px auto;
+    padding: var(--space-6);
+  }
+
+  .application-interviews {
+    padding: 20px;
+  }
+
+  .application-interview-round {
+    grid-template-columns: 34px minmax(0, 1fr);
+    gap: 12px;
+    padding: 14px;
+  }
+
+  .application-interview-round-marker {
+    width: 32px;
+    height: 32px;
+  }
+
+  .application-interview-round-title {
+    white-space: normal;
+    overflow-wrap: anywhere;
+  }
+
+  .application-interview-round-meta {
+    align-items: flex-start;
+    flex-direction: column;
+    gap: 6px;
+  }
+
+  .application-interview-round-actions {
+    grid-column: 1 / -1;
+
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+
+    width: 100%;
+  }
+
+  .application-round-action {
+    width: 100%;
+  }
+
   .application-activity {
     margin-top: 24px;
   }
@@ -1155,12 +1246,16 @@
   }
 
   .application-activity-card-main h3 {
-    font-size: var(--font-size-base);
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .application-activity-description {
     font-size: var(--font-size-sm);
     line-height: var(--line-height-normal);
+
+    white-space: normal;
+    overflow-wrap: anywhere;
   }
 
   .application-activity-detail-meta {
@@ -1168,14 +1263,24 @@
     flex-direction: column;
   }
 
+  .application-detail-actions {
+    grid-template-columns: 1fr;
+  }
+
   .form-dialog-overlay {
-    align-items: center;
+    align-items: flex-start;
+
     padding: 12px;
+
+    overflow-y: auto;
   }
 
   .form-dialog {
-    width: calc(100vw - 24px);
+    width: 100%;
     max-height: calc(100vh - 24px);
+
+    margin: auto 0;
+
     border-radius: var(--radius-xl);
   }
 
@@ -1192,6 +1297,7 @@
   .form-dialog-actions {
     flex-direction: column-reverse;
     gap: 8px;
+
     padding: 14px 18px;
   }
 
@@ -1206,19 +1312,31 @@
   .interview-form-fields {
     gap: 16px;
   }
-
-  .application-detail-actions {
-    grid-template-columns: 1fr;
-  }
 }
 
 @media (max-width: 480px) {
+  .application-overview {
+    padding: 18px;
+  }
+
   .application-overview h1 {
     font-size: 1.8rem;
   }
 
+  .application-overview-company {
+    font-size: var(--font-size-sm);
+  }
+
+  .application-detail-url {
+    padding: 14px;
+  }
+
   .application-interviews {
     padding: 18px;
+  }
+
+  .application-interviews-heading h2 {
+    font-size: var(--font-size-lg);
   }
 
   .application-interview-round {
@@ -1235,16 +1353,27 @@
     grid-column: 1;
   }
 
-  .application-activity {
-    margin-top: 24px;
-  }
-
   .application-activity-header h2 {
     font-size: 21px;
   }
 
   .application-activity-header p {
     font-size: 13px;
+  }
+
+  .application-activity-timeline {
+    padding-left: 19px;
+  }
+
+  .application-activity-item {
+    padding-left: 30px;
+  }
+
+  .application-activity-marker {
+    left: -19px;
+
+    width: 14px;
+    height: 14px;
   }
 
   .application-activity-card {
@@ -1260,18 +1389,8 @@
     font-size: var(--font-size-xs);
   }
 
-  .application-activity-timeline {
-    padding-left: 19px;
-  }
-
-  .application-activity-marker {
-    left: -19px;
-    width: 14px;
-    height: 14px;
-  }
-
-  .application-detail-actions {
-    grid-template-columns: 1fr;
+  .application-activity-date {
+    white-space: normal;
   }
 
   .form-dialog-header {
@@ -1284,5 +1403,51 @@
 
   .form-dialog-actions {
     padding: 12px 16px;
+  }
+}
+
+@media (max-width: 360px) {
+  .application-overview {
+    padding: 16px;
+  }
+
+  .application-interviews {
+    padding: 16px;
+  }
+
+  .application-interview-round {
+    padding: 12px;
+  }
+
+  .application-interview-round-actions {
+    grid-template-columns: 1fr;
+  }
+
+  .application-activity-card {
+    padding: 14px;
+  }
+
+  .application-detail-error {
+    padding: 20px 16px;
+  }
+
+  .form-dialog-overlay {
+    padding: 8px;
+  }
+
+  .form-dialog {
+    max-height: calc(100vh - 16px);
+  }
+
+  .form-dialog-header {
+    padding: 0 14px;
+  }
+
+  .form-dialog-content {
+    padding: 18px 14px 20px;
+  }
+
+  .form-dialog-actions {
+    padding: 10px 14px;
   }
 }

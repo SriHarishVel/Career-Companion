@@ -22,6 +22,7 @@ function ApplicationInterviews({
   const [roundTitle, setRoundTitle] = useState("");
   const [roundStatus, setRoundStatus] = useState("Pending");
   const [roundDate, setRoundDate] = useState("");
+  const [roundTime, setRoundTime] = useState("");
 
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -30,8 +31,22 @@ function ApplicationInterviews({
     if (!a.date) return 1;
     if (!b.date) return -1;
 
-    return new Date(a.date) - new Date(b.date);
+    const dateA = new Date(a.date);
+    const dateB = new Date(b.date);
+
+    if (roundTimeValue(a) !== roundTimeValue(b)) {
+      return (
+        new Date(`${a.date}T${roundTimeValue(a) || "00:00"}`) -
+        new Date(`${b.date}T${roundTimeValue(b) || "00:00"}`)
+      );
+    }
+
+    return dateA - dateB;
   });
+
+  function roundTimeValue(round) {
+    return round.time || "";
+  }
 
   function formatDate(date) {
     if (!date) {
@@ -51,6 +66,33 @@ function ApplicationInterviews({
     });
   }
 
+  function formatTime(time) {
+    if (!time) {
+      return "";
+    }
+
+    const [hours, minutes] = time.split(":").map(Number);
+
+    if (
+      Number.isNaN(hours) ||
+      Number.isNaN(minutes) ||
+      hours < 0 ||
+      hours > 23 ||
+      minutes < 0 ||
+      minutes > 59
+    ) {
+      return "";
+    }
+
+    const date = new Date();
+    date.setHours(hours, minutes, 0, 0);
+
+    return date.toLocaleTimeString("en-US", {
+      hour: "numeric",
+      minute: "2-digit",
+    });
+  }
+
   function getStatusClass(status) {
     return (status || "Pending").toLowerCase().replace(/\s+/g, "-");
   }
@@ -59,6 +101,7 @@ function ApplicationInterviews({
     setRoundTitle("");
     setRoundStatus("Pending");
     setRoundDate("");
+    setRoundTime("");
     setErrorMsg("");
   }
 
@@ -84,6 +127,7 @@ function ApplicationInterviews({
     setRoundDate(
       round.date ? new Date(round.date).toISOString().split("T")[0] : "",
     );
+    setRoundTime(round.time || "");
 
     setErrorMsg("");
     setShowEditDialog(true);
@@ -129,6 +173,7 @@ function ApplicationInterviews({
         title: roundTitle.trim(),
         status: roundStatus,
         date: roundDate || "",
+        time: roundTime || "",
       });
 
       setShowAddDialog(false);
@@ -158,6 +203,7 @@ function ApplicationInterviews({
         title: roundTitle.trim(),
         status: roundStatus,
         date: roundDate || "",
+        time: roundTime || "",
       });
 
       setShowEditDialog(false);
@@ -251,6 +297,7 @@ function ApplicationInterviews({
 
                     <span className="application-interview-round-date">
                       {formatDate(round.date)}
+                      {round.time && ` · ${formatTime(round.time)}`}
                     </span>
                   </div>
                 </div>
@@ -312,6 +359,8 @@ function ApplicationInterviews({
           setRoundStatus={setRoundStatus}
           roundDate={roundDate}
           setRoundDate={setRoundDate}
+          roundTime={roundTime}
+          setRoundTime={setRoundTime}
           saving={saving}
           errorMsg={errorMsg}
         />
@@ -353,6 +402,8 @@ function ApplicationInterviews({
           setRoundStatus={setRoundStatus}
           roundDate={roundDate}
           setRoundDate={setRoundDate}
+          roundTime={roundTime}
+          setRoundTime={setRoundTime}
           saving={saving}
           errorMsg={errorMsg}
         />
@@ -381,6 +432,8 @@ function InterviewRoundForm({
   setRoundStatus,
   roundDate,
   setRoundDate,
+  roundTime,
+  setRoundTime,
   saving,
   errorMsg,
 }) {
@@ -422,6 +475,18 @@ function InterviewRoundForm({
           type="date"
           value={roundDate}
           onChange={(event) => setRoundDate(event.target.value)}
+          disabled={saving}
+        />
+      </div>
+
+      <div className="interview-form-field">
+        <label htmlFor={`${idPrefix}-time`}>Interview Time</label>
+
+        <input
+          id={`${idPrefix}-time`}
+          type="time"
+          value={roundTime}
+          onChange={(event) => setRoundTime(event.target.value)}
           disabled={saving}
         />
       </div>

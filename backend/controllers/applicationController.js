@@ -197,6 +197,7 @@ export const addInterviewRound = async (req, res) => {
       title: req.body.title,
       status: req.body.status,
       date: req.body.date,
+      time: req.body.time || "",
     };
 
     application.interviewRounds.push(newRound);
@@ -253,6 +254,7 @@ export const updateInterviewRound = async (req, res) => {
     round.title = req.body.title ?? round.title;
     round.status = req.body.status ?? round.status;
     round.date = req.body.date ?? round.date;
+    round.time = req.body.time ?? round.time;
 
     const wasCompleted =
       round.status === "Completed" && previousStatus !== "Completed";

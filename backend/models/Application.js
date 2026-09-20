@@ -19,6 +19,12 @@ const interviewRoundSchema = new mongoose.Schema(
       type: Date,
       default: null,
     },
+
+    time: {
+      type: String,
+      default: "",
+      trim: true,
+    },
   },
   {
     _id: true,
