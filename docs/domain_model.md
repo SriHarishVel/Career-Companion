@@ -1,38 +1,30 @@
-**# Domain Model**
+# Domain Model
 
-**## Primary Workflow**
+## Primary Workflow
 
 Career Companion is centered around a guided career journey.
 
 The typical workflow is:
 
-Primary Goal
-
-Secondary Goals
-
-Skills
-
-Learning Topics
-
-Resources
-
-Job Applications
-
-Interview Rounds
-
-Career Progress
+1. Primary Goal
+2. Secondary Goals
+3. Skills
+4. Learning Topics
+5. Resources
+6. Learning Activity / Evidence
+7. Career Progress
 
 Although standalone goals, skills, resources, and job applications can exist independently, the primary experience is built around helping users progress toward a defined career objective.
 
-**---**
+---
 
-**## User**
+## User
 
 Represents the owner of the account.
 
-**---**
+---
 
-**## Goal**
+## Goal
 
 Represents a career objective.
 
@@ -61,9 +53,9 @@ Secondary Goals:
 - Build Portfolio
 - Complete Projects
 
-**---**
+---
 
-**## Skill**
+## Skill
 
 Represents a capability required to achieve a goal.
 
@@ -76,9 +68,9 @@ Examples:
 - SQL
 - DSA
 
-**---**
+---
 
-**## Learning Topic**
+## Learning Topic
 
 Represents a smaller unit or area within a Skill.
 
@@ -90,9 +82,9 @@ Examples:
 - Strings
 - Trees
 
-**---**
+---
 
-**## Resource**
+## Resource
 
 Represents an external learning material or reference associated with a Skill or Learning Topic.
 
@@ -112,13 +104,13 @@ A Resource currently represents learning material rather than evidence that the 
 
 Future versions may track meaningful activity or evidence associated with Resources so that learning activity can contribute to Skill progress.
 
-**---**
+---
 
-**## Job Application**
+## Job Application
 
 Represents an application submitted to a company.
 
-A Job Application may optionally be associated with a career goal.
+A Job Application may optionally be associated with a Primary Goal.
 
 Examples:
 
@@ -126,9 +118,9 @@ Examples:
 - Infosys
 - Cognizant
 
-**---**
+---
 
-**## Interview Round**
+## Interview Round
 
 Represents a stage within a Job Application.
 
@@ -142,9 +134,9 @@ Examples:
 - Assignment
 - Group Discussion
 
-**---**
+---
 
-**## Note**
+## Note
 
 Stores important information that should not be forgotten.
 
@@ -155,9 +147,9 @@ Examples:
 - Important deadlines
 - Preparation observations
 
-**---**
+---
 
-**## Action Item**
+## Action Item
 
 Represents the next task that should be completed.
 
@@ -168,9 +160,9 @@ Examples:
 - Complete assignment
 - Prepare for HR interview
 
-**---**
+---
 
-**## Entity Relationships**
+## Entity Relationships
 
 A Secondary Goal may be associated with a Primary Goal.
 
@@ -186,9 +178,9 @@ Interview Rounds belong to a Job Application.
 
 Notes and Action Items can support the user's planning and career activities.
 
-**---**
+---
 
-**## Progress Relationships**
+## Progress Relationships
 
 Progress should eventually reflect the relationships between career entities.
 

@@ -56,13 +56,15 @@ Every feature in Career Companion should follow these principles:
 
 ## Why I Am Building This
 
-I want to build a meaningful full-stack project for my resume while learning professional software engineering practices. I also want a tool that I would personally use to organize my own career journey.
+I want to build a meaningful full-stack project for my resume while learning professional software engineering practices.
+
+I also want a tool that I would personally use to organize my own career journey.
 
 ## Future Vision
 
-Career Companion should eventually help users create structured career plans by breaking large goals into smaller goals, skills, resources, applications, and selection stages.
+Career Companion should eventually help users create structured career plans by breaking large career goals into smaller goals, skills, resources, applications, and interview stages.
 
-The system should preserve the relationships between goals, skills, and resources so that users can understand how their learning and skill development contribute to their larger career goals.
+The system should preserve the relationships between these entities so users can understand how their learning, skill development, and career activities contribute to their larger goals.
 
 Resources should remain external learning references rather than becoming hosted learning content. Simply saving or attaching a resource should not automatically count as progress.
 

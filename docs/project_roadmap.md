@@ -1,20 +1,46 @@
-**# Career Companion Roadmap**
+# Career Companion Roadmap
 
-**## Project Direction**
+## Project Direction
 
 Career Companion is designed as a guided career management platform rather than a collection of independent productivity tools.
 
 The application should guide users from defining a career objective to developing the required skills, organizing learning resources, tracking job applications, and measuring career progress.
 
-The system should preserve relationships between goals, skills, resources, applications, and interview stages so that users can understand how individual activities contribute to their larger career objectives.
+The system should preserve relationships between goals, skills, resources, applications, and interview stages so users can understand how individual activities contribute to their larger career objectives.
 
-Each phase in this roadmap contributes toward building that guided experience.
+The long-term structure is:
 
-**## Phase 1 - Foundation**
+```text
+Primary Goal
+      ↓
+Secondary Goal
+      ↓
+Skill
+      ↓
+Resource / Evidence
+```
+
+Applications connect to the career side of the system:
+
+```text
+Primary Goal
+      ↓
+Application
+      ↓
+Interview Rounds
+      ↓
+Application Activities
+```
+
+Each phase contributes toward building this connected career-management experience.
+
+---
+
+# Phase 1 - Foundation
 
 Establish the core structure of the application and create the first version of the career management system.
 
-**### Features**
+## Features
 
 - Dashboard
 - Goal Management
@@ -25,13 +51,15 @@ Establish the core structure of the application and create the first version of 
 - Confirmation Modals
 - Empty States
 
-**---**
+Status: Core foundation established
 
-**## Phase 2 - Goal System**
+---
+
+# Phase 2 - Goal System
 
 Expand goals into a structured planning system.
 
-**### Features**
+## Features
 
 - Primary Goals
 - Secondary Goals
@@ -41,27 +69,59 @@ Expand goals into a structured planning system.
 - Goal History
 - Goal Milestones
 
-**---**
+## Future Goal Planning
 
-**## Phase 3 - Career Tracking**
+- Guided creation of a Primary Goal
+- Suggested Secondary Goals
+- Customization of suggested goals
+- Goal-to-Skill relationships
+- Goal progress tracking
+
+Status: Goal system exists, but deeper goal relationships and guided planning remain future work.
+
+---
+
+# Phase 3 - Career Tracking
 
 Introduce career-focused modules that connect directly to user goals.
 
-**### Features**
+## Completed
 
-- Job Application Tracker (Completed)
-- Application Status Management (Completed)
+- Job Application Tracker
+- Application Status Management
 - Interview Round Tracker
+- Interview Date and Time
+- Career Progress Dashboard
+
+## Remaining
+
 - Interview Notes
-- Career Progress Dashboard (Completed)
+- Application Activity Tracking
+- Additional interview activity/history improvements
+- Stronger connection between Applications and Primary Goals
 
-**---**
+## Interview Management
 
-**## Phase 4 - Frontend Refinement**
+Interview rounds currently support:
+
+- Round name
+- Status
+- Date
+- Time
+- Editing
+- Deletion
+
+Interview date and time now provide the foundation for future interview notifications and upcoming-career-action functionality.
+
+Status: Core application and interview tracking implemented.
+
+---
+
+# Phase 4 - Frontend Refinement
 
 Improve usability, consistency, responsiveness, and overall user experience.
 
-**### Features**
+## Features
 
 - Responsive Design Improvements
 - Mobile-Friendly Application Experience
@@ -73,7 +133,25 @@ Improve usability, consistency, responsiveness, and overall user experience.
 - Profile Experience
 - Authentication Experience
 
-**### Mobile-Friendly Application Experience**
+## Current Refinement Work
+
+Recent work has focused on standardizing and fixing bugs across the major application-management pages.
+
+This includes:
+
+- Consistent search/filter interfaces
+- Consistent sorting behavior
+- Consistent empty states
+- Consistent action controls
+- Responsive layouts
+- Application detail responsiveness
+- Interview round layouts
+- Activity section layouts
+- Responsive dialogs and forms
+- Improved handling of long content
+- Shared styling instead of page-specific duplication
+
+## Mobile-Friendly Application Experience
 
 The application should work properly across:
 
@@ -94,178 +172,381 @@ This includes:
 - Responsive empty states and feedback messages
 - Preventing horizontal scrolling and overflow
 
-**---**
+Status: Active refinement phase.
 
-**## Phase 5 - Backend Integration**
+---
+
+# Phase 5 - Backend Integration
 
 Move the application from browser storage to a centralized backend architecture.
 
-**### Features**
+## Features
 
 - Node.js and Express Backend
 - REST API Development
 - MongoDB Database
 - Backend Integration for Frontend Modules
-- Goal APIs (Completed)
-- Skill APIs (Completed)
-- Resource APIs (Completed)
-- Application APIs (Completed)
+- Goal APIs
+- Skill APIs
+- Resource APIs
+- Resource Item APIs
+- Application APIs
+- Interview Round APIs
+- Application Activity APIs
 - Dashboard Analytics APIs
 - Backend Search, Sorting, and Filtering
 
-**---**
+## Completed
 
-**## Phase 6 - Authentication**
+- Goal APIs
+- Skill APIs
+- Resource APIs
+- Resource Item APIs
+- Application APIs
+- Interview Round support
+- Application Activity support
+- Frontend integration for the major backend-backed modules
 
-Introduce user accounts and secure access to data.
+Status: Core backend integration completed.
 
-**### Features**
+---
+
+# Phase 6 - Authentication and Account Management
+
+Introduce user accounts and secure access to career data.
+
+## Completed
 
 - User Registration
-- User Login and Logout
+- User Login
+- User Logout
 - JWT Authentication
 - Protected Routes
 - User Profile Management
-- Password Change
+- Google Sign-In
+- Google Account Authentication
 
-**---**
+## Next
 
-**## Phase 7 - Release Preparation**
+- Forgot Password
+- Password Reset
+- Email-Based Password Reset
+- Change Password
+- Authentication Error Handling
+- Account Security Improvements
 
-Prepare the application for public use and portfolio presentation.
+## Authentication Security Improvements
 
-**### Features**
+- Verify Google account email status
+- Review Google/local account linking
+- Secure password-reset tokens
+- Token expiration
+- Password-reset token invalidation
+- Authentication rate limiting
+- Consistent authentication error responses
 
-- Testing and Bug Fixing
-- Documentation
-- Deployment
-- Performance Optimization
+Status: Core authentication implemented. Password recovery and additional security hardening remain.
 
-**## Current Product Direction**
+---
 
-The next stage of Career Companion is to strengthen the relationships between goals, skills, and resources rather than adding more disconnected features.
+# Phase 7 - Email Infrastructure
 
-The intended career structure is:
+Introduce reusable communication infrastructure rather than implementing email separately for individual features.
 
+## Features
+
+- Email service
+- Email configuration
+- Password-reset emails
+- Reusable email templates
+- Email delivery error handling
+
+## Future Email Uses
+
+The same infrastructure can later support:
+
+- Interview reminders
+- Follow-up reminders
+- Goal deadline reminders
+- Important application notifications
+
+The email system should be reusable so future notification features do not require separate email implementations.
+
+Status: Upcoming.
+
+---
+
+# Phase 8 - Upcoming and Actionable Career Tasks
+
+Make existing dates and career activities actionable.
+
+The initial approach should derive actionable items from existing career entities rather than immediately introducing a generic reminder system.
+
+## Features
+
+- Upcoming Interviews
+- Upcoming Goal Deadlines
+- Upcoming Follow-ups
+- Overdue Follow-ups
+- Upcoming Tasks on Dashboard
+- Interview Date + Time Display
+- Follow-up Scheduling
+
+The existing interview date/time functionality provides the foundation for this phase.
+
+A generic `Reminder` model should only be introduced if existing career entities cannot adequately represent the required tasks.
+
+Status: Upcoming.
+
+---
+
+# Phase 9 - Career Relationships
+
+Strengthen the relationships between the core career entities.
+
+The intended structure is:
+
+```text
 Primary Goal
-↓
+      ↓
 Secondary Goal
-↓
+      ↓
 Skill
-↓
+      ↓
 Resource
+```
 
-Resources currently represent external learning material such as documentation, articles, courses, videos, and other third-party references.
+Applications remain connected to the relevant career goal:
 
-Saving or linking a Resource should not automatically increase progress.
+```text
+Primary Goal
+      ↓
+Application
+      ↓
+Interview Rounds
+      ↓
+Application Activities
+```
 
-Future versions should introduce evidence of learning activity or completed work so that Resource activity can contribute to Skill progress.
+## Features
 
-The intended long-term progression is:
+- Link Secondary Goals to Primary Goals
+- Link Skills to Secondary Goals
+- Link Resources to Skills
+- Link Applications to Primary Goals
+- Connect Interview Stages to Applications
+- Cross-entity navigation
+- Related entity views
 
+## Navigation Improvements
+
+- Goals → related Skills
+- Skills → supporting Resources
+- Resources → associated Skills
+- Primary Goals → Secondary Goals
+- Secondary Goals → related Skills
+- Applications → related Primary Goals
+- Applications → Interview Rounds
+- Related entities → parent entities
+
+Status: Important upcoming development phase.
+
+---
+
+# Phase 10 - Evidence-Based Progress
+
+Introduce meaningful evidence of learning and career development.
+
+Resources should not automatically increase progress simply because they are saved or linked.
+
+The intended progression is:
+
+```text
 Resource Activity and Evidence
-↓
-Skill Progress
-↓
-Secondary Goal Progress
-↓
-Primary Goal Progress
+            ↓
+      Skill Progress
+            ↓
+ Secondary Goal Progress
+            ↓
+   Primary Goal Progress
+```
 
-The exact calculation, weighting, and evidence model should be defined before automatic hierarchical progress is implemented.
-
-**## Future Enhancements**
-
-**### Guided Goal Planning**
-
-Allow users to create a career plan starting from a primary goal.
-
-Example:
-
-Primary Goal:
-
-- Get Software Developer Job (8+ LPA)
-
-The application can suggest:
-
-Secondary Goals:
-
-- Practice DSA
-- Build Portfolio
-- Learn Backend Development
-- Prepare for Interviews
-
-Skills:
-
-- Java
-- SQL
-- Node.js
-- React
-
-Resources:
-
-- Courses
-- Documentation
-- Videos
-
-Users can accept, reject, or customize the suggested plan.
-
-The system should assist planning without removing user control.
-
-**### Goal and Career Relationships**
-
-- Link secondary goals to primary goals
-- Link skills to secondary goals
-- Link resources to skills
-- Link applications to primary goals
-- Connect interview stages to relevant applications
-- Preserve relationships between career entities
-
-**### Evidence-Based Progress**
-
-Allow users to record meaningful evidence of skill development.
-
-Potential evidence may include:
+## Potential Evidence
 
 - Completed learning activities
 - Completed exercises
 - Projects
 - Assessments
 - Certifications
+- Practice work
 - Other user-provided evidence
 
 Evidence should contribute to Skill progress only when there is a meaningful basis for doing so.
 
-Skill progress can then contribute to related Secondary Goals, while Secondary Goal progress can contribute to Primary Goals.
+## Progress System
 
-**## Technical Debt & Optimizations**
+Before implementation, define:
 
-These improvements are intentionally postponed until all core features are complete.
+- Skill progress calculation
+- Evidence model
+- Resource activity tracking
+- Skill-to-Secondary Goal aggregation
+- Secondary Goal-to-Primary Goal aggregation
+- Weighting rules
+- Completion criteria
 
-**### Backend**
+Status: Design phase only.
+
+The calculation model should be finalized before automated hierarchical progress is implemented.
+
+---
+
+# Phase 11 - Guided Career Planning
+
+Allow users to build a career plan starting from a Primary Goal.
+
+## Example
+
+Primary Goal
+
+> Get Software Developer Job (8+ LPA)
+
+### Suggested Secondary Goals
+
+- Practice DSA
+- Build Portfolio
+- Learn Backend Development
+- Prepare for Interviews
+
+### Suggested Skills
+
+- Java
+- SQL
+- Node.js
+- React
+
+### Suggested Resources
+
+- Courses
+- Documentation
+- Videos
+- Articles
+
+Users should be able to:
+
+- Accept suggestions
+- Reject suggestions
+- Modify suggestions
+- Add their own goals
+- Add their own skills
+- Add their own resources
+- Customize the resulting career plan
+
+The system should assist planning without removing user control.
+
+Status: Future development.
+
+---
+
+# Phase 12 - Dashboard and Analytics
+
+Expand the Dashboard from basic aggregation into a meaningful career-progress overview.
+
+## Applications
+
+- Total applications
+- Active applications
+- Interview stages
+- Offers
+- Rejections
+- Application activity
+
+## Goals
+
+- Active goals
+- Completed goals
+- Overdue goals
+- Goal progress
+
+## Skills
+
+- Skills being developed
+- Skills with evidence
+- Skill progress
+
+## Resources
+
+- Total resources
+- Completed resource items
+- Resource activity
+
+## Future Analytics
+
+- Progress visualizations
+- Career activity trends
+- Application pipeline visualization
+- Goal progress visualization
+- Skill development trends
+
+Status: Current dashboard exists; deeper analytics depend on the relationship and progress systems being implemented first.
+
+---
+
+# Phase 13 - Release Preparation
+
+Prepare the application for public use and portfolio presentation.
+
+## Features
+
+- Testing and Bug Fixing
+- Documentation
+- Deployment
+- Performance Optimization
+- Production Environment Configuration
+- Security Review
+- Error Handling Review
+- Responsive Design Audit
+
+Status: Final release phase.
+
+---
+
+# Technical Debt & Optimizations
+
+These improvements should be addressed progressively as the core features stabilize.
+
+## Backend
 
 - [ ] Add pagination and result limits to all list endpoints.
 - [ ] Add database indexes for frequently queried fields.
 - [ ] Standardize API responses and error handling.
 - [ ] Review and optimize cross-entity queries as relationships expand.
 - [ ] Add backend support for future evidence and progress calculations.
+- [ ] Add authentication rate limiting.
+- [ ] Review authentication security.
+- [ ] Standardize validation across controllers.
 
-**### Frontend**
+## Frontend
 
 - [ ] Add loading indicators for remaining API requests.
-- [ ] Replace `console.error` with user-friendly error messages.
+- [ ] Replace unnecessary `console.error` usage with appropriate user-facing handling.
 - [ ] Debounce search inputs.
 - [ ] Implement optimistic UI updates where appropriate.
 - [ ] Improve cross-entity navigation.
+- [ ] Continue responsive design auditing across all pages.
+- [ ] Continue standardizing shared UI patterns.
 
-**### Navigation**
+## Navigation
 
 - [ ] Improve navigation between related entities.
 - [ ] Make Goals, Skills, Resources, and Applications cross-link to each other.
-- [ ] Add navigation from Skills to their supporting Resources.
-- [ ] Add navigation from Resources to their associated Skills.
-- [ ] Add navigation between Primary Goals and their Secondary Goals.
+- [ ] Add navigation from Skills to supporting Resources.
+- [ ] Add navigation from Resources to associated Skills.
+- [ ] Add navigation between Primary Goals and Secondary Goals.
+- [ ] Add navigation from Applications to their related Goals.
+- [ ] Add navigation from related entities back to their parent entities.
 
-**### Progress System**
+## Progress System
 
 - [ ] Define Skill progress calculation.
 - [ ] Define evidence model.
@@ -273,3 +554,77 @@ These improvements are intentionally postponed until all core features are compl
 - [ ] Define Skill-to-Secondary Goal progress aggregation.
 - [ ] Define Secondary Goal-to-Primary Goal progress aggregation.
 - [ ] Define weighting rules for related Skills and Goals.
+- [ ] Define completion criteria.
+
+---
+
+# Current Development Status
+
+Career Companion has moved beyond the initial CRUD prototype.
+
+The application currently has:
+
+```text
+Frontend
+   ↓
+React Application
+   ↓
+Backend APIs
+   ↓
+Express / Node.js
+   ↓
+MongoDB
+```
+
+The major career-management modules are already connected to the backend, including:
+
+- Goals
+- Skills
+- Resources
+- Resource Items
+- Applications
+- Interview Rounds
+- Application Activities
+- Dashboard data
+- User accounts
+- Authentication
+
+The current development focus is therefore shifting from building isolated CRUD functionality toward connecting the existing entities into a coherent career-management system.
+
+---
+
+# Current Product Direction
+
+The immediate development direction is:
+
+```text
+Authentication & Account Reliability
+             ↓
+Email Infrastructure
+             ↓
+Upcoming Career Actions
+             ↓
+Goal / Skill / Resource Relationships
+             ↓
+Evidence-Based Progress
+             ↓
+Guided Career Planning
+             ↓
+Career Analytics
+```
+
+The next concrete feature should be Forgot Password, followed by the reusable email service required to deliver password-reset emails.
+
+After that, the application should make existing career data actionable through:
+
+- Upcoming Interviews
+- Follow-ups
+- Goal Deadlines
+
+Only after those foundations are established should the project move deeply into:
+
+- Goal/Skill/Resource relationships
+- Evidence tracking
+- Hierarchical progress
+- Guided career planning
+- Advanced analytics

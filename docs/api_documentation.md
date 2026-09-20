@@ -2,13 +2,13 @@
 
 ## Overview
 
-The Career Companion API provides backend services for authentication, user profiles, career goals, skills, learning resources, jobs, job applications, interview rounds, home dashboard data, and dashboard statistics.
+The Career Companion API provides backend services for authentication, user profiles, career goals, skills, learning resources, job applications, interview rounds, application activities, home dashboard data, and dashboard statistics.
 
 ---
 
 ## Base URL
 
-    /api
+`/api`
 
 ---
 
@@ -16,7 +16,9 @@ The Career Companion API provides backend services for authentication, user prof
 
 Protected endpoints require the following request header:
 
-    Authorization: Bearer <JWT_TOKEN>
+```text
+Authorization: Bearer <JWT_TOKEN>
+```
 
 JWT tokens are generated during login and expire after 7 days.
 
@@ -30,7 +32,7 @@ Creates a new Career Companion user account.
 
 ### Endpoint
 
-    POST /api/auth/register
+`POST /api/auth/register`
 
 ### Authentication
 
@@ -52,22 +54,26 @@ Not Required
 
 ### Example Request
 
-    {
-        "fullName": "John Doe",
-        "email": "john@example.com",
-        "password": "password123"
-    }
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
 
 ### Success Response (201)
 
-    {
-        "message": "User registered successfully",
-        "user": {
-            "id": "USER_ID",
-            "fullName": "John Doe",
-            "email": "john@example.com"
-        }
-    }
+```json
+{
+  "message": "User registered successfully",
+  "user": {
+    "id": "USER_ID",
+    "fullName": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
 
 ---
 
@@ -77,7 +83,7 @@ Authenticates an existing user and returns a JWT token.
 
 ### Endpoint
 
-    POST /api/auth/login
+`POST /api/auth/login`
 
 ### Authentication
 
@@ -92,22 +98,26 @@ Not Required
 
 ### Example Request
 
-    {
-        "email": "john@example.com",
-        "password": "password123"
-    }
+```json
+{
+  "email": "john@example.com",
+  "password": "password123"
+}
+```
 
 ### Success Response (200)
 
-    {
-        "message": "Login successful",
-        "token": "JWT_TOKEN",
-        "user": {
-            "id": "USER_ID",
-            "fullName": "John Doe",
-            "email": "john@example.com"
-        }
-    }
+```json
+{
+  "message": "Login successful",
+  "token": "JWT_TOKEN",
+  "user": {
+    "id": "USER_ID",
+    "fullName": "John Doe",
+    "email": "john@example.com"
+  }
+}
+```
 
 ---
 
@@ -121,7 +131,7 @@ Returns the authenticated user's profile.
 
 ### Endpoint
 
-    GET /api/users/profile
+`GET /api/users/profile`
 
 ### Authentication
 
@@ -139,7 +149,7 @@ Updates the authenticated user's profile.
 
 ### Endpoint
 
-    PUT /api/users/profile
+`PUT /api/users/profile`
 
 ### Authentication
 
@@ -154,10 +164,12 @@ Bearer Token Required
 
 ### Example Request
 
-    {
-        "fullName": "John Doe",
-        "email": "john@example.com"
-    }
+```json
+{
+  "fullName": "John Doe",
+  "email": "john@example.com"
+}
+```
 
 ### Success Response (200)
 
@@ -171,7 +183,7 @@ Changes the authenticated user's password.
 
 ### Endpoint
 
-    PUT /api/users/change-password
+`PUT /api/users/change-password`
 
 ### Authentication
 
@@ -192,26 +204,30 @@ Bearer Token Required
 
 ### Example Request
 
-    {
-        "currentPassword": "oldPassword",
-        "newPassword": "newPassword123"
-    }
+```json
+{
+  "currentPassword": "oldPassword",
+  "newPassword": "newPassword123"
+}
+```
 
 ### Success Response (200)
 
-    {
-        "message": "Password updated successfully"
-    }
+```json
+{
+  "message": "Password updated successfully"
+}
+```
 
 ### Authentication Profile Routes
 
 The same profile operations are also exposed through the authentication router:
 
-| Operation       | Endpoint                      |
-| --------------- | ----------------------------- |
-| Get Profile     | GET /api/auth/profile         |
-| Update Profile  | PUT /api/auth/profile         |
-| Change Password | PUT /api/auth/change-password |
+| Operation       | Endpoint                        |
+| --------------- | ------------------------------- |
+| Get Profile     | `GET /api/auth/profile`         |
+| Update Profile  | `PUT /api/auth/profile`         |
+| Change Password | `PUT /api/auth/change-password` |
 
 ---
 
@@ -223,7 +239,7 @@ Returns the main career journey data used by the home dashboard.
 
 ### Endpoint
 
-    GET /api/home
+`GET /api/home`
 
 ### Authentication
 
@@ -231,16 +247,18 @@ Bearer Token Required
 
 ### Success Response (200)
 
-    {
-        "primaryGoal": {},
-        "secondaryGoals": [],
-        "completedSecondaryGoals": 0,
-        "overallProgress": 0,
-        "todaysFocus": {},
-        "skills": [],
-        "resources": [],
-        "applications": []
-    }
+```json
+{
+  "primaryGoal": {},
+  "secondaryGoals": [],
+  "completedSecondaryGoals": 0,
+  "overallProgress": 0,
+  "todaysFocus": {},
+  "skills": [],
+  "resources": [],
+  "applications": []
+}
+```
 
 ### Response Fields
 
@@ -253,7 +271,7 @@ Bearer Token Required
 | todaysFocus             | An incomplete Secondary Goal selected using progress |
 | skills                  | Five most recently created Skills                    |
 | resources               | Five most recently created Resources                 |
-| applications            | Five most recently created Jobs                      |
+| applications            | Five most recently created Applications              |
 
 ---
 
@@ -294,7 +312,7 @@ Creates a new goal.
 
 ### Endpoint
 
-    POST /api/goals
+`POST /api/goals`
 
 ### Authentication
 
@@ -322,15 +340,17 @@ Bearer Token Required
 
 ### Example Request
 
-    {
-        "title": "Become Backend Developer",
-        "category": "Career",
-        "priority": "High",
-        "goalType": "Primary",
-        "progress": 20,
-        "completed": false,
-        "deadline": "2026-12-31"
-    }
+```json
+{
+  "title": "Become Backend Developer",
+  "category": "Career",
+  "priority": "High",
+  "goalType": "Primary",
+  "progress": 20,
+  "completed": false,
+  "deadline": "2026-12-31"
+}
+```
 
 ### Success Response (201)
 
@@ -344,7 +364,7 @@ Returns all goals belonging to the authenticated user.
 
 ### Endpoint
 
-    GET /api/goals
+`GET /api/goals`
 
 ### Authentication
 
@@ -379,7 +399,7 @@ Returns a single goal.
 
 ### Endpoint
 
-    GET /api/goals/:id
+`GET /api/goals/:id`
 
 ### Authentication
 
@@ -397,7 +417,7 @@ Updates an existing goal.
 
 ### Endpoint
 
-    PUT /api/goals/:id
+`PUT /api/goals/:id`
 
 ### Authentication
 
@@ -436,7 +456,7 @@ Deletes a goal.
 
 ### Endpoint
 
-    DELETE /api/goals/:id
+`DELETE /api/goals/:id`
 
 ### Authentication
 
@@ -448,9 +468,11 @@ Deleting a Primary Goal also deletes all Secondary Goals belonging to that Prima
 
 ### Success Response (200)
 
-    {
-        "message": "Goal deleted successfully"
-    }
+```json
+{
+  "message": "Goal deleted successfully"
+}
+```
 
 ---
 
@@ -479,7 +501,7 @@ Creates a new Skill.
 
 ### Endpoint
 
-    POST /api/skills
+`POST /api/skills`
 
 ### Authentication
 
@@ -497,13 +519,15 @@ Bearer Token Required
 
 ### Example Request
 
-    {
-        "name": "Node.js",
-        "category": "Backend",
-        "level": "Intermediate",
-        "progress": 40,
-        "secondaryGoal": "SECONDARY_GOAL_ID"
-    }
+```json
+{
+  "name": "Node.js",
+  "category": "Backend",
+  "level": "Intermediate",
+  "progress": 40,
+  "secondaryGoal": "SECONDARY_GOAL_ID"
+}
+```
 
 ### Success Response (201)
 
@@ -517,7 +541,7 @@ Returns all Skills belonging to the authenticated user.
 
 ### Endpoint
 
-    GET /api/skills
+`GET /api/skills`
 
 ### Authentication
 
@@ -549,7 +573,7 @@ Returns a single Skill.
 
 ### Endpoint
 
-    GET /api/skills/:id
+`GET /api/skills/:id`
 
 ### Authentication
 
@@ -567,15 +591,13 @@ Updates an existing Skill.
 
 ### Endpoint
 
-    PUT /api/skills/:id
+`PUT /api/skills/:id`
 
 ### Authentication
 
 Bearer Token Required
 
 ### Request Body
-
-Any of the following fields may be updated:
 
 | Field         | Type     |
 | ------------- | -------- |
@@ -597,7 +619,7 @@ Deletes a Skill.
 
 ### Endpoint
 
-    DELETE /api/skills/:id
+`DELETE /api/skills/:id`
 
 ### Authentication
 
@@ -605,9 +627,11 @@ Bearer Token Required
 
 ### Success Response (200)
 
-    {
-        "message": "Skill deleted successfully"
-    }
+```json
+{
+  "message": "Skill deleted successfully"
+}
+```
 
 ---
 
@@ -630,6 +654,13 @@ A Resource represents external learning material associated with a Skill.
 | skill       | ObjectId |
 | user        | ObjectId |
 
+### Notes
+
+- Resources represent external learning material.
+- Resources are not hosted by Career Companion.
+- A Resource does not automatically increase Skill or Goal progress.
+- Resource activity or evidence may contribute to future Skill progress functionality.
+
 ---
 
 ## Create Resource
@@ -638,7 +669,7 @@ Creates a new Resource.
 
 ### Endpoint
 
-    POST /api/resources
+`POST /api/resources`
 
 ### Authentication
 
@@ -658,15 +689,17 @@ Bearer Token Required
 
 ### Example Request
 
-    {
-        "title": "Node.js Documentation",
-        "type": "Documentation",
-        "url": "https://nodejs.org/docs",
-        "description": "Official Node.js documentation",
-        "favorite": true,
-        "completed": false,
-        "skill": "SKILL_ID"
-    }
+```json
+{
+  "title": "Node.js Documentation",
+  "type": "Documentation",
+  "url": "https://nodejs.org/docs",
+  "description": "Official Node.js documentation",
+  "favorite": true,
+  "completed": false,
+  "skill": "SKILL_ID"
+}
+```
 
 ### Success Response (201)
 
@@ -680,7 +713,7 @@ Returns all Resources belonging to the authenticated user.
 
 ### Endpoint
 
-    GET /api/resources
+`GET /api/resources`
 
 ### Authentication
 
@@ -713,7 +746,7 @@ Returns a single Resource.
 
 ### Endpoint
 
-    GET /api/resources/:id
+`GET /api/resources/:id`
 
 ### Authentication
 
@@ -731,15 +764,13 @@ Updates an existing Resource.
 
 ### Endpoint
 
-    PUT /api/resources/:id
+`PUT /api/resources/:id`
 
 ### Authentication
 
 Bearer Token Required
 
 ### Request Body
-
-Any of the following fields may be updated:
 
 | Field       | Type     |
 | ----------- | -------- |
@@ -763,7 +794,7 @@ Deletes a Resource.
 
 ### Endpoint
 
-    DELETE /api/resources/:id
+`DELETE /api/resources/:id`
 
 ### Authentication
 
@@ -771,13 +802,31 @@ Bearer Token Required
 
 ### Success Response (200)
 
-    {
-        "message": "Resource deleted successfully"
-    }
+```json
+{
+  "message": "Resource deleted successfully"
+}
+```
+
+---
+
+# Resource Items API
+
+Resource Items represent individual trackable items within a Resource.
+
+### Status
+
+Current backend functionality supports Resource Items.
+
+### Planned Documentation
+
+The Resource Items endpoints should be documented here once their final endpoint structure and request/response contracts are established.
 
 ---
 
 # Jobs API
+
+> The Job API is retained here because the backend currently contains Job management functionality. The newer Application API represents the career-application workflow.
 
 ## Job Model
 
@@ -804,7 +853,7 @@ Creates a new Job.
 
 ### Endpoint
 
-    POST /api/jobs
+`POST /api/jobs`
 
 ### Authentication
 
@@ -834,7 +883,7 @@ Returns Jobs belonging to the authenticated user.
 
 ### Endpoint
 
-    GET /api/jobs
+`GET /api/jobs`
 
 ### Authentication
 
@@ -853,12 +902,14 @@ Bearer Token Required
 
 ### Success Response (200)
 
-    {
-        "jobs": [],
-        "totalJobs": 0,
-        "totalPages": 0,
-        "currentPage": 1
-    }
+```json
+{
+  "jobs": [],
+  "totalJobs": 0,
+  "totalPages": 0,
+  "currentPage": 1
+}
+```
 
 ---
 
@@ -868,7 +919,7 @@ Returns a single Job.
 
 ### Endpoint
 
-    GET /api/jobs/:id
+`GET /api/jobs/:id`
 
 ### Authentication
 
@@ -886,15 +937,13 @@ Updates an existing Job.
 
 ### Endpoint
 
-    PUT /api/jobs/:id
+`PUT /api/jobs/:id`
 
 ### Authentication
 
 Bearer Token Required
 
 ### Request Body
-
-Any of the following fields may be updated:
 
 | Field    | Type   |
 | -------- | ------ |
@@ -918,7 +967,7 @@ Deletes a Job.
 
 ### Endpoint
 
-    DELETE /api/jobs/:id
+`DELETE /api/jobs/:id`
 
 ### Authentication
 
@@ -926,9 +975,11 @@ Bearer Token Required
 
 ### Success Response (200)
 
-    {
-        "message": "Job deleted successfully"
-    }
+```json
+{
+  "message": "Job deleted successfully"
+}
+```
 
 ---
 
@@ -955,10 +1006,6 @@ Interview Rounds are stored inside the Application.
 | interviewRounds | Array    |
 | user            | ObjectId |
 
-### Status Values
-
-The available values depend on the Application model configuration.
-
 ---
 
 ## Create Application
@@ -967,7 +1014,7 @@ Creates a new job application.
 
 ### Endpoint
 
-    POST /api/applications
+`POST /api/applications`
 
 ### Authentication
 
@@ -986,14 +1033,16 @@ Bearer Token Required
 
 ### Example Request
 
-    {
-        "company": "Google",
-        "role": "Software Engineer",
-        "status": "Applied",
-        "appliedDate": "2026-08-21",
-        "applicationUrl": "https://careers.google.com",
-        "primaryGoal": "PRIMARY_GOAL_ID"
-    }
+```json
+{
+  "company": "Google",
+  "role": "Software Engineer",
+  "status": "Applied",
+  "appliedDate": "2026-08-21",
+  "applicationUrl": "https://careers.google.com",
+  "primaryGoal": "PRIMARY_GOAL_ID"
+}
+```
 
 ### Success Response (201)
 
@@ -1007,7 +1056,7 @@ Returns Applications belonging to the authenticated user.
 
 ### Endpoint
 
-    GET /api/applications
+`GET /api/applications`
 
 ### Authentication
 
@@ -1040,7 +1089,7 @@ Returns a single Application.
 
 ### Endpoint
 
-    GET /api/applications/:id
+`GET /api/applications/:id`
 
 ### Authentication
 
@@ -1063,15 +1112,13 @@ Updates an existing Application.
 
 ### Endpoint
 
-    PUT /api/applications/:id
+`PUT /api/applications/:id`
 
 ### Authentication
 
 Bearer Token Required
 
 ### Request Body
-
-Any of the following fields may be updated:
 
 | Field          | Type     |
 | -------------- | -------- |
@@ -1094,7 +1141,7 @@ Adds an Interview Round to an Application.
 
 ### Endpoint
 
-    POST /api/applications/:id/rounds
+`POST /api/applications/:id/rounds`
 
 ### Authentication
 
@@ -1107,14 +1154,18 @@ Bearer Token Required
 | title  | String | Yes      |
 | status | String | No       |
 | date   | Date   | No       |
+| time   | String | No       |
 
 ### Example Request
 
-    {
-        "title": "Technical Interview",
-        "status": "Scheduled",
-        "date": "2026-09-10"
-    }
+```json
+{
+  "title": "Technical Interview",
+  "status": "Scheduled",
+  "date": "2026-09-10",
+  "time": "10:30"
+}
+```
 
 ### Success Response (200)
 
@@ -1128,7 +1179,7 @@ Updates an Interview Round within an Application.
 
 ### Endpoint
 
-    PUT /api/applications/:id/rounds/:roundId
+`PUT /api/applications/:id/rounds/:roundId`
 
 ### Authentication
 
@@ -1141,6 +1192,7 @@ Bearer Token Required
 | title  | String |
 | status | String |
 | date   | Date   |
+| time   | String |
 
 ### Success Response (200)
 
@@ -1160,7 +1212,7 @@ Deletes an Interview Round from an Application.
 
 ### Endpoint
 
-    DELETE /api/applications/:id/rounds/:roundId
+`DELETE /api/applications/:id/rounds/:roundId`
 
 ### Authentication
 
@@ -1178,7 +1230,7 @@ Deletes an Application.
 
 ### Endpoint
 
-    DELETE /api/applications/:id
+`DELETE /api/applications/:id`
 
 ### Authentication
 
@@ -1186,9 +1238,25 @@ Bearer Token Required
 
 ### Success Response (200)
 
-    {
-        "message": "Application deleted successfully"
-    }
+```json
+{
+  "message": "Application deleted successfully"
+}
+```
+
+---
+
+# Application Activities API
+
+Application Activities store activity and history related to a Job Application.
+
+### Status
+
+Current backend functionality supports Application Activities.
+
+### Planned Documentation
+
+The Application Activity endpoints should be documented here once their final endpoint structure and request/response contracts are established.
 
 ---
 
@@ -1200,7 +1268,7 @@ Returns Job statistics for the authenticated user.
 
 ### Endpoint
 
-    GET /api/dashboard/stats
+`GET /api/dashboard/stats`
 
 ### Authentication
 
@@ -1208,19 +1276,21 @@ Bearer Token Required
 
 ### Success Response (200)
 
+```json
+{
+  "totalJobs": 5,
+  "applied": 1,
+  "interview": 2,
+  "offer": 1,
+  "rejected": 1,
+  "monthlyStats": [
     {
-        "totalJobs": 5,
-        "applied": 1,
-        "interview": 2,
-        "offer": 1,
-        "rejected": 1,
-        "monthlyStats": [
-            {
-                "month": "Jul 2026",
-                "count": 5
-            }
-        ]
+      "month": "Jul 2026",
+      "count": 5
     }
+  ]
+}
+```
 
 ### Response Fields
 
