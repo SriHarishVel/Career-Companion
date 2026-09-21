@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-function LoginForm({ onSubmit, onGoogleLogin, error }) {
+function LoginForm({ onSubmit, onGoogleLogin, onForgotPassword, error }) {
   const [formData, setFormData] = useState({
     email: "",
     password: "",
@@ -102,7 +102,11 @@ function LoginForm({ onSubmit, onGoogleLogin, error }) {
           <div className="auth-password-label">
             <label htmlFor="login-password">Password</label>
 
-            <button type="button" className="auth-forgot-password">
+            <button
+              type="button"
+              className="auth-forgot-password"
+              onClick={onForgotPassword}
+            >
               Forgot password?
             </button>
           </div>

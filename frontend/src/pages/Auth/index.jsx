@@ -79,6 +79,11 @@ function Auth() {
     navigate(isSignup ? "/login" : "/signup");
   };
 
+  // Open forgot password page
+  const handleForgotPassword = () => {
+    navigate("/forgot-password");
+  };
+
   return (
     <div className={`auth-page ${isSignup ? "signup-mode" : "login-mode"}`}>
       <header className="auth-header">
@@ -160,6 +165,7 @@ function Auth() {
                 <LoginForm
                   onSubmit={handleLogin}
                   onGoogleLogin={handleGoogleLogin}
+                  onForgotPassword={handleForgotPassword}
                   error={loginError}
                 />
               </div>

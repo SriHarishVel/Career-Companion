@@ -2,6 +2,7 @@ import api from "../api/axios";
 
 export const register = async (userData) => {
   const response = await api.post("/auth/register", userData);
+
   return response.data;
 };
 
@@ -21,6 +22,22 @@ export const googleLogin = async (credential) => {
 
   localStorage.setItem("token", response.data.token);
   localStorage.setItem("user", JSON.stringify(response.data.user));
+
+  return response.data;
+};
+
+export const forgotPassword = async (email) => {
+  const response = await api.post("/auth/forgot-password", {
+    email,
+  });
+
+  return response.data;
+};
+
+export const resetPassword = async (token, newPassword) => {
+  const response = await api.post(`/auth/reset-password/${token}`, {
+    newPassword,
+  });
 
   return response.data;
 };
