@@ -5,6 +5,7 @@ import { login, googleLogin, register } from "../../services/authService";
 
 import LoginForm from "./components/LoginForm";
 import SignupForm from "./components/SignupForm";
+import ForgotPasswordForm from "./components/ForgotPasswordForm";
 
 import "./index.css";
 
@@ -14,6 +15,7 @@ function Auth() {
 
   const [loginError, setLoginError] = useState("");
   const [signupError, setSignupError] = useState("");
+  const [isForgotPassword, setIsForgotPassword] = useState(false);
 
   const isSignup = location.pathname === "/signup";
 
@@ -74,14 +76,22 @@ function Auth() {
     }
   };
 
-  // Switch mode
+  // Switch between login and signup
   const switchMode = () => {
+    setIsForgotPassword(false);
     navigate(isSignup ? "/login" : "/signup");
   };
 
-  // Open forgot password page
+  // Open forgot password form
   const handleForgotPassword = () => {
-    navigate("/forgot-password");
+    setLoginError("");
+    setIsForgotPassword(true);
+  };
+
+  // Return to login form
+  const handleBackToLogin = () => {
+    setLoginError("");
+    setIsForgotPassword(false);
   };
 
   return (
@@ -150,24 +160,47 @@ function Auth() {
             <div className="auth-form-slider">
               {/* Login */}
               <div className="auth-form-view login-view">
-                <div className="auth-heading">
-                  <span>WELCOME BACK</span>
+                {!isForgotPassword ? (
+                  <>
+                    <div className="auth-heading">
+                      <span>WELCOME BACK</span>
 
-                  <h2>
-                    Continue your
-                    <br />
-                    journey.
-                  </h2>
+                      <h2>
+                        Continue your
+                        <br />
+                        journey.
+                      </h2>
 
-                  <p>Sign in to pick up where you left off.</p>
-                </div>
+                      <p>Sign in to pick up where you left off.</p>
+                    </div>
 
-                <LoginForm
-                  onSubmit={handleLogin}
-                  onGoogleLogin={handleGoogleLogin}
-                  onForgotPassword={handleForgotPassword}
-                  error={loginError}
-                />
+                    <LoginForm
+                      onSubmit={handleLogin}
+                      onGoogleLogin={handleGoogleLogin}
+                      onForgotPassword={handleForgotPassword}
+                      error={loginError}
+                    />
+                  </>
+                ) : (
+                  <>
+                    <div className="auth-heading">
+                      <span>RESET YOUR PASSWORD</span>
+
+                      <h2>
+                        Forgot your
+                        <br />
+                        password?
+                      </h2>
+
+                      <p>
+                        Enter your email and we'll send you instructions to
+                        reset your password.
+                      </p>
+                    </div>
+
+                    <ForgotPasswordForm onBackToLogin={handleBackToLogin} />
+                  </>
+                )}
               </div>
 
               {/* Signup */}
