@@ -4,6 +4,8 @@ import jwt from "jsonwebtoken";
 import crypto from "crypto";
 import { OAuth2Client } from "google-auth-library";
 
+import { sendPasswordResetEmail } from "../services/emailService.js";
+
 const googleClient = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);
 
 export const registerUser = async (req, res) => {
@@ -209,7 +211,7 @@ export const forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    console.log("Password reset URL:", resetUrl);
+    await sendPasswordResetEmail(user.email, resetUrl);
 
     res.status(200).json({
       message:
