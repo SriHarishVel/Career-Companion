@@ -191,13 +191,6 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    if (!user.password) {
-      return res.status(200).json({
-        message:
-          "If an account exists with this email, a password reset link has been sent.",
-      });
-    }
-
     const resetToken = crypto.randomBytes(32).toString("hex");
 
     user.resetPasswordToken = crypto
@@ -211,7 +204,7 @@ export const forgotPassword = async (req, res) => {
 
     const resetUrl = `${process.env.CLIENT_URL}/reset-password/${resetToken}`;
 
-    await sendPasswordResetEmail(user.email, resetUrl);
+    await sendPasswordResetEmail(user.email, resetUrl, !user.password);
 
     res.status(200).json({
       message:

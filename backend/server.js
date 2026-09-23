@@ -1,10 +1,11 @@
+import "dotenv/config";
+
 import dns from "node:dns";
 
 dns.setServers(["1.1.1.1", "8.8.8.8"]);
 
 import express from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import path from "path";
 
 import connectDB from "./config/db.js";
@@ -18,8 +19,6 @@ import skillRoutes from "./routes/skillRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
 
-dotenv.config();
-
 connectDB();
 
 const app = express();
@@ -31,8 +30,8 @@ app.use("/uploads", express.static(path.join(process.cwd(), "uploads")));
 
 app.use("/api/auth", authRoutes);
 app.use("/api/users", userRoutes);
-app.use("/api/jobs", jobRoutes);
 app.use("/api/home", homeRoutes);
+app.use("/api/jobs", jobRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/skills", skillRoutes);
@@ -40,6 +39,7 @@ app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/applications", applicationRoutes);
 
 app.get("/", (req, res) => {
+  console.log("Backend request received");
   res.send("Career Companion API Running...");
 });
 

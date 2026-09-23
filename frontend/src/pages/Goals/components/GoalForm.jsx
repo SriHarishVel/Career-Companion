@@ -34,7 +34,7 @@ function GoalForm({
         <>
           <button
             type="button"
-            className="form-dialog-cancel"
+            className="btn-secondary"
             onClick={onClose}
           >
             Cancel
@@ -42,7 +42,7 @@ function GoalForm({
 
           <button
             type="button"
-            className="form-dialog-submit"
+            className="btn-primary"
             onClick={onSubmit}
           >
             {submitLabel}
