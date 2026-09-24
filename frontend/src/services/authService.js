@@ -1,5 +1,10 @@
 import api from "../api/axios";
 
+const saveAuthData = (data) => {
+  localStorage.setItem("token", data.token);
+  localStorage.setItem("user", JSON.stringify(data.user));
+};
+
 export const register = async (userData) => {
   const response = await api.post("/auth/register", userData);
 
@@ -9,8 +14,7 @@ export const register = async (userData) => {
 export const login = async (userData) => {
   const response = await api.post("/auth/login", userData);
 
-  localStorage.setItem("token", response.data.token);
-  localStorage.setItem("user", JSON.stringify(response.data.user));
+  saveAuthData(response.data);
 
   return response.data;
 };
@@ -20,8 +24,7 @@ export const googleLogin = async (credential) => {
     credential,
   });
 
-  localStorage.setItem("token", response.data.token);
-  localStorage.setItem("user", JSON.stringify(response.data.user));
+  saveAuthData(response.data);
 
   return response.data;
 };

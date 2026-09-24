@@ -18,7 +18,11 @@ export const registerUser = async (req, res) => {
       });
     }
 
-    const existingUser = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const existingUser = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (existingUser) {
       return res.status(400).json({
@@ -29,8 +33,8 @@ export const registerUser = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     const user = await User.create({
-      fullName,
-      email,
+      fullName: fullName.trim(),
+      email: normalizedEmail,
       password: hashedPassword,
     });
 
@@ -59,7 +63,11 @@ export const loginUser = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (!user) {
       return res.status(400).json({
@@ -125,26 +133,30 @@ export const googleLogin = async (req, res) => {
       });
     }
 
-    const { sub: googleId, email, name } = payload;
+    const { sub: googleId, email, name, email_verified } = payload;
 
-    if (!googleId || !email) {
+    if (!googleId || !email || !email_verified) {
       return res.status(400).json({
-        message: "Google account information is incomplete",
+        message: "Google account information is incomplete or unverified",
       });
     }
+
+    const normalizedEmail = email.trim().toLowerCase();
 
     let user = await User.findOne({ googleId });
 
     if (!user) {
-      user = await User.findOne({ email });
+      user = await User.findOne({
+        email: normalizedEmail,
+      });
 
       if (user) {
         user.googleId = googleId;
         await user.save();
       } else {
         user = await User.create({
-          fullName: name || email.split("@")[0],
-          email,
+          fullName: name || normalizedEmail.split("@")[0],
+          email: normalizedEmail,
           googleId,
         });
       }
@@ -164,8 +176,6 @@ export const googleLogin = async (req, res) => {
       },
     });
   } catch (error) {
-    console.error("Google login error:", error);
-
     res.status(401).json({
       message: "Google authentication failed",
     });
@@ -182,7 +192,11 @@ export const forgotPassword = async (req, res) => {
       });
     }
 
-    const user = await User.findOne({ email });
+    const normalizedEmail = email.trim().toLowerCase();
+
+    const user = await User.findOne({
+      email: normalizedEmail,
+    });
 
     if (!user) {
       return res.status(200).json({
@@ -265,26 +279,60 @@ export const resetPassword = async (req, res) => {
 };
 
 export const getProfile = (req, res) => {
-  res.status(200).json(req.user);
+  res.status(200).json({
+    id: req.user._id,
+    fullName: req.user.fullName,
+    email: req.user.email,
+  });
 };
 
 export const updateProfile = async (req, res) => {
-  const { fullName, email } = req.body;
+  try {
+    const { fullName, email } = req.body;
 
-  const user = await User.findById(req.user._id);
+    const user = await User.findById(req.user._id);
 
-  if (!user) {
-    return res.status(404).json({
-      message: "User not found",
+    if (!user) {
+      return res.status(404).json({
+        message: "User not found",
+      });
+    }
+
+    if (fullName) {
+      user.fullName = fullName.trim();
+    }
+
+    if (email) {
+      const normalizedEmail = email.trim().toLowerCase();
+
+      if (normalizedEmail !== user.email) {
+        const existingUser = await User.findOne({
+          email: normalizedEmail,
+          _id: { $ne: user._id },
+        });
+
+        if (existingUser) {
+          return res.status(400).json({
+            message: "Email is already in use",
+          });
+        }
+
+        user.email = normalizedEmail;
+      }
+    }
+
+    await user.save();
+
+    res.status(200).json({
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
     });
   }
-
-  user.fullName = fullName || user.fullName;
-  user.email = email || user.email;
-
-  await user.save();
-
-  res.status(200).json(user);
 };
 
 export const changePassword = async (req, res) => {
