@@ -3,7 +3,9 @@ import User from "../models/User.js";
 
 export const getProfile = async (req, res) => {
   try {
-    const user = await User.findById(req.user._id).select("-password");
+    const user = await User.findById(req.user._id).select(
+      "-resetPasswordToken -resetPasswordExpires",
+    );
 
     if (!user) {
       return res.status(404).json({
@@ -11,7 +13,14 @@ export const getProfile = async (req, res) => {
       });
     }
 
-    res.status(200).json(user);
+    res.status(200).json({
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      createdAt: user.createdAt,
+      hasPassword: Boolean(user.password),
+      hasGoogleLogin: Boolean(user.googleId),
+    });
   } catch (error) {
     console.error("Failed to get profile:", error);
 
@@ -38,15 +47,34 @@ export const updateProfile = async (req, res) => {
     }
 
     if (email?.trim()) {
-      user.email = email.trim().toLowerCase();
+      const normalizedEmail = email.trim().toLowerCase();
+
+      if (normalizedEmail !== user.email) {
+        const existingUser = await User.findOne({
+          email: normalizedEmail,
+          _id: { $ne: user._id },
+        });
+
+        if (existingUser) {
+          return res.status(400).json({
+            message: "Email is already in use.",
+          });
+        }
+
+        user.email = normalizedEmail;
+      }
     }
 
     await user.save();
 
-    const updatedUser = user.toObject();
-    delete updatedUser.password;
-
-    res.status(200).json(updatedUser);
+    res.status(200).json({
+      id: user._id,
+      fullName: user.fullName,
+      email: user.email,
+      createdAt: user.createdAt,
+      hasPassword: Boolean(user.password),
+      hasGoogleLogin: Boolean(user.googleId),
+    });
   } catch (error) {
     console.error("Failed to update profile:", error);
 
@@ -60,22 +88,15 @@ export const changePassword = async (req, res) => {
   try {
     const { currentPassword, newPassword } = req.body;
 
-    // Validate input before touching bcrypt.
-    if (!currentPassword || !newPassword) {
+    if (!newPassword) {
       return res.status(400).json({
-        message: "Please fill all password fields.",
+        message: "New password is required.",
       });
     }
 
     if (newPassword.length < 6) {
       return res.status(400).json({
         message: "Password must be at least 6 characters.",
-      });
-    }
-
-    if (currentPassword === newPassword) {
-      return res.status(400).json({
-        message: "New password must be different from the current password.",
       });
     }
 
@@ -87,12 +108,28 @@ export const changePassword = async (req, res) => {
       });
     }
 
-    const isMatch = await bcrypt.compare(currentPassword, user.password);
+    const hasPassword = Boolean(user.password);
 
-    if (!isMatch) {
-      return res.status(400).json({
-        message: "Current password is incorrect.",
-      });
+    if (hasPassword) {
+      if (!currentPassword) {
+        return res.status(400).json({
+          message: "Current password is required.",
+        });
+      }
+
+      if (currentPassword === newPassword) {
+        return res.status(400).json({
+          message: "New password must be different from the current password.",
+        });
+      }
+
+      const isMatch = await bcrypt.compare(currentPassword, user.password);
+
+      if (!isMatch) {
+        return res.status(400).json({
+          message: "Current password is incorrect.",
+        });
+      }
     }
 
     user.password = await bcrypt.hash(newPassword, 10);
@@ -100,7 +137,9 @@ export const changePassword = async (req, res) => {
     await user.save();
 
     res.status(200).json({
-      message: "Password updated successfully.",
+      message: hasPassword
+        ? "Password updated successfully."
+        : "Password set successfully.",
     });
   } catch (error) {
     console.error("Failed to change password:", error);

@@ -1,6 +1,7 @@
 import FormDialog from "../../../components/FormDialog";
 
 function SecuritySection({
+  profile,
   currentPassword,
   newPassword,
   setCurrentPassword,
@@ -11,6 +12,8 @@ function SecuritySection({
   passwordError,
   setPasswordError,
 }) {
+  const hasPassword = profile?.hasPassword;
+
   const handleClose = () => {
     setCurrentPassword("");
     setNewPassword("");
@@ -48,20 +51,29 @@ function SecuritySection({
           <div>
             <span className="security-label">Password</span>
 
-            <strong>••••••••••</strong>
+            {hasPassword ? (
+              <>
+                <strong>••••••••••</strong>
 
-            <p>Keep your account protected with a secure password.</p>
+                <p>Keep your account protected with a secure password.</p>
+              </>
+            ) : (
+              <p>
+                You signed in with Google. Set a password to also sign in with
+                your email and password.
+              </p>
+            )}
           </div>
         </div>
 
         <button type="button" className="btn-secondary" onClick={handleOpen}>
-          Change Password
+          {hasPassword ? "Change Password" : "Set Password"}
         </button>
       </div>
 
       <FormDialog
         isOpen={showPasswordModal}
-        title="Change Password"
+        title={hasPassword ? "Change Password" : "Set Password"}
         onClose={handleClose}
         footer={
           <>
@@ -78,7 +90,7 @@ function SecuritySection({
               className="btn-primary-outline"
               onClick={handleSave}
             >
-              Update Password
+              {hasPassword ? "Update Password" : "Set Password"}
             </button>
           </>
         }
@@ -88,23 +100,27 @@ function SecuritySection({
             <div className="profile-modal-error">{passwordError}</div>
           )}
 
-          <div className="profile-modal-field">
-            <label htmlFor="current-password">Current Password</label>
+          {hasPassword && (
+            <div className="profile-modal-field">
+              <label htmlFor="current-password">Current Password</label>
 
-            <input
-              id="current-password"
-              type="password"
-              value={currentPassword}
-              onChange={(e) => {
-                setCurrentPassword(e.target.value);
-                setPasswordError("");
-              }}
-              placeholder="Enter current password"
-            />
-          </div>
+              <input
+                id="current-password"
+                type="password"
+                value={currentPassword}
+                onChange={(e) => {
+                  setCurrentPassword(e.target.value);
+                  setPasswordError("");
+                }}
+                placeholder="Enter current password"
+              />
+            </div>
+          )}
 
           <div className="profile-modal-field">
-            <label htmlFor="new-password">New Password</label>
+            <label htmlFor="new-password">
+              {hasPassword ? "New Password" : "Password"}
+            </label>
 
             <input
               id="new-password"
@@ -114,7 +130,9 @@ function SecuritySection({
                 setNewPassword(e.target.value);
                 setPasswordError("");
               }}
-              placeholder="Enter new password"
+              placeholder={
+                hasPassword ? "Enter new password" : "Enter password"
+              }
             />
 
             <small>Password must be at least 6 characters.</small>

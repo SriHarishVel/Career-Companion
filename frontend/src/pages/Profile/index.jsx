@@ -225,6 +225,7 @@ function Profile() {
         />
 
         <SecuritySection
+          profile={profile}
           currentPassword={currentPassword}
           newPassword={newPassword}
           setCurrentPassword={setCurrentPassword}
