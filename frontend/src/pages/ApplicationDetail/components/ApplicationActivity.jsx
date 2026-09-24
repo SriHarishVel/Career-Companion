@@ -50,7 +50,14 @@ function ApplicationActivity({ application }) {
           return;
         }
 
-        setActivities(Array.isArray(activityData) ? activityData : []);
+        const filteredActivities = Array.isArray(activityData)
+          ? activityData.filter(
+              (activity) =>
+                activity.type === "Note Added" || activity.type === "Follow-up",
+            )
+          : [];
+
+        setActivities(filteredActivities);
       } catch (error) {
         if (cancelled) {
           return;
@@ -85,7 +92,14 @@ function ApplicationActivity({ application }) {
     try {
       const activityData = await getApplicationActivities(applicationId);
 
-      setActivities(Array.isArray(activityData) ? activityData : []);
+      const filteredActivities = Array.isArray(activityData)
+        ? activityData.filter(
+            (activity) =>
+              activity.type === "Note Added" || activity.type === "Follow-up",
+          )
+        : [];
+
+      setActivities(filteredActivities);
     } catch (error) {
       console.error("Failed to reload application activities:", error);
 
@@ -169,7 +183,6 @@ function ApplicationActivity({ application }) {
 
   function openDeleteModal(activity) {
     setSelectedActivity(activity);
-
     setShowDetailModal(false);
     setShowEditModal(false);
     setShowDeleteModal(true);
@@ -352,12 +365,14 @@ function ApplicationActivity({ application }) {
       <div className="application-activity-header">
         <div>
           <span className="application-activity-eyebrow">
-            Application history
+            Application notes
           </span>
 
           <h2>Activity Timeline</h2>
 
-          <p>Keep track of important events and notes for this application.</p>
+          <p>
+            Keep track of important notes and follow-ups for this application.
+          </p>
         </div>
 
         <button type="button" className="btn-primary" onClick={openAddModal}>
@@ -381,7 +396,7 @@ function ApplicationActivity({ application }) {
         </div>
       ) : activities.length === 0 ? (
         <div className="application-activity-empty">
-          <p>No activity recorded yet.</p>
+          <p>No notes or follow-ups recorded yet.</p>
         </div>
       ) : (
         <div className="application-activity-timeline">
@@ -469,19 +484,68 @@ function ApplicationActivity({ application }) {
           </>
         }
       >
-        <ActivityForm
-          formId="application-activity-form"
-          type={type}
-          setType={setType}
-          title={title}
-          setTitle={setTitle}
-          description={description}
-          setDescription={setDescription}
-          date={date}
-          setDate={setDate}
-          errorMsg={errorMsg}
+        <form
+          id="application-activity-form"
+          className="application-activity-form"
           onSubmit={handleAddSubmit}
-        />
+        >
+          <div className="filter-group">
+            <label htmlFor="application-activity-type">Activity Type</label>
+
+            <select
+              id="application-activity-type"
+              value={type}
+              onChange={(event) => setType(event.target.value)}
+            >
+              <option value="Note Added">Note</option>
+              <option value="Follow-up">Follow-up</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="application-activity-title">Title</label>
+
+            <input
+              id="application-activity-title"
+              type="text"
+              placeholder="e.g. Recruiter follow-up"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              required
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="application-activity-description">
+              Description
+            </label>
+
+            <textarea
+              id="application-activity-description"
+              placeholder="Add additional details..."
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="application-activity-date">Date</label>
+
+            <input
+              id="application-activity-date"
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+            />
+          </div>
+
+          {errorMsg && (
+            <p className="error" role="alert">
+              {errorMsg}
+            </p>
+          )}
+        </form>
       </FormDialog>
 
       <FormDialog
@@ -540,19 +604,68 @@ function ApplicationActivity({ application }) {
           </>
         }
       >
-        <ActivityForm
-          formId="application-activity-edit-form"
-          type={type}
-          setType={setType}
-          title={title}
-          setTitle={setTitle}
-          description={description}
-          setDescription={setDescription}
-          date={date}
-          setDate={setDate}
-          errorMsg={errorMsg}
+        <form
+          id="application-activity-edit-form"
+          className="application-activity-form"
           onSubmit={handleEditSubmit}
-        />
+        >
+          <div className="filter-group">
+            <label htmlFor="application-activity-edit-type">
+              Activity Type
+            </label>
+
+            <select
+              id="application-activity-edit-type"
+              value={type}
+              onChange={(event) => setType(event.target.value)}
+            >
+              <option value="Note Added">Note</option>
+              <option value="Follow-up">Follow-up</option>
+            </select>
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="application-activity-edit-title">Title</label>
+
+            <input
+              id="application-activity-edit-title"
+              type="text"
+              value={title}
+              onChange={(event) => setTitle(event.target.value)}
+              required
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="application-activity-edit-description">
+              Description
+            </label>
+
+            <textarea
+              id="application-activity-edit-description"
+              value={description}
+              onChange={(event) => setDescription(event.target.value)}
+              rows={4}
+            />
+          </div>
+
+          <div className="filter-group">
+            <label htmlFor="application-activity-edit-date">Date</label>
+
+            <input
+              id="application-activity-edit-date"
+              type="date"
+              value={date}
+              onChange={(event) => setDate(event.target.value)}
+            />
+          </div>
+
+          {errorMsg && (
+            <p className="error" role="alert">
+              {errorMsg}
+            </p>
+          )}
+        </form>
       </FormDialog>
 
       <ConfirmModal
@@ -568,79 +681,6 @@ function ApplicationActivity({ application }) {
         loading={deleting}
       />
     </section>
-  );
-}
-
-function ActivityForm({
-  formId,
-  type,
-  setType,
-  title,
-  setTitle,
-  description,
-  setDescription,
-  date,
-  setDate,
-  errorMsg,
-  onSubmit,
-}) {
-  return (
-    <form id={formId} className="application-activity-form" onSubmit={onSubmit}>
-      <div className="filter-group">
-        <label htmlFor={`${formId}-type`}>Activity Type</label>
-
-        <select
-          id={`${formId}-type`}
-          value={type}
-          onChange={(event) => setType(event.target.value)}
-        >
-          <option value="Note Added">Note</option>
-          <option value="Follow-up">Follow-up</option>
-        </select>
-      </div>
-
-      <div className="filter-group">
-        <label htmlFor={`${formId}-title`}>Title</label>
-
-        <input
-          id={`${formId}-title`}
-          type="text"
-          placeholder="e.g. Recruiter follow-up"
-          value={title}
-          onChange={(event) => setTitle(event.target.value)}
-          required
-        />
-      </div>
-
-      <div className="filter-group">
-        <label htmlFor={`${formId}-description`}>Description</label>
-
-        <textarea
-          id={`${formId}-description`}
-          placeholder="Add additional details..."
-          value={description}
-          onChange={(event) => setDescription(event.target.value)}
-          rows={4}
-        />
-      </div>
-
-      <div className="filter-group">
-        <label htmlFor={`${formId}-date`}>Date</label>
-
-        <input
-          id={`${formId}-date`}
-          type="date"
-          value={date}
-          onChange={(event) => setDate(event.target.value)}
-        />
-      </div>
-
-      {errorMsg && (
-        <p className="error" role="alert">
-          {errorMsg}
-        </p>
-      )}
-    </form>
   );
 }
 

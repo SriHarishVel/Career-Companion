@@ -10,6 +10,8 @@ import LoadingState from "../../components/LoadingState";
 import CareerJourney from "./components/CareerJourney";
 import RecentActivity from "./components/RecentActivity";
 import UpcomingDeadlines from "./components/UpcomingDeadlines";
+import UpcomingActions from "./components/UpcomingActions";
+import UpcomingInterviews from "./components/UpcomingInterviews";
 
 import "./index.css";
 
@@ -115,6 +117,49 @@ function Dashboard() {
     .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
     .slice(0, 5);
 
+  const upcomingActions = applications
+    .flatMap((application) =>
+      (application.activities || [])
+        .filter(
+          (activity) =>
+            activity.type === "Follow-up" &&
+            activity.date &&
+            new Date(activity.date) > new Date(),
+        )
+        .map((activity) => ({
+          id: `${application._id}-${activity._id}`,
+          type: "Follow-up",
+          title: activity.title,
+          role: application.role,
+          company: application.company,
+          date: activity.date,
+        })),
+    )
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 5);
+
+  const upcomingInterviews = applications
+    .flatMap((application) =>
+      (application.interviewRounds || [])
+        .filter(
+          (round) =>
+            round.status === "Pending" &&
+            round.date &&
+            new Date(round.date) >= new Date(),
+        )
+        .map((round) => ({
+          id: `${application._id}-${round._id}`,
+          title: round.title,
+          role: application.role,
+          company: application.company,
+          date: round.date,
+          time: round.time,
+          status: round.status,
+        })),
+    )
+    .sort((a, b) => new Date(a.date) - new Date(b.date))
+    .slice(0, 5);
+
   if (loading) {
     return (
       <div className="container">
@@ -155,6 +200,10 @@ function Dashboard() {
       />
 
       <RecentActivity recentItems={recentItems} />
+
+      <UpcomingActions upcomingActions={upcomingActions} />
+
+      <UpcomingInterviews upcomingInterviews={upcomingInterviews} />
 
       <UpcomingDeadlines upcomingDeadlines={upcomingDeadlines} />
     </div>

@@ -4,11 +4,12 @@ function UpcomingDeadlines({ upcomingDeadlines }) {
       <h2>Upcoming Deadlines</h2>
 
       {upcomingDeadlines.length > 0 ? (
-        <div className="deadline-list">
+        <div className="dashboard-list">
           {upcomingDeadlines.map((goal) => (
-            <div key={goal._id} className="deadline-item">
+            <div key={goal._id} className="dashboard-list-item">
               <div>
                 <h3>{goal.title}</h3>
+
                 {goal.category && <p>{goal.category}</p>}
               </div>
 

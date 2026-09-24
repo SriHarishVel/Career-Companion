@@ -165,16 +165,16 @@
   overflow-wrap: anywhere;
 }
 
-/* UPCOMING DEADLINES */
+/* UPCOMING LISTS */
 
-.deadline-list {
+.dashboard-list {
   display: flex;
   flex-direction: column;
 
   gap: var(--space-2);
 }
 
-.deadline-item {
+.dashboard-list-item {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -197,17 +197,59 @@
     background-color var(--duration-normal) var(--ease-standard);
 }
 
-.deadline-item:hover {
+.dashboard-list-item:hover {
   border-color: var(--color-primary-muted);
 
   background: var(--color-primary-subtle);
 }
 
-.deadline-item > div {
+.dashboard-list-item > div {
   min-width: 0;
 }
 
-.deadline-item h3 {
+.dashboard-list-item > div:first-child {
+  flex: 1;
+}
+
+.dashboard-list-item > div:last-child {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+
+  flex-shrink: 0;
+
+  gap: 2px;
+}
+
+.dashboard-list-item span {
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-xs);
+}
+
+.dashboard-list-item > div:first-child > span {
+  display: inline-flex;
+  align-items: center;
+
+  width: fit-content;
+
+  margin-bottom: var(--space-1);
+  padding: 3px 7px;
+
+  border-radius: var(--radius-pill);
+
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.dashboard-list-item h3 {
   margin: 0;
 
   color: var(--color-text-heading);
@@ -219,29 +261,38 @@
   overflow-wrap: anywhere;
 }
 
-.deadline-item p {
+.dashboard-list-item p {
   margin: var(--space-1) 0 0;
 
   color: var(--color-text-secondary);
 
   font-size: var(--font-size-xs);
   line-height: 1.4;
+
+  overflow-wrap: anywhere;
 }
 
-.deadline-item > span {
-  flex-shrink: 0;
-
-  padding: 4px 8px;
-
-  border-radius: var(--radius-pill);
-
-  background: var(--color-primary-subtle);
+.dashboard-list-item strong {
   color: var(--color-primary);
 
   font-size: var(--font-size-xs);
   font-weight: var(--font-weight-bold);
 
   white-space: nowrap;
+}
+
+.dashboard-list-item > div:last-child span {
+  margin: 0;
+  padding: 0;
+
+  background: transparent;
+  color: var(--color-text-muted);
+
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+
+  letter-spacing: normal;
+  text-transform: none;
 }
 
 /* CAREER JOURNEY */
@@ -695,6 +746,7 @@
 @media (max-width: 700px) {
   .dashboard-section {
     margin-top: var(--space-3);
+
     padding: var(--space-4);
 
     border-radius: var(--radius-lg);
@@ -773,7 +825,7 @@
     grid-template-columns: 1fr;
   }
 
-  .deadline-item {
+  .dashboard-list-item {
     align-items: flex-start;
 
     flex-direction: column;
@@ -781,8 +833,8 @@
     gap: var(--space-2);
   }
 
-  .deadline-item > span {
-    align-self: flex-start;
+  .dashboard-list-item > div:last-child {
+    align-items: flex-start;
   }
 
   .activity-timeline {
@@ -833,7 +885,7 @@
 
 @media (prefers-reduced-motion: reduce) {
   .activity-card,
-  .deadline-item,
+  .dashboard-list-item,
   .journey-stage,
   .journey-stage-number,
   .journey-details,
