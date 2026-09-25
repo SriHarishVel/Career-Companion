@@ -117,12 +117,14 @@ function Dashboard() {
     .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
     .slice(0, 5);
 
+  // Upcoming Actions: future-dated, pending follow-ups only.
   const upcomingActions = applications
     .flatMap((application) =>
       (application.activities || [])
         .filter(
           (activity) =>
             activity.type === "Follow-up" &&
+            !activity.completed &&
             activity.date &&
             new Date(activity.date) > new Date(),
         )
@@ -138,6 +140,7 @@ function Dashboard() {
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 5);
 
+  // Upcoming Interviews: future pending interviews only.
   const upcomingInterviews = applications
     .flatMap((application) =>
       (application.interviewRounds || [])
@@ -201,9 +204,13 @@ function Dashboard() {
 
       <RecentActivity recentItems={recentItems} />
 
-      <UpcomingActions upcomingActions={upcomingActions} />
+      {upcomingActions.length > 0 && (
+        <UpcomingActions upcomingActions={upcomingActions} />
+      )}
 
-      <UpcomingInterviews upcomingInterviews={upcomingInterviews} />
+      {upcomingInterviews.length > 0 && (
+        <UpcomingInterviews upcomingInterviews={upcomingInterviews} />
+      )}
 
       <UpcomingDeadlines upcomingDeadlines={upcomingDeadlines} />
     </div>

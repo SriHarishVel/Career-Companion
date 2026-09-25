@@ -4,6 +4,7 @@ import {
   getApplicationActivities,
   addApplicationActivity,
   updateApplicationActivity,
+  updateFollowUpStatus,
   deleteApplicationActivity,
 } from "../../../services/applicationService";
 
@@ -30,6 +31,7 @@ function ApplicationActivity({ application }) {
   const [loading, setLoading] = useState(Boolean(applicationId));
   const [saving, setSaving] = useState(false);
   const [deleting, setDeleting] = useState(false);
+  const [updatingStatusId, setUpdatingStatusId] = useState(null);
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
@@ -100,12 +102,55 @@ function ApplicationActivity({ application }) {
         : [];
 
       setActivities(filteredActivities);
+
+      return filteredActivities;
     } catch (error) {
       console.error("Failed to reload application activities:", error);
 
       setErrorMsg(
         error?.response?.data?.message || "Failed to reload activity history.",
       );
+
+      return null;
+    }
+  }
+
+  async function handleFollowUpStatusToggle(activity) {
+    if (updatingStatusId || !applicationId || !activity?._id) {
+      return;
+    }
+
+    const newCompletedStatus = !activity.completed;
+
+    try {
+      setUpdatingStatusId(activity._id);
+      setErrorMsg("");
+
+      const updatedActivity = await updateFollowUpStatus(
+        applicationId,
+        activity._id,
+        newCompletedStatus,
+      );
+
+      setActivities((currentActivities) =>
+        currentActivities.map((item) =>
+          item._id === activity._id ? { ...item, ...updatedActivity } : item,
+        ),
+      );
+
+      setSelectedActivity((currentActivity) =>
+        currentActivity?._id === activity._id
+          ? { ...currentActivity, ...updatedActivity }
+          : currentActivity,
+      );
+    } catch (error) {
+      console.error("Failed to update follow-up status:", error);
+
+      setErrorMsg(
+        error?.response?.data?.message || "Failed to update follow-up status.",
+      );
+    } finally {
+      setUpdatingStatusId(null);
     }
   }
 
@@ -138,7 +183,7 @@ function ApplicationActivity({ application }) {
   }
 
   function closeDetailModal() {
-    if (saving || deleting) {
+    if (saving || deleting || updatingStatusId) {
       return;
     }
 
@@ -418,6 +463,23 @@ function ApplicationActivity({ application }) {
 
                     <h3>{activity.title}</h3>
 
+                    {activity.type === "Follow-up" && (
+                      <span
+                        className={`application-follow-up-status ${
+                          activity.completed ? "completed" : "pending"
+                        }`}
+                      >
+                        <span
+                          className="application-follow-up-status-icon"
+                          aria-hidden="true"
+                        >
+                          {activity.completed ? "✓" : "○"}
+                        </span>
+
+                        {activity.completed ? "Completed" : "Pending"}
+                      </span>
+                    )}
+
                     {activity.description && (
                       <p className="application-activity-description">
                         {getActivityPreview(activity.description)}
@@ -434,6 +496,43 @@ function ApplicationActivity({ application }) {
                       className="application-activity-actions"
                       onClick={(event) => event.stopPropagation()}
                     >
+                      {activity.type === "Follow-up" && (
+                        <button
+                          type="button"
+                          className={`application-follow-up-toggle ${
+                            activity.completed ? "completed" : "pending"
+                          }`}
+                          onClick={() => handleFollowUpStatusToggle(activity)}
+                          disabled={updatingStatusId !== null}
+                          aria-label={
+                            activity.completed
+                              ? `Mark ${activity.title} as pending`
+                              : `Mark ${activity.title} as completed`
+                          }
+                          aria-pressed={Boolean(activity.completed)}
+                        >
+                          {updatingStatusId === activity._id ? (
+                            <>
+                              <span
+                                className="application-follow-up-toggle-spinner"
+                                aria-hidden="true"
+                              />
+                              Saving...
+                            </>
+                          ) : activity.completed ? (
+                            <>
+                              <span aria-hidden="true">↶</span>
+                              Mark as Pending
+                            </>
+                          ) : (
+                            <>
+                              <span aria-hidden="true">✓</span>
+                              Mark as Complete
+                            </>
+                          )}
+                        </button>
+                      )}
+
                       <button
                         type="button"
                         className="btn-secondary"
@@ -564,6 +663,15 @@ function ApplicationActivity({ application }) {
                 {formatDate(selectedActivity.date)}
               </span>
             </div>
+
+            {selectedActivity.type === "Follow-up" && (
+              <p>
+                Status:{" "}
+                <strong>
+                  {selectedActivity.completed ? "Completed" : "Pending"}
+                </strong>
+              </p>
+            )}
 
             <div className="application-activity-detail-description">
               {selectedActivity.description ? (

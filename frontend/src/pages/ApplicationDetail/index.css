@@ -806,6 +806,134 @@
   border-top: var(--border-width-thin) solid var(--color-border);
 }
 
+/* Follow-up Status Badge */
+
+.application-follow-up-status {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  width: fit-content;
+  margin-top: 10px;
+  padding: 6px 10px;
+
+  border-radius: var(--radius-pill);
+
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+.application-follow-up-status.pending {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-text);
+}
+
+.application-follow-up-status.completed {
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
+}
+
+.application-follow-up-status-icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-extrabold);
+}
+
+/* Follow-up Completion Button */
+
+.application-follow-up-toggle {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+
+  min-height: var(--size-control-sm);
+  padding: 8px 12px;
+
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+
+  white-space: nowrap;
+  cursor: pointer;
+
+  transition:
+    background-color var(--duration-normal) var(--ease-standard),
+    border-color var(--duration-normal) var(--ease-standard),
+    color var(--duration-normal) var(--ease-standard),
+    opacity var(--duration-normal) var(--ease-standard);
+}
+
+/* Pending: Neutral action button */
+
+.application-follow-up-toggle.pending {
+  border-color: var(--color-border);
+  background: var(--color-surface);
+  color: var(--color-text-secondary);
+}
+
+.application-follow-up-toggle.pending:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface-muted);
+  color: var(--color-text-primary);
+}
+
+/* Completed: Neutral action to reopen */
+
+.application-follow-up-toggle.completed {
+  border-color: var(--color-border);
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+}
+
+.application-follow-up-toggle.completed:hover:not(:disabled) {
+  border-color: var(--color-border-strong);
+  background: var(--color-surface);
+  color: var(--color-text-primary);
+}
+
+/* Accessibility */
+
+.application-follow-up-toggle:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 3px;
+}
+
+.application-follow-up-toggle:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+}
+
+/* Saving Indicator */
+
+.application-follow-up-toggle-spinner {
+  width: 13px;
+  height: 13px;
+
+  border: 2px solid currentColor;
+  border-right-color: transparent;
+  border-radius: var(--radius-pill);
+
+  animation: follow-up-spin 0.7s linear infinite;
+}
+
+@keyframes follow-up-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 /* Form Dialog */
 
 .form-dialog-overlay {

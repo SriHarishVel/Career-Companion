@@ -42,6 +42,19 @@ export const updateApplicationActivity = async (
   return response.data;
 };
 
+export const updateFollowUpStatus = async (
+  applicationId,
+  activityId,
+  completed,
+) => {
+  const response = await api.patch(
+    `/applications/${applicationId}/activities/${activityId}/status`,
+    { completed },
+  );
+
+  return response.data;
+};
+
 export const deleteApplicationActivity = async (applicationId, activityId) => {
   const response = await api.delete(
     `/applications/${applicationId}/activities/${activityId}`,
