@@ -388,6 +388,27 @@ function ApplicationActivity({ application }) {
     });
   }
 
+  // Check whether a pending follow-up's date has passed.
+  function isOverdue(activity) {
+    if (activity.type !== "Follow-up" || activity.completed || !activity.date) {
+      return false;
+    }
+
+    const dueDate = new Date(activity.date);
+
+    if (Number.isNaN(dueDate.getTime())) {
+      return false;
+    }
+
+    // Compare calendar dates, ignoring the time of day.
+    const today = new Date();
+
+    today.setHours(0, 0, 0, 0);
+    dueDate.setHours(0, 0, 0, 0);
+
+    return dueDate < today;
+  }
+
   function getActivityPreview(activityDescription) {
     if (!activityDescription) {
       return "";
@@ -464,20 +485,29 @@ function ApplicationActivity({ application }) {
                     <h3>{activity.title}</h3>
 
                     {activity.type === "Follow-up" && (
-                      <span
-                        className={`application-follow-up-status ${
-                          activity.completed ? "completed" : "pending"
-                        }`}
-                      >
+                      <div className="application-follow-up-badges">
                         <span
-                          className="application-follow-up-status-icon"
-                          aria-hidden="true"
+                          className={`application-follow-up-status ${
+                            activity.completed ? "completed" : "pending"
+                          }`}
                         >
-                          {activity.completed ? "✓" : "○"}
+                          <span
+                            className="application-follow-up-status-icon"
+                            aria-hidden="true"
+                          >
+                            {activity.completed ? "✓" : "○"}
+                          </span>
+
+                          {activity.completed ? "Completed" : "Pending"}
                         </span>
 
-                        {activity.completed ? "Completed" : "Pending"}
-                      </span>
+                        {isOverdue(activity) && (
+                          <span className="application-follow-up-overdue">
+                            <span aria-hidden="true">!</span>
+                            Overdue
+                          </span>
+                        )}
+                      </div>
                     )}
 
                     {activity.description && (

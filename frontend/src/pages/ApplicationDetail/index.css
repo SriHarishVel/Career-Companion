@@ -903,6 +903,48 @@
   color: var(--color-text-primary);
 }
 
+/* Follow-up Status Badges */
+
+.application-follow-up-badges {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+
+  margin-top: 10px;
+}
+
+.application-follow-up-badges .application-follow-up-status {
+  margin-top: 0;
+}
+
+/* Overdue Badge */
+
+.application-follow-up-overdue {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+
+  width: fit-content;
+  padding: 6px 10px;
+
+  border: var(--border-width-thin) solid var(--color-danger-border);
+  border-radius: var(--radius-pill);
+
+  background: var(--color-danger-surface);
+  color: var(--color-danger-text);
+
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  line-height: 1;
+
+  white-space: nowrap;
+}
+
+.application-follow-up-overdue span {
+  font-weight: var(--font-weight-extrabold);
+}
+
 /* Accessibility */
 
 .application-follow-up-toggle:focus-visible {
