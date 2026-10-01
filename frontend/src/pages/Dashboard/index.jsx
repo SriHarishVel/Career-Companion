@@ -3,15 +3,21 @@ import { useEffect, useState } from "react";
 import { getGoals } from "../../services/goalService";
 import { getSkills } from "../../services/skillService";
 import { getResources } from "../../services/resourceService";
-import { getApplications } from "../../services/applicationService";
+import {
+  getApplications,
+  getFollowUpReminders,
+} from "../../services/applicationService";
 
 import LoadingState from "../../components/LoadingState";
 
 import CareerJourney from "./components/CareerJourney";
 import RecentActivity from "./components/RecentActivity";
-import UpcomingDeadlines from "./components/UpcomingDeadlines";
-import UpcomingActions from "./components/UpcomingActions";
-import UpcomingInterviews from "./components/UpcomingInterviews";
+import {
+  UpcomingDeadlines,
+  UpcomingActions,
+  UpcomingInterviews,
+} from "./components/DashboardUpcoming";
+import FollowUpReminders from "./components/FollowUpReminders";
 
 import "./index.css";
 
@@ -20,6 +26,12 @@ function Dashboard() {
   const [skills, setSkills] = useState([]);
   const [resources, setResources] = useState([]);
   const [applications, setApplications] = useState([]);
+
+  const [followUpReminders, setFollowUpReminders] = useState({
+    overdue: [],
+    today: [],
+    upcoming: [],
+  });
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -30,18 +42,34 @@ function Dashboard() {
         setLoading(true);
         setErrorMsg("");
 
-        const [goalData, skillData, resourceData, applicationData] =
-          await Promise.all([
-            getGoals(),
-            getSkills(),
-            getResources(),
-            getApplications(),
-          ]);
+        const [
+          goalData,
+          skillData,
+          resourceData,
+          applicationData,
+          reminderData,
+        ] = await Promise.all([
+          getGoals(),
+          getSkills(),
+          getResources(),
+          getApplications(),
+          getFollowUpReminders(),
+        ]);
 
         setGoals(Array.isArray(goalData) ? goalData : []);
         setSkills(Array.isArray(skillData) ? skillData : []);
         setResources(Array.isArray(resourceData) ? resourceData : []);
         setApplications(Array.isArray(applicationData) ? applicationData : []);
+
+        setFollowUpReminders({
+          overdue: Array.isArray(reminderData?.overdue)
+            ? reminderData.overdue
+            : [],
+          today: Array.isArray(reminderData?.today) ? reminderData.today : [],
+          upcoming: Array.isArray(reminderData?.upcoming)
+            ? reminderData.upcoming
+            : [],
+        });
       } catch (error) {
         console.error("Failed to load dashboard:", error);
 
@@ -203,6 +231,8 @@ function Dashboard() {
       />
 
       <RecentActivity recentItems={recentItems} />
+
+      <FollowUpReminders followUpReminders={followUpReminders} />
 
       {upcomingActions.length > 0 && (
         <UpcomingActions upcomingActions={upcomingActions} />

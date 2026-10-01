@@ -8,12 +8,17 @@ export const getApplications = async (params = {}) => {
   return response.data;
 };
 
+export const getFollowUpReminders = async () => {
+  const response = await api.get("/applications/reminders");
+
+  return response.data;
+};
+
 export const getApplication = async (id) => {
   const response = await api.get(`/applications/${id}`);
 
   return response.data;
 };
-
 export const getApplicationActivities = async (applicationId) => {
   const response = await api.get(`/applications/${applicationId}/activities`);
 

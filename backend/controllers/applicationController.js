@@ -126,6 +126,80 @@ export const getApplication = async (req, res) => {
   }
 };
 
+// Get follow-up reminders for the logged-in user.
+export const getFollowUpReminders = async (req, res) => {
+  try {
+    const applications = await Application.find({
+      user: req.user._id,
+    }).select("company role activities");
+
+    const now = new Date();
+
+    const today = new Date(now);
+    today.setHours(0, 0, 0, 0);
+
+    const tomorrow = new Date(today);
+    tomorrow.setDate(tomorrow.getDate() + 1);
+
+    const upcomingEnd = new Date(today);
+    upcomingEnd.setDate(upcomingEnd.getDate() + 8);
+
+    const overdue = [];
+    const todayReminders = [];
+    const upcoming = [];
+
+    applications.forEach((application) => {
+      application.activities.forEach((activity) => {
+        if (
+          activity.type !== "Follow-up" ||
+          activity.completed ||
+          !activity.date
+        ) {
+          return;
+        }
+
+        const followUpDate = new Date(activity.date);
+
+        if (Number.isNaN(followUpDate.getTime())) {
+          return;
+        }
+
+        const reminder = {
+          applicationId: application._id,
+          activityId: activity._id,
+          company: application.company,
+          role: application.role,
+          title: activity.title,
+          description: activity.description,
+          date: activity.date,
+        };
+
+        if (followUpDate < today) {
+          overdue.push(reminder);
+        } else if (followUpDate >= today && followUpDate < tomorrow) {
+          todayReminders.push(reminder);
+        } else if (followUpDate >= tomorrow && followUpDate < upcomingEnd) {
+          upcoming.push(reminder);
+        }
+      });
+    });
+
+    overdue.sort((a, b) => new Date(a.date) - new Date(b.date));
+    todayReminders.sort((a, b) => new Date(a.date) - new Date(b.date));
+    upcoming.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+    res.status(200).json({
+      overdue,
+      today: todayReminders,
+      upcoming,
+    });
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
 // Update an application.
 export const updateApplication = async (req, res) => {
   try {
@@ -477,6 +551,57 @@ export const updateApplicationActivity = async (req, res) => {
     ).populate("primaryGoal");
 
     res.status(200).json(updatedApplication);
+  } catch (error) {
+    res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+// Update the completion status of a follow-up.
+export const updateFollowUpStatus = async (req, res) => {
+  try {
+    const application = await Application.findById(req.params.id);
+
+    if (!application) {
+      return res.status(404).json({
+        message: "Application not found",
+      });
+    }
+
+    if (application.user.toString() !== req.user._id.toString()) {
+      return res.status(403).json({
+        message: "Not authorized",
+      });
+    }
+
+    const activity = application.activities.id(req.params.activityId);
+
+    if (!activity) {
+      return res.status(404).json({
+        message: "Activity not found",
+      });
+    }
+
+    if (activity.type !== "Follow-up") {
+      return res.status(400).json({
+        message: "Only follow-ups can have their completion status updated",
+      });
+    }
+
+    const { completed } = req.body;
+
+    if (typeof completed !== "boolean") {
+      return res.status(400).json({
+        message: "A valid completion status is required",
+      });
+    }
+
+    activity.completed = completed;
+
+    await application.save();
+
+    res.status(200).json(activity);
   } catch (error) {
     res.status(500).json({
       message: error.message,

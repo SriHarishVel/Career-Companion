@@ -65,6 +65,11 @@ const applicationActivitySchema = new mongoose.Schema(
       type: Date,
       default: Date.now,
     },
+
+    completed: {
+      type: Boolean,
+      default: false,
+    },
   },
   {
     _id: true,

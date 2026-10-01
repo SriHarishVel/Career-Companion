@@ -5,8 +5,10 @@ import {
   getApplications,
   getApplication,
   getApplicationActivities,
+  getFollowUpReminders,
   addApplicationActivity,
   updateApplicationActivity,
+  updateFollowUpStatus,
   deleteApplicationActivity,
   updateApplication,
   deleteApplication,
@@ -25,11 +27,23 @@ router.get("/", protect, getApplications);
 
 router.get("/:id/activities", protect, getApplicationActivities);
 
+router.get("/reminders", protect, getFollowUpReminders);
+
 router.post("/:id/activities", protect, addApplicationActivity);
 
 router.put("/:id/activities/:activityId", protect, updateApplicationActivity);
 
-router.delete("/:id/activities/:activityId", protect, deleteApplicationActivity);
+router.patch(
+  "/:id/activities/:activityId/status",
+  protect,
+  updateFollowUpStatus,
+);
+
+router.delete(
+  "/:id/activities/:activityId",
+  protect,
+  deleteApplicationActivity,
+);
 
 router.get("/:id", protect, getApplication);
 

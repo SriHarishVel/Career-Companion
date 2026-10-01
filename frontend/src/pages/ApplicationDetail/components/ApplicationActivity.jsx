@@ -503,8 +503,8 @@ function ApplicationActivity({ application }) {
 
                         {isOverdue(activity) && (
                           <span className="application-follow-up-overdue">
-                            <span aria-hidden="true">!</span>
                             Overdue
+                            <span aria-hidden="true">!</span>
                           </span>
                         )}
                       </div>
