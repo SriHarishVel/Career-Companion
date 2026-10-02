@@ -12,6 +12,40 @@ function CareerJourney({
 
   const primaryGoals = goals.filter((goal) => goal.goalType === "Primary");
 
+  const completedGoals = primaryGoals.filter(
+    (goal) => goal.completed || Number(goal.progress) >= 100,
+  ).length;
+
+  const activeGoals = primaryGoals.filter(
+    (goal) => !goal.completed && Number(goal.progress) < 100,
+  ).length;
+
+  const completedSkills = skills.filter(
+    (skill) => Number(skill.progress) >= 100,
+  ).length;
+
+  const totalResourceItems = resources.reduce(
+    (total, resource) => total + (resource.items?.length || 0),
+    0,
+  );
+
+  const applicationsByStatus = {
+    applied: applications.filter(
+      (application) => application.status === "Applied",
+    ).length,
+
+    inProgress: applications.filter(
+      (application) => application.status === "In Progress",
+    ).length,
+
+    offers: applications.filter((application) => application.status === "Offer")
+      .length,
+
+    rejected: applications.filter(
+      (application) => application.status === "Rejected",
+    ).length,
+  };
+
   const stages = [
     {
       id: "goals",
@@ -60,12 +94,34 @@ function CareerJourney({
               />
             </div>
 
+            <div className="journey-application-stats">
+              <div>
+                <span>Total</span>
+                <strong>{primaryGoals.length}</strong>
+              </div>
+
+              <div>
+                <span>Active</span>
+                <strong>{activeGoals}</strong>
+              </div>
+
+              <div>
+                <span>Completed</span>
+                <strong>{completedGoals}</strong>
+              </div>
+
+              <div>
+                <span>Progress</span>
+                <strong>{averageGoalProgress}%</strong>
+              </div>
+            </div>
+
             <div className="journey-items">
               {primaryGoals.slice(0, 3).map((goal) => (
                 <div key={goal._id} className="journey-item">
                   <span>{goal.title}</span>
 
-                  <strong>{goal.progress}%</strong>
+                  <strong>{Number(goal.progress) || 0}%</strong>
                 </div>
               ))}
             </div>
@@ -91,12 +147,34 @@ function CareerJourney({
               />
             </div>
 
+            <div className="journey-application-stats">
+              <div>
+                <span>Total</span>
+                <strong>{skills.length}</strong>
+              </div>
+
+              <div>
+                <span>Completed</span>
+                <strong>{completedSkills}</strong>
+              </div>
+
+              <div>
+                <span>In Progress</span>
+                <strong>{skills.length - completedSkills}</strong>
+              </div>
+
+              <div>
+                <span>Progress</span>
+                <strong>{averageSkillProgress}%</strong>
+              </div>
+            </div>
+
             <div className="journey-items">
               {skills.slice(0, 3).map((skill) => (
                 <div key={skill._id} className="journey-item">
                   <span>{skill.name}</span>
 
-                  <strong>{skill.progress}%</strong>
+                  <strong>{Number(skill.progress) || 0}%</strong>
                 </div>
               ))}
             </div>
@@ -106,6 +184,19 @@ function CareerJourney({
       case "resources":
         return (
           <div className="journey-details">
+            <div className="journey-application-stats">
+              <div>
+                <span>Resources</span>
+                <strong>{resources.length}</strong>
+              </div>
+
+              <div>
+                <span>Items</span>
+                <strong>{totalResourceItems}</strong>
+              </div>
+              
+            </div>
+
             <div className="journey-items">
               {resources.slice(0, 4).map((resource) => {
                 const items = resource.items || [];
@@ -130,50 +221,22 @@ function CareerJourney({
             <div className="journey-application-stats">
               <div>
                 <span>Applied</span>
-
-                <strong>
-                  {
-                    applications.filter(
-                      (application) => application.status === "Applied",
-                    ).length
-                  }
-                </strong>
+                <strong>{applicationsByStatus.applied}</strong>
               </div>
 
               <div>
                 <span>In Progress</span>
-
-                <strong>
-                  {
-                    applications.filter(
-                      (application) => application.status === "In Progress",
-                    ).length
-                  }
-                </strong>
+                <strong>{applicationsByStatus.inProgress}</strong>
               </div>
 
               <div>
                 <span>Offers</span>
-
-                <strong>
-                  {
-                    applications.filter(
-                      (application) => application.status === "Offer",
-                    ).length
-                  }
-                </strong>
+                <strong>{applicationsByStatus.offers}</strong>
               </div>
 
               <div>
                 <span>Rejected</span>
-
-                <strong>
-                  {
-                    applications.filter(
-                      (application) => application.status === "Rejected",
-                    ).length
-                  }
-                </strong>
+                <strong>{applicationsByStatus.rejected}</strong>
               </div>
             </div>
           </div>

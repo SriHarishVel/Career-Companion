@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 export function UpcomingActions({ upcomingActions }) {
+  const navigate = useNavigate();
+
   return (
     <div className="dashboard-section">
       <h2>Upcoming Actions</h2>
@@ -6,7 +10,12 @@ export function UpcomingActions({ upcomingActions }) {
       {upcomingActions.length > 0 ? (
         <div className="dashboard-list">
           {upcomingActions.map((action) => (
-            <div key={action.id} className="dashboard-list-item">
+            <button
+              key={action.id}
+              type="button"
+              className="dashboard-list-item dashboard-clickable-item"
+              onClick={() => navigate(`/applications/${action.applicationId}`)}
+            >
               <div>
                 <span>{action.type}</span>
 
@@ -28,7 +37,7 @@ export function UpcomingActions({ upcomingActions }) {
 
                 {action.time && <span>{action.time}</span>}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       ) : (
@@ -71,6 +80,8 @@ export function UpcomingDeadlines({ upcomingDeadlines }) {
 }
 
 export function UpcomingInterviews({ upcomingInterviews }) {
+  const navigate = useNavigate();
+
   return (
     <div className="dashboard-section">
       <h2>Upcoming Interviews</h2>
@@ -78,7 +89,14 @@ export function UpcomingInterviews({ upcomingInterviews }) {
       {upcomingInterviews.length > 0 ? (
         <div className="dashboard-list">
           {upcomingInterviews.map((interview) => (
-            <div key={interview.id} className="dashboard-list-item">
+            <button
+              key={interview.id}
+              type="button"
+              className="dashboard-list-item dashboard-clickable-item"
+              onClick={() =>
+                navigate(`/applications/${interview.applicationId}`)
+              }
+            >
               <div>
                 <span>{interview.status}</span>
 
@@ -110,7 +128,7 @@ export function UpcomingInterviews({ upcomingInterviews }) {
                   </span>
                 )}
               </div>
-            </div>
+            </button>
           ))}
         </div>
       ) : (
@@ -119,5 +137,3 @@ export function UpcomingInterviews({ upcomingInterviews }) {
     </div>
   );
 }
-
-export default UpcomingActions;

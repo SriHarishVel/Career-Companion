@@ -209,7 +209,11 @@ function Dashboard() {
         <div className="dashboard-section">
           <p>{errorMsg}</p>
 
-          <button type="button" onClick={() => window.location.reload()}>
+          <button
+            type="button"
+            className="btn-primary"
+            onClick={() => window.location.reload()}
+          >
             Try Again
           </button>
         </div>

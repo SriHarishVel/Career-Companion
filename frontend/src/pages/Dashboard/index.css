@@ -309,6 +309,20 @@
   text-align: left;
 }
 
+/* CLICKABLE UPCOMING ITEMS */
+
+.dashboard-clickable-item {
+  width: 100%;
+  text-align: left;
+  font: inherit;
+  color: inherit;
+  cursor: pointer;
+}
+
+.dashboard-clickable-item > div:first-child {
+  text-align: left;
+}
+
 /* CAREER JOURNEY */
 
 .career-journey {
