@@ -1,4 +1,8 @@
+import { useNavigate } from "react-router-dom";
+
 function ApplicationOverview({ application }) {
+  const navigate = useNavigate();
+
   const {
     company,
     role,
@@ -53,7 +57,17 @@ function ApplicationOverview({ application }) {
         <div className="application-overview-detail">
           <span className="application-overview-detail-label">Career Goal</span>
 
-          <strong>{primaryGoal?.title || "No goal linked"}</strong>
+          {primaryGoal?._id ? (
+            <button
+              type="button"
+              className="application-detail-related-link"
+              onClick={() => navigate(`/goals/${primaryGoal._id}`)}
+            >
+              {primaryGoal.title}
+            </button>
+          ) : (
+            <strong>No goal linked</strong>
+          )}
         </div>
 
         <div className="application-overview-detail">

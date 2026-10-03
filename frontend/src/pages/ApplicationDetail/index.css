@@ -195,6 +195,31 @@
   overflow-wrap: anywhere;
 }
 
+.application-detail-related-link {
+  display: block;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--color-primary);
+  font: inherit;
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+  text-align: left;
+  cursor: pointer;
+  overflow-wrap: anywhere;
+}
+
+.application-detail-related-link:hover {
+  color: var(--color-primary-hover);
+  text-decoration: underline;
+}
+
+.application-detail-related-link:focus-visible {
+  outline: var(--focus-ring-width) solid var(--focus-ring-color);
+  outline-offset: 3px;
+  border-radius: 3px;
+}
+
 /* Application Link */
 
 .application-detail-url {
@@ -913,7 +938,6 @@
 
   margin-top: 10px;
 }
-
 .application-follow-up-badges .application-follow-up-status {
   margin-top: 0;
 }

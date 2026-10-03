@@ -4,6 +4,7 @@ import { useNavigate, useParams } from "react-router-dom";
 import { getGoal, getGoals, deleteGoal } from "../../services/goalService";
 
 import { getSkills } from "../../services/skillService";
+import { getApplications } from "../../services/applicationService";
 
 import LoadingState from "../../components/LoadingState";
 import ConfirmModal from "../../components/ConfirmModal";
@@ -21,6 +22,7 @@ function GoalDetail() {
   const [goal, setGoal] = useState(null);
   const [allGoals, setAllGoals] = useState([]);
   const [allSkills, setAllSkills] = useState([]);
+  const [relatedApplications, setRelatedApplications] = useState([]);
 
   const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
@@ -40,21 +42,27 @@ function GoalDetail() {
         setLoading(true);
         setErrorMsg("");
 
-        const [goalData, goalsData, skillsData] = await Promise.all([
-          getGoal(goalId),
-          getGoals(),
-          getSkills(),
-        ]);
+        const [goalData, goalsData, skillsData, applicationsData] =
+          await Promise.all([
+            getGoal(goalId),
+            getGoals(),
+            getSkills(),
+            getApplications({ primaryGoal: goalId }),
+          ]);
 
         setGoal(goalData);
         setAllGoals(goalsData);
         setAllSkills(skillsData);
+        setRelatedApplications(
+          Array.isArray(applicationsData) ? applicationsData : [],
+        );
       } catch (error) {
         console.error("Failed to load goal details:", error);
 
         setGoal(null);
         setAllGoals([]);
         setAllSkills([]);
+        setRelatedApplications([]);
 
         setErrorMsg(
           error.response?.data?.message ||
@@ -303,6 +311,7 @@ function GoalDetail() {
         <GoalSupporting
           supportingGoals={supportingGoals}
           relatedSkills={relatedSkills}
+          relatedApplications={relatedApplications}
           goalType={goal.goalType}
         />
 
