@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation, useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import LoadingState from "../../components/LoadingState";
 import useQueryParams from "../../hooks/useQueryParams";
@@ -18,6 +19,7 @@ import "./index.css";
 function Skills() {
   const navigate = useNavigate();
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const { getParam, setParams, clearParams } = useQueryParams();
 
@@ -37,9 +39,6 @@ function Skills() {
   const [categoryFilter, setCategoryFilter] = useState(urlCategory);
   const [levelFilter, setLevelFilter] = useState(urlLevel);
 
-  const [skills, setSkills] = useState([]);
-  const [goals, setGoals] = useState([]);
-
   const [newSkill, setNewSkill] = useState("");
   const [newCategory, setNewCategory] = useState("Programming");
   const [secondaryGoalId, setSecondaryGoalId] = useState("");
@@ -49,53 +48,92 @@ function Skills() {
   const [practicalRequirements, setPracticalRequirements] = useState([]);
 
   const [showSkillForm, setShowSkillForm] = useState(isGuidedSetup);
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    async function fetchSkills() {
-      try {
-        const skillData = await getSkills({
-          search: urlSearch || undefined,
-          category: urlCategory === "All" ? undefined : urlCategory,
-          level: urlLevel === "All" ? undefined : urlLevel,
-          sort: urlSort === "default" ? undefined : urlSort,
+  const {
+    data: skills = [],
+    isLoading: skillsLoading,
+    error: skillsError,
+  } = useQuery({
+    queryKey: [
+      "skills",
+      {
+        search: urlSearch || undefined,
+        category: urlCategory === "All" ? undefined : urlCategory,
+        level: urlLevel === "All" ? undefined : urlLevel,
+        sort: urlSort === "default" ? undefined : urlSort,
+      },
+    ],
+    queryFn: () =>
+      getSkills({
+        search: urlSearch || undefined,
+        category: urlCategory === "All" ? undefined : urlCategory,
+        level: urlLevel === "All" ? undefined : urlLevel,
+        sort: urlSort === "default" ? undefined : urlSort,
+      }),
+  });
+
+  const { data: goals = [], error: goalsError } = useQuery({
+    queryKey: ["goals", "all"],
+    queryFn: () => getGoals(),
+  });
+
+  const createSkillMutation = useMutation({
+    mutationFn: async () => {
+      const createdSkill = await createSkill({
+        name: newSkill.trim(),
+        category: newCategory,
+        level: "Beginner",
+        learningAreas,
+        practicalRequirements,
+        secondaryGoal: secondaryGoalId || null,
+      });
+
+      if (newResource.trim()) {
+        await createResource({
+          title: `${newSkill.trim()} Resource`,
+          type: "Article",
+          url: newResource.trim(),
+          skill: createdSkill._id,
         });
-
-        setSkills(skillData);
-      } catch (error) {
-        console.error("Failed to load skills:", error);
-
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load your skills. Please try again.",
-        );
-      } finally {
-        setLoading(false);
       }
-    }
 
-    fetchSkills();
-  }, [urlSearch, urlCategory, urlLevel, urlSort]);
+      return createdSkill;
+    },
 
-  useEffect(() => {
-    async function fetchGoals() {
-      try {
-        const goalData = await getGoals();
-        setGoals(goalData);
-      } catch (error) {
-        console.error("Failed to load goals:", error);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["skills"],
+      });
 
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load your goals. Please try again.",
-        );
+      await queryClient.invalidateQueries({
+        queryKey: ["resources"],
+      });
+
+      setNewSkill("");
+      setNewCategory("Programming");
+      setSecondaryGoalId("");
+      setNewResource("");
+      setLearningAreas([]);
+      setPracticalRequirements([]);
+
+      setErrorMsg("");
+      setShowSkillForm(false);
+
+      if (journeyAction === "createSkill") {
+        goToNextStep();
       }
-    }
+    },
 
-    fetchGoals();
-  }, []);
+    onError: (error) => {
+      console.error("Failed to create skill:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to create the skill. Please try again.",
+      );
+    },
+  });
 
   function applyFilters() {
     setParams({
@@ -113,17 +151,6 @@ function Skills() {
     setLevelFilter("All");
 
     clearParams(["search", "sort", "category", "level"]);
-  }
-
-  async function refreshSkills() {
-    const updatedSkills = await getSkills({
-      search: urlSearch || undefined,
-      category: urlCategory === "All" ? undefined : urlCategory,
-      level: urlLevel === "All" ? undefined : urlLevel,
-      sort: urlSort === "default" ? undefined : urlSort,
-    });
-
-    setSkills(updatedSkills);
   }
 
   function goToNextStep() {
@@ -152,8 +179,8 @@ function Skills() {
     setShowSkillForm(true);
   }
 
-  async function addSkill() {
-    if (saving) {
+  function addSkill() {
+    if (createSkillMutation.isPending) {
       return;
     }
 
@@ -163,57 +190,26 @@ function Skills() {
     }
 
     setErrorMsg("");
-    setSaving(true);
 
-    try {
-      const createdSkill = await createSkill({
-        name: newSkill.trim(),
-        category: newCategory,
-        level: "Beginner",
-        learningAreas,
-        practicalRequirements,
-        secondaryGoal: secondaryGoalId || null,
-      });
-
-      if (newResource.trim()) {
-        await createResource({
-          title: `${newSkill.trim()} Resource`,
-          type: "Article",
-          url: newResource.trim(),
-          skill: createdSkill._id,
-        });
-      }
-
-      await refreshSkills();
-
-      setNewSkill("");
-      setNewCategory("Programming");
-      setSecondaryGoalId("");
-      setNewResource("");
-      setLearningAreas([]);
-      setPracticalRequirements([]);
-
-      setErrorMsg("");
-      setShowSkillForm(false);
-
-      if (journeyAction === "createSkill") {
-        goToNextStep();
-      }
-    } catch (error) {
-      console.error("Failed to create skill:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to create the skill. Please try again.",
-      );
-    } finally {
-      setSaving(false);
-    }
+    createSkillMutation.mutate();
   }
 
   const secondaryGoalOptions = goals.filter(
     (goal) => goal.goalType === "Secondary",
   );
+
+  const loading = skillsLoading;
+
+  const displayedError =
+    errorMsg ||
+    (skillsError
+      ? skillsError.response?.data?.message ||
+        "Unable to load your skills. Please try again."
+      : "") ||
+    (goalsError
+      ? goalsError.response?.data?.message ||
+        "Unable to load your goals. Please try again."
+      : "");
 
   if (loading) {
     return (
@@ -230,11 +226,7 @@ function Skills() {
         <h1>{isGuidedSetup ? journeyTitle : "Skills"}</h1>
 
         {!isGuidedSetup && (
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={openAddSkill}
-          >
+          <button type="button" className="btn-primary" onClick={openAddSkill}>
             + Add Skill
           </button>
         )}
@@ -242,9 +234,9 @@ function Skills() {
 
       {isGuidedSetup && <p className="journey-message">{journeyDescription}</p>}
 
-      {errorMsg && (
+      {displayedError && (
         <div className="skill-error-message" role="alert">
-          {errorMsg}
+          {displayedError}
         </div>
       )}
 
@@ -282,9 +274,9 @@ function Skills() {
         learningAreas={learningAreas}
         setLearningAreas={setLearningAreas}
         practicalRequirements={practicalRequirements}
-        setPracticalRequirements={setPracticalRequirements}
+        setPracticalRequirements={practicalRequirements}
         errorMsg={errorMsg}
-        saving={saving}
+        saving={createSkillMutation.isPending}
       />
 
       <div className="skills-grid">

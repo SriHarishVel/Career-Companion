@@ -1,4 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo, useState } from "react";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import useQueryParams from "../../hooks/useQueryParams";
 
@@ -22,6 +24,8 @@ import ApplicationCard from "./components/ApplicationCard";
 import "./index.css";
 
 function Applications() {
+  const queryClient = useQueryClient();
+
   const { getParam, setParams, clearParams } = useQueryParams();
 
   /* URL filter state */
@@ -37,11 +41,6 @@ function Applications() {
   const [draftStatusFilter, setDraftStatusFilter] = useState(statusFilter);
   const [draftGoalFilter, setDraftGoalFilter] = useState(goalFilter);
   const [draftSortBy, setDraftSortBy] = useState(sortBy);
-
-  /* Data */
-
-  const [applications, setApplications] = useState([]);
-  const [primaryGoalOptions, setPrimaryGoalOptions] = useState([]);
 
   /* Application form */
 
@@ -62,57 +61,78 @@ function Applications() {
 
   /* UI */
 
-  const [loading, setLoading] = useState(true);
-  const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
   /* Load applications */
 
-  useEffect(() => {
-    let cancelled = false;
+  const {
+    data: applications = [],
+    isLoading: applicationsLoading,
+    error: applicationsError,
+  } = useQuery({
+    queryKey: ["applications"],
+    queryFn: getApplications,
+  });
 
-    async function loadApplications() {
-      try {
-        setLoading(true);
-        setErrorMsg("");
+  /* Load primary goals */
 
-        const [applicationData, goalData] = await Promise.all([
-          getApplications(),
-          getGoals({
-            goalType: "Primary",
-          }),
-        ]);
+  const { data: primaryGoalOptions = [], error: goalsError } = useQuery({
+    queryKey: ["goals", "primary"],
+    queryFn: () => getGoals({ goalType: "Primary" }),
+  });
 
-        if (cancelled) {
-          return;
-        }
+  /* Save application */
 
-        setApplications(applicationData);
-        setPrimaryGoalOptions(goalData);
-      } catch (error) {
-        if (cancelled) {
-          return;
-        }
-
-        console.error("Failed to load applications:", error);
-
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load applications. Please try again.",
-        );
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+  const saveApplicationMutation = useMutation({
+    mutationFn: ({ applicationId, payload }) => {
+      if (applicationId) {
+        return updateApplication(applicationId, payload);
       }
-    }
 
-    loadApplications();
+      return createApplication(payload);
+    },
 
-    return () => {
-      cancelled = true;
-    };
-  }, []);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+
+      setShowApplicationForm(false);
+      resetApplicationForm();
+    },
+
+    onError: (error) => {
+      console.error("Failed to save application:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to save the application. Please try again.",
+      );
+    },
+  });
+
+  /* Delete application */
+
+  const deleteApplicationMutation = useMutation({
+    mutationFn: deleteApplication,
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+
+      setShowDeleteModal(false);
+      setApplicationToDeleteId(null);
+    },
+
+    onError: (error) => {
+      console.error("Failed to delete application:", error);
+
+      setErrorMsg(
+        error.response?.data?.message || "Unable to delete the application.",
+      );
+    },
+  });
 
   /* Apply filters */
 
@@ -198,7 +218,7 @@ function Applications() {
   /* Close form */
 
   function closeApplicationForm() {
-    if (saving) {
+    if (saveApplicationMutation.isPending) {
       return;
     }
 
@@ -209,7 +229,7 @@ function Applications() {
 
   /* Save application */
 
-  async function handleApplicationSubmit(event) {
+  function handleApplicationSubmit(event) {
     event.preventDefault();
 
     if (!company.trim() || !role.trim()) {
@@ -217,82 +237,49 @@ function Applications() {
       return;
     }
 
-    try {
-      setSaving(true);
-      setErrorMsg("");
+    setErrorMsg("");
 
-      const payload = {
-        company: company.trim(),
-        role: role.trim(),
-        applicationUrl: applicationUrl.trim(),
-        status,
-        primaryGoal: primaryGoalId || null,
-        appliedDate: appliedDate || null,
-      };
+    const payload = {
+      company: company.trim(),
+      role: role.trim(),
+      applicationUrl: applicationUrl.trim(),
+      status,
+      primaryGoal: primaryGoalId || null,
+      appliedDate: appliedDate || null,
+    };
 
-      if (editingApplicationId) {
-        const updatedApplication = await updateApplication(
-          editingApplicationId,
-          payload,
-        );
-
-        setApplications((current) =>
-          current.map((application) =>
-            application._id === editingApplicationId
-              ? updatedApplication
-              : application,
-          ),
-        );
-      } else {
-        const newApplication = await createApplication(payload);
-
-        setApplications((current) => [newApplication, ...current]);
-      }
-
-      setShowApplicationForm(false);
-      resetApplicationForm();
-    } catch (error) {
-      console.error("Failed to save application:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to save the application. Please try again.",
-      );
-    } finally {
-      setSaving(false);
-    }
+    saveApplicationMutation.mutate({
+      applicationId: editingApplicationId,
+      payload,
+    });
   }
 
   /* Delete application */
 
-  async function handleDeleteApplication() {
-    if (!applicationToDeleteId) {
+  function handleDeleteApplication() {
+    if (!applicationToDeleteId || deleteApplicationMutation.isPending) {
       return;
     }
 
-    try {
-      setErrorMsg("");
+    setErrorMsg("");
 
-      await deleteApplication(applicationToDeleteId);
-
-      setApplications((current) =>
-        current.filter(
-          (application) => application._id !== applicationToDeleteId,
-        ),
-      );
-
-      setShowDeleteModal(false);
-      setApplicationToDeleteId(null);
-    } catch (error) {
-      console.error("Failed to delete application:", error);
-
-      setErrorMsg(
-        error.response?.data?.message || "Unable to delete the application.",
-      );
-    }
+    deleteApplicationMutation.mutate(applicationToDeleteId);
   }
 
   /* Loading */
+
+  const loading = applicationsLoading;
+
+  const displayedError =
+    errorMsg ||
+    (applicationsError
+      ? applicationsError.response?.data?.message ||
+        "Unable to load applications. Please try again."
+      : "") ||
+    (goalsError
+      ? goalsError.response?.data?.message ||
+        "Unable to load primary goals. Please try again."
+      : "");
 
   if (loading) {
     return (
@@ -311,18 +298,14 @@ function Applications() {
           <h1>Applications</h1>
         </div>
 
-        <button
-          type="button"
-          className="btn-primary"
-          onClick={openCreateModal}
-        >
+        <button type="button" className="btn-primary" onClick={openCreateModal}>
           Add Application
         </button>
       </header>
 
-      {errorMsg && (
+      {displayedError && (
         <div className="application-detail-error-message" role="alert">
-          {errorMsg}
+          {displayedError}
         </div>
       )}
 
@@ -372,7 +355,7 @@ function Applications() {
               type="button"
               className="btn-secondary"
               onClick={closeApplicationForm}
-              disabled={saving}
+              disabled={saveApplicationMutation.isPending}
             >
               Cancel
             </button>
@@ -381,9 +364,9 @@ function Applications() {
               type="submit"
               form="application-form"
               className="btn-primary"
-              disabled={saving}
+              disabled={saveApplicationMutation.isPending}
             >
-              {saving
+              {saveApplicationMutation.isPending
                 ? "Saving..."
                 : editingApplicationId
                   ? "Save Changes"

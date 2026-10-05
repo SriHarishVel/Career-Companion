@@ -1,5 +1,8 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
+
 import { useLocation } from "react-router-dom";
+
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import GoalFilters from "./components/GoalFilters";
 import GoalForm from "./components/GoalForm";
@@ -15,6 +18,7 @@ import "./index.css";
 
 function Goals() {
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const { getParam, setParams, clearParams } = useQueryParams();
 
@@ -33,8 +37,6 @@ function Goals() {
   const [filters, setFilters] = useState(initialFilters);
   const [appliedFilters, setAppliedFilters] = useState(initialFilters);
 
-  const [goals, setGoals] = useState([]);
-
   const [newGoal, setNewGoal] = useState("");
   const [newCategory, setNewCategory] = useState("Learning");
   const [newPriority, setNewPriority] = useState("Medium");
@@ -45,62 +47,61 @@ function Goals() {
   const [editingGoalId, setEditingGoalId] = useState(null);
   const [showGoalForm, setShowGoalForm] = useState(false);
 
-  const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    let cancelled = false;
+  const goalQueryParams = {
+    search: appliedFilters.search || undefined,
+    category:
+      appliedFilters.category === "All" ? undefined : appliedFilters.category,
+    priority:
+      appliedFilters.priority === "All" ? undefined : appliedFilters.priority,
+    goalType:
+      appliedFilters.goalType === "All" ? undefined : appliedFilters.goalType,
+    status: appliedFilters.status === "All" ? undefined : appliedFilters.status,
+    sort: appliedFilters.sort === "default" ? undefined : appliedFilters.sort,
+  };
 
-    async function fetchGoals() {
-      try {
-        setLoading(true);
-        setErrorMsg("");
+  const hasGoalFilters = Object.values(goalQueryParams).some(
+    (value) => value !== undefined,
+  );
 
-        const data = await getGoals({
-          search: appliedFilters.search || undefined,
-          category:
-            appliedFilters.category === "All"
-              ? undefined
-              : appliedFilters.category,
-          priority:
-            appliedFilters.priority === "All"
-              ? undefined
-              : appliedFilters.priority,
-          goalType:
-            appliedFilters.goalType === "All"
-              ? undefined
-              : appliedFilters.goalType,
-          status:
-            appliedFilters.status === "All" ? undefined : appliedFilters.status,
-          sort:
-            appliedFilters.sort === "default" ? undefined : appliedFilters.sort,
-        });
+  const {
+    data: goals = [],
+    isLoading: loading,
+    error: goalsError,
+  } = useQuery({
+    queryKey: hasGoalFilters
+      ? ["goals", "filtered", goalQueryParams]
+      : ["goals", "all"],
+    queryFn: () => getGoals(goalQueryParams),
+  });
 
-        if (!cancelled) {
-          setGoals(data);
-        }
-      } catch (error) {
-        if (!cancelled) {
-          console.error("Failed to load goals:", error);
-
-          setErrorMsg(
-            error.response?.data?.message ||
-              "Unable to load your goals. Please try again.",
-          );
-        }
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+  const saveGoalMutation = useMutation({
+    mutationFn: async ({ goalId, goalData }) => {
+      if (goalId) {
+        return updateGoal(goalId, goalData);
       }
-    }
 
-    fetchGoals();
+      return createGoal(goalData);
+    },
 
-    return () => {
-      cancelled = true;
-    };
-  }, [appliedFilters]);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["goals"],
+      });
+
+      closeGoalForm();
+    },
+
+    onError: (error) => {
+      console.error("Failed to save goal:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to save the goal. Please try again.",
+      );
+    },
+  });
 
   const primaryGoals = goals.filter((goal) => goal.goalType === "Primary");
 
@@ -248,24 +249,7 @@ function Goals() {
     }
   }
 
-  async function refreshGoals() {
-    const data = await getGoals({
-      search: appliedFilters.search || undefined,
-      category:
-        appliedFilters.category === "All" ? undefined : appliedFilters.category,
-      priority:
-        appliedFilters.priority === "All" ? undefined : appliedFilters.priority,
-      goalType:
-        appliedFilters.goalType === "All" ? undefined : appliedFilters.goalType,
-      status:
-        appliedFilters.status === "All" ? undefined : appliedFilters.status,
-      sort: appliedFilters.sort === "default" ? undefined : appliedFilters.sort,
-    });
-
-    setGoals(data);
-  }
-
-  async function saveGoal() {
+  function saveGoal() {
     if (!newGoal.trim()) {
       setErrorMsg("Goal title cannot be empty.");
       return;
@@ -276,35 +260,21 @@ function Goals() {
       return;
     }
 
-    try {
-      setErrorMsg("");
+    setErrorMsg("");
 
-      const goalData = {
-        title: newGoal.trim(),
-        category: newCategory,
-        priority: newPriority,
-        goalType: newGoalType,
-        parentGoal: newGoalType === "Secondary" ? parentGoalId : null,
-        deadline: newDeadline || null,
-      };
+    const goalData = {
+      title: newGoal.trim(),
+      category: newCategory,
+      priority: newPriority,
+      goalType: newGoalType,
+      parentGoal: newGoalType === "Secondary" ? parentGoalId : null,
+      deadline: newDeadline || null,
+    };
 
-      if (editingGoalId) {
-        await updateGoal(editingGoalId, goalData);
-      } else {
-        await createGoal(goalData);
-      }
-
-      await refreshGoals();
-
-      closeGoalForm();
-    } catch (error) {
-      console.error("Failed to save goal:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to save the goal. Please try again.",
-      );
-    }
+    saveGoalMutation.mutate({
+      goalId: editingGoalId,
+      goalData,
+    });
   }
 
   const dialogTitle = editingGoalId
@@ -322,6 +292,13 @@ function Goals() {
       : journeyStep?.action === "createSecondaryGoal"
         ? "Create Secondary Goal"
         : "Add Goal";
+
+  const displayedError =
+    errorMsg ||
+    (goalsError
+      ? goalsError.response?.data?.message ||
+        "Unable to load your goals. Please try again."
+      : "");
 
   if (loading) {
     return (
@@ -367,9 +344,9 @@ function Goals() {
         onApplyFilters={applyFilters}
       />
 
-      {errorMsg && !showGoalForm && (
+      {displayedError && !showGoalForm && (
         <p className="error" role="alert">
-          {errorMsg}
+          {displayedError}
         </p>
       )}
 

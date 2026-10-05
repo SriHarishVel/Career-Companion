@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useLocation } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import LoadingState from "../../components/LoadingState";
 import useQueryParams from "../../hooks/useQueryParams";
@@ -21,6 +22,7 @@ import "./index.css";
 
 function Resources() {
   const location = useLocation();
+  const queryClient = useQueryClient();
 
   const { getParam, setParams, clearParams } = useQueryParams();
 
@@ -34,10 +36,6 @@ function Resources() {
   const [filterOption, setFilterOption] = useState(urlType);
   const [skillFilter, setSkillFilter] = useState(urlSkill);
 
-  const [resources, setResources] = useState([]);
-  const [skills, setSkills] = useState([]);
-  const [goals, setGoals] = useState([]);
-
   const [isResourceFormOpen, setIsResourceFormOpen] = useState(false);
 
   const [newTitle, setNewTitle] = useState("");
@@ -48,60 +46,100 @@ function Resources() {
   const [file, setFile] = useState(null);
   const [skillId, setSkillId] = useState("");
 
-  const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
 
-  useEffect(() => {
-    async function fetchResources() {
-      try {
-        setLoading(true);
-        setErrorMsg("");
+  const resourceQueryParams = {
+    search: urlSearch || undefined,
+    favorite: urlType === "Favorites" ? true : undefined,
+    skill: urlSkill === "All" ? undefined : urlSkill,
+    sort: urlSort === "default" ? undefined : urlSort,
+  };
 
-        const data = await getResources({
-          search: urlSearch || undefined,
-          favorite: urlType === "Favorites" ? true : undefined,
-          skill: urlSkill === "All" ? undefined : urlSkill,
-          sort: urlSort === "default" ? undefined : urlSort,
-        });
+  const {
+    data: resources = [],
+    isLoading: resourcesLoading,
+    error: resourcesError,
+  } = useQuery({
+    queryKey: ["resources", resourceQueryParams],
+    queryFn: () => getResources(resourceQueryParams),
+  });
 
-        setResources(data);
-      } catch (error) {
-        console.error("Failed to load resources:", error);
+  const { data: skills = [], error: skillsError } = useQuery({
+    queryKey: ["skills", "all"],
+    queryFn: () => getSkills(),
+  });
 
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load your resources. Please try again.",
-        );
-      } finally {
-        setLoading(false);
+  const { data: goals = [], error: goalsError } = useQuery({
+    queryKey: ["goals", "all"],
+    queryFn: () => getGoals(),
+  });
+
+  const createResourceMutation = useMutation({
+    mutationFn: async () => {
+      const resourceData = {
+        title: newTitle.trim(),
+        skill: skillId || null,
+      };
+
+      const createdResource = await createResource(resourceData);
+
+      const itemFormData = new FormData();
+
+      itemFormData.append("title", newItemTitle.trim());
+      itemFormData.append("type", newType);
+
+      if (source === "external") {
+        const formattedUrl = newUrl.trim().startsWith("http")
+          ? newUrl.trim()
+          : `https://${newUrl.trim()}`;
+
+        itemFormData.append("url", formattedUrl);
+      } else {
+        itemFormData.append("file", file);
       }
-    }
 
-    fetchResources();
-  }, [urlSearch, urlType, urlSkill, urlSort]);
+      await addResourceItem(createdResource._id, itemFormData);
 
-  useEffect(() => {
-    async function fetchSupportingData() {
-      try {
-        const [skillData, goalData] = await Promise.all([
-          getSkills(),
-          getGoals(),
-        ]);
+      return createdResource;
+    },
 
-        setSkills(skillData);
-        setGoals(goalData);
-      } catch (error) {
-        console.error("Failed to load resource data:", error);
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["resources"],
+      });
 
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load resource data. Please try again.",
-        );
-      }
-    }
+      closeResourceForm();
+    },
 
-    fetchSupportingData();
-  }, []);
+    onError: (error) => {
+      console.error("Failed to create resource:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to create the resource. Please try again.",
+      );
+    },
+  });
+
+  const updateResourceMutation = useMutation({
+    mutationFn: ({ resourceId, resourceData }) =>
+      updateResource(resourceId, resourceData),
+
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({
+        queryKey: ["resources"],
+      });
+    },
+
+    onError: (error) => {
+      console.error("Failed to update resource:", error);
+
+      setErrorMsg(
+        error.response?.data?.message ||
+          "Unable to update the resource. Please try again.",
+      );
+    },
+  });
 
   function applyFilters() {
     setParams({
@@ -140,28 +178,6 @@ function Resources() {
     return parentGoal ? parentGoal.title : "";
   }
 
-  async function refreshResources() {
-    try {
-      setErrorMsg("");
-
-      const data = await getResources({
-        search: urlSearch || undefined,
-        favorite: urlType === "Favorites" ? true : undefined,
-        skill: urlSkill === "All" ? undefined : urlSkill,
-        sort: urlSort === "default" ? undefined : urlSort,
-      });
-
-      setResources(data);
-    } catch (error) {
-      console.error("Failed to refresh resources:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to refresh resources. Please try again.",
-      );
-    }
-  }
-
   function resetResourceForm() {
     setNewTitle("");
     setNewItemTitle("");
@@ -183,85 +199,43 @@ function Resources() {
     resetResourceForm();
   }
 
-  async function addResource() {
-    try {
-      setErrorMsg("");
-
-      if (!newTitle.trim()) {
-        setErrorMsg("Resource title is required.");
-        return;
-      }
-
-      if (!newItemTitle.trim()) {
-        setErrorMsg("Resource item title is required.");
-        return;
-      }
-
-      if (source === "external" && !newUrl.trim()) {
-        setErrorMsg("Resource item URL is required.");
-        return;
-      }
-
-      if (source === "upload" && !file) {
-        setErrorMsg("Please select a file.");
-        return;
-      }
-
-      const resourceData = {
-        title: newTitle.trim(),
-        skill: skillId || null,
-      };
-
-      const createdResource = await createResource(resourceData);
-
-      const itemFormData = new FormData();
-
-      itemFormData.append("title", newItemTitle.trim());
-      itemFormData.append("type", newType);
-
-      if (source === "external") {
-        const formattedUrl = newUrl.trim().startsWith("http")
-          ? newUrl.trim()
-          : `https://${newUrl.trim()}`;
-
-        itemFormData.append("url", formattedUrl);
-      } else {
-        itemFormData.append("file", file);
-      }
-
-      await addResourceItem(createdResource._id, itemFormData);
-
-      closeResourceForm();
-      await refreshResources();
-    } catch (error) {
-      console.error("Failed to create resource:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to create the resource. Please try again.",
-      );
+  function addResource() {
+    if (createResourceMutation.isPending) {
+      return;
     }
+
+    if (!newTitle.trim()) {
+      setErrorMsg("Resource title is required.");
+      return;
+    }
+
+    if (!newItemTitle.trim()) {
+      setErrorMsg("Resource item title is required.");
+      return;
+    }
+
+    if (source === "external" && !newUrl.trim()) {
+      setErrorMsg("Resource item URL is required.");
+      return;
+    }
+
+    if (source === "upload" && !file) {
+      setErrorMsg("Please select a file.");
+      return;
+    }
+
+    setErrorMsg("");
+
+    createResourceMutation.mutate();
   }
 
   async function handleUpdateResource(resourceId, resourceData) {
-    try {
-      setErrorMsg("");
+    setErrorMsg("");
 
-      const updatedResource = await updateResource(resourceId, resourceData);
-
-      await refreshResources();
-
-      return updatedResource;
-    } catch (error) {
-      console.error("Failed to update resource:", error);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Unable to update the resource. Please try again.",
-      );
-
-      throw error;
-    }
+    return updateResourceMutation.mutateAsync({
+      resourceId,
+      resourceData,
+    });
   }
 
   async function handleToggleFavorite(resourceId) {
@@ -271,10 +245,31 @@ function Resources() {
       return;
     }
 
-    await handleUpdateResource(resourceId, {
-      favorite: !resource.favorite,
-    });
+    try {
+      await handleUpdateResource(resourceId, {
+        favorite: !resource.favorite,
+      });
+    } catch {
+      // Error is already handled by the mutation.
+    }
   }
+
+  const loading = resourcesLoading;
+
+  const displayedError =
+    errorMsg ||
+    (resourcesError
+      ? resourcesError.response?.data?.message ||
+        "Unable to load your resources. Please try again."
+      : "") ||
+    (skillsError
+      ? skillsError.response?.data?.message ||
+        "Unable to load your skills. Please try again."
+      : "") ||
+    (goalsError
+      ? goalsError.response?.data?.message ||
+        "Unable to load your goals. Please try again."
+      : "");
 
   if (loading) {
     return (
@@ -300,9 +295,9 @@ function Resources() {
         </button>
       </div>
 
-      {errorMsg && (
+      {displayedError && (
         <div className="resource-error-message" role="alert">
-          {errorMsg}
+          {displayedError}
         </div>
       )}
 
