@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   getResource,
@@ -22,63 +23,80 @@ import "./index.css";
 function ResourceDetail() {
   const { resourceId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [resource, setResource] = useState(null);
-  const [skills, setSkills] = useState([]);
-
-  const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
   const [successMsg, setSuccessMsg] = useState("");
-  const [deleting, setDeleting] = useState(false);
 
-  useEffect(() => {
-    if (!resourceId) {
-      return;
-    }
+  const {
+    data: resource,
+    isLoading: resourceLoading,
+    error: resourceError,
+  } = useQuery({
+    queryKey: ["resources", resourceId],
+    queryFn: () => getResource(resourceId),
+    enabled: Boolean(resourceId),
+  });
 
-    let cancelled = false;
+  const {
+    data: skillsData,
+    isLoading: skillsLoading,
+    error: skillsError,
+  } = useQuery({
+    queryKey: ["skills", "all"],
+    queryFn: getSkills,
+  });
 
-    async function loadResourceDetail() {
-      try {
-        setLoading(true);
-        setErrorMsg("");
-        setSuccessMsg("");
+  const skills = useMemo(() => {
+    return skillsData?.skills || skillsData || [];
+  }, [skillsData]);
 
-        const [resourceData, skillData] = await Promise.all([
-          getResource(resourceId),
-          getSkills(),
-        ]);
+  const updateResourceMutation = useMutation({
+    mutationFn: ({ id, data }) => updateResource(id, data),
 
-        if (cancelled) {
-          return;
-        }
-
-        setResource(resourceData);
-        setSkills(skillData?.skills || skillData || []);
-      } catch (error) {
-        if (cancelled) {
-          return;
-        }
-
-        console.error("Failed to load resource details:", error);
-
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load this resource. Please try again.",
-        );
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+    onSuccess: (updatedResource) => {
+      if (!updatedResource?._id) {
+        return;
       }
-    }
 
-    loadResourceDetail();
+      queryClient.setQueryData(
+        ["resources", updatedResource._id],
+        updatedResource,
+      );
 
-    return () => {
-      cancelled = true;
-    };
-  }, [resourceId]);
+      queryClient.invalidateQueries({
+        queryKey: ["resources"],
+      });
+    },
+
+    onError: (error) => {
+      console.error("Failed to update resource:", error);
+    },
+  });
+
+  const deleteResourceMutation = useMutation({
+    mutationFn: (id) => deleteResource(id),
+
+    onSuccess: (_, deletedResourceId) => {
+      queryClient.removeQueries({
+        queryKey: ["resources", deletedResourceId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["resources"],
+      });
+
+      navigate("/resources");
+    },
+
+    onError: (error) => {
+      console.error("Failed to delete resource:", error);
+    },
+  });
+
+  const loading = resourceLoading || skillsLoading;
+
+  const queryError = resourceError || skillsError;
 
   useEffect(() => {
     if (!successMsg) {
@@ -98,29 +116,22 @@ function ResourceDetail() {
     navigate("/resources");
   };
 
-  const handleResourceUpdated = async (updatedResource) => {
+  const handleResourceUpdated = (updatedResource) => {
     if (!updatedResource?._id) {
       return;
     }
 
-    try {
-      setErrorMsg("");
-      setSuccessMsg("");
+    queryClient.setQueryData(
+      ["resources", updatedResource._id],
+      updatedResource,
+    );
 
-      const freshResource = await getResource(updatedResource._id);
+    queryClient.invalidateQueries({
+      queryKey: ["resources"],
+    });
 
-      setResource(freshResource || updatedResource);
-      setSuccessMsg("Resource updated successfully.");
-    } catch (error) {
-      console.error("Failed to refresh resource:", error);
-
-      setResource(updatedResource);
-
-      setErrorMsg(
-        error.response?.data?.message ||
-          "Resource was updated, but the latest data could not be loaded.",
-      );
-    }
+    setErrorMsg("");
+    setSuccessMsg("Resource updated successfully.");
   };
 
   const handleSaveDescription = async (description) => {
@@ -132,13 +143,18 @@ function ResourceDetail() {
       setErrorMsg("");
       setSuccessMsg("");
 
-      const updatedResource = await updateResource(resource._id, {
-        description,
+      const updatedResource = await updateResourceMutation.mutateAsync({
+        id: resource._id,
+        data: {
+          description,
+        },
       });
 
-      await handleResourceUpdated(updatedResource);
+      handleResourceUpdated(updatedResource);
     } catch (error) {
-      console.error("Failed to update resource notes:", error);
+      setErrorMsg(
+        error.response?.data?.message || "Unable to update resource notes.",
+      );
 
       throw error;
     }
@@ -153,14 +169,15 @@ function ResourceDetail() {
       setErrorMsg("");
       setSuccessMsg("");
 
-      const updatedResource = await updateResource(resource._id, {
-        favorite: !resource.favorite,
+      const updatedResource = await updateResourceMutation.mutateAsync({
+        id: resource._id,
+        data: {
+          favorite: !resource.favorite,
+        },
       });
 
-      await handleResourceUpdated(updatedResource);
+      handleResourceUpdated(updatedResource);
     } catch (error) {
-      console.error("Failed to update favorite:", error);
-
       setErrorMsg(
         error.response?.data?.message || "Unable to update favorite status.",
       );
@@ -176,14 +193,15 @@ function ResourceDetail() {
       setErrorMsg("");
       setSuccessMsg("");
 
-      const updatedResource = await updateResource(resource._id, {
-        completed: !resource.completed,
+      const updatedResource = await updateResourceMutation.mutateAsync({
+        id: resource._id,
+        data: {
+          completed: !resource.completed,
+        },
       });
 
-      await handleResourceUpdated(updatedResource);
+      handleResourceUpdated(updatedResource);
     } catch (error) {
-      console.error("Failed to update resource completion:", error);
-
       setErrorMsg(
         error.response?.data?.message ||
           "Unable to update resource completion.",
@@ -192,28 +210,25 @@ function ResourceDetail() {
   };
 
   const handleDelete = async () => {
-    if (!resource || deleting) {
+    if (!resource || deleteResourceMutation.isPending) {
       return;
     }
 
     try {
-      setDeleting(true);
       setErrorMsg("");
       setSuccessMsg("");
 
-      await deleteResource(resource._id);
-
-      navigate("/resources");
+      await deleteResourceMutation.mutateAsync(resource._id);
     } catch (error) {
-      console.error("Failed to delete resource:", error);
-
       setErrorMsg(
         error.response?.data?.message || "Failed to delete resource.",
       );
-
-      setDeleting(false);
     }
   };
+
+  if (!resourceId) {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -223,7 +238,11 @@ function ResourceDetail() {
     );
   }
 
-  if (errorMsg && !resource) {
+  if (queryError || !resource) {
+    const message =
+      queryError?.response?.data?.message ||
+      "Unable to load this resource. Please try again.";
+
     return (
       <div className="container resource-detail-page">
         <div className="resource-detail-topbar">
@@ -240,18 +259,22 @@ function ResourceDetail() {
         <div className="resource-detail-error">
           <h1>Unable to load resource</h1>
 
-          <p>{errorMsg}</p>
+          <p>{message}</p>
 
-          <button type="button" className="btn-secondary" onClick={handleBack}>
-            Back to Resources
+          <button
+            type="button"
+            className="btn-secondary"
+            onClick={() =>
+              queryClient.invalidateQueries({
+                queryKey: ["resources", resourceId],
+              })
+            }
+          >
+            Try Again
           </button>
         </div>
       </div>
     );
-  }
-
-  if (!resource) {
-    return null;
   }
 
   return (
@@ -308,7 +331,7 @@ function ResourceDetail() {
           skills={skills}
           onResourceUpdated={handleResourceUpdated}
           onDelete={handleDelete}
-          deleting={deleting}
+          deleting={deleteResourceMutation.isPending}
         />
       </main>
     </div>

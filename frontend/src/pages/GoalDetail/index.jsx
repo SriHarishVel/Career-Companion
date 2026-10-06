@@ -1,5 +1,6 @@
-import { useEffect, useMemo, useState } from "react";
+import { useMemo } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { getGoal, getGoals, deleteGoal } from "../../services/goalService";
 
@@ -18,63 +19,70 @@ import "./index.css";
 function GoalDetail() {
   const { goalId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [goal, setGoal] = useState(null);
-  const [allGoals, setAllGoals] = useState([]);
-  const [allSkills, setAllSkills] = useState([]);
-  const [relatedApplications, setRelatedApplications] = useState([]);
+  const {
+    data: goal,
+    isLoading: goalLoading,
+    error: goalError,
+  } = useQuery({
+    queryKey: ["goals", goalId],
+    queryFn: () => getGoal(goalId),
+    enabled: Boolean(goalId),
+  });
 
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  const {
+    data: allGoals = [],
+    isLoading: goalsLoading,
+    error: goalsError,
+  } = useQuery({
+    queryKey: ["goals", "all"],
+    queryFn: getGoals,
+  });
 
-  const [deleting, setDeleting] = useState(false);
-  const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const {
+    data: allSkills = [],
+    isLoading: skillsLoading,
+    error: skillsError,
+  } = useQuery({
+    queryKey: ["skills", "all"],
+    queryFn: getSkills,
+  });
 
-  useEffect(() => {
-    async function loadGoalDetail() {
-      if (!goalId) {
-        setLoading(false);
-        setErrorMsg("Invalid goal.");
-        return;
-      }
+  const {
+    data: relatedApplications = [],
+    isLoading: applicationsLoading,
+    error: applicationsError,
+  } = useQuery({
+    queryKey: ["applications", { primaryGoal: goalId }],
+    queryFn: () => getApplications({ primaryGoal: goalId }),
+    enabled: Boolean(goalId),
+  });
 
-      try {
-        setLoading(true);
-        setErrorMsg("");
+  const deleteGoalMutation = useMutation({
+    mutationFn: () => deleteGoal(goal._id),
 
-        const [goalData, goalsData, skillsData, applicationsData] =
-          await Promise.all([
-            getGoal(goalId),
-            getGoals(),
-            getSkills(),
-            getApplications({ primaryGoal: goalId }),
-          ]);
+    onSuccess: async () => {
+      queryClient.removeQueries({
+        queryKey: ["goals", goalId],
+      });
 
-        setGoal(goalData);
-        setAllGoals(goalsData);
-        setAllSkills(skillsData);
-        setRelatedApplications(
-          Array.isArray(applicationsData) ? applicationsData : [],
-        );
-      } catch (error) {
-        console.error("Failed to load goal details:", error);
+      await queryClient.invalidateQueries({
+        queryKey: ["goals"],
+      });
 
-        setGoal(null);
-        setAllGoals([]);
-        setAllSkills([]);
-        setRelatedApplications([]);
+      navigate("/goals");
+    },
 
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load this goal. Please try again.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
+    onError: (error) => {
+      console.error("Failed to delete goal:", error);
+    },
+  });
 
-    loadGoalDetail();
-  }, [goalId]);
+  const loading =
+    goalLoading || goalsLoading || skillsLoading || applicationsLoading;
+
+  const error = goalError || goalsError || skillsError || applicationsError;
 
   const primaryGoals = useMemo(() => {
     return allGoals.filter(
@@ -180,59 +188,57 @@ function GoalDetail() {
           : "on-track";
 
   function handleGoalUpdated(updatedGoal) {
-    setGoal(updatedGoal);
+    if (!updatedGoal) {
+      return;
+    }
 
-    setAllGoals((previousGoals) =>
-      previousGoals.map((item) =>
+    queryClient.setQueryData(["goals", goalId], updatedGoal);
+
+    queryClient.setQueryData(["goals", "all"], (currentGoals = []) =>
+      currentGoals.map((item) =>
         item._id === updatedGoal._id ? updatedGoal : item,
       ),
     );
-
-    setErrorMsg("");
   }
 
   function handleDelete() {
-    if (!goal || deleting) {
+    if (!goal || deleteGoalMutation.isPending) {
       return;
     }
 
-    setShowDeleteModal(true);
-  }
-
-  function handleCancelDelete() {
-    if (deleting) {
-      return;
-    }
-
-    setShowDeleteModal(false);
-  }
-
-  async function handleConfirmDelete() {
-    if (!goal || deleting) {
-      return;
-    }
-
-    try {
-      setDeleting(true);
-      setErrorMsg("");
-
-      await deleteGoal(goal._id);
-
-      setShowDeleteModal(false);
-
-      navigate("/goals");
-    } catch (error) {
-      console.error("Failed to delete goal:", error);
-
-      setErrorMsg(error.response?.data?.message || "Failed to delete goal.");
-
-      setDeleting(false);
-      setShowDeleteModal(false);
-    }
+    deleteGoalMutation.mutate();
   }
 
   function handleBackToGoals() {
     navigate("/goals");
+  }
+
+  if (!goalId) {
+    return (
+      <div className="container goal-detail-page">
+        <button
+          type="button"
+          className="goal-detail-back-btn"
+          onClick={handleBackToGoals}
+        >
+          Back to Goals
+        </button>
+
+        <div className="goal-detail-error">
+          <h1>Unable to load goal</h1>
+
+          <p>Invalid goal.</p>
+
+          <button
+            type="button"
+            className="goal-action-secondary"
+            onClick={handleBackToGoals}
+          >
+            Back to Goals
+          </button>
+        </div>
+      </div>
+    );
   }
 
   if (loading) {
@@ -243,7 +249,11 @@ function GoalDetail() {
     );
   }
 
-  if (errorMsg && !goal) {
+  if (error || !goal) {
+    const errorMsg =
+      error?.response?.data?.message ||
+      "Unable to load this goal. Please try again.";
+
     return (
       <div className="container goal-detail-page">
         <button
@@ -262,17 +272,17 @@ function GoalDetail() {
           <button
             type="button"
             className="goal-action-secondary"
-            onClick={handleBackToGoals}
+            onClick={() =>
+              queryClient.invalidateQueries({
+                queryKey: ["goals", goalId],
+              })
+            }
           >
-            Back to Goals
+            Try Again
           </button>
         </div>
       </div>
     );
-  }
-
-  if (!goal) {
-    return null;
   }
 
   return (
@@ -290,12 +300,6 @@ function GoalDetail() {
           <span>Goals</span>
         </button>
       </div>
-
-      {errorMsg && (
-        <div className="goal-detail-error-message" role="alert">
-          {errorMsg}
-        </div>
-      )}
 
       <main className="goal-detail-content">
         <GoalOverview
@@ -320,16 +324,16 @@ function GoalDetail() {
           primaryGoals={primaryGoals}
           onGoalUpdated={handleGoalUpdated}
           onDelete={handleDelete}
-          deleting={deleting}
+          deleting={deleteGoalMutation.isPending}
         />
       </main>
 
       <ConfirmModal
-        isOpen={showDeleteModal}
+        isOpen={deleteGoalMutation.isPending}
         title="Delete Goal?"
         message={`Are you sure you want to delete "${goal.title}"? This action cannot be undone.`}
-        onConfirm={handleConfirmDelete}
-        onCancel={handleCancelDelete}
+        onConfirm={handleDelete}
+        onCancel={() => {}}
       />
     </div>
   );

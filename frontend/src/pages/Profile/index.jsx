@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   getProfile,
@@ -20,8 +21,7 @@ import "./index.css";
 
 function Profile() {
   const navigate = useNavigate();
-
-  const [profile, setProfile] = useState(null);
+  const queryClient = useQueryClient();
 
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
@@ -38,31 +38,57 @@ function Profile() {
   const [profileError, setProfileError] = useState("");
   const [passwordError, setPasswordError] = useState("");
 
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const {
+    data: profile,
+    isLoading: loading,
+    error: profileQueryError,
+  } = useQuery({
+    queryKey: ["profile"],
+    queryFn: getProfile,
+  });
 
-  useEffect(() => {
-    async function fetchProfile() {
-      try {
-        setLoading(true);
-        setError("");
+  const updateProfileMutation = useMutation({
+    mutationFn: updateProfile,
 
-        const user = await getProfile();
+    onSuccess: (updatedUser) => {
+      queryClient.setQueryData(["profile"], updatedUser);
 
-        setProfile(user);
-        setFullName(user.fullName || "");
-        setEmail(user.email || "");
-      } catch (error) {
-        console.error("Failed to load profile:", error);
+      setFullName(updatedUser.fullName || "");
+      setEmail(updatedUser.email || "");
 
-        setError("Unable to load your profile. Please try again.");
-      } finally {
-        setLoading(false);
-      }
-    }
+      setProfileSuccess("Profile updated successfully.");
+      setShowEditModal(false);
+    },
 
-    fetchProfile();
-  }, []);
+    onError: (error) => {
+      console.error("Failed to update profile:", error);
+
+      setProfileError(
+        error.response?.data?.message ||
+          "Unable to update your profile. Please try again.",
+      );
+    },
+  });
+
+  const changePasswordMutation = useMutation({
+    mutationFn: changePassword,
+
+    onSuccess: () => {
+      setCurrentPassword("");
+      setNewPassword("");
+
+      setPasswordSuccess("Password updated successfully.");
+    },
+
+    onError: (error) => {
+      console.error("Failed to change password:", error);
+
+      setPasswordError(
+        error.response?.data?.message ||
+          "Unable to change your password. Please try again.",
+      );
+    },
+  });
 
   useEffect(() => {
     if (!profileSuccess) {
@@ -89,64 +115,46 @@ function Profile() {
   }, [passwordSuccess]);
 
   async function saveProfile() {
-    try {
-      setProfileError("");
+    setProfileError("");
 
-      const updatedUser = await updateProfile({
-        fullName,
-        email,
-      });
+    const result = await updateProfileMutation.mutateAsync({
+      fullName,
+      email,
+    });
 
-      setProfile(updatedUser);
-      setFullName(updatedUser.fullName || "");
-      setEmail(updatedUser.email || "");
-
-      setProfileSuccess("Profile updated successfully.");
-      setShowEditModal(false);
-
-      return true;
-    } catch (error) {
-      console.error("Failed to update profile:", error);
-
-      setProfileError(
-        error.response?.data?.message ||
-          "Unable to update your profile. Please try again.",
-      );
-
-      return false;
-    }
+    return Boolean(result);
   }
 
   async function updateUserPassword() {
-    try {
-      setPasswordError("");
+    setPasswordError("");
 
-      await changePassword({
-        currentPassword,
-        newPassword,
-      });
+    const result = await changePasswordMutation.mutateAsync({
+      currentPassword,
+      newPassword,
+    });
 
-      setCurrentPassword("");
-      setNewPassword("");
-
-      setPasswordSuccess("Password updated successfully.");
-
-      return true;
-    } catch (error) {
-      console.error("Failed to change password:", error);
-
-      setPasswordError(
-        error.response?.data?.message ||
-          "Unable to change your password. Please try again.",
-      );
-
-      return false;
-    }
+    return Boolean(result);
   }
 
   function handleLogout() {
     logout();
+
+    queryClient.removeQueries({
+      queryKey: ["profile"],
+    });
+
     navigate("/login");
+  }
+
+  function handleEditModalChange(value) {
+    setProfileError("");
+
+    if (value) {
+      setFullName(profile.fullName || "");
+      setEmail(profile.email || "");
+    }
+
+    setShowEditModal(value);
   }
 
   if (loading) {
@@ -163,12 +171,20 @@ function Profile() {
         <div className="profile-error-state">
           <h1>Unable to load profile</h1>
 
-          <p>{error || "Something went wrong while loading your profile."}</p>
+          <p>
+            {profileQueryError
+              ? "Unable to load your profile. Please try again."
+              : "Something went wrong while loading your profile."}
+          </p>
 
           <button
             type="button"
             className="btn-primary"
-            onClick={() => window.location.reload()}
+            onClick={() =>
+              queryClient.invalidateQueries({
+                queryKey: ["profile"],
+              })
+            }
           >
             Try Again
           </button>
@@ -190,7 +206,11 @@ function Profile() {
 
   return (
     <div className="container profile-container">
-      {error && <div className="profile-error">{error}</div>}
+      {profileQueryError && (
+        <div className="profile-error">
+          Unable to refresh your profile information.
+        </div>
+      )}
 
       {profileSuccess && (
         <div className="profile-success">{profileSuccess}</div>
@@ -204,10 +224,7 @@ function Profile() {
         profile={profile}
         initials={initials}
         firstName={firstName}
-        setShowEditModal={(value) => {
-          setProfileError("");
-          setShowEditModal(value);
-        }}
+        setShowEditModal={handleEditModalChange}
       />
 
       <div className="profile-content-grid">
@@ -218,7 +235,7 @@ function Profile() {
           setFullName={setFullName}
           setEmail={setEmail}
           showEditModal={showEditModal}
-          setShowEditModal={setShowEditModal}
+          setShowEditModal={handleEditModalChange}
           saveProfile={saveProfile}
           profileError={profileError}
           setProfileError={setProfileError}

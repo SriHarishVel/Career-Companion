@@ -1,5 +1,6 @@
-import { useEffect, useState } from "react";
+import { useMemo, useState } from "react";
 import { useNavigate, useParams } from "react-router-dom";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
   getSkill,
@@ -24,93 +25,107 @@ import "./index.css";
 function SkillDetail() {
   const { skillId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  /* DATA */
-
-  const [skill, setSkill] = useState(null);
-  const [resources, setResources] = useState([]);
-  const [goals, setGoals] = useState([]);
-
-  /* PAGE STATE */
-
-  const [loading, setLoading] = useState(true);
   const [errorMsg, setErrorMsg] = useState("");
-  const [deleting, setDeleting] = useState(false);
-  const [updatingRequirement, setUpdatingRequirement] = useState(false);
-
   const [showDeleteModal, setShowDeleteModal] = useState(false);
 
-  /* LOAD DETAIL */
+  const skillQuery = useQuery({
+    queryKey: ["skills", skillId],
+    queryFn: () => getSkill(skillId),
+    enabled: Boolean(skillId),
+  });
 
-  useEffect(() => {
-    async function loadSkillDetail() {
-      try {
-        setLoading(true);
-        setErrorMsg("");
+  const resourcesQuery = useQuery({
+    queryKey: ["resources", { skill: skillId }],
+    queryFn: () =>
+      getResources({
+        skill: skillId,
+      }),
+    enabled: Boolean(skillId),
+  });
 
-        const [skillData, resourceData, goalData] = await Promise.all([
-          getSkill(skillId),
-          getResources({
-            skill: skillId,
-          }),
-          getGoals({
-            goalType: "Secondary",
-          }),
-        ]);
+  const goalsQuery = useQuery({
+    queryKey: ["goals", "secondary"],
+    queryFn: () =>
+      getGoals({
+        goalType: "Secondary",
+      }),
+  });
 
-        setSkill(skillData);
-        setResources(resourceData);
-        setGoals(goalData);
-      } catch (error) {
-        console.error("Failed to load skill details:", error);
+  const updateSkillMutation = useMutation({
+    mutationFn: ({ id, data }) => updateSkill(id, data),
 
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load this skill. Please try again.",
-        );
-      } finally {
-        setLoading(false);
+    onSuccess: (updatedSkill) => {
+      if (!updatedSkill?._id) {
+        return;
       }
+
+      queryClient.setQueryData(["skills", updatedSkill._id], updatedSkill);
+
+      queryClient.invalidateQueries({
+        queryKey: ["skills"],
+      });
+    },
+
+    onError: (error) => {
+      console.error("Failed to update skill:", error);
+    },
+  });
+
+  const deleteSkillMutation = useMutation({
+    mutationFn: (id) => deleteSkill(id),
+
+    onSuccess: (_, deletedSkillId) => {
+      queryClient.removeQueries({
+        queryKey: ["skills", deletedSkillId],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["skills"],
+      });
+
+      queryClient.invalidateQueries({
+        queryKey: ["resources"],
+      });
+
+      navigate("/skills");
+    },
+
+    onError: (error) => {
+      console.error("Failed to delete skill:", error);
+    },
+  });
+
+  const skill = skillQuery.data;
+  const resources = useMemo(
+    () => resourcesQuery.data || [],
+    [resourcesQuery.data],
+  );
+  const goals = useMemo(() => goalsQuery.data || [], [goalsQuery.data]);
+
+  const loading =
+    skillQuery.isLoading || resourcesQuery.isLoading || goalsQuery.isLoading;
+
+  const queryError =
+    skillQuery.error || resourcesQuery.error || goalsQuery.error;
+
+  const updatingRequirement = updateSkillMutation.isPending;
+  const deleting = deleteSkillMutation.isPending;
+
+  const handleSkillUpdated = (updatedSkill) => {
+    if (!updatedSkill?._id) {
+      return;
     }
 
-    if (skillId) {
-      loadSkillDetail();
-    }
-  }, [skillId]);
+    queryClient.setQueryData(["skills", updatedSkill._id], updatedSkill);
 
-  /* REFRESH SKILL AND RESOURCES */
+    queryClient.invalidateQueries({
+      queryKey: ["skills"],
+    });
 
-  const handleSkillUpdated = async (updatedSkill) => {
-    try {
-      setErrorMsg("");
-
-      const [freshSkill, freshResources] = await Promise.all([
-        getSkill(updatedSkill._id),
-        getResources({
-          skill: updatedSkill._id,
-        }),
-      ]);
-
-      setSkill(freshSkill || updatedSkill);
-      setResources(freshResources);
-    } catch (error) {
-      console.error("Failed to refresh skill details:", error);
-
-      setSkill(updatedSkill);
-
-      try {
-        const freshResources = await getResources({
-          skill: updatedSkill._id,
-        });
-
-        setResources(freshResources);
-      } catch (resourceError) {
-        console.error("Failed to refresh skill resources:", resourceError);
-      }
-    }
+    setErrorMsg("");
   };
-
-  /* REQUIREMENT UPDATE */
 
   const handleRequirementUpdate = async (type, index) => {
     if (!skill || updatingRequirement) {
@@ -118,7 +133,6 @@ function SkillDetail() {
     }
 
     const learningAreas = [...(skill.learningAreas || [])];
-
     const practicalRequirements = [...(skill.practicalRequirements || [])];
 
     if (type === "learning") {
@@ -144,27 +158,23 @@ function SkillDetail() {
     }
 
     try {
-      setUpdatingRequirement(true);
       setErrorMsg("");
 
-      const updatedSkill = await updateSkill(skill._id, {
-        learningAreas,
-        practicalRequirements,
+      const updatedSkill = await updateSkillMutation.mutateAsync({
+        id: skill._id,
+        data: {
+          learningAreas,
+          practicalRequirements,
+        },
       });
 
-      setSkill(updatedSkill);
+      handleSkillUpdated(updatedSkill);
     } catch (error) {
-      console.error("Failed to update requirement:", error);
-
       setErrorMsg(
         error.response?.data?.message || "Unable to update the requirement.",
       );
-    } finally {
-      setUpdatingRequirement(false);
     }
   };
-
-  /* ADD REQUIREMENT */
 
   const handleAddLearningArea = async (name) => {
     if (!skill || updatingRequirement) {
@@ -179,25 +189,23 @@ function SkillDetail() {
     });
 
     try {
-      setUpdatingRequirement(true);
       setErrorMsg("");
 
-      const updatedSkill = await updateSkill(skill._id, {
-        learningAreas,
-        practicalRequirements: skill.practicalRequirements || [],
+      const updatedSkill = await updateSkillMutation.mutateAsync({
+        id: skill._id,
+        data: {
+          learningAreas,
+          practicalRequirements: skill.practicalRequirements || [],
+        },
       });
 
-      setSkill(updatedSkill);
+      handleSkillUpdated(updatedSkill);
     } catch (error) {
-      console.error("Failed to add learning area:", error);
-
       setErrorMsg(
         error.response?.data?.message || "Unable to add the learning area.",
       );
 
       throw error;
-    } finally {
-      setUpdatingRequirement(false);
     }
   };
 
@@ -214,40 +222,34 @@ function SkillDetail() {
     });
 
     try {
-      setUpdatingRequirement(true);
       setErrorMsg("");
 
-      const updatedSkill = await updateSkill(skill._id, {
-        learningAreas: skill.learningAreas || [],
-        practicalRequirements,
+      const updatedSkill = await updateSkillMutation.mutateAsync({
+        id: skill._id,
+        data: {
+          learningAreas: skill.learningAreas || [],
+          practicalRequirements,
+        },
       });
 
-      setSkill(updatedSkill);
+      handleSkillUpdated(updatedSkill);
     } catch (error) {
-      console.error("Failed to add practical requirement:", error);
-
       setErrorMsg(
         error.response?.data?.message ||
           "Unable to add the practical requirement.",
       );
 
       throw error;
-    } finally {
-      setUpdatingRequirement(false);
     }
   };
-
-  /* REFRESH RESOURCES */
 
   const handleResourcesUpdated = async () => {
     try {
       setErrorMsg("");
 
-      const updatedResources = await getResources({
-        skill: skillId,
+      await queryClient.invalidateQueries({
+        queryKey: ["resources", { skill: skillId }],
       });
-
-      setResources(updatedResources);
     } catch (error) {
       console.error("Failed to refresh resources:", error);
 
@@ -258,31 +260,23 @@ function SkillDetail() {
     }
   };
 
-  /* DELETE */
-
   const handleDelete = async () => {
     if (!skill || deleting) {
       return;
     }
 
     try {
-      setDeleting(true);
       setErrorMsg("");
 
-      await deleteSkill(skill._id);
+      await deleteSkillMutation.mutateAsync(skill._id);
 
-      navigate("/skills");
+      setShowDeleteModal(false);
     } catch (error) {
-      console.error("Failed to delete skill:", error);
-
       setErrorMsg(error.response?.data?.message || "Failed to delete skill.");
 
-      setDeleting(false);
       setShowDeleteModal(false);
     }
   };
-
-  /* MANAGE RESOURCES */
 
   const handleManageResources = () => {
     if (!skill) {
@@ -296,7 +290,9 @@ function SkillDetail() {
     });
   };
 
-  /* LOADING */
+  if (!skillId) {
+    return null;
+  }
 
   if (loading) {
     return (
@@ -306,9 +302,11 @@ function SkillDetail() {
     );
   }
 
-  /* ERROR */
+  if (queryError || !skill) {
+    const message =
+      queryError?.response?.data?.message ||
+      "Unable to load this skill. Please try again.";
 
-  if (errorMsg && !skill) {
     return (
       <div className="container skill-detail-page">
         <div className="skill-detail-topbar">
@@ -325,25 +323,23 @@ function SkillDetail() {
         <div className="skill-detail-error">
           <h1>Unable to load skill</h1>
 
-          <p>{errorMsg}</p>
+          <p>{message}</p>
 
           <button
             type="button"
             className="skill-action-secondary"
-            onClick={() => navigate("/skills")}
+            onClick={() =>
+              queryClient.invalidateQueries({
+                queryKey: ["skills", skillId],
+              })
+            }
           >
-            Back to Skills
+            Try Again
           </button>
         </div>
       </div>
     );
   }
-
-  if (!skill) {
-    return null;
-  }
-
-  /* RESOURCE PROGRESS */
 
   const completedResources = resources.filter(
     (resource) => resource.completed,
@@ -353,10 +349,7 @@ function SkillDetail() {
     ? Math.round((completedResources / resources.length) * 100)
     : 0;
 
-  /* REQUIREMENT PROGRESS */
-
   const learningAreas = skill.learningAreas || [];
-
   const practicalRequirements = skill.practicalRequirements || [];
 
   const completedLearningAreas = learningAreas.filter(
@@ -377,12 +370,8 @@ function SkillDetail() {
       )
     : 0;
 
-  /* PAGE */
-
   return (
     <div className="container skill-detail-page">
-      {/* TOP NAVIGATION */}
-
       <div className="skill-detail-topbar">
         <button
           type="button"
@@ -394,15 +383,11 @@ function SkillDetail() {
         </button>
       </div>
 
-      {/* ERROR */}
-
       {errorMsg && (
         <div className="skill-detail-error-message" role="alert">
           {errorMsg}
         </div>
       )}
-
-      {/* CONTENT */}
 
       <main className="skill-detail-content">
         <SkillOverview skill={skill} />

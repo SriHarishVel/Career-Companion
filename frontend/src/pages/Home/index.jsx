@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 import { useNavigate } from "react-router-dom";
 
 import { journeyService } from "../../services/journeyService";
@@ -11,37 +11,18 @@ import TodaysFocus from "./components/TodaysFocus";
 import "./index.css";
 
 function Home() {
-
   const navigate = useNavigate();
 
-  const [journey, setJourney] = useState(null);
-  const [journeyStep, setJourneyStep] = useState(null);
+  const {
+    data: journey,
+    isLoading: loading,
+    error: journeyError,
+  } = useQuery({
+    queryKey: ["journey"],
+    queryFn: journeyService.getJourney,
+  });
 
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    const loadJourney = async () => {
-        try {
-            setLoading(true);
-
-            const journeyData =
-                await journeyService.getJourney();
-
-            setJourney(journeyData);
-            setJourneyStep(journeyData.nextStep);
-
-        } catch (error) {
-            console.error(
-                "Failed to load career journey:",
-                error
-            );
-        } finally {
-            setLoading(false);
-        }
-    };
-
-    loadJourney();
-}, []);
+  const journeyStep = journey?.nextStep;
 
   if (loading) {
     return (
@@ -53,7 +34,7 @@ function Home() {
     );
   }
 
-  if (!journey || !journeyStep) {
+  if (journeyError || !journey || !journeyStep) {
     return (
       <div className="container">
         <h1>Home</h1>

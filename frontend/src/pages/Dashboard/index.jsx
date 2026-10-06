@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 import { getGoals } from "../../services/goalService";
 import { getSkills } from "../../services/skillService";
@@ -22,68 +22,76 @@ import FollowUpReminders from "./components/FollowUpReminders";
 import "./index.css";
 
 function Dashboard() {
-  const [goals, setGoals] = useState([]);
-  const [skills, setSkills] = useState([]);
-  const [resources, setResources] = useState([]);
-  const [applications, setApplications] = useState([]);
-
-  const [followUpReminders, setFollowUpReminders] = useState({
-    overdue: [],
-    today: [],
-    upcoming: [],
+  const {
+    data: goals = [],
+    isLoading: goalsLoading,
+    error: goalsError,
+  } = useQuery({
+    queryKey: ["goals", "all"],
+    queryFn: getGoals,
   });
 
-  const [loading, setLoading] = useState(true);
-  const [errorMsg, setErrorMsg] = useState("");
+  const {
+    data: skills = [],
+    isLoading: skillsLoading,
+    error: skillsError,
+  } = useQuery({
+    queryKey: ["skills", "all"],
+    queryFn: getSkills,
+  });
 
-  useEffect(() => {
-    async function fetchDashboard() {
-      try {
-        setLoading(true);
-        setErrorMsg("");
+  const {
+    data: resources = [],
+    isLoading: resourcesLoading,
+    error: resourcesError,
+  } = useQuery({
+    queryKey: ["resources", "all"],
+    queryFn: getResources,
+  });
 
-        const [
-          goalData,
-          skillData,
-          resourceData,
-          applicationData,
-          reminderData,
-        ] = await Promise.all([
-          getGoals(),
-          getSkills(),
-          getResources(),
-          getApplications(),
-          getFollowUpReminders(),
-        ]);
+  const {
+    data: applications = [],
+    isLoading: applicationsLoading,
+    error: applicationsError,
+  } = useQuery({
+    queryKey: ["applications"],
+    queryFn: getApplications,
+  });
 
-        setGoals(Array.isArray(goalData) ? goalData : []);
-        setSkills(Array.isArray(skillData) ? skillData : []);
-        setResources(Array.isArray(resourceData) ? resourceData : []);
-        setApplications(Array.isArray(applicationData) ? applicationData : []);
+  const {
+    data: reminderData = {
+      overdue: [],
+      today: [],
+      upcoming: [],
+    },
+    isLoading: remindersLoading,
+    error: remindersError,
+  } = useQuery({
+    queryKey: ["application-reminders"],
+    queryFn: getFollowUpReminders,
+  });
 
-        setFollowUpReminders({
-          overdue: Array.isArray(reminderData?.overdue)
-            ? reminderData.overdue
-            : [],
-          today: Array.isArray(reminderData?.today) ? reminderData.today : [],
-          upcoming: Array.isArray(reminderData?.upcoming)
-            ? reminderData.upcoming
-            : [],
-        });
-      } catch (error) {
-        console.error("Failed to load dashboard:", error);
+  const loading =
+    goalsLoading ||
+    skillsLoading ||
+    resourcesLoading ||
+    applicationsLoading ||
+    remindersLoading;
 
-        setErrorMsg(
-          error.response?.data?.message ||
-            "Unable to load your dashboard. Please try again.",
-        );
-      } finally {
-        setLoading(false);
-      }
-    }
+  const error =
+    goalsError ||
+    skillsError ||
+    resourcesError ||
+    applicationsError ||
+    remindersError;
 
-    fetchDashboard();
-  }, []);
+  const followUpReminders = {
+    overdue: Array.isArray(reminderData?.overdue) ? reminderData.overdue : [],
+    today: Array.isArray(reminderData?.today) ? reminderData.today : [],
+    upcoming: Array.isArray(reminderData?.upcoming)
+      ? reminderData.upcoming
+      : [],
+  };
 
   const primaryGoals = goals.filter((goal) => goal.goalType === "Primary");
 
@@ -145,7 +153,6 @@ function Dashboard() {
     .sort((a, b) => new Date(a.deadline) - new Date(b.deadline))
     .slice(0, 5);
 
-  // Upcoming Actions: future-dated, pending follow-ups only.
   const upcomingActions = applications
     .flatMap((application) =>
       (application.activities || [])
@@ -168,7 +175,6 @@ function Dashboard() {
     .sort((a, b) => new Date(a.date) - new Date(b.date))
     .slice(0, 5);
 
-  // Upcoming Interviews: future pending interviews only.
   const upcomingInterviews = applications
     .flatMap((application) =>
       (application.interviewRounds || [])
@@ -201,7 +207,11 @@ function Dashboard() {
     );
   }
 
-  if (errorMsg) {
+  if (error) {
+    const errorMsg =
+      error.response?.data?.message ||
+      "Unable to load your dashboard. Please try again.";
+
     return (
       <div className="container">
         <h1>Dashboard</h1>

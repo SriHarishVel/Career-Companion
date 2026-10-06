@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useParams } from "react-router-dom";
 
 import {
@@ -25,93 +25,129 @@ function getErrorMessage(error, fallbackMessage) {
 function ApplicationDetail() {
   const { applicationId } = useParams();
   const navigate = useNavigate();
+  const queryClient = useQueryClient();
 
-  const [application, setApplication] = useState(null);
-  const [loading, setLoading] = useState(Boolean(applicationId));
-  const [errorMsg, setErrorMsg] = useState("");
-  const [deleting, setDeleting] = useState(false);
+  const {
+    data: application,
+    isLoading: loading,
+    error: applicationError,
+  } = useQuery({
+    queryKey: ["applications", applicationId],
+    queryFn: () => getApplication(applicationId),
+    enabled: Boolean(applicationId),
+  });
 
-  useEffect(() => {
-    if (!applicationId) {
-      return;
-    }
-
-    let cancelled = false;
-
-    async function loadApplication() {
-      try {
-        const applicationData = await getApplication(applicationId);
-
-        if (cancelled) {
-          return;
-        }
-
-        setApplication(applicationData);
-        setErrorMsg("");
-      } catch (error) {
-        if (cancelled) {
-          return;
-        }
-
-        console.error("Failed to load application:", error);
-
-        setApplication(null);
-
-        setErrorMsg(
-          getErrorMessage(
-            error,
-            "Unable to load this application. Please try again.",
-          ),
-        );
-      } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+  const addRoundMutation = useMutation({
+    mutationFn: (roundData) => {
+      if (!application?._id) {
+        throw new Error("Application not found.");
       }
-    }
 
-    loadApplication();
+      return addInterviewRound(application._id, roundData);
+    },
 
-    return () => {
-      cancelled = true;
-    };
-  }, [applicationId]);
+    onSuccess: async (updatedApplication) => {
+      queryClient.setQueryData(
+        ["applications", applicationId],
+        updatedApplication,
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+    },
+  });
+
+  const updateRoundMutation = useMutation({
+    mutationFn: ({ roundId, roundData }) => {
+      if (!application?._id) {
+        throw new Error("Application not found.");
+      }
+
+      if (!roundId) {
+        throw new Error("Interview round could not be identified.");
+      }
+
+      return updateInterviewRound(application._id, roundId, roundData);
+    },
+
+    onSuccess: async (updatedApplication) => {
+      queryClient.setQueryData(
+        ["applications", applicationId],
+        updatedApplication,
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+    },
+  });
+
+  const deleteRoundMutation = useMutation({
+    mutationFn: (roundId) => {
+      if (!application?._id) {
+        throw new Error("Application not found.");
+      }
+
+      if (!roundId) {
+        throw new Error("Interview round could not be identified.");
+      }
+
+      return deleteInterviewRound(application._id, roundId);
+    },
+
+    onSuccess: async (updatedApplication) => {
+      queryClient.setQueryData(
+        ["applications", applicationId],
+        updatedApplication,
+      );
+
+      await queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+    },
+  });
+
+  const deleteApplicationMutation = useMutation({
+    mutationFn: () => {
+      if (!application?._id) {
+        throw new Error("Application not found.");
+      }
+
+      return deleteApplication(application._id);
+    },
+
+    onSuccess: async () => {
+      queryClient.removeQueries({
+        queryKey: ["applications", applicationId],
+      });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["applications"],
+      });
+
+      navigate("/applications");
+    },
+  });
 
   const handleApplicationUpdated = (updatedApplication) => {
     if (!updatedApplication) {
       return;
     }
 
-    setApplication(updatedApplication);
-    setErrorMsg("");
+    queryClient.setQueryData(
+      ["applications", applicationId],
+      updatedApplication,
+    );
   };
 
   const handleAddRound = async (roundData) => {
-    if (!application?._id) {
-      const error = new Error("Application not found.");
-
-      setErrorMsg(error.message);
-
-      throw error;
-    }
-
     try {
-      setErrorMsg("");
-
-      const updatedApplication = await addInterviewRound(
-        application._id,
-        roundData,
-      );
-
-      setApplication(updatedApplication);
-
-      return updatedApplication;
+      return await addRoundMutation.mutateAsync(roundData);
     } catch (error) {
       console.error("Failed to add interview round:", error);
 
       const message = getErrorMessage(error, "Failed to add interview round.");
-
-      setErrorMsg(message);
 
       throw new Error(message, {
         cause: error,
@@ -120,34 +156,11 @@ function ApplicationDetail() {
   };
 
   const handleUpdateRound = async (roundId, roundData) => {
-    if (!application?._id) {
-      const error = new Error("Application not found.");
-
-      setErrorMsg(error.message);
-
-      throw error;
-    }
-
-    if (!roundId) {
-      const error = new Error("Interview round could not be identified.");
-
-      setErrorMsg(error.message);
-
-      throw error;
-    }
-
     try {
-      setErrorMsg("");
-
-      const updatedApplication = await updateInterviewRound(
-        application._id,
+      return await updateRoundMutation.mutateAsync({
         roundId,
         roundData,
-      );
-
-      setApplication(updatedApplication);
-
-      return updatedApplication;
+      });
     } catch (error) {
       console.error("Failed to update interview round:", error);
 
@@ -156,8 +169,6 @@ function ApplicationDetail() {
         "Failed to update interview round.",
       );
 
-      setErrorMsg(message);
-
       throw new Error(message, {
         cause: error,
       });
@@ -165,33 +176,8 @@ function ApplicationDetail() {
   };
 
   const handleDeleteRound = async (roundId) => {
-    if (!application?._id) {
-      const error = new Error("Application not found.");
-
-      setErrorMsg(error.message);
-
-      throw error;
-    }
-
-    if (!roundId) {
-      const error = new Error("Interview round could not be identified.");
-
-      setErrorMsg(error.message);
-
-      throw error;
-    }
-
     try {
-      setErrorMsg("");
-
-      const updatedApplication = await deleteInterviewRound(
-        application._id,
-        roundId,
-      );
-
-      setApplication(updatedApplication);
-
-      return updatedApplication;
+      return await deleteRoundMutation.mutateAsync(roundId);
     } catch (error) {
       console.error("Failed to delete interview round:", error);
 
@@ -200,8 +186,6 @@ function ApplicationDetail() {
         "Failed to delete interview round.",
       );
 
-      setErrorMsg(message);
-
       throw new Error(message, {
         cause: error,
       });
@@ -209,56 +193,19 @@ function ApplicationDetail() {
   };
 
   const handleDelete = async () => {
-    if (!application?._id || deleting) {
+    if (!application?._id || deleteApplicationMutation.isPending) {
       return;
     }
 
     try {
-      setDeleting(true);
-      setErrorMsg("");
-
-      await deleteApplication(application._id);
-
-      navigate("/applications");
+      await deleteApplicationMutation.mutateAsync();
     } catch (error) {
       console.error("Failed to delete application:", error);
-
-      setErrorMsg(getErrorMessage(error, "Failed to delete application."));
-
-      setDeleting(false);
     }
   };
 
   const handleBack = () => {
     navigate("/applications");
-  };
-
-  const handleRetry = async () => {
-    if (!applicationId || loading) {
-      return;
-    }
-
-    setLoading(true);
-    setErrorMsg("");
-
-    try {
-      const applicationData = await getApplication(applicationId);
-
-      setApplication(applicationData);
-    } catch (error) {
-      console.error("Failed to load application:", error);
-
-      setApplication(null);
-
-      setErrorMsg(
-        getErrorMessage(
-          error,
-          "Unable to load this application. Please try again.",
-        ),
-      );
-    } finally {
-      setLoading(false);
-    }
   };
 
   if (!applicationId) {
@@ -269,11 +216,7 @@ function ApplicationDetail() {
 
           <p>No application ID was provided for this page.</p>
 
-          <button
-            type="button"
-            className="btn-secondary"
-            onClick={handleBack}
-          >
+          <button type="button" className="btn-secondary" onClick={handleBack}>
             Back to Applications
           </button>
         </div>
@@ -290,6 +233,11 @@ function ApplicationDetail() {
   }
 
   if (!application) {
+    const errorMsg = getErrorMessage(
+      applicationError,
+      "The requested application could not be found.",
+    );
+
     return (
       <div className="container application-detail-page">
         <div className="application-detail-topbar">
@@ -309,7 +257,7 @@ function ApplicationDetail() {
         <div className="application-detail-error">
           <h1>Unable to load application</h1>
 
-          <p>{errorMsg || "The requested application could not be found."}</p>
+          <p>{errorMsg}</p>
 
           <div className="application-detail-error-actions">
             <button
@@ -323,7 +271,11 @@ function ApplicationDetail() {
             <button
               type="button"
               className="btn-primary"
-              onClick={handleRetry}
+              onClick={() =>
+                queryClient.invalidateQueries({
+                  queryKey: ["applications", applicationId],
+                })
+              }
             >
               Try Again
             </button>
@@ -349,12 +301,6 @@ function ApplicationDetail() {
         </button>
       </div>
 
-      {errorMsg && (
-        <div className="application-detail-error-message" role="alert">
-          {errorMsg}
-        </div>
-      )}
-
       <main className="application-detail-content">
         <ApplicationOverview application={application} />
 
@@ -374,7 +320,7 @@ function ApplicationDetail() {
           application={application}
           onApplicationUpdated={handleApplicationUpdated}
           onDelete={handleDelete}
-          deleting={deleting}
+          deleting={deleteApplicationMutation.isPending}
         />
       </main>
     </div>
