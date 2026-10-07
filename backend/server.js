@@ -16,6 +16,7 @@ import jobRoutes from "./routes/jobRoutes.js";
 import goalRoutes from "./routes/goalRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import skillRoutes from "./routes/skillRoutes.js";
+import skillEvidenceRoutes from "./routes/skillEvidenceRoutes.js";
 import dashboardRoutes from "./routes/dashboardRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
 
@@ -35,6 +36,7 @@ app.use("/api/jobs", jobRoutes);
 app.use("/api/goals", goalRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/skills", skillRoutes);
+app.use("/api/skill-evidence", skillEvidenceRoutes);
 app.use("/api/dashboard", dashboardRoutes);
 app.use("/api/applications", applicationRoutes);
 
