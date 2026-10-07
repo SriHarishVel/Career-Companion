@@ -34,6 +34,29 @@ const skillSchema = new mongoose.Schema(
       default: 0,
     },
 
+    progressHistory: [
+      {
+        previousProgress: {
+          type: Number,
+          min: 0,
+          max: 100,
+          required: true,
+        },
+
+        newProgress: {
+          type: Number,
+          min: 0,
+          max: 100,
+          required: true,
+        },
+
+        updatedAt: {
+          type: Date,
+          default: Date.now,
+        },
+      },
+    ],
+
     developmentStatus: {
       type: String,
       enum: ["In Progress", "Established"],

@@ -1,5 +1,7 @@
 import { useMemo, useState } from "react";
+
 import { useNavigate, useParams } from "react-router-dom";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import {
@@ -29,6 +31,7 @@ function SkillDetail() {
 
   const [errorMsg, setErrorMsg] = useState("");
   const [showDeleteModal, setShowDeleteModal] = useState(false);
+  const [showProgressHistory, setShowProgressHistory] = useState(false);
 
   const skillQuery = useQuery({
     queryKey: ["skills", skillId],
@@ -98,10 +101,12 @@ function SkillDetail() {
   });
 
   const skill = skillQuery.data;
+
   const resources = useMemo(
     () => resourcesQuery.data || [],
     [resourcesQuery.data],
   );
+
   const goals = useMemo(() => goalsQuery.data || [], [goalsQuery.data]);
 
   const loading =
@@ -352,6 +357,10 @@ function SkillDetail() {
   const learningAreas = skill.learningAreas || [];
   const practicalRequirements = skill.practicalRequirements || [];
 
+  const progressHistory = [...(skill.progressHistory || [])].sort(
+    (a, b) => new Date(b.updatedAt) - new Date(a.updatedAt),
+  );
+
   const completedLearningAreas = learningAreas.filter(
     (area) => area.completed,
   ).length;
@@ -417,6 +426,72 @@ function SkillDetail() {
           onAddLearningArea={handleAddLearningArea}
           onAddPracticalRequirement={handleAddPracticalRequirement}
         />
+
+        <button
+          type="button"
+          className="skill-progress-history-trigger"
+          onClick={() => setShowProgressHistory(true)}
+        >
+          View Progress History
+        </button>
+
+        {showProgressHistory && (
+          <div
+            className="skill-progress-history-overlay"
+            role="presentation"
+            onClick={() => setShowProgressHistory(false)}
+          >
+            <div
+              className="skill-progress-history-modal"
+              role="dialog"
+              aria-modal="true"
+              aria-labelledby="progress-history-title"
+              onClick={(event) => event.stopPropagation()}
+            >
+              <div className="skill-progress-history-modal-header">
+                <div>
+                  <h2 id="progress-history-title">Progress History</h2>
+
+                  <p>Track how this skill's progress has changed over time.</p>
+                </div>
+
+                <button
+                  type="button"
+                  className="skill-progress-history-close"
+                  onClick={() => setShowProgressHistory(false)}
+                  aria-label="Close progress history"
+                >
+                  ×
+                </button>
+              </div>
+
+              {progressHistory.length > 0 ? (
+                <div className="skill-progress-history-list">
+                  {progressHistory.map((entry, index) => (
+                    <div
+                      className="skill-progress-history-item"
+                      key={`${entry.updatedAt}-${index}`}
+                    >
+                      <div className="skill-progress-history-change">
+                        <strong>
+                          {entry.previousProgress}% → {entry.newProgress}%
+                        </strong>
+                      </div>
+
+                      <div className="skill-progress-history-date">
+                        {new Date(entry.updatedAt).toLocaleString()}
+                      </div>
+                    </div>
+                  ))}
+                </div>
+              ) : (
+                <div className="skill-progress-history-empty">
+                  <p>No progress changes recorded yet.</p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
 
         <SkillActions
           skill={skill}

@@ -197,6 +197,8 @@ export const updateSkill = async (req, res) => {
       });
     }
 
+    const previousProgress = skill.progress;
+
     skill.name = req.body.name ?? skill.name;
     skill.category = req.body.category ?? skill.category;
     skill.level = req.body.level ?? skill.level;
@@ -240,6 +242,20 @@ export const updateSkill = async (req, res) => {
 
     skill.progress = syncedSkill.progress;
     skill.developmentStatus = syncedSkill.developmentStatus;
+
+    /* Record Skill Progress History */
+
+    if (previousProgress !== syncedSkill.progress) {
+      if (!Array.isArray(skill.progressHistory)) {
+        skill.progressHistory = [];
+      }
+
+      skill.progressHistory.push({
+        previousProgress,
+        newProgress: syncedSkill.progress,
+        updatedAt: new Date(),
+      });
+    }
 
     const updatedSkill = await skill.save();
 

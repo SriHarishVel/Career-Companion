@@ -1,6 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-function SkillOverview({ skill }) {
+function SkillOverview({ skill, onViewProgressHistory }) {
   const navigate = useNavigate();
 
   const progress = Math.min(Math.max(Number(skill?.progress) || 0, 0), 100);
@@ -49,7 +49,17 @@ function SkillOverview({ skill }) {
               <h2>{progress}%</h2>
             </div>
 
-            <span className="progress-status">{progressStatus}</span>
+            <div className="skill-progress-header-actions">
+              <span className="progress-status">{progressStatus}</span>
+
+              <button
+                type="button"
+                className="skill-progress-history-trigger"
+                onClick={onViewProgressHistory}
+              >
+                View history
+              </button>
+            </div>
           </div>
 
           <div
