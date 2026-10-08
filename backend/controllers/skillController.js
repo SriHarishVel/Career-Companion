@@ -3,6 +3,7 @@ import Resource from "../models/Resource.js";
 import Goal from "../models/Goal.js";
 
 import { syncSkillProgress } from "../utils/syncSkillProgress.js";
+import { syncAndSaveSkillProgress } from "../utils/syncAndSaveSkillProgress.js";
 
 export const createSkill = async (req, res) => {
   try {
@@ -197,8 +198,6 @@ export const updateSkill = async (req, res) => {
       });
     }
 
-    const previousProgress = skill.progress;
-
     skill.name = req.body.name ?? skill.name;
     skill.category = req.body.category ?? skill.category;
     skill.level = req.body.level ?? skill.level;
@@ -233,33 +232,11 @@ export const updateSkill = async (req, res) => {
       skill.secondaryGoal = secondaryGoal;
     }
 
-    const resources = await Resource.find({
-      skill: skill._id,
-      user: req.user._id,
-    });
+    await skill.save();
 
-    const syncedSkill = syncSkillProgress(skill.toObject(), resources);
+    const syncedSkill = await syncAndSaveSkillProgress(req.user._id, skill._id);
 
-    skill.progress = syncedSkill.progress;
-    skill.developmentStatus = syncedSkill.developmentStatus;
-
-    /* Record Skill Progress History */
-
-    if (previousProgress !== syncedSkill.progress) {
-      if (!Array.isArray(skill.progressHistory)) {
-        skill.progressHistory = [];
-      }
-
-      skill.progressHistory.push({
-        previousProgress,
-        newProgress: syncedSkill.progress,
-        updatedAt: new Date(),
-      });
-    }
-
-    const updatedSkill = await skill.save();
-
-    const populatedSkill = await Skill.findById(updatedSkill._id).populate(
+    const populatedSkill = await Skill.findById(syncedSkill._id).populate(
       "secondaryGoal",
     );
 

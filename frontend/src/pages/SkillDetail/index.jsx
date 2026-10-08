@@ -11,6 +11,7 @@ import {
 } from "../../services/skillService";
 
 import { getResources } from "../../services/resourceService";
+
 import { getGoals } from "../../services/goalService";
 
 import LoadingState from "../../components/LoadingState";
@@ -255,6 +256,10 @@ function SkillDetail() {
       await queryClient.invalidateQueries({
         queryKey: ["resources", { skill: skillId }],
       });
+
+      await queryClient.invalidateQueries({
+        queryKey: ["skills", skillId],
+      });
     } catch (error) {
       console.error("Failed to refresh resources:", error);
 
@@ -399,7 +404,10 @@ function SkillDetail() {
       )}
 
       <main className="skill-detail-content">
-        <SkillOverview skill={skill} />
+        <SkillOverview
+          skill={skill}
+          onViewProgressHistory={() => setShowProgressHistory(true)}
+        />
 
         <SkillResources
           skillName={skill.name}
@@ -426,14 +434,6 @@ function SkillDetail() {
           onAddLearningArea={handleAddLearningArea}
           onAddPracticalRequirement={handleAddPracticalRequirement}
         />
-
-        <button
-          type="button"
-          className="skill-progress-history-trigger"
-          onClick={() => setShowProgressHistory(true)}
-        >
-          View Progress History
-        </button>
 
         {showProgressHistory && (
           <div

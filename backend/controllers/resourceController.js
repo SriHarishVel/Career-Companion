@@ -1,38 +1,12 @@
 import Resource from "../models/Resource.js";
+
 import Skill from "../models/Skill.js";
+
 import fs from "fs";
+
 import path from "path";
 
-import { syncSkillProgress } from "../utils/syncSkillProgress.js";
-
-/* Synchronize a Skill with its Resources */
-
-async function syncSkill(userId, skillId) {
-  if (!skillId) {
-    return;
-  }
-
-  const skill = await Skill.findOne({
-    _id: skillId,
-    user: userId,
-  });
-
-  if (!skill) {
-    return;
-  }
-
-  const resources = await Resource.find({
-    skill: skill._id,
-    user: userId,
-  });
-
-  const syncedSkill = syncSkillProgress(skill.toObject(), resources);
-
-  skill.progress = syncedSkill.progress;
-  skill.developmentStatus = syncedSkill.developmentStatus;
-
-  await skill.save();
-}
+import { syncAndSaveSkillProgress } from "../utils/syncAndSaveSkillProgress.js";
 
 /* CREATE RESOURCE */
 
@@ -50,7 +24,7 @@ export const createResource = async (req, res) => {
 
     const createdResource = await resource.save();
 
-    await syncSkill(req.user._id, createdResource.skill);
+    await syncAndSaveSkillProgress(req.user._id, createdResource.skill);
 
     const populatedResource = await Resource.findById(
       createdResource._id,
@@ -202,7 +176,7 @@ export const updateResource = async (req, res) => {
     /* Recalculate previous skill */
 
     if (previousSkillId) {
-      await syncSkill(req.user._id, previousSkillId);
+      await syncAndSaveSkillProgress(req.user._id, previousSkillId);
     }
 
     /* Recalculate current skill */
@@ -211,7 +185,7 @@ export const updateResource = async (req, res) => {
       const currentSkillId = updatedResource.skill.toString();
 
       if (currentSkillId !== previousSkillId) {
-        await syncSkill(req.user._id, currentSkillId);
+        await syncAndSaveSkillProgress(req.user._id, currentSkillId);
       }
     }
 
@@ -272,7 +246,7 @@ export const deleteResource = async (req, res) => {
 
     /* Synchronize related skill */
 
-    await syncSkill(req.user._id, skillId);
+    await syncAndSaveSkillProgress(req.user._id, skillId);
 
     res.status(200).json({
       message: "Resource deleted successfully",
@@ -318,11 +292,8 @@ export const addResourceItem = async (req, res) => {
 
     const item = {
       title: req.body.title.trim(),
-
       type: req.body.type || "Other",
-
       source,
-
       completed: false,
     };
 
