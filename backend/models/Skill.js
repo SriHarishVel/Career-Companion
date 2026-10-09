@@ -50,6 +50,24 @@ const skillSchema = new mongoose.Schema(
           required: true,
         },
 
+        action: {
+          type: String,
+          trim: true,
+          default: "Progress updated",
+        },
+
+        itemName: {
+          type: String,
+          trim: true,
+          default: "",
+        },
+
+        details: {
+          type: String,
+          trim: true,
+          default: "",
+        },
+
         updatedAt: {
           type: Date,
           default: Date.now,

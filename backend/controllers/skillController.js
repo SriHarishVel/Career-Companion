@@ -198,21 +198,116 @@ export const updateSkill = async (req, res) => {
       });
     }
 
+    /* Capture progress change context */
+
+    let changeContext = {
+      action: "Skill updated",
+      itemName: "",
+      details: "Skill details updated",
+    };
+
+    const previousLearningAreas = skill.learningAreas.map((area) => ({
+      name: area.name,
+      completed: area.completed,
+    }));
+
+    const previousPracticalRequirements =
+      skill.practicalRequirements.map((requirement) => ({
+        title: requirement.title,
+        completed: requirement.completed,
+      }));
+
     skill.name = req.body.name ?? skill.name;
     skill.category = req.body.category ?? skill.category;
     skill.level = req.body.level ?? skill.level;
 
     if (Array.isArray(req.body.learningAreas)) {
-      skill.learningAreas = req.body.learningAreas;
+      const nextLearningAreas = req.body.learningAreas;
+
+      const changedArea = nextLearningAreas.find((area, index) => {
+        const previous = previousLearningAreas[index];
+
+        return (
+          previous &&
+          previous.completed !== area.completed
+        );
+      });
+
+      const addedArea =
+        nextLearningAreas.length > previousLearningAreas.length
+          ? nextLearningAreas[previousLearningAreas.length]
+          : null;
+
+      if (changedArea) {
+        changeContext = {
+          action: changedArea.completed
+            ? "Learning area completed"
+            : "Learning area reopened",
+          itemName: changedArea.name,
+          details: changedArea.completed
+            ? "Marked as covered"
+            : "Marked as not covered",
+        };
+      } else if (addedArea) {
+        changeContext = {
+          action: "Learning area added",
+          itemName: addedArea.name,
+          details: "A new learning area was added",
+        };
+      }
+
+      skill.learningAreas = nextLearningAreas;
     }
 
     if (Array.isArray(req.body.practicalRequirements)) {
-      skill.practicalRequirements = req.body.practicalRequirements;
+      const nextRequirements = req.body.practicalRequirements;
+
+      const changedRequirement = nextRequirements.find(
+        (requirement, index) => {
+          const previous = previousPracticalRequirements[index];
+
+          return (
+            previous &&
+            previous.completed !== requirement.completed
+          );
+        },
+      );
+
+      const addedRequirement =
+        nextRequirements.length >
+        previousPracticalRequirements.length
+          ? nextRequirements[previousPracticalRequirements.length]
+          : null;
+
+      if (changedRequirement) {
+        changeContext = {
+          action: changedRequirement.completed
+            ? "Practical requirement completed"
+            : "Practical requirement reopened",
+          itemName: changedRequirement.title,
+          details: changedRequirement.completed
+            ? "Marked as completed"
+            : "Marked as not completed",
+        };
+      } else if (addedRequirement) {
+        changeContext = {
+          action: "Practical requirement added",
+          itemName: addedRequirement.title,
+          details: "A new practical requirement was added",
+        };
+      }
+
+      skill.practicalRequirements = nextRequirements;
     }
 
     /* Validate Secondary Goal when changed */
 
-    if (Object.prototype.hasOwnProperty.call(req.body, "secondaryGoal")) {
+    if (
+      Object.prototype.hasOwnProperty.call(
+        req.body,
+        "secondaryGoal",
+      )
+    ) {
       const secondaryGoal = req.body.secondaryGoal || null;
 
       if (secondaryGoal) {
@@ -234,11 +329,15 @@ export const updateSkill = async (req, res) => {
 
     await skill.save();
 
-    const syncedSkill = await syncAndSaveSkillProgress(req.user._id, skill._id);
-
-    const populatedSkill = await Skill.findById(syncedSkill._id).populate(
-      "secondaryGoal",
+    const syncedSkill = await syncAndSaveSkillProgress(
+      req.user._id,
+      skill._id,
+      changeContext,
     );
+
+    const populatedSkill = await Skill.findById(
+      syncedSkill._id,
+    ).populate("secondaryGoal");
 
     res.status(200).json(populatedSkill);
   } catch (error) {

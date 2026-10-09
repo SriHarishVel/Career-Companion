@@ -451,8 +451,9 @@ function SkillDetail() {
               <div className="skill-progress-history-modal-header">
                 <div>
                   <h2 id="progress-history-title">Progress History</h2>
-
-                  <p>Track how this skill's progress has changed over time.</p>
+                  <p>
+                    See what changed and how it affected your skill progress.
+                  </p>
                 </div>
 
                 <button
@@ -467,22 +468,55 @@ function SkillDetail() {
 
               {progressHistory.length > 0 ? (
                 <div className="skill-progress-history-list">
-                  {progressHistory.map((entry, index) => (
-                    <div
-                      className="skill-progress-history-item"
-                      key={`${entry.updatedAt}-${index}`}
-                    >
-                      <div className="skill-progress-history-change">
-                        <strong>
-                          {entry.previousProgress}% → {entry.newProgress}%
-                        </strong>
-                      </div>
+                  {progressHistory.map((entry, index) => {
+                    const change = entry.newProgress - entry.previousProgress;
 
-                      <div className="skill-progress-history-date">
-                        {new Date(entry.updatedAt).toLocaleString()}
+                    return (
+                      <div
+                        className="skill-progress-history-item"
+                        key={`${entry.updatedAt}-${index}`}
+                      >
+                        <div className="skill-progress-history-entry-header">
+                          <strong>{entry.action || "Progress updated"}</strong>
+
+                          <span
+                            className={`skill-progress-history-delta ${
+                              change > 0
+                                ? "positive"
+                                : change < 0
+                                  ? "negative"
+                                  : "neutral"
+                            }`}
+                          >
+                            {change > 0 ? "+" : ""}
+                            {change}%
+                          </span>
+                        </div>
+
+                        {entry.itemName && (
+                          <p className="skill-progress-history-item-name">
+                            {entry.itemName}
+                          </p>
+                        )}
+
+                        {entry.details && (
+                          <p className="skill-progress-history-details">
+                            {entry.details}
+                          </p>
+                        )}
+
+                        <div className="skill-progress-history-change">
+                          <strong>
+                            {entry.previousProgress}% → {entry.newProgress}%
+                          </strong>
+                        </div>
+
+                        <div className="skill-progress-history-date">
+                          {new Date(entry.updatedAt).toLocaleString()}
+                        </div>
                       </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               ) : (
                 <div className="skill-progress-history-empty">

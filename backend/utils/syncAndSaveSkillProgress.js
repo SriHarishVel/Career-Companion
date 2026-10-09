@@ -3,7 +3,11 @@ import Resource from "../models/Resource.js";
 
 import { syncSkillProgress } from "./syncSkillProgress.js";
 
-export async function syncAndSaveSkillProgress(userId, skillId) {
+export async function syncAndSaveSkillProgress(
+  userId,
+  skillId,
+  changeContext = {},
+) {
   if (!skillId) {
     return null;
   }
@@ -24,7 +28,10 @@ export async function syncAndSaveSkillProgress(userId, skillId) {
 
   const previousProgress = skill.progress;
 
-  const syncedSkill = syncSkillProgress(skill.toObject(), resources);
+  const syncedSkill = syncSkillProgress(
+    skill.toObject(),
+    resources,
+  );
 
   skill.progress = syncedSkill.progress;
   skill.developmentStatus = syncedSkill.developmentStatus;
@@ -37,6 +44,9 @@ export async function syncAndSaveSkillProgress(userId, skillId) {
     skill.progressHistory.push({
       previousProgress,
       newProgress: syncedSkill.progress,
+      action: changeContext.action || "Progress updated",
+      itemName: changeContext.itemName || "",
+      details: changeContext.details || "",
       updatedAt: new Date(),
     });
   }
