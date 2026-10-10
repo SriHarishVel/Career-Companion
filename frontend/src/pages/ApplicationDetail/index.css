@@ -816,6 +816,19 @@
   font-style: italic;
 }
 
+.application-activity-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  margin: 1.25rem 0;
+}
+
+.application-activity-filters .active {
+  border-color: var(--primary-color, #2563eb);
+  color: var(--primary-color, #2563eb);
+  background: #eff6ff;
+}
+
 /* Detail Actions */
 
 .application-detail-actions {

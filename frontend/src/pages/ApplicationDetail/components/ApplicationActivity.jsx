@@ -11,10 +11,13 @@ import {
 import FormDialog from "../../../components/FormDialog";
 import ConfirmModal from "../../../components/ConfirmModal";
 
+const editableActivityTypes = ["Note Added", "Follow-up"];
+
 function ApplicationActivity({ application }) {
   const applicationId = application?._id;
 
   const [activities, setActivities] = useState([]);
+  const [activityFilter, setActivityFilter] = useState("notes");
 
   const [showAddModal, setShowAddModal] = useState(false);
   const [showDetailModal, setShowDetailModal] = useState(false);
@@ -35,9 +38,7 @@ function ApplicationActivity({ application }) {
   const [errorMsg, setErrorMsg] = useState("");
 
   useEffect(() => {
-    if (!applicationId) {
-      return undefined;
-    }
+    if (!applicationId) return undefined;
 
     let cancelled = false;
 
@@ -48,34 +49,20 @@ function ApplicationActivity({ application }) {
 
         const activityData = await getApplicationActivities(applicationId);
 
-        if (cancelled) {
-          return;
-        }
+        if (cancelled) return;
 
-        const filteredActivities = Array.isArray(activityData)
-          ? activityData.filter(
-              (activity) =>
-                activity.type === "Note Added" || activity.type === "Follow-up",
-            )
-          : [];
-
-        setActivities(filteredActivities);
+        setActivities(Array.isArray(activityData) ? activityData : []);
       } catch (error) {
-        if (cancelled) {
-          return;
-        }
+        if (cancelled) return;
 
         console.error("Failed to load application activities:", error);
 
         setActivities([]);
-
         setErrorMsg(
           error?.response?.data?.message || "Failed to load activity history.",
         );
       } finally {
-        if (!cancelled) {
-          setLoading(false);
-        }
+        if (!cancelled) setLoading(false);
       }
     }
 
@@ -84,26 +71,19 @@ function ApplicationActivity({ application }) {
     return () => {
       cancelled = true;
     };
-  }, [applicationId]);
+  }, [applicationId, application?.updatedAt]);
 
   async function reloadActivities() {
-    if (!applicationId) {
-      return;
-    }
+    if (!applicationId) return null;
 
     try {
       const activityData = await getApplicationActivities(applicationId);
 
-      const filteredActivities = Array.isArray(activityData)
-        ? activityData.filter(
-            (activity) =>
-              activity.type === "Note Added" || activity.type === "Follow-up",
-          )
-        : [];
+      const nextActivities = Array.isArray(activityData) ? activityData : [];
 
-      setActivities(filteredActivities);
+      setActivities(nextActivities);
 
-      return filteredActivities;
+      return nextActivities;
     } catch (error) {
       console.error("Failed to reload application activities:", error);
 
@@ -114,6 +94,25 @@ function ApplicationActivity({ application }) {
       return null;
     }
   }
+
+  function isEditableActivity(activity) {
+    return editableActivityTypes.includes(activity?.type);
+  }
+
+  const displayedActivities = activities
+    .filter((activity) => {
+      if (activityFilter === "notes") {
+        return ["Note Added", "Follow-up"].includes(activity.type);
+      }
+
+      return !["Note Added", "Follow-up"].includes(activity.type);
+    })
+    .sort((a, b) => {
+      const dateA = new Date(a.date || a.createdAt || 0).getTime();
+      const dateB = new Date(b.date || b.createdAt || 0).getTime();
+
+      return dateB - dateA;
+    });
 
   async function handleFollowUpStatusToggle(activity) {
     if (updatingStatusId || !applicationId || !activity?._id) {
@@ -168,9 +167,7 @@ function ApplicationActivity({ application }) {
   }
 
   function closeAddModal() {
-    if (saving) {
-      return;
-    }
+    if (saving) return;
 
     setShowAddModal(false);
     setErrorMsg("");
@@ -183,9 +180,7 @@ function ApplicationActivity({ application }) {
   }
 
   function closeDetailModal() {
-    if (saving || deleting || updatingStatusId) {
-      return;
-    }
+    if (saving || deleting || updatingStatusId) return;
 
     setShowDetailModal(false);
     setSelectedActivity(null);
@@ -193,8 +188,9 @@ function ApplicationActivity({ application }) {
   }
 
   function openEditModal(activity) {
-    setSelectedActivity(activity);
+    if (!isEditableActivity(activity)) return;
 
+    setSelectedActivity(activity);
     setType(activity.type || "Note Added");
     setTitle(activity.title || "");
     setDescription(activity.description || "");
@@ -217,9 +213,7 @@ function ApplicationActivity({ application }) {
   }
 
   function closeEditModal() {
-    if (saving) {
-      return;
-    }
+    if (saving) return;
 
     setShowEditModal(false);
     setSelectedActivity(null);
@@ -227,6 +221,8 @@ function ApplicationActivity({ application }) {
   }
 
   function openDeleteModal(activity) {
+    if (!isEditableActivity(activity)) return;
+
     setSelectedActivity(activity);
     setShowDetailModal(false);
     setShowEditModal(false);
@@ -235,9 +231,7 @@ function ApplicationActivity({ application }) {
   }
 
   function closeDeleteModal() {
-    if (deleting) {
-      return;
-    }
+    if (deleting) return;
 
     setShowDeleteModal(false);
     setSelectedActivity(null);
@@ -247,9 +241,7 @@ function ApplicationActivity({ application }) {
   async function handleAddSubmit(event) {
     event.preventDefault();
 
-    if (saving) {
-      return;
-    }
+    if (saving) return;
 
     if (!applicationId) {
       setErrorMsg("Application could not be identified.");
@@ -288,17 +280,15 @@ function ApplicationActivity({ application }) {
   async function handleEditSubmit(event) {
     event.preventDefault();
 
-    if (saving) {
-      return;
-    }
+    if (saving) return;
 
     if (!applicationId) {
       setErrorMsg("Application could not be identified.");
       return;
     }
 
-    if (!selectedActivity?._id) {
-      setErrorMsg("Activity could not be identified.");
+    if (!selectedActivity?._id || !isEditableActivity(selectedActivity)) {
+      setErrorMsg("This history event cannot be edited.");
       return;
     }
 
@@ -335,17 +325,15 @@ function ApplicationActivity({ application }) {
   }
 
   async function handleDelete() {
-    if (deleting) {
-      return;
-    }
+    if (deleting) return;
 
     if (!applicationId) {
       setErrorMsg("Application could not be identified.");
       return;
     }
 
-    if (!selectedActivity?._id) {
-      setErrorMsg("Activity could not be identified.");
+    if (!selectedActivity?._id || !isEditableActivity(selectedActivity)) {
+      setErrorMsg("This history event cannot be deleted.");
       return;
     }
 
@@ -371,9 +359,7 @@ function ApplicationActivity({ application }) {
   }
 
   function formatDate(activityDate) {
-    if (!activityDate) {
-      return "No date";
-    }
+    if (!activityDate) return "No date";
 
     const parsedDate = new Date(activityDate);
 
@@ -388,7 +374,6 @@ function ApplicationActivity({ application }) {
     });
   }
 
-  // Check whether a pending follow-up's date has passed.
   function isOverdue(activity) {
     if (activity.type !== "Follow-up" || activity.completed || !activity.date) {
       return false;
@@ -396,13 +381,9 @@ function ApplicationActivity({ application }) {
 
     const dueDate = new Date(activity.date);
 
-    if (Number.isNaN(dueDate.getTime())) {
-      return false;
-    }
+    if (Number.isNaN(dueDate.getTime())) return false;
 
-    // Compare calendar dates, ignoring the time of day.
     const today = new Date();
-
     today.setHours(0, 0, 0, 0);
     dueDate.setHours(0, 0, 0, 0);
 
@@ -410,18 +391,14 @@ function ApplicationActivity({ application }) {
   }
 
   function getActivityPreview(activityDescription) {
-    if (!activityDescription) {
-      return "";
-    }
+    if (!activityDescription) return "";
 
     const lines = activityDescription
       .split(/\r?\n/)
       .map((line) => line.trim())
       .filter(Boolean);
 
-    if (lines.length === 0) {
-      return "";
-    }
+    if (lines.length === 0) return "";
 
     return lines.length > 1 ? `${lines[0]} ...` : lines[0];
   }
@@ -431,18 +408,43 @@ function ApplicationActivity({ application }) {
       <div className="application-activity-header">
         <div>
           <span className="application-activity-eyebrow">
-            Application notes
+            Application history
           </span>
 
           <h2>Activity Timeline</h2>
 
           <p>
-            Keep track of important notes and follow-ups for this application.
+            Review application updates, interview events, notes, and follow-ups
+            in chronological order.
           </p>
         </div>
 
         <button type="button" className="btn-primary" onClick={openAddModal}>
           Add Activity
+        </button>
+      </div>
+
+      <div className="application-activity-filters">
+        <button
+          type="button"
+          className={`btn-secondary ${
+            activityFilter === "notes" ? "active" : ""
+          }`}
+          onClick={() => setActivityFilter("notes")}
+          aria-pressed={activityFilter === "notes"}
+        >
+          Notes & Follow-ups
+        </button>
+
+        <button
+          type="button"
+          className={`btn-secondary ${
+            activityFilter === "other" ? "active" : ""
+          }`}
+          onClick={() => setActivityFilter("other")}
+          aria-pressed={activityFilter === "other"}
+        >
+          Other Activities
         </button>
       </div>
 
@@ -460,130 +462,142 @@ function ApplicationActivity({ application }) {
         <div className="application-activity-empty">
           <p>Loading activity history...</p>
         </div>
-      ) : activities.length === 0 ? (
+      ) : displayedActivities.length === 0 ? (
         <div className="application-activity-empty">
-          <p>No notes or follow-ups recorded yet.</p>
+          <p>
+            {activityFilter === "notes"
+              ? "No notes or follow-ups recorded yet."
+              : "No other activities recorded yet."}
+          </p>
         </div>
       ) : (
         <div className="application-activity-timeline">
-          {activities.map((activity) => (
-            <article key={activity._id} className="application-activity-item">
-              <div className="application-activity-marker">
-                <span />
-              </div>
+          {displayedActivities.map((activity) => {
+            const editable = isEditableActivity(activity);
 
-              <div
-                className="application-activity-card"
-                onClick={() => openDetailModal(activity)}
-              >
-                <div className="application-activity-card-header">
-                  <div className="application-activity-card-main">
-                    <span className="application-activity-type">
-                      {activity.type || "Activity"}
-                    </span>
+            return (
+              <article key={activity._id} className="application-activity-item">
+                <div className="application-activity-marker">
+                  <span />
+                </div>
 
-                    <h3>{activity.title}</h3>
+                <div
+                  className="application-activity-card"
+                  onClick={() => openDetailModal(activity)}
+                >
+                  <div className="application-activity-card-header">
+                    <div className="application-activity-card-main">
+                      <span className="application-activity-type">
+                        {activity.type || "Activity"}
+                      </span>
 
-                    {activity.type === "Follow-up" && (
-                      <div className="application-follow-up-badges">
-                        <span
-                          className={`application-follow-up-status ${
-                            activity.completed ? "completed" : "pending"
-                          }`}
-                        >
-                          <span
-                            className="application-follow-up-status-icon"
-                            aria-hidden="true"
-                          >
-                            {activity.completed ? "✓" : "○"}
-                          </span>
+                      <h3>{activity.title}</h3>
 
-                          {activity.completed ? "Completed" : "Pending"}
-                        </span>
-
-                        {isOverdue(activity) && (
-                          <span className="application-follow-up-overdue">
-                            Overdue
-                            <span aria-hidden="true">!</span>
-                          </span>
-                        )}
-                      </div>
-                    )}
-
-                    {activity.description && (
-                      <p className="application-activity-description">
-                        {getActivityPreview(activity.description)}
-                      </p>
-                    )}
-                  </div>
-
-                  <div className="application-activity-card-side">
-                    <span className="application-activity-date">
-                      {formatDate(activity.date)}
-                    </span>
-
-                    <div
-                      className="application-activity-actions"
-                      onClick={(event) => event.stopPropagation()}
-                    >
                       {activity.type === "Follow-up" && (
-                        <button
-                          type="button"
-                          className={`application-follow-up-toggle ${
-                            activity.completed ? "completed" : "pending"
-                          }`}
-                          onClick={() => handleFollowUpStatusToggle(activity)}
-                          disabled={updatingStatusId !== null}
-                          aria-label={
-                            activity.completed
-                              ? `Mark ${activity.title} as pending`
-                              : `Mark ${activity.title} as completed`
-                          }
-                          aria-pressed={Boolean(activity.completed)}
-                        >
-                          {updatingStatusId === activity._id ? (
-                            <>
-                              <span
-                                className="application-follow-up-toggle-spinner"
-                                aria-hidden="true"
-                              />
-                              Saving...
-                            </>
-                          ) : activity.completed ? (
-                            <>
-                              <span aria-hidden="true">↶</span>
-                              Mark as Pending
-                            </>
-                          ) : (
-                            <>
-                              <span aria-hidden="true">✓</span>
-                              Mark as Complete
-                            </>
+                        <div className="application-follow-up-badges">
+                          <span
+                            className={`application-follow-up-status ${
+                              activity.completed ? "completed" : "pending"
+                            }`}
+                          >
+                            <span
+                              className="application-follow-up-status-icon"
+                              aria-hidden="true"
+                            >
+                              {activity.completed ? "✓" : "○"}
+                            </span>
+
+                            {activity.completed ? "Completed" : "Pending"}
+                          </span>
+
+                          {isOverdue(activity) && (
+                            <span className="application-follow-up-overdue">
+                              Overdue
+                              <span aria-hidden="true">!</span>
+                            </span>
                           )}
-                        </button>
+                        </div>
                       )}
 
-                      <button
-                        type="button"
-                        className="btn-secondary"
-                        onClick={() => openEditModal(activity)}
-                      >
-                        Edit
-                      </button>
+                      {activity.description && (
+                        <p className="application-activity-description">
+                          {getActivityPreview(activity.description)}
+                        </p>
+                      )}
+                    </div>
 
-                      <button
-                        type="button"
-                        className="btn-danger-outline"
-                        onClick={() => openDeleteModal(activity)}
+                    <div className="application-activity-card-side">
+                      <span className="application-activity-date">
+                        {formatDate(activity.date)}
+                      </span>
+
+                      <div
+                        className="application-activity-actions"
+                        onClick={(event) => event.stopPropagation()}
                       >
-                        Delete
-                      </button>
+                        {activity.type === "Follow-up" && editable && (
+                          <button
+                            type="button"
+                            className={`application-follow-up-toggle ${
+                              activity.completed ? "completed" : "pending"
+                            }`}
+                            onClick={() => handleFollowUpStatusToggle(activity)}
+                            disabled={updatingStatusId !== null}
+                            aria-label={
+                              activity.completed
+                                ? `Mark ${activity.title} as pending`
+                                : `Mark ${activity.title} as completed`
+                            }
+                            aria-pressed={Boolean(activity.completed)}
+                          >
+                            {updatingStatusId === activity._id ? (
+                              <>
+                                <span
+                                  className="application-follow-up-toggle-spinner"
+                                  aria-hidden="true"
+                                />
+                                Saving...
+                              </>
+                            ) : activity.completed ? (
+                              <>
+                                <span aria-hidden="true">↶</span>
+                                Mark as Pending
+                              </>
+                            ) : (
+                              <>
+                                <span aria-hidden="true">✓</span>
+                                Mark as Complete
+                              </>
+                            )}
+                          </button>
+                        )}
+
+                        {editable && (
+                          <>
+                            <button
+                              type="button"
+                              className="btn-secondary"
+                              onClick={() => openEditModal(activity)}
+                            >
+                              Edit
+                            </button>
+
+                            <button
+                              type="button"
+                              className="btn-danger-outline"
+                              onClick={() => openDeleteModal(activity)}
+                            >
+                              Delete
+                            </button>
+                          </>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>
-              </div>
-            </article>
-          ))}
+              </article>
+            );
+          })}
         </div>
       )}
 
@@ -703,6 +717,12 @@ function ApplicationActivity({ application }) {
               </p>
             )}
 
+            {!isEditableActivity(selectedActivity) && (
+              <p>
+                <strong>Application history event</strong> · Read-only
+              </p>
+            )}
+
             <div className="application-activity-detail-description">
               {selectedActivity.description ? (
                 <p>{selectedActivity.description}</p>
@@ -712,6 +732,26 @@ function ApplicationActivity({ application }) {
                 </p>
               )}
             </div>
+
+            {isEditableActivity(selectedActivity) && (
+              <div className="application-activity-actions">
+                <button
+                  type="button"
+                  className="btn-secondary"
+                  onClick={() => openEditModal(selectedActivity)}
+                >
+                  Edit
+                </button>
+
+                <button
+                  type="button"
+                  className="btn-danger-outline"
+                  onClick={() => openDeleteModal(selectedActivity)}
+                >
+                  Delete
+                </button>
+              </div>
+            )}
           </div>
         )}
       </FormDialog>
