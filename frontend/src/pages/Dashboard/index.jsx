@@ -165,6 +165,7 @@ function Dashboard() {
         )
         .map((activity) => ({
           id: `${application._id}-${activity._id}`,
+          applicationId: application._id,
           type: "Follow-up",
           title: activity.title,
           role: application.role,
@@ -186,6 +187,7 @@ function Dashboard() {
         )
         .map((round) => ({
           id: `${application._id}-${round._id}`,
+          applicationId: application._id,
           title: round.title,
           role: application.role,
           company: application.company,

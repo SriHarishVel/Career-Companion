@@ -44,6 +44,9 @@ function CareerJourney({
     rejected: applications.filter(
       (application) => application.status === "Rejected",
     ).length,
+    withdrawn: applications.filter(
+      (application) => application.status === "Withdrawn",
+    ).length,
   };
 
   const stages = [
@@ -194,7 +197,6 @@ function CareerJourney({
                 <span>Items</span>
                 <strong>{totalResourceItems}</strong>
               </div>
-              
             </div>
 
             <div className="journey-items">
@@ -237,6 +239,11 @@ function CareerJourney({
               <div>
                 <span>Rejected</span>
                 <strong>{applicationsByStatus.rejected}</strong>
+              </div>
+              
+              <div>
+                <span>Withdrawn</span>
+                <strong>{applicationsByStatus.withdrawn}</strong>
               </div>
             </div>
           </div>
