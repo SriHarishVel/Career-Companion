@@ -11,6 +11,7 @@ import {
 import LoadingState from "../../components/LoadingState";
 
 import CareerJourney from "./components/CareerJourney";
+import ApplicationAnalytics from "./components/ApplicationAnalytics";
 import RecentActivity from "./components/RecentActivity";
 import {
   UpcomingDeadlines,
@@ -137,12 +138,14 @@ function Dashboard() {
       updatedAt: resource.updatedAt,
     })),
 
-    ...applications.map((application) => ({
-      id: `application-${application._id}`,
-      type: "Application",
-      title: `${application.role} at ${application.company}`,
-      updatedAt: application.updatedAt,
-    })),
+    ...applications.flatMap((application) =>
+      (application.activities || []).map((activity) => ({
+        id: `activity-${application._id}-${activity._id}`,
+        type: activity.type,
+        title: activity.title,
+        updatedAt: activity.date || activity.createdAt,
+      })),
+    ),
   ]
     .filter((item) => item.updatedAt)
     .sort((a, b) => new Date(b.updatedAt) - new Date(a.updatedAt))
@@ -203,7 +206,6 @@ function Dashboard() {
     return (
       <div className="container">
         <h1>Dashboard</h1>
-
         <LoadingState message="Preparing your dashboard..." />
       </div>
     );
@@ -217,10 +219,8 @@ function Dashboard() {
     return (
       <div className="container">
         <h1>Dashboard</h1>
-
         <div className="dashboard-section">
           <p>{errorMsg}</p>
-
           <button
             type="button"
             className="btn-primary"
@@ -245,6 +245,8 @@ function Dashboard() {
         averageGoalProgress={averageGoalProgress}
         averageSkillProgress={averageSkillProgress}
       />
+
+      <ApplicationAnalytics applications={applications} />
 
       <RecentActivity recentItems={recentItems} />
 

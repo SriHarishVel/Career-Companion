@@ -225,7 +225,9 @@ export const updateApplication = async (req, res) => {
     application.appliedDate = req.body.appliedDate ?? application.appliedDate;
     application.applicationUrl =
       req.body.applicationUrl ?? application.applicationUrl;
-    application.primaryGoal = req.body.primaryGoal ?? application.primaryGoal;
+    if (req.body.primaryGoal !== undefined) {
+      application.primaryGoal = req.body.primaryGoal || null;
+    }
 
     if (req.body.status && req.body.status !== previousStatus) {
       application.activities.push({

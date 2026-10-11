@@ -637,6 +637,36 @@
   line-height: var(--line-height-normal);
 }
 
+/* APPLICATION STATUS BREAKDOWN */
+
+.application-status-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-bottom: var(--space-5);
+}
+
+.application-status-summary {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--space-2);
+
+  padding: 8px 12px;
+
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+
+  background: var(--color-surface-muted);
+  color: var(--color-text-secondary);
+
+  font-size: var(--font-size-sm);
+}
+
+.application-status-summary strong {
+  color: var(--color-text-heading);
+  font-weight: var(--font-weight-bold);
+}
+
 /* ACTIONS */
 
 .goal-detail-actions {

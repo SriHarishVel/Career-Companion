@@ -29,6 +29,8 @@ function RecentActivity({ recentItems }) {
                 </div>
 
                 <h3>{item.title}</h3>
+
+                {item.description && <p>{item.description}</p>}
               </div>
             </div>
           ))}
