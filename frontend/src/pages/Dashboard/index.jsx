@@ -186,7 +186,7 @@ function Dashboard() {
           (round) =>
             round.status === "Pending" &&
             round.date &&
-            new Date(round.date) >= new Date(),
+            !Number.isNaN(new Date(round.date).getTime()),
         )
         .map((round) => ({
           id: `${application._id}-${round._id}`,

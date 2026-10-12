@@ -81,6 +81,7 @@ export function UpcomingDeadlines({ upcomingDeadlines }) {
 
 export function UpcomingInterviews({ upcomingInterviews }) {
   const navigate = useNavigate();
+  const now = new Date();
 
   return (
     <div className="dashboard-section">
@@ -88,48 +89,72 @@ export function UpcomingInterviews({ upcomingInterviews }) {
 
       {upcomingInterviews.length > 0 ? (
         <div className="dashboard-list">
-          {upcomingInterviews.map((interview) => (
-            <button
-              key={interview.id}
-              type="button"
-              className="dashboard-list-item dashboard-clickable-item"
-              onClick={() =>
-                navigate(`/applications/${interview.applicationId}`)
-              }
-            >
-              <div>
-                <span>{interview.status}</span>
+          {upcomingInterviews.map((interview) => {
+            const interviewDate = new Date(interview.date);
 
-                <h3>{interview.title}</h3>
+            const isOverdue =
+              interview.status === "Pending" &&
+              !Number.isNaN(interviewDate.getTime()) &&
+              interviewDate < now;
 
-                <p>
-                  {interview.role} at {interview.company}
-                </p>
-              </div>
+            const overdueDays = isOverdue
+              ? Math.floor(
+                  (new Date().setHours(0, 0, 0, 0) -
+                    new Date(interview.date).setHours(0, 0, 0, 0)) /
+                    (1000 * 60 * 60 * 24),
+                )
+              : 0;
 
-              <div>
-                <strong>
-                  {new Date(interview.date).toLocaleDateString("en-GB", {
-                    day: "numeric",
-                    month: "short",
-                    year: "numeric",
-                  })}
-                </strong>
+            const formattedTime = interview.time
+              ? new Date(`1970-01-01T${interview.time}`).toLocaleTimeString(
+                  "en-US",
+                  {
+                    hour: "numeric",
+                    minute: "2-digit",
+                    hour12: true,
+                  },
+                )
+              : null;
 
-                {interview.time && (
+            return (
+              <button
+                key={interview.id}
+                type="button"
+                className="dashboard-list-item dashboard-clickable-item"
+                onClick={() =>
+                  navigate(`/applications/${interview.applicationId}`)
+                }
+              >
+                <div>
                   <span>
-                    {new Date(
-                      `1970-01-01T${interview.time}`,
-                    ).toLocaleTimeString("en-US", {
-                      hour: "numeric",
-                      minute: "2-digit",
-                      hour12: true,
-                    })}
+                    {isOverdue
+                      ? `${overdueDays} ${
+                          overdueDays === 1 ? "day" : "days"
+                        } overdue`
+                      : interview.status}
                   </span>
-                )}
-              </div>
-            </button>
-          ))}
+
+                  <h3>{interview.title}</h3>
+
+                  <p>
+                    {interview.role} at {interview.company}
+                  </p>
+                </div>
+
+                <div>
+                  <strong>
+                    {interviewDate.toLocaleDateString("en-GB", {
+                      day: "numeric",
+                      month: "short",
+                      year: "numeric",
+                    })}
+                  </strong>
+
+                  {formattedTime && <span>{formattedTime}</span>}
+                </div>
+              </button>
+            );
+          })}
         </div>
       ) : (
         <p>No upcoming interviews.</p>

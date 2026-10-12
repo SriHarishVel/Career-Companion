@@ -101,6 +101,10 @@ function ApplicationActivity({ application }) {
 
   const displayedActivities = activities
     .filter((activity) => {
+      if (activityFilter === "all") {
+        return true;
+      }
+
       if (activityFilter === "notes") {
         return ["Note Added", "Follow-up"].includes(activity.type);
       }
@@ -446,6 +450,18 @@ function ApplicationActivity({ application }) {
         >
           Other Activities
         </button>
+
+        <button
+          type="button"
+          className={`btn-secondary ${
+            activityFilter === "all" ? "active" : ""
+          }`}
+          onClick={() => setActivityFilter("all")}
+          aria-pressed={activityFilter === "all"}
+        >
+          All Activities
+        </button>
+        
       </div>
 
       {errorMsg &&
@@ -465,9 +481,11 @@ function ApplicationActivity({ application }) {
       ) : displayedActivities.length === 0 ? (
         <div className="application-activity-empty">
           <p>
-            {activityFilter === "notes"
-              ? "No notes or follow-ups recorded yet."
-              : "No other activities recorded yet."}
+            {activityFilter === "all"
+              ? "No application activities recorded yet."
+              : activityFilter === "notes"
+                ? "No notes or follow-ups recorded yet."
+                : "No other activities recorded yet."}
           </p>
         </div>
       ) : (
