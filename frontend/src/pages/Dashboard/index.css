@@ -309,6 +309,51 @@
   text-align: left;
 }
 
+/* FOLLOW-UP REMINDER PRIORITY */
+
+.dashboard-reminder-overdue {
+  border-left: 3px solid var(--color-danger, #dc2626);
+}
+
+.dashboard-reminder-urgency {
+  font-weight: 600;
+  color: var(--color-danger, #dc2626);
+}
+
+/* FOLLOW-UP REMINDER SECTION SPACING */
+
+.dashboard-section > div > h3 {
+  margin: 16px 0 10px;
+  line-height: 1.4;
+}
+
+.dashboard-section > div:first-of-type > h3 {
+  margin-top: 16px;
+}
+
+.dashboard-reminder-item {
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.dashboard-reminder-item > div:first-child {
+  flex: 1;
+  min-width: 0;
+}
+
+.dashboard-reminder-item > strong {
+  flex-shrink: 0;
+  align-self: center;
+  text-align: right;
+}
+
+.dashboard-reminder-urgency {
+  margin-bottom: 0;
+}
+
 /* CLICKABLE UPCOMING ITEMS */
 
 .dashboard-clickable-item {
