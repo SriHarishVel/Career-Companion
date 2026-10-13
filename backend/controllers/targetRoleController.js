@@ -1,5 +1,7 @@
 import mongoose from "mongoose";
+
 import TargetRole from "../models/TargetRole.js";
+import Skill from "../models/Skill.js";
 
 const validCategories = [
   "Programming",
@@ -20,7 +22,7 @@ function validateRequirements(requirements) {
 
   for (const requirement of requirements) {
     if (
-      !requirement.skillName ||
+      !requirement ||
       typeof requirement.skillName !== "string" ||
       !requirement.skillName.trim()
     ) {
@@ -58,6 +60,8 @@ function validateRequirements(requirements) {
   return null;
 }
 
+/* Create Target Role */
+
 export const createTargetRole = async (req, res) => {
   try {
     const { title, description = "", requirements = [] } = req.body;
@@ -77,7 +81,9 @@ export const createTargetRole = async (req, res) => {
     const validationError = validateRequirements(requirements);
 
     if (validationError) {
-      return res.status(400).json({ message: validationError });
+      return res.status(400).json({
+        message: validationError,
+      });
     }
 
     const targetRole = await TargetRole.create({
@@ -87,11 +93,15 @@ export const createTargetRole = async (req, res) => {
       user: req.user._id,
     });
 
-    res.status(201).json(targetRole);
+    return res.status(201).json(targetRole);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
+
+/* Get All Target Roles */
 
 export const getTargetRoles = async (req, res) => {
   try {
@@ -99,11 +109,15 @@ export const getTargetRoles = async (req, res) => {
       user: req.user._id,
     }).sort({ updatedAt: -1 });
 
-    res.status(200).json(targetRoles);
+    return res.status(200).json(targetRoles);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
+
+/* Get Single Target Role */
 
 export const getTargetRole = async (req, res) => {
   try {
@@ -124,11 +138,15 @@ export const getTargetRole = async (req, res) => {
       });
     }
 
-    res.status(200).json(targetRole);
+    return res.status(200).json(targetRole);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
+
+/* Update Target Role */
 
 export const updateTargetRole = async (req, res) => {
   try {
@@ -167,7 +185,9 @@ export const updateTargetRole = async (req, res) => {
       const validationError = validateRequirements(requirements);
 
       if (validationError) {
-        return res.status(400).json({ message: validationError });
+        return res.status(400).json({
+          message: validationError,
+        });
       }
 
       targetRole.requirements = requirements;
@@ -183,11 +203,15 @@ export const updateTargetRole = async (req, res) => {
 
     await targetRole.save();
 
-    res.status(200).json(targetRole);
+    return res.status(200).json(targetRole);
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
+
+/* Delete Target Role */
 
 export const deleteTargetRole = async (req, res) => {
   try {
@@ -210,10 +234,131 @@ export const deleteTargetRole = async (req, res) => {
 
     await targetRole.deleteOne();
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Target role deleted successfully.",
     });
   } catch (error) {
-    res.status(500).json({ message: error.message });
+    return res.status(500).json({
+      message: error.message,
+    });
+  }
+};
+
+/* Get Target Role Readiness */
+
+export const getTargetRoleReadiness = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    if (!mongoose.isValidObjectId(id)) {
+      return res.status(400).json({
+        message: "Invalid target role ID.",
+      });
+    }
+
+    const targetRole = await TargetRole.findOne({
+      _id: id,
+      user: req.user._id,
+    });
+
+    if (!targetRole) {
+      return res.status(404).json({
+        message: "Target role not found.",
+      });
+    }
+
+    const skills = await Skill.find({
+      user: req.user._id,
+    }).select("name level progress category");
+
+    const proficiencyLevels = {
+      Beginner: 1,
+      Intermediate: 2,
+      Advanced: 3,
+    };
+
+    const importanceWeights = {
+      High: 3,
+      Medium: 2,
+      Low: 1,
+    };
+
+    const skillLookup = new Map(
+      skills.map((skill) => [skill.name.trim().toLowerCase(), skill]),
+    );
+
+    let totalWeight = 0;
+    let achievedWeight = 0;
+
+    const requirements = targetRole.requirements.map((requirement) => {
+      const weight = importanceWeights[requirement.importance] ?? 2;
+
+      const skill = skillLookup.get(requirement.skillName.trim().toLowerCase());
+
+      const requiredLevel = proficiencyLevels[requirement.requiredLevel] ?? 2;
+
+      const currentLevel = skill ? (proficiencyLevels[skill.level] ?? 0) : 0;
+
+      const met = Boolean(skill) && currentLevel >= requiredLevel;
+
+      totalWeight += weight;
+
+      if (met) {
+        achievedWeight += weight;
+      }
+
+      return {
+        skillName: requirement.skillName,
+        category: requirement.category,
+        importance: requirement.importance,
+        requiredLevel: requirement.requiredLevel,
+        currentLevel: skill?.level ?? null,
+        progress: skill?.progress ?? 0,
+        skillId: skill?._id ?? null,
+        status: !skill ? "Missing" : met ? "Met" : "Below Required Level",
+        met,
+        weight,
+      };
+    });
+
+    const gaps = requirements
+      .filter((requirement) => !requirement.met)
+      .sort((a, b) => {
+        if (b.weight !== a.weight) {
+          return b.weight - a.weight;
+        }
+
+        return a.skillName.localeCompare(b.skillName);
+      });
+
+    const matchedSkills = requirements.filter((requirement) => requirement.met);
+
+    const readinessScore =
+      totalWeight === 0
+        ? null
+        : Math.round((achievedWeight / totalWeight) * 100);
+
+    return res.status(200).json({
+      targetRole: {
+        _id: targetRole._id,
+        title: targetRole.title,
+        description: targetRole.description,
+      },
+      readinessScore,
+      summary: {
+        totalRequirements: requirements.length,
+        metRequirements: matchedSkills.length,
+        gapCount: gaps.length,
+        totalWeight,
+        achievedWeight,
+      },
+      requirements,
+      matchedSkills,
+      gaps,
+    });
+  } catch (error) {
+    return res.status(500).json({
+      message: error.message,
+    });
   }
 };
