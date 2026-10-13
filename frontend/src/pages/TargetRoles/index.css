@@ -1,10 +1,14 @@
+/* TARGET ROLES PAGE */
+
 .target-roles-page {
   display: flex;
   flex-direction: column;
   gap: var(--space-6);
 }
 
-.target-roles-page .page-header {
+/* PAGE HEADER */
+
+.target-roles-header {
   display: flex;
   align-items: center;
   justify-content: space-between;
@@ -12,33 +16,198 @@
   flex-wrap: wrap;
 }
 
-.target-roles-page .page-header h1 {
-  margin-bottom: var(--space-2);
+.target-roles-header > div:first-child {
+  max-width: 680px;
 }
 
-.target-roles-page .page-header p {
+.target-roles-eyebrow {
+  display: inline-block;
+  margin-bottom: var(--space-2);
+  color: var(--color-primary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+  letter-spacing: 0.08em;
+}
+
+.target-roles-header h1 {
+  margin: 0;
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: var(--line-height-tight);
+}
+
+.target-roles-header p {
+  margin-top: var(--space-2);
   color: var(--color-text-secondary);
   line-height: var(--line-height-relaxed);
 }
 
-/* Target role cards */
+/* CAREER READINESS OVERVIEW */
+
+.career-readiness-overview {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6);
+  border: var(--border-width-thin) solid var(--color-border-subtle);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+}
+
+.readiness-overview-heading,
+.target-role-analysis-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  flex-wrap: wrap;
+}
+
+.readiness-overview-heading h2,
+.target-role-analysis-heading h2 {
+  margin: 0;
+  font-size: var(--font-size-lg);
+  font-weight: var(--font-weight-bold);
+}
+
+.readiness-overview-heading p,
+.target-role-analysis-heading p {
+  margin-top: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+.roles-count {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-3);
+  border: var(--border-width-thin) solid var(--color-primary-border);
+  border-radius: var(--radius-pill);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+}
+
+/* READINESS METRICS */
+
+.readiness-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.readiness-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-5);
+  border: var(--border-width-thin) solid var(--color-border-subtle);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface-muted);
+}
+
+.readiness-metric-primary {
+  border-color: var(--color-primary-border);
+  background: var(--color-primary-subtle);
+}
+
+.readiness-metric-label {
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+}
+
+.readiness-metric strong {
+  color: var(--color-text-heading);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.1;
+  overflow-wrap: anywhere;
+}
+
+.readiness-metric-primary strong {
+  color: var(--color-primary);
+}
+
+.readiness-metric-note {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+/* EMPTY STATE */
+
+.target-roles-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-3);
+  min-height: 280px;
+  padding: var(--space-8);
+  border: var(--border-width-thin) dashed var(--color-border-strong);
+  border-radius: var(--radius-xl);
+  background: var(--color-surface-muted);
+  text-align: center;
+}
+
+.target-roles-empty-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border: var(--border-width-thin) solid var(--color-primary-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-size: var(--font-size-3xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.target-roles-empty-state h2 {
+  margin: 0;
+  color: var(--color-text-heading);
+  font-size: var(--font-size-xl);
+  font-weight: var(--font-weight-bold);
+}
+
+.target-roles-empty-state p {
+  max-width: 480px;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ROLE ANALYSIS SECTION */
+
+.target-role-analysis {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-5);
+}
 
 .target-roles-grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(min(100%, 300px), 1fr));
-  gap: var(--space-6);
+  grid-template-columns: repeat(auto-fit, minmax(min(100%, 320px), 1fr));
+  gap: var(--space-5);
 }
+
+/* TARGET ROLE CARDS */
 
 .target-role-card {
   display: flex;
   flex-direction: column;
   min-width: 0;
-  padding: var(--space-6);
+  padding: var(--space-5);
   border: var(--border-width-thin) solid var(--color-border-subtle);
-  border-top: var(--border-width-featured) solid var(--color-primary);
   border-radius: var(--radius-xl);
-  background: var(--color-surface-muted);
-  box-shadow: var(--shadow-md);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
   transition:
     transform var(--duration-normal) var(--ease-standard),
     box-shadow var(--duration-normal) var(--ease-standard),
@@ -48,54 +217,129 @@
 .target-role-card:hover {
   transform: translateY(-2px);
   border-color: var(--color-primary-muted);
-  box-shadow: var(--shadow-lg);
+  box-shadow: var(--shadow-md);
 }
 
 .target-role-card-header {
   display: flex;
-  align-items: flex-start;
+  align-items: center;
   justify-content: space-between;
-  flex-wrap: wrap;
-  gap: var(--space-3);
-  margin-bottom: var(--space-3);
+  gap: var(--space-4);
+  margin-bottom: var(--space-4);
 }
 
-.target-role-card-header h2 {
+.target-role-title-group {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
   min-width: 0;
+}
+
+.target-role-card-label {
+  color: var(--color-text-muted);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  letter-spacing: 0.06em;
+}
+
+.target-role-title-group h3 {
+  margin: 0;
+  color: var(--color-text-heading);
   font-size: var(--font-size-xl);
   font-weight: var(--font-weight-bold);
   line-height: var(--line-height-tight);
   overflow-wrap: anywhere;
 }
 
-.target-role-card > p {
+.target-role-description {
+  margin: 0 0 var(--space-3);
   color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
   line-height: var(--line-height-relaxed);
 }
 
-/* Readiness */
-
-.readiness-score {
-  flex-shrink: 0;
-  padding: var(--space-1) var(--space-3);
-  border: var(--border-width-thin) solid var(--color-success-border);
-  border-radius: var(--radius-pill);
-  background: var(--color-success-surface);
-  color: var(--color-success-text);
+.target-role-loading,
+.target-role-no-requirements {
+  margin-top: var(--space-3);
+  color: var(--color-text-secondary);
   font-size: var(--font-size-sm);
-  font-weight: var(--font-weight-semibold);
+  line-height: var(--line-height-relaxed);
+}
+
+/* CIRCULAR READINESS INDICATOR */
+
+.readiness-score-ring {
+  --readiness-progress: 0%;
+
+  display: grid;
+  place-items: center;
+  flex-shrink: 0;
+  width: 76px;
+  height: 76px;
+  border-radius: 50%;
+  background: conic-gradient(
+    var(--color-primary) var(--readiness-progress),
+    var(--color-border) var(--readiness-progress)
+  );
+}
+
+.readiness-score-ring-inner {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: var(--color-surface);
+}
+
+.readiness-score-ring-inner strong {
+  color: var(--color-text-heading);
+  font-size: var(--font-size-md);
+  font-weight: var(--font-weight-bold);
+  line-height: 1.2;
+}
+
+.readiness-score-ring-inner span {
+  color: var(--color-text-muted);
+  font-size: 10px;
+  line-height: 1.3;
 }
 
 .readiness-score.unavailable {
-  border-color: var(--color-border);
-  background: var(--color-surface-subtle);
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-2);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
   color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
+}
+
+/* REQUIREMENT MATCH SUMMARY */
+
+.target-role-match-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: var(--space-2);
+  margin-top: var(--space-2);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.target-role-match-summary strong {
+  color: var(--color-text-heading);
+  font-weight: var(--font-weight-bold);
 }
 
 .readiness-progress {
   width: 100%;
-  height: 8px;
-  margin: var(--space-4) 0 var(--space-2);
+  height: 6px;
+  margin-top: var(--space-3);
   overflow: hidden;
   border-radius: var(--radius-pill);
   background: var(--color-control-disabled);
@@ -108,59 +352,128 @@
   transition: width var(--duration-slow) var(--ease-standard);
 }
 
-.requirement-summary,
-.more-gaps {
-  color: var(--color-text-secondary);
-  font-size: var(--font-size-sm);
-}
+/* SKILL GAP ANALYSIS */
 
-/* Skill gaps */
-
-.skill-gaps {
+.target-role-gap-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
   margin-top: var(--space-5);
+  padding-top: var(--space-4);
+  border-top: var(--border-width-thin) solid var(--color-border-subtle);
 }
 
-.skill-gaps h3 {
-  margin-bottom: var(--space-3);
+.target-role-gap-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.target-role-gap-heading h4 {
+  margin: 0;
+  color: var(--color-text-heading);
   font-size: var(--font-size-base);
   font-weight: var(--font-weight-semibold);
 }
 
-.skill-gaps ul {
+.target-role-gap-count {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 24px;
+  height: 24px;
+  padding: 0 var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-warning-surface);
+  color: var(--color-warning-text);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-bold);
+}
+
+.target-role-gap-list {
   display: flex;
   flex-direction: column;
-  gap: var(--space-3);
+  gap: 0;
+  margin: 0;
+  padding: 0;
   list-style: none;
 }
 
-.skill-gaps li {
+.target-role-gap-list li {
   display: flex;
-  align-items: flex-start;
-  justify-content: space-between;
-  gap: var(--space-3);
-  padding-bottom: var(--space-3);
+  align-items: center;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-3) 0;
   border-bottom: var(--border-width-thin) solid var(--color-border-subtle);
 }
 
-.skill-gaps li span:first-child {
+.target-role-gap-list li:last-child {
+  border-bottom: none;
+}
+
+.target-role-gap-indicator {
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.target-role-gap-indicator.is-missing {
+  background: var(--color-danger);
+}
+
+.target-role-gap-indicator.is-below-level {
+  background: var(--color-warning);
+}
+
+.target-role-gap-name {
+  flex: 1;
   min-width: 0;
+  color: var(--color-text-primary);
+  font-size: var(--font-size-sm);
   overflow-wrap: anywhere;
 }
 
 .gap-status {
   flex-shrink: 0;
-  color: var(--color-warning-text);
-  font-size: var(--font-size-sm);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-md);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-medium);
   text-align: right;
 }
 
-.no-skill-gaps {
-  margin-top: var(--space-4);
-  color: var(--color-success-text);
+.gap-status.is-missing {
+  background: var(--color-danger-surface);
+  color: var(--color-danger-text);
+}
+
+.gap-status.is-below-level {
+  background: var(--color-warning-surface);
+  color: var(--color-warning-text);
+}
+
+.more-gaps {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
   font-weight: var(--font-weight-medium);
 }
 
-/* Error message */
+.target-role-no-gaps {
+  margin: 0;
+  padding: var(--space-3);
+  border-radius: var(--radius-md);
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-medium);
+  line-height: var(--line-height-relaxed);
+}
+
+/* ERROR MESSAGE */
 
 .target-role-error {
   padding: var(--space-3) var(--space-4);
@@ -170,7 +483,7 @@
   color: var(--color-danger-text);
 }
 
-/* Target role form */
+/* TARGET ROLE FORM */
 
 .target-role-form-section {
   display: flex;
@@ -191,8 +504,23 @@
 }
 
 .target-role-form-header h2 {
+  margin: 0;
   font-size: var(--font-size-2xl);
   font-weight: var(--font-weight-bold);
+}
+
+.target-role-requirement-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-3);
+}
+
+.target-role-requirement-heading h4 {
+  margin: 0;
+  color: var(--color-text-heading);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
 }
 
 .target-role-form {
@@ -229,7 +557,7 @@
 }
 
 .target-role-requirements-header h3 {
-  margin-bottom: var(--space-1);
+  margin: 0 0 var(--space-1);
   font-size: var(--font-size-lg);
   font-weight: var(--font-weight-semibold);
 }
@@ -265,16 +593,213 @@
   border-top: var(--border-width-thin) solid var(--color-border-subtle);
 }
 
-/* Responsive layout */
+/* TARGET ROLE DETAILS */
+
+.target-role-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+  min-width: 0;
+}
+
+.target-role-details-header {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-3);
+}
+
+.target-role-details-header h2 {
+  margin: 0;
+  color: var(--color-text-heading);
+  font-size: var(--font-size-2xl);
+  font-weight: var(--font-weight-bold);
+  overflow-wrap: anywhere;
+}
+
+.target-role-details-header p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  line-height: var(--line-height-normal);
+}
+
+.target-role-details-overview {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: var(--space-4);
+}
+
+.target-role-details-score,
+.target-role-details-overview .readiness-metric {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: var(--space-2);
+  min-width: 0;
+  padding: var(--space-5);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.target-role-details-score strong {
+  color: var(--color-primary);
+  font-size: var(--font-size-3xl);
+  line-height: 1.2;
+}
+
+.target-role-details-score p {
+  margin: 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.target-role-details-section {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-5);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.target-role-details-section-heading h3 {
+  margin: 0;
+  color: var(--color-text-heading);
+  font-size: var(--font-size-lg);
+}
+
+.target-role-details-section-heading p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-sm);
+}
+
+.target-role-requirements-list,
+.target-role-prioritized-gaps {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.target-role-requirement-item,
+.target-role-prioritized-gap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--space-4);
+  min-width: 0;
+  padding: var(--space-4);
+  border: var(--border-width-thin) solid var(--color-border);
+  border-radius: var(--radius-md);
+  background: var(--color-surface-muted);
+}
+
+.target-role-requirement-item-main,
+.target-role-prioritized-gap > div {
+  flex: 1;
+  min-width: 0;
+}
+
+.target-role-requirement-item h4,
+.target-role-prioritized-gap h4 {
+  margin: 0;
+  color: var(--color-text-heading);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-semibold);
+  overflow-wrap: anywhere;
+}
+
+.target-role-requirement-item p,
+.target-role-prioritized-gap p {
+  margin: var(--space-1) 0 0;
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+  line-height: var(--line-height-normal);
+}
+
+.target-role-requirement-levels {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+  color: var(--color-text-secondary);
+  font-size: var(--font-size-xs);
+}
+
+.target-role-requirement-status {
+  flex-shrink: 0;
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-pill);
+  background: var(--color-warning-surface);
+  color: var(--color-warning-text);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.target-role-requirement-status.is-met {
+  background: var(--color-success-surface);
+  color: var(--color-success-text);
+}
+
+.target-role-requirement-status.is-missing {
+  background: var(--color-danger-surface);
+  color: var(--color-danger-text);
+}
+
+.target-role-prioritized-gap {
+  justify-content: flex-start;
+}
+
+.target-role-gap-number {
+  display: flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: var(--radius-md);
+  background: var(--color-primary-subtle);
+  color: var(--color-primary);
+  font-size: var(--font-size-sm);
+  font-weight: var(--font-weight-bold);
+}
+
+.target-role-prioritized-gap .gap-status {
+  flex-shrink: 0;
+}
+
+/* RESPONSIVE LAYOUT */
 
 @media (max-width: 700px) {
-  .target-roles-page .page-header {
+  .target-roles-header {
     align-items: flex-start;
     flex-direction: column;
   }
 
-  .target-role-card {
+  .target-roles-header h1 {
+    font-size: var(--font-size-2xl);
+  }
+
+  .career-readiness-overview {
     padding: var(--space-5);
+  }
+
+  .readiness-metrics {
+    grid-template-columns: 1fr;
+  }
+
+  .readiness-metric {
+    padding: var(--space-4);
+  }
+
+  .readiness-metric strong {
+    font-size: var(--font-size-2xl);
+  }
+
+  .target-roles-grid {
+    grid-template-columns: 1fr;
   }
 
   .target-role-form-section {
@@ -284,15 +809,59 @@
   .target-role-requirement-fields {
     grid-template-columns: 1fr;
   }
+
+  .target-role-details-overview {
+    grid-template-columns: 1fr;
+  }
+
+  .target-role-requirement-item {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .target-role-requirement-levels {
+    flex-direction: row;
+    flex-wrap: wrap;
+    gap: var(--space-3);
+  }
+
+  .target-role-prioritized-gap {
+    align-items: flex-start;
+    flex-wrap: wrap;
+  }
 }
 
 @media (max-width: 480px) {
+  .target-roles-page {
+    gap: var(--space-5);
+  }
+
+  .career-readiness-overview {
+    padding: var(--space-4);
+  }
+
+  .target-roles-empty-state {
+    min-height: 240px;
+    padding: var(--space-5);
+  }
+
   .target-role-card {
     padding: var(--space-4);
   }
 
   .target-role-card-header {
-    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+
+  .readiness-score-ring {
+    width: 66px;
+    height: 66px;
+  }
+
+  .readiness-score-ring-inner {
+    width: 54px;
+    height: 54px;
   }
 
   .target-role-form-section {
@@ -310,5 +879,14 @@
 
   .target-role-form-actions button {
     width: 100%;
+  }
+}
+
+/* REDUCED MOTION */
+
+@media (prefers-reduced-motion: reduce) {
+  .target-role-card,
+  .readiness-progress-fill {
+    transition: none;
   }
 }

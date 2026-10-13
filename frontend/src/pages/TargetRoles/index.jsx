@@ -2,8 +2,8 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import LoadingState from "../../components/LoadingState";
-
 import TargetRoleForm from "./components/TargetRoleForm";
+import TargetRoleDetails from "./components/TargetRoleDetails";
 
 import {
   getTargetRoles,
@@ -18,6 +18,7 @@ function TargetRoles() {
 
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState("");
+  const [selectedRole, setSelectedRole] = useState(null);
 
   const {
     data: roles = [],
@@ -26,22 +27,20 @@ function TargetRoles() {
   } = useQuery({
     queryKey: ["target-roles"],
     queryFn: getTargetRoles,
+    staleTime: 5 * 60 * 1000,
   });
 
   const readinessQueries = useQuery({
     queryKey: ["target-role-readiness", roles.map((role) => role._id)],
     queryFn: async () =>
       Promise.all(
-        roles.map(async (role) => {
-          const readiness = await getTargetRoleReadiness(role._id);
-
-          return {
-            roleId: role._id,
-            readiness,
-          };
-        }),
+        roles.map(async (role) => ({
+          roleId: role._id,
+          readiness: await getTargetRoleReadiness(role._id),
+        })),
       ),
     enabled: roles.length > 0,
+    staleTime: 5 * 60 * 1000,
   });
 
   const createRoleMutation = useMutation({
@@ -75,13 +74,12 @@ function TargetRoles() {
 
   function openCreateForm() {
     setFormError("");
+    setSelectedRole(null);
     setShowForm(true);
   }
 
   function closeCreateForm() {
-    if (createRoleMutation.isPending) {
-      return;
-    }
+    if (createRoleMutation.isPending) return;
 
     setShowForm(false);
     setFormError("");
@@ -89,9 +87,9 @@ function TargetRoles() {
 
   if (isLoading) {
     return (
-      <div className="container">
-        <h1>Target Roles</h1>
-        <LoadingState message="Loading target roles..." />
+      <div className="container target-roles-page">
+        <h1>Career Readiness</h1>
+        <LoadingState message="Loading your target roles..." />
       </div>
     );
   }
@@ -112,15 +110,67 @@ function TargetRoles() {
     ]),
   );
 
+  const readinessResults = roles
+    .map((role) => readinessByRole.get(role._id))
+    .filter((readiness) => readiness?.summary);
+
+  const assessedRoles = readinessResults.filter(
+    (readiness) => readiness.readinessScore != null,
+  );
+
+  const averageReadiness =
+    assessedRoles.length > 0
+      ? Math.round(
+          assessedRoles.reduce(
+            (total, readiness) => total + readiness.readinessScore,
+            0,
+          ) / assessedRoles.length,
+        )
+      : null;
+
+  const totalRequirements = readinessResults.reduce(
+    (total, readiness) => total + (readiness.summary?.totalRequirements ?? 0),
+    0,
+  );
+
+  const totalMetRequirements = readinessResults.reduce(
+    (total, readiness) => total + (readiness.summary?.metRequirements ?? 0),
+    0,
+  );
+
+  const totalSkillGaps = readinessResults.reduce(
+    (total, readiness) => total + (readiness.gaps?.length ?? 0),
+    0,
+  );
+
+  const currentSelectedRole = selectedRole
+    ? roles.find((role) => role._id === selectedRole._id)
+    : null;
+
+  if (currentSelectedRole && !showForm) {
+    return (
+      <div className="container target-roles-page">
+        <header className="target-roles-header">
+          <div>
+            <span className="target-roles-eyebrow">CAREER DEVELOPMENT</span>
+            <h1>Career Readiness</h1>
+          </div>
+        </header>
+
+        <TargetRoleDetails
+          role={currentSelectedRole}
+          onClose={() => setSelectedRole(null)}
+        />
+      </div>
+    );
+  }
+
   return (
     <div className="container target-roles-page">
-      <div className="page-header">
+      <header className="target-roles-header">
         <div>
-          <h1>Target Roles</h1>
-          <p>
-            Track your career goals and identify the skills you need to
-            develop.
-          </p>
+          <span className="target-roles-eyebrow">CAREER DEVELOPMENT</span>
+          <h1>Career Readiness</h1>
         </div>
 
         {!showForm && (
@@ -132,7 +182,7 @@ function TargetRoles() {
             + Add Target Role
           </button>
         )}
-      </div>
+      </header>
 
       {displayedError && (
         <div className="target-role-error" role="alert">
@@ -148,108 +198,245 @@ function TargetRoles() {
         />
       )}
 
-      {!showForm && roles.length === 0 ? (
-        <div className="empty-state">
-          <h3>No target roles yet</h3>
+      {!showForm && roles.length > 0 && (
+        <section
+          className="career-readiness-overview"
+          aria-label="Career readiness overview"
+        >
+          <div className="readiness-overview-heading">
+            <div>
+              <h2>Your overview</h2>
+            </div>
+
+            <span className="roles-count">
+              {roles.length} {roles.length === 1 ? "role" : "roles"}
+            </span>
+          </div>
+
+          <div className="readiness-metrics">
+            <article className="readiness-metric readiness-metric-primary">
+              <span className="readiness-metric-label">Average readiness</span>
+              <strong>
+                {readinessQueries.isLoading
+                  ? "—"
+                  : averageReadiness == null
+                    ? "N/A"
+                    : `${averageReadiness}%`}
+              </strong>
+              <span className="readiness-metric-note">
+                Across assessed roles
+              </span>
+            </article>
+
+            <article className="readiness-metric">
+              <span className="readiness-metric-label">Skills matched</span>
+              <strong>
+                {readinessQueries.isLoading
+                  ? "—"
+                  : `${totalMetRequirements}/${totalRequirements}`}
+              </strong>
+              <span className="readiness-metric-note">
+                Requirements currently met
+              </span>
+            </article>
+
+            <article className="readiness-metric">
+              <span className="readiness-metric-label">Skill gaps</span>
+              <strong>
+                {readinessQueries.isLoading ? "—" : totalSkillGaps}
+              </strong>
+              <span className="readiness-metric-note">
+                Requirements to improve
+              </span>
+            </article>
+          </div>
+        </section>
+      )}
+
+      {!showForm && roles.length === 0 && (
+        <section className="target-roles-empty-state">
+          <div className="target-roles-empty-icon" aria-hidden="true">
+            <span>↗</span>
+          </div>
+          <h2>Define your next career step</h2>
           <p>
-            Add a target role to see how your current skills match its
-            requirements.
+            Add a target role to compare its skill requirements against your
+            existing skills. You’ll get a readiness score and a prioritized view
+            of the gaps to work on.
           </p>
-          <button
-            type="button"
-            className="btn-primary"
-            onClick={openCreateForm}
-          >
-            Create Your First Target Role
-          </button>
-        </div>
-      ) : (
-        !showForm && (
+        </section>
+      )}
+
+      {!showForm && roles.length > 0 && (
+        <section className="target-role-analysis">
+          <div className="target-role-analysis-heading">
+            <div>
+              <h2>Your target roles</h2>
+            </div>
+          </div>
+
           <div className="target-roles-grid">
             {roles.map((role) => {
               const readiness = readinessByRole.get(role._id);
               const score = readiness?.readinessScore;
               const gaps = readiness?.gaps || [];
+              const summary = readiness?.summary;
+              const requirementCount = summary?.totalRequirements ?? 0;
+              const metCount = summary?.metRequirements ?? 0;
 
               return (
                 <article className="target-role-card" key={role._id}>
                   <div className="target-role-card-header">
-                    <h2>{role.title}</h2>
-
-                    {score == null ? (
-                      <span className="readiness-score unavailable">
-                        {readiness ? "Not assessed" : "Loading"}
+                    <div className="target-role-title-group">
+                      <span className="target-role-card-label">
+                        TARGET ROLE
                       </span>
+                      <h3>{role.title}</h3>
+                    </div>
+
+                    {readinessQueries.isLoading ? (
+                      <span className="readiness-score unavailable">
+                        Loading
+                      </span>
+                    ) : score != null ? (
+                      <div
+                        className="readiness-score-ring"
+                        role="img"
+                        aria-label={`${score}% readiness for ${role.title}`}
+                        style={{
+                          "--readiness-progress": `${score}%`,
+                        }}
+                      >
+                        <div className="readiness-score-ring-inner">
+                          <strong>{score}%</strong>
+                          <span>ready</span>
+                        </div>
+                      </div>
                     ) : (
-                      <span className="readiness-score">
-                        {score}% ready
+                      <span className="readiness-score unavailable">
+                        Not assessed
                       </span>
                     )}
                   </div>
 
-                  {role.description && <p>{role.description}</p>}
+                  {role.description && (
+                    <p className="target-role-description">
+                      {role.description}
+                    </p>
+                  )}
 
                   {readinessQueries.isLoading ? (
-                    <p>Calculating readiness...</p>
+                    <p className="target-role-loading">
+                      Analyzing skill requirements...
+                    </p>
                   ) : readiness ? (
                     <>
-                      <div
-                        className="readiness-progress"
-                        role="progressbar"
-                        aria-label={`${role.title} readiness`}
-                        aria-valuemin={0}
-                        aria-valuemax={100}
-                        aria-valuenow={score ?? 0}
-                      >
-                        <div
-                          className="readiness-progress-fill"
-                          style={{ width: `${score ?? 0}%` }}
-                        />
-                      </div>
+                      {requirementCount > 0 ? (
+                        <>
+                          <div className="target-role-match-summary">
+                            <span>
+                              <strong>{metCount}</strong> of {requirementCount}{" "}
+                              requirements met
+                            </span>
+                            <span>{requirementCount - metCount} remaining</span>
+                          </div>
 
-                      <p className="requirement-summary">
-                        {readiness.summary?.metRequirements ?? 0} of{" "}
-                        {readiness.summary?.totalRequirements ?? 0}{" "}
-                        requirements met
-                      </p>
+                          <div
+                            className="readiness-progress"
+                            role="progressbar"
+                            aria-label={`${role.title} requirements met`}
+                            aria-valuemin={0}
+                            aria-valuemax={requirementCount}
+                            aria-valuenow={metCount}
+                          >
+                            <div
+                              className="readiness-progress-fill"
+                              style={{
+                                width: `${
+                                  (metCount / requirementCount) * 100
+                                }%`,
+                              }}
+                            />
+                          </div>
+                        </>
+                      ) : (
+                        <p className="target-role-no-requirements">
+                          Add skill requirements to assess your readiness for
+                          this role.
+                        </p>
+                      )}
 
-                      {gaps.length > 0 ? (
-                        <div className="skill-gaps">
-                          <h3>Priority skill gaps</h3>
+                      <div className="target-role-gap-section">
+                        <div className="target-role-gap-heading">
+                          <h4>Skill gap analysis</h4>
+                          {gaps.length > 0 && (
+                            <span className="target-role-gap-count">
+                              {gaps.length}
+                            </span>
+                          )}
+                        </div>
 
-                          <ul>
+                        {gaps.length > 0 ? (
+                          <ul className="target-role-gap-list">
                             {gaps.slice(0, 3).map((gap) => (
                               <li key={gap.skillName}>
-                                <span>{gap.skillName}</span>
-                                <span className="gap-status">
+                                <span
+                                  className={`target-role-gap-indicator ${
+                                    gap.status === "Missing"
+                                      ? "is-missing"
+                                      : "is-below-level"
+                                  }`}
+                                  aria-hidden="true"
+                                />
+
+                                <span className="target-role-gap-name">
+                                  {gap.skillName}
+                                </span>
+
+                                <span
+                                  className={`gap-status ${
+                                    gap.status === "Missing"
+                                      ? "is-missing"
+                                      : "is-below-level"
+                                  }`}
+                                >
                                   {gap.status}
                                 </span>
                               </li>
                             ))}
                           </ul>
+                        ) : requirementCount > 0 ? (
+                          <p className="target-role-no-gaps">
+                            All role requirements are met.
+                          </p>
+                        ) : null}
 
-                          {gaps.length > 3 && (
-                            <p className="more-gaps">
-                              And {gaps.length - 3} more
-                            </p>
-                          )}
-                        </div>
-                      ) : score != null ? (
-                        <p className="no-skill-gaps">
-                          All role requirements are met.
-                        </p>
-                      ) : (
-                        <p>No requirements have been added to this role.</p>
-                      )}
+                        {gaps.length > 3 && (
+                          <p className="more-gaps">
+                            +{gaps.length - 3} more skill gaps
+                          </p>
+                        )}
+                      </div>
                     </>
                   ) : (
-                    <p>Readiness data is unavailable.</p>
+                    <p className="target-role-loading">
+                      Readiness data is unavailable.
+                    </p>
                   )}
+
+                  <button
+                    type="button"
+                    className="btn-secondary target-role-details-button"
+                    onClick={() => setSelectedRole(role)}
+                  >
+                    View Full Analysis
+                    <span aria-hidden="true">→</span>
+                  </button>
                 </article>
               );
             })}
           </div>
-        )
+        </section>
       )}
     </div>
   );

@@ -32,25 +32,37 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
         i === index ? { ...requirement, [field]: value } : requirement,
       ),
     );
+
+    setErrorMsg("");
   }
 
   function addRequirement() {
+    if (saving) return;
+
     setRequirements((current) => [...current, createEmptyRequirement()]);
+    setErrorMsg("");
   }
 
   function removeRequirement(index) {
+    if (saving) return;
+
     setRequirements((current) => current.filter((_, i) => i !== index));
+    setErrorMsg("");
   }
 
   async function handleSubmit(event) {
     event.preventDefault();
+
+    if (saving) return;
+
+    const normalizedTitle = title.trim();
 
     const normalizedRequirements = requirements.map((requirement) => ({
       ...requirement,
       skillName: requirement.skillName.trim(),
     }));
 
-    if (!title.trim()) {
+    if (!normalizedTitle) {
       setErrorMsg("Role title is required.");
       return;
     }
@@ -73,7 +85,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
 
     try {
       await onSubmit({
-        title: title.trim(),
+        title: normalizedTitle,
         description: description.trim(),
         requirements: normalizedRequirements,
       });
@@ -107,10 +119,14 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
             id="target-role-title"
             type="text"
             value={title}
-            onChange={(event) => setTitle(event.target.value)}
+            onChange={(event) => {
+              setTitle(event.target.value);
+              setErrorMsg("");
+            }}
             placeholder="e.g. Frontend Developer"
             maxLength={120}
             required
+            disabled={saving}
           />
         </div>
 
@@ -122,6 +138,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
             onChange={(event) => setDescription(event.target.value)}
             placeholder="Optional description of your career goal"
             rows={3}
+            disabled={saving}
           />
         </div>
 
@@ -129,7 +146,6 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
           <div className="target-role-requirements-header">
             <div>
               <h3>Required skills</h3>
-              <p>Define the proficiency expected for each skill.</p>
             </div>
 
             <button
@@ -144,6 +160,21 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
 
           {requirements.map((requirement, index) => (
             <div className="target-role-requirement" key={index}>
+              <div className="target-role-requirement-heading">
+                <h4>Requirement {index + 1}</h4>
+
+                {requirements.length > 1 && (
+                  <button
+                    type="button"
+                    className="btn-danger-outline"
+                    onClick={() => removeRequirement(index)}
+                    disabled={saving}
+                  >
+                    Remove
+                  </button>
+                )}
+              </div>
+
               <div className="target-role-form-field">
                 <label htmlFor={`requirement-name-${index}`}>Skill name</label>
                 <input
@@ -155,6 +186,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
                   }
                   placeholder="e.g. React"
                   required
+                  disabled={saving}
                 />
               </div>
 
@@ -169,6 +201,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
                     onChange={(event) =>
                       updateRequirement(index, "category", event.target.value)
                     }
+                    disabled={saving}
                   >
                     {SKILL_CATEGORIES.map((category) => (
                       <option key={category} value={category}>
@@ -192,6 +225,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
                         event.target.value,
                       )
                     }
+                    disabled={saving}
                   >
                     {SKILL_LEVELS.map((level) => (
                       <option key={level} value={level}>
@@ -211,6 +245,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
                     onChange={(event) =>
                       updateRequirement(index, "importance", event.target.value)
                     }
+                    disabled={saving}
                   >
                     {IMPORTANCE_LEVELS.map((importance) => (
                       <option key={importance} value={importance}>
@@ -220,17 +255,6 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
                   </select>
                 </div>
               </div>
-
-              {requirements.length > 1 && (
-                <button
-                  type="button"
-                  className="btn-danger-outline"
-                  onClick={() => removeRequirement(index)}
-                  disabled={saving}
-                >
-                  Remove Skill
-                </button>
-              )}
             </div>
           ))}
         </div>
