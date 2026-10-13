@@ -17,6 +17,7 @@ import goalRoutes from "./routes/goalRoutes.js";
 import resourceRoutes from "./routes/resourceRoutes.js";
 import skillRoutes from "./routes/skillRoutes.js";
 import applicationRoutes from "./routes/applicationRoutes.js";
+import targetRoleRoutes from "./routes/targetRoleRoutes.js";
 
 connectDB();
 
@@ -35,6 +36,7 @@ app.use("/api/goals", goalRoutes);
 app.use("/api/resources", resourceRoutes);
 app.use("/api/skills", skillRoutes);
 app.use("/api/applications", applicationRoutes);
+app.use("/api/target-roles", targetRoleRoutes);
 
 app.get("/", (req, res) => {
   console.log("Backend request received");

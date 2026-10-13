@@ -17,34 +17,27 @@ import uploadResourceFile from "../middleware/uploadMiddleware.js";
 
 const router = express.Router();
 
+router.use(protect);
+
 /* Resource */
 
-router.post("/", protect, createResource);
+router.route("/").post(createResource).get(getResources);
 
-router.get("/", protect, getResources);
-
-router.get("/:id", protect, getResource);
-
-router.put("/:id", protect, updateResource);
-
-router.delete("/:id", protect, deleteResource);
+router
+  .route("/:id")
+  .get(getResource)
+  .put(updateResource)
+  .delete(deleteResource);
 
 /* Resource Items */
 
-router.post(
-  "/:id/items",
-  protect,
-  uploadResourceFile.single("file"),
-  addResourceItem,
-);
+router
+  .route("/:id/items")
+  .post(uploadResourceFile.single("file"), addResourceItem);
 
-router.put(
-  "/:id/items/:itemId",
-  protect,
-  uploadResourceFile.single("file"),
-  updateResourceItem,
-);
-
-router.delete("/:id/items/:itemId", protect, deleteResourceItem);
+router
+  .route("/:id/items/:itemId")
+  .put(uploadResourceFile.single("file"), updateResourceItem)
+  .delete(deleteResourceItem);
 
 export default router;

@@ -21,40 +21,43 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/", protect, createApplication);
+router.use(protect);
 
-router.get("/", protect, getApplications);
+/* Applications */
 
-router.get("/:id/activities", protect, getApplicationActivities);
+router.route("/").post(createApplication).get(getApplications);
 
-router.get("/reminders", protect, getFollowUpReminders);
+router.route("/reminders").get(getFollowUpReminders);
 
-router.post("/:id/activities", protect, addApplicationActivity);
+/* Application Activities */
 
-router.put("/:id/activities/:activityId", protect, updateApplicationActivity);
+router
+  .route("/:id/activities")
+  .get(getApplicationActivities)
+  .post(addApplicationActivity);
 
-router.patch(
-  "/:id/activities/:activityId/status",
-  protect,
-  updateFollowUpStatus,
-);
+router
+  .route("/:id/activities/:activityId")
+  .put(updateApplicationActivity)
+  .delete(deleteApplicationActivity);
 
-router.delete(
-  "/:id/activities/:activityId",
-  protect,
-  deleteApplicationActivity,
-);
+router.route("/:id/activities/:activityId/status").patch(updateFollowUpStatus);
 
-router.get("/:id", protect, getApplication);
+/* Interview Rounds */
 
-router.put("/:id", protect, updateApplication);
+router.route("/:id/rounds").post(addInterviewRound);
 
-router.post("/:id/rounds", protect, addInterviewRound);
+router
+  .route("/:id/rounds/:roundId")
+  .put(updateInterviewRound)
+  .delete(deleteInterviewRound);
 
-router.put("/:id/rounds/:roundId", protect, updateInterviewRound);
+/* Individual Application */
 
-router.delete("/:id/rounds/:roundId", protect, deleteInterviewRound);
-
-router.delete("/:id", protect, deleteApplication);
+router
+  .route("/:id")
+  .get(getApplication)
+  .put(updateApplication)
+  .delete(deleteApplication);
 
 export default router;

@@ -15,20 +15,24 @@ import { protect } from "../middleware/authMiddleware.js";
 
 const router = express.Router();
 
-router.post("/register", registerUser);
+/* Public Routes */
 
-router.post("/login", loginUser);
+router.route("/register").post(registerUser);
 
-router.post("/google", googleLogin);
+router.route("/login").post(loginUser);
 
-router.post("/forgot-password", forgotPassword);
+router.route("/google").post(googleLogin);
 
-router.post("/reset-password/:token", resetPassword);
+router.route("/forgot-password").post(forgotPassword);
 
-router.get("/profile", protect, getProfile);
+router.route("/reset-password/:token").post(resetPassword);
 
-router.put("/profile", protect, updateProfile);
+/* Protected Routes */
 
-router.put("/change-password", protect, changePassword);
+router.use(protect);
+
+router.route("/profile").get(getProfile).put(updateProfile);
+
+router.route("/change-password").put(changePassword);
 
 export default router;
