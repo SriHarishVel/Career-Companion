@@ -13,6 +13,7 @@ import ResourceDetail from "./pages/ResourceDetail";
 import Applications from "./pages/Applications";
 import ApplicationDetail from "./pages/ApplicationDetail";
 import TargetRoles from "./pages/TargetRoles";
+import TargetRoleDetail from "./pages/TargetRoleDetail";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 
@@ -57,6 +58,10 @@ function App() {
               element={<ApplicationDetail />}
             />
             <Route path="/target-roles" element={<TargetRoles />} />
+            <Route
+              path="/target-roles/:roleId"
+              element={<TargetRoleDetail />}
+            />
             <Route path="/profile" element={<Profile />} />
           </Route>
 
