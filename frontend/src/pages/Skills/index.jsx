@@ -41,6 +41,7 @@ function Skills() {
 
   const [newSkill, setNewSkill] = useState("");
   const [newCategory, setNewCategory] = useState("Programming");
+  const [newLevel, setNewLevel] = useState("Beginner");
   const [secondaryGoalId, setSecondaryGoalId] = useState("");
   const [newResource, setNewResource] = useState("");
 
@@ -83,7 +84,7 @@ function Skills() {
       const createdSkill = await createSkill({
         name: newSkill.trim(),
         category: newCategory,
-        level: "Beginner",
+        level: newLevel,
         learningAreas,
         practicalRequirements,
         secondaryGoal: secondaryGoalId || null,
@@ -112,6 +113,7 @@ function Skills() {
 
       setNewSkill("");
       setNewCategory("Programming");
+      setNewLevel("Beginner");
       setSecondaryGoalId("");
       setNewResource("");
       setLearningAreas([]);
@@ -169,6 +171,7 @@ function Skills() {
   function openAddSkill() {
     setNewSkill("");
     setNewCategory("Programming");
+    setNewLevel("Beginner");
     setSecondaryGoalId("");
     setNewResource("");
 
@@ -190,15 +193,12 @@ function Skills() {
     }
 
     setErrorMsg("");
-
     createSkillMutation.mutate();
   }
 
   const secondaryGoalOptions = goals.filter(
     (goal) => goal.goalType === "Secondary",
   );
-
-  const loading = skillsLoading;
 
   const displayedError =
     errorMsg ||
@@ -211,7 +211,7 @@ function Skills() {
         "Unable to load your goals. Please try again."
       : "");
 
-  if (loading) {
+  if (skillsLoading) {
     return (
       <div className="container">
         <h1>Skills</h1>
@@ -266,6 +266,8 @@ function Skills() {
         setNewSkill={setNewSkill}
         newCategory={newCategory}
         setNewCategory={setNewCategory}
+        newLevel={newLevel}
+        setNewLevel={setNewLevel}
         secondaryGoalId={secondaryGoalId}
         setSecondaryGoalId={setSecondaryGoalId}
         secondaryGoalOptions={secondaryGoalOptions}
@@ -274,7 +276,7 @@ function Skills() {
         learningAreas={learningAreas}
         setLearningAreas={setLearningAreas}
         practicalRequirements={practicalRequirements}
-        setPracticalRequirements={practicalRequirements}
+        setPracticalRequirements={setPracticalRequirements}
         errorMsg={errorMsg}
         saving={createSkillMutation.isPending}
       />

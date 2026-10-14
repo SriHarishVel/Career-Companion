@@ -10,6 +10,8 @@ function SkillForm({
   setNewSkill,
   newCategory,
   setNewCategory,
+  newLevel = "Beginner",
+  setNewLevel,
   secondaryGoalId,
   setSecondaryGoalId,
   secondaryGoalOptions,
@@ -81,6 +83,10 @@ function SkillForm({
   }
 
   function handleSubmit() {
+    if (!newSkill.trim()) {
+      return;
+    }
+
     const cleanedLearningAreas = learningAreas
       .map((area) => ({
         ...area,
@@ -95,10 +101,8 @@ function SkillForm({
       }))
       .filter((requirement) => requirement.title !== "");
 
-    setLearningAreas(cleanedLearningAreas);
-    setPracticalRequirements(cleanedPracticalRequirements);
-
     onSubmit({
+      level: newLevel,
       learningAreas: cleanedLearningAreas,
       practicalRequirements: cleanedPracticalRequirements,
     });
@@ -124,7 +128,7 @@ function SkillForm({
             type="button"
             className="skill-action-primary"
             onClick={handleSubmit}
-            disabled={saving}
+            disabled={saving || !newSkill.trim()}
           >
             {saving ? "Saving..." : submitLabel}
           </button>
@@ -133,11 +137,8 @@ function SkillForm({
     >
       <div className="skill-form-content">
         <div className="skill-form-fields">
-          {/* SKILL NAME */}
-
           <div className="filter-group">
             <label htmlFor="skill-name">Skill Name</label>
-
             <input
               id="skill-name"
               type="text"
@@ -148,11 +149,8 @@ function SkillForm({
             />
           </div>
 
-          {/* CATEGORY */}
-
           <div className="filter-group">
             <label htmlFor="skill-category">Category</label>
-
             <select
               id="skill-category"
               value={newCategory}
@@ -168,14 +166,25 @@ function SkillForm({
             </select>
           </div>
 
-          {/* RELATED GOAL */}
+          <div className="filter-group">
+            <label htmlFor="skill-level">Proficiency Level</label>
+            <select
+              id="skill-level"
+              value={newLevel}
+              onChange={(event) => setNewLevel(event.target.value)}
+              disabled={saving}
+            >
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+          </div>
 
           <div className="filter-group">
             <label htmlFor="skill-goal">
               Related Goal
               <span className="optional-label">Optional</span>
             </label>
-
             <select
               id="skill-goal"
               value={secondaryGoalId}
@@ -183,7 +192,6 @@ function SkillForm({
               disabled={saving}
             >
               <option value="">No Related Goal</option>
-
               {secondaryGoalOptions.map((goal) => (
                 <option key={goal._id} value={goal._id}>
                   {goal.title}
@@ -192,14 +200,11 @@ function SkillForm({
             </select>
           </div>
 
-          {/* LEARNING RESOURCE */}
-
           <div className="filter-group">
             <label htmlFor="skill-resource">
               Learning Resource
               <span className="optional-label">Optional</span>
             </label>
-
             <input
               id="skill-resource"
               type="url"
@@ -210,13 +215,10 @@ function SkillForm({
             />
           </div>
 
-          {/* LEARNING AREAS */}
-
           <div className="skill-requirements-section">
             <div className="skill-requirements-header">
               <div>
                 <label>Learning Areas</label>
-
                 <small>
                   Define the areas you want to cover for this skill.
                 </small>
@@ -277,13 +279,10 @@ function SkillForm({
             )}
           </div>
 
-          {/* PRACTICAL REQUIREMENTS */}
-
           <div className="skill-requirements-section">
             <div className="skill-requirements-header">
               <div>
                 <label>Practical Development</label>
-
                 <small>
                   Add practical work that helps demonstrate development of this
                   skill.

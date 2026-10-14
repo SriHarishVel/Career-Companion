@@ -1,7 +1,9 @@
 import { useState } from "react";
+
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import LoadingState from "../../components/LoadingState";
+import ConfirmModal from "../../components/ConfirmModal";
 import TargetRoleForm from "./components/TargetRoleForm";
 import TargetRoleDetails from "./components/TargetRoleDetails";
 
@@ -9,6 +11,8 @@ import {
   getTargetRoles,
   getTargetRoleReadiness,
   createTargetRole,
+  updateTargetRole,
+  deleteTargetRole,
 } from "../../services/targetRoleService";
 
 import "./index.css";
@@ -19,6 +23,7 @@ function TargetRoles() {
   const [showForm, setShowForm] = useState(false);
   const [formError, setFormError] = useState("");
   const [selectedRole, setSelectedRole] = useState(null);
+  const [roleToDelete, setRoleToDelete] = useState(null);
 
   const {
     data: roles = [],
@@ -43,22 +48,25 @@ function TargetRoles() {
     staleTime: 5 * 60 * 1000,
   });
 
+  const refreshTargetRoleData = async () => {
+    await Promise.all([
+      queryClient.invalidateQueries({
+        queryKey: ["target-roles"],
+      }),
+      queryClient.invalidateQueries({
+        queryKey: ["target-role-readiness"],
+      }),
+    ]);
+  };
+
   const createRoleMutation = useMutation({
     mutationFn: createTargetRole,
-
     onSuccess: async () => {
-      await queryClient.invalidateQueries({
-        queryKey: ["target-roles"],
-      });
-
-      await queryClient.invalidateQueries({
-        queryKey: ["target-role-readiness"],
-      });
-
+      await refreshTargetRoleData();
       setShowForm(false);
+      setSelectedRole(null);
       setFormError("");
     },
-
     onError: (mutationError) => {
       setFormError(
         mutationError.response?.data?.message ||
@@ -67,8 +75,49 @@ function TargetRoles() {
     },
   });
 
-  async function handleCreateRole(roleData) {
+  const updateRoleMutation = useMutation({
+    mutationFn: ({ roleId, roleData }) => updateTargetRole(roleId, roleData),
+    onSuccess: async () => {
+      await refreshTargetRoleData();
+      setShowForm(false);
+      setSelectedRole(null);
+      setFormError("");
+    },
+    onError: (mutationError) => {
+      setFormError(
+        mutationError.response?.data?.message ||
+          "Unable to update the target role. Please try again.",
+      );
+    },
+  });
+
+  const deleteRoleMutation = useMutation({
+    mutationFn: deleteTargetRole,
+    onSuccess: async () => {
+      await refreshTargetRoleData();
+      setSelectedRole(null);
+      setShowForm(false);
+      setFormError("");
+    },
+    onError: (mutationError) => {
+      setFormError(
+        mutationError.response?.data?.message ||
+          "Unable to delete the target role. Please try again.",
+      );
+    },
+  });
+
+  async function handleSubmitRole(roleData) {
     setFormError("");
+
+    if (selectedRole) {
+      await updateRoleMutation.mutateAsync({
+        roleId: selectedRole._id,
+        roleData,
+      });
+      return;
+    }
+
     await createRoleMutation.mutateAsync(roleData);
   }
 
@@ -78,11 +127,48 @@ function TargetRoles() {
     setShowForm(true);
   }
 
+  function openEditForm(role) {
+    setFormError("");
+    setSelectedRole(role);
+    setShowForm(true);
+  }
+
   function closeCreateForm() {
-    if (createRoleMutation.isPending) return;
+    if (createRoleMutation.isPending || updateRoleMutation.isPending) {
+      return;
+    }
 
     setShowForm(false);
+    setSelectedRole(null);
     setFormError("");
+  }
+
+  function handleDeleteRole(role) {
+    setFormError("");
+    setRoleToDelete(role);
+  }
+
+  async function confirmDeleteRole() {
+    if (!roleToDelete || deleteRoleMutation.isPending) {
+      return;
+    }
+
+    setFormError("");
+
+    try {
+      await deleteRoleMutation.mutateAsync(roleToDelete._id);
+      setRoleToDelete(null);
+    } catch {
+      // The mutation's onError handler sets the error message.
+    }
+  }
+
+  function cancelDeleteRole() {
+    if (deleteRoleMutation.isPending) {
+      return;
+    }
+
+    setRoleToDelete(null);
   }
 
   if (isLoading) {
@@ -161,6 +247,19 @@ function TargetRoles() {
           role={currentSelectedRole}
           onClose={() => setSelectedRole(null)}
         />
+
+        <ConfirmModal
+          isOpen={Boolean(roleToDelete)}
+          title="Delete Target Role"
+          message={
+            roleToDelete
+              ? `Delete "${roleToDelete.title}"? This will remove the target role and its readiness analysis.`
+              : ""
+          }
+          confirmText={deleteRoleMutation.isPending ? "Deleting..." : "Delete"}
+          onConfirm={confirmDeleteRole}
+          onCancel={cancelDeleteRole}
+        />
       </div>
     );
   }
@@ -192,9 +291,11 @@ function TargetRoles() {
 
       {showForm && (
         <TargetRoleForm
-          onSubmit={handleCreateRole}
+          key={selectedRole?._id || "new-target-role"}
+          initialRole={selectedRole}
+          onSubmit={handleSubmitRole}
           onClose={closeCreateForm}
-          saving={createRoleMutation.isPending}
+          saving={createRoleMutation.isPending || updateRoleMutation.isPending}
         />
       )}
 
@@ -280,9 +381,9 @@ function TargetRoles() {
               const readiness = readinessByRole.get(role._id);
               const score = readiness?.readinessScore;
               const gaps = readiness?.gaps || [];
-              const summary = readiness?.summary;
-              const requirementCount = summary?.totalRequirements ?? 0;
-              const metCount = summary?.metRequirements ?? 0;
+              const requirementCount =
+                readiness?.summary?.totalRequirements ?? 0;
+              const metCount = readiness?.summary?.metRequirements ?? 0;
 
               return (
                 <article className="target-role-card" key={role._id}>
@@ -432,12 +533,44 @@ function TargetRoles() {
                     View Full Analysis
                     <span aria-hidden="true">→</span>
                   </button>
+
+                  <div className="target-role-card-actions">
+                    <button
+                      type="button"
+                      className="btn-secondary"
+                      onClick={() => openEditForm(role)}
+                    >
+                      Edit Role
+                    </button>
+
+                    <button
+                      type="button"
+                      className="btn-danger-outline"
+                      onClick={() => handleDeleteRole(role)}
+                      disabled={deleteRoleMutation.isPending}
+                    >
+                      {deleteRoleMutation.isPending ? "Deleting..." : "Delete"}
+                    </button>
+                  </div>
                 </article>
               );
             })}
           </div>
         </section>
       )}
+
+      <ConfirmModal
+        isOpen={Boolean(roleToDelete)}
+        title="Delete Target Role"
+        message={
+          roleToDelete
+            ? `Delete "${roleToDelete.title}"? This will remove the target role and its readiness analysis.`
+            : ""
+        }
+        confirmText={deleteRoleMutation.isPending ? "Deleting..." : "Delete"}
+        onConfirm={confirmDeleteRole}
+        onCancel={cancelDeleteRole}
+      />
     </div>
   );
 }

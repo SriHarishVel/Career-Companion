@@ -19,17 +19,17 @@ function SkillActions({
   const [editForm, setEditForm] = useState({
     name: skill.name || "",
     category: skill.category || "",
+    level: skill.level || "Beginner",
     secondaryGoal: skill.secondaryGoal?._id || "",
     learningAreas: skill.learningAreas || [],
     practicalRequirements: skill.practicalRequirements || [],
   });
 
-  /* Open Edit */
-
   const handleOpenEdit = () => {
     setEditForm({
       name: skill.name || "",
       category: skill.category || "",
+      level: skill.level || "Beginner",
       secondaryGoal: skill.secondaryGoal?._id || "",
       learningAreas: (skill.learningAreas || []).map((area) => ({
         name: area.name || "",
@@ -47,18 +47,12 @@ function SkillActions({
     setShowEditModal(true);
   };
 
-  /* Close Edit */
-
   const handleCloseEdit = () => {
-    if (saving) {
-      return;
-    }
+    if (saving) return;
 
     setError("");
     setShowEditModal(false);
   };
-
-  /* Form Change */
 
   const handleChange = (field, value) => {
     setEditForm((previous) => ({
@@ -69,18 +63,11 @@ function SkillActions({
     setError("");
   };
 
-  /* Learning Areas */
-
   const handleLearningAreaChange = (index, value) => {
     setEditForm((previous) => ({
       ...previous,
       learningAreas: previous.learningAreas.map((area, areaIndex) =>
-        areaIndex === index
-          ? {
-              ...area,
-              name: value,
-            }
-          : area,
+        areaIndex === index ? { ...area, name: value } : area,
       ),
     }));
 
@@ -91,12 +78,7 @@ function SkillActions({
     setEditForm((previous) => ({
       ...previous,
       learningAreas: previous.learningAreas.map((area, areaIndex) =>
-        areaIndex === index
-          ? {
-              ...area,
-              completed: !area.completed,
-            }
-          : area,
+        areaIndex === index ? { ...area, completed: !area.completed } : area,
       ),
     }));
 
@@ -108,10 +90,7 @@ function SkillActions({
       ...previous,
       learningAreas: [
         ...previous.learningAreas,
-        {
-          name: "",
-          completed: false,
-        },
+        { name: "", completed: false },
       ],
     }));
 
@@ -129,18 +108,13 @@ function SkillActions({
     setError("");
   };
 
-  /* Practical Requirements */
-
   const handlePracticalRequirementChange = (index, value) => {
     setEditForm((previous) => ({
       ...previous,
       practicalRequirements: previous.practicalRequirements.map(
         (requirement, requirementIndex) =>
           requirementIndex === index
-            ? {
-                ...requirement,
-                title: value,
-              }
+            ? { ...requirement, title: value }
             : requirement,
       ),
     }));
@@ -170,10 +144,7 @@ function SkillActions({
       ...previous,
       practicalRequirements: [
         ...previous.practicalRequirements,
-        {
-          title: "",
-          completed: false,
-        },
+        { title: "", completed: false },
       ],
     }));
 
@@ -190,8 +161,6 @@ function SkillActions({
 
     setError("");
   };
-
-  /* Save */
 
   const handleSave = async (event) => {
     event.preventDefault();
@@ -224,6 +193,7 @@ function SkillActions({
       const updatedSkill = await updateSkill(skill._id, {
         name,
         category: editForm.category,
+        level: editForm.level,
         secondaryGoal: editForm.secondaryGoal || null,
         learningAreas,
         practicalRequirements,
@@ -234,10 +204,10 @@ function SkillActions({
       }
 
       setShowEditModal(false);
-    } catch (error) {
-      console.error("Failed to update skill:", error);
+    } catch (saveError) {
+      console.error("Failed to update skill:", saveError);
 
-      setError(error.response?.data?.message || "Failed to update skill.");
+      setError(saveError.response?.data?.message || "Failed to update skill.");
     } finally {
       setSaving(false);
     }
@@ -264,6 +234,7 @@ function SkillActions({
           >
             Add Resource
           </button>
+
           <button
             type="button"
             className="btn-danger"
@@ -283,7 +254,7 @@ function SkillActions({
           <>
             <button
               type="button"
-              className="skill-action-secondary"
+              className="btn-secondary"
               onClick={handleCloseEdit}
               disabled={saving}
             >
@@ -293,7 +264,7 @@ function SkillActions({
             <button
               type="submit"
               form="edit-skill-form"
-              className="skill-action-primary"
+              className="btn-primary"
               disabled={saving}
             >
               {saving ? "Saving..." : "Save Changes"}
@@ -308,7 +279,6 @@ function SkillActions({
         >
           <div className="skill-edit-field">
             <label htmlFor="edit-skill-name">Skill Name</label>
-
             <input
               id="edit-skill-name"
               type="text"
@@ -321,7 +291,6 @@ function SkillActions({
 
           <div className="skill-edit-field">
             <label htmlFor="edit-skill-category">Category</label>
-
             <select
               id="edit-skill-category"
               value={editForm.category}
@@ -339,11 +308,29 @@ function SkillActions({
           </div>
 
           <div className="skill-edit-field">
+            <label htmlFor="edit-skill-level">Proficiency Level</label>
+            <select
+              id="edit-skill-level"
+              value={editForm.level}
+              onChange={(event) => handleChange("level", event.target.value)}
+              disabled={saving}
+              required
+            >
+              <option value="Beginner">Beginner</option>
+              <option value="Intermediate">Intermediate</option>
+              <option value="Advanced">Advanced</option>
+            </select>
+            <small>
+              This level is used to assess your readiness for target roles.
+              Update it based on your current proficiency.
+            </small>
+          </div>
+
+          <div className="skill-edit-field">
             <label htmlFor="edit-skill-goal">
               Related Goal
               <span className="optional-label">Optional</span>
             </label>
-
             <select
               id="edit-skill-goal"
               value={editForm.secondaryGoal}
@@ -353,7 +340,6 @@ function SkillActions({
               disabled={saving}
             >
               <option value="">No Related Goal</option>
-
               {goals.map((goal) => (
                 <option key={goal._id} value={goal._id}>
                   {goal.title}
@@ -366,7 +352,6 @@ function SkillActions({
             <div className="skill-edit-requirements-header">
               <div>
                 <label>Learning Areas</label>
-
                 <small>
                   Areas you want to cover while developing this skill.
                 </small>
@@ -429,7 +414,6 @@ function SkillActions({
             <div className="skill-edit-requirements-header">
               <div>
                 <label>Practical Development</label>
-
                 <small>
                   Practical work that supports development of this skill.
                 </small>

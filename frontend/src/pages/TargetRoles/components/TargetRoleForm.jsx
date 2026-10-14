@@ -20,10 +20,34 @@ const createEmptyRequirement = () => ({
   importance: "Medium",
 });
 
-function TargetRoleForm({ onSubmit, onClose, saving = false }) {
-  const [title, setTitle] = useState("");
-  const [description, setDescription] = useState("");
-  const [requirements, setRequirements] = useState([createEmptyRequirement()]);
+function getInitialRequirements(role) {
+  if (!role?.requirements?.length) {
+    return [createEmptyRequirement()];
+  }
+
+  return role.requirements.map((requirement) => ({
+    skillName: requirement.skillName || "",
+    category: requirement.category || "Other",
+    requiredLevel: requirement.requiredLevel || "Intermediate",
+    importance: requirement.importance || "Medium",
+  }));
+}
+
+function TargetRoleForm({
+  initialRole = null,
+  onSubmit,
+  onClose,
+  saving = false,
+}) {
+  const isEditing = Boolean(initialRole);
+
+  const [title, setTitle] = useState(() => initialRole?.title || "");
+  const [description, setDescription] = useState(
+    () => initialRole?.description || "",
+  );
+  const [requirements, setRequirements] = useState(() =>
+    getInitialRequirements(initialRole),
+  );
   const [errorMsg, setErrorMsg] = useState("");
 
   function updateRequirement(index, field, value) {
@@ -92,7 +116,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
     } catch (error) {
       setErrorMsg(
         error.response?.data?.message ||
-          "Unable to save the target role. Please try again.",
+          `Unable to ${isEditing ? "update" : "create"} the target role. Please try again.`,
       );
     }
   }
@@ -100,7 +124,7 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
   return (
     <section className="target-role-form-section">
       <div className="target-role-form-header">
-        <h2>Add Target Role</h2>
+        <h2>{isEditing ? "Edit Target Role" : "Add Target Role"}</h2>
 
         <button
           type="button"
@@ -135,8 +159,11 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
           <textarea
             id="target-role-description"
             value={description}
-            onChange={(event) => setDescription(event.target.value)}
-            placeholder="Optional description of your career goal"
+            onChange={(event) => {
+              setDescription(event.target.value);
+              setErrorMsg("");
+            }}
+            placeholder="Describe the role you want to qualify for"
             rows={3}
             disabled={saving}
           />
@@ -146,6 +173,9 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
           <div className="target-role-requirements-header">
             <div>
               <h3>Required skills</h3>
+              <p>
+                Define the skills and proficiency levels expected for this role.
+              </p>
             </div>
 
             <button
@@ -276,7 +306,13 @@ function TargetRoleForm({ onSubmit, onClose, saving = false }) {
           </button>
 
           <button type="submit" className="btn-primary" disabled={saving}>
-            {saving ? "Saving..." : "Create Target Role"}
+            {saving
+              ? isEditing
+                ? "Saving Changes..."
+                : "Creating Role..."
+              : isEditing
+                ? "Save Changes"
+                : "Create Target Role"}
           </button>
         </div>
       </form>
